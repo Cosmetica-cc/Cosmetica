@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "extravagant_cosmetics",
+  "version": "${version}",
+  
+  "name": "Eyezah's Extravagant Cosmetics",
+  "description": "Custom cosmetics for free, forever!",
+  "authors": [
+    "Eyezah",
+    "Valoeghese"
+  ],
+  
+  "icon": "assets/cosmetics/icon.png",
+  "license": "LGPL 3.0",
+  
+  "environment": "client",
+  
+  "entrypoints": {
+    "client": [
+      "com.eyezah.cosmetics.Cosmetics"
+    ]
+  },
+  
+  "depends": {
+    "fabricloader": ">=0.4.0"
+  },
+  
+  "mixins": [
+    "extravagant_cosmetics.mixins.json"
+  ]
+}
