@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.eyezah.cosmetics.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "client": [
+    "MixinEntityRenderer",
+    "MixinMinecraft",
+    "MixinSkinManager"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
