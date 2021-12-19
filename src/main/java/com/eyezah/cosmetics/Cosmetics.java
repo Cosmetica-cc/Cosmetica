@@ -54,8 +54,8 @@ public class Cosmetics implements ClientModInitializer {
 	}
 
 	@Nullable
-	public static String getPlayerLore(UUID uuid) {
-		return CosmeticsAPI.lookUp(uuid, lookingUpLore, loreCache, Cosmetics::lookUpLore);
+	public static String getPlayerLore(UUID uuid, String username) {
+		return CosmeticsAPI.lookUp(uuid, username, lookingUpLore, loreCache, Cosmetics::lookUpLore);
 	}
 
 	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PoseStack matrixStack, MultiBufferSource multiBufferSource, Font font, int i) {
@@ -66,7 +66,7 @@ public class Cosmetics implements ClientModInitializer {
 				double d = entityRenderDispatcher.distanceToSqr(entity);
 
 				if (!(d > 4096.0D)) {
-					String lore = Cosmetics.getPlayerLore(lookupId);
+					String lore = Cosmetics.getPlayerLore(lookupId, player.getName().getString());
 
 					if (!lore.isEmpty()) {
 						Component component = new TextComponent(lore);
@@ -99,9 +99,9 @@ public class Cosmetics implements ClientModInitializer {
 		}
 	}
 
-	private static String lookUpLore(UUID uuid) {
+	private static String lookUpLore(UUID uuid, String username) {
 		try {
-			Response response = Response.request("https://eyezah.com/cosmetics/api/get/lore?uuid=" + uuid);
+			Response response = Response.request("https://eyezah.com/cosmetics/api/get/lore?username=" + username);
 			OptionalInt error = response.getError();
 
 			if (error.isPresent()) {
