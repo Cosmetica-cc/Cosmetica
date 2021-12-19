@@ -101,7 +101,7 @@ public class Cosmetics implements ClientModInitializer {
 
 	private static String lookUpLore(UUID uuid) {
 		try {
-			Response response = Response.request("http://development.eyezah.com:9999/isaiah/comedy-uuids/get.php?uuid=" + uuid);
+			Response response = Response.request("https://eyezah.com/cosmetics/api/get/lore?uuid=" + uuid);
 			OptionalInt error = response.getError();
 
 			if (error.isPresent()) {
