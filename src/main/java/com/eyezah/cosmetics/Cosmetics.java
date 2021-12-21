@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
@@ -49,8 +50,12 @@ public class Cosmetics implements ClientModInitializer {
 	//       IMPL
 	// =================
 
-	public static void runAsyncLookup(Runnable runnable) {
+	public static void runOffthread(Runnable runnable) {
 		LOOKUP_THREAD.execute(runnable);
+	}
+
+	public static boolean shouldRenderUpsideDown(Player player) {
+		return true;
 	}
 
 	@Nullable

@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public final class CosmeticsAPI {
 	private CosmeticsAPI() {
@@ -27,7 +26,7 @@ public final class CosmeticsAPI {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up.
 					lookingUp.add(uuid);
 
-					Cosmetics.runAsyncLookup(() -> {
+					Cosmetics.runOffthread(() -> {
 						String associatedText = lookupFunction.apply(uuid, username);
 
 						synchronized (cache) { // update the information with what we have gotten.
