@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.mixin;
 
 import java.io.File;
 
+import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
