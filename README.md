@@ -4,7 +4,7 @@ The all new cosmetic system to allow complete customisation for anyone else usin
 
 Credits
 =================================
-Eyezah - Server side and website stuff. And the idea to make this a separate mod.
+Eyezah - Server side, website stuff, Minecraft mod. And the idea to make this a separate mod.
 
 Valoeghese - Minecraft mod
 
