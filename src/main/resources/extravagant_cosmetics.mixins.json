@@ -5,7 +5,9 @@
   "client": [
     "MixinEntityRenderer",
     "MixinMinecraft",
-    "MixinSkinManager"
+    "MixinSkinManager",
+    "MixinOptionsScreen",
+    "MixinScreen"
   ],
   "injectors": {
     "defaultRequire": 1
