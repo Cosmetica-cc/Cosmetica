@@ -45,6 +45,8 @@ dependencies {
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 	
+	modImplementation 'com.github.Station-rip:FabriStation:1.17-SNAPSHOT'
+	
 }
 
 processResources {
@@ -99,5 +101,6 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+		maven { url 'https://jitpack.io' }
 	}
 }

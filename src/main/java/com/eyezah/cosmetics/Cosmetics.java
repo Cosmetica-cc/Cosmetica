@@ -6,7 +6,10 @@ import com.mojang.math.Matrix4f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -32,6 +35,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Cosmetics implements ClientModInitializer {
+	public static final String authServerHost = "auth.cosmetics.eyezah.com";
+	public static final int authServerPort = 25596;
+
+	protected static boolean regionSpecificEffects = false;
+	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
+
 	@Override
 	public void onInitializeClient() {
 		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
@@ -43,6 +52,29 @@ public class Cosmetics implements ClientModInitializer {
 			LOOKUP_THREAD.shutdownNow();
 		} catch (RuntimeException e) { // Just in case.
 			e.printStackTrace();
+		}
+	}
+
+	// used for screens
+	public static ConnectScreen connectScreen;
+	public static Screen screenStorage;
+	public static Options optionsStorage;
+
+	public static void updateParentScreen(Screen screen, Options options) {
+		screenStorage = screen;
+		optionsStorage = options;
+	}
+
+	// example fabristation connection
+	public static String getFabriStationActivity() {
+		System.out.println("running activity check");
+		if (FabricLoader.getInstance().isModLoaded("fabristation")) {
+			System.out.println("Station is loaded");
+			//return "connected";
+			return FabriStationConnector.getFormatted();
+		} else {
+			System.out.println("Station isn't loaded");
+			return "not connected";
 		}
 	}
 

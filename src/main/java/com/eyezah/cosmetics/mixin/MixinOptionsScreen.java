@@ -1,5 +1,8 @@
 package com.eyezah.cosmetics.mixin;
 
+import com.eyezah.cosmetics.Authentication;
+import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.utils.ExtendedScreen;
 import net.minecraft.client.Options;
@@ -42,7 +45,9 @@ public abstract class MixinOptionsScreen extends Screen {
 			}
 		}
 		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, new TranslatableComponent("extravagantCosmetics.cosmetics"), (button) -> {
-			this.minecraft.setScreen(new MainScreen(this, this.options));
+			this.minecraft.setScreen(new LoadingScreen(this, this.options));
+			//Cosmetics.updateParentScreen(this, this.options);
+			//Authentication.runAuthentication(this);
 		}));
 	}
 }

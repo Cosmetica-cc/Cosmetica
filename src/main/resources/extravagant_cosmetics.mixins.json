@@ -8,7 +8,10 @@
     "MixinMinecraft",
     "MixinOptionsScreen",
     "MixinSkinManager",
-    "MixinScreen"
+    "MixinScreen",
+    "MixinConnectScreen",
+    "MixinConnectScreenInvoker",
+    "MixinConnection"
   ],
   "injectors": {
     "defaultRequire": 1
