@@ -1,6 +1,15 @@
 {
   "extravagantCosmetics.cosmeticsMenu": "Enhanced Cosmetics",
   "extravagantCosmetics.cosmetics": "Cosmetics Settings...",
-  "extravagantCosmetics.autralians": "Australians: On",
-  "extravagantCosmetics.customizeCosmetics": "Customize Cosmetics"
+  "extravagantCosmetics.australians": "Regional Effects",
+  "extravagantCosmetics.customizeCosmetics": "Customize Cosmetics",
+  "extravagantCosmetics.enabled": "ON",
+  "extravagantCosmetics.disabled": "OFF",
+  "extravagantCosmetics.okay": "Okay :(",
+  "extravagantCosmetics.loading": "Connecting to ExtravagantCosmetics...",
+  "extravagantCosmetics.loading.message": "This shouldn't take too long",
+  "extravagantCosmetics.unauthenticated": "Error connecting to ExtravagantCosmetics",
+  "extravagantCosmetics.unauthenticated.message": "We couldn't authenticate your account! This could be because you're using a cracked Minecraft account or your internet isn't working.",
+  "extravagantCosmetics.updating": "Connecting to ExtravagantCosmetics...",
+  "extravagantCosmetics.updating.message": "Updating your settings..."
 }
