@@ -17,9 +17,6 @@ public interface MixinConnectScreenInvoker {
 		return null;
 	}
 
-	@Invoker("connect")
-	void connectScreenConnect(Minecraft minecraft, ServerAddress serverAdress);
-
 	@Invoker("updateStatus")
 	void doUpdateStatus(Component component);
 }

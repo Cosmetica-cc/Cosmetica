@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.mixin;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
+import com.eyezah.cosmetics.utils.AuthenticatingScreen;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.client.Minecraft;
@@ -38,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.eyezah.cosmetics.Cosmetics.*;
 
 @Mixin(ConnectScreen.class)
-public class MixinConnectScreen {
+public class MixinConnectScreen implements AuthenticatingScreen {
 
 	@Shadow static AtomicInteger UNIQUE_THREAD_ID;
 	@Shadow static Logger LOGGER;
@@ -46,44 +47,25 @@ public class MixinConnectScreen {
 	@Shadow Connection connection;
 	@Shadow Screen parent;
 
-
-	/**
-	 * @author eyezah
-	 * @reason cos i can lol
-	 */
-	@Overwrite
-	public static void startConnecting(Screen screen, Minecraft minecraft, ServerAddress serverAddress, @Nullable ServerData serverData) {
-		boolean isAuth = false;
+	@Inject(at = @At("HEAD"), method = "startConnecting", cancellable = true)
+	private static void startConnecting(Screen screen, Minecraft minecraft, ServerAddress serverAddress, @Nullable ServerData serverData, CallbackInfo info) {
 		if (serverAddress.getHost().equals("localhost") && serverAddress.getPort() == 25565) {
 			System.out.println("connection to localhost :)");
-			isAuth = true;
-		}
-		System.out.println("started connecting :))");
-		connectScreen = MixinConnectScreenInvoker.getConnectScreen(screen);
-		if (!isAuth) {
-			minecraft.clearLevel();
+
+			System.out.println("started connecting :))");
+			connectScreen = MixinConnectScreenInvoker.getConnectScreen(screen);
 			minecraft.setCurrentServer(serverData);
-			minecraft.setScreen(connectScreen);
-		} else {
-			minecraft.setCurrentServer(serverData);
+			((AuthenticatingScreen) connectScreen).eyezahAuthConnect(minecraft, serverAddress);
+
+			info.cancel();
 		}
-		((MixinConnectScreenInvoker) connectScreen).connectScreenConnect(minecraft, serverAddress);
 	}
 
 	/**
 	 * @author eyezah
-	 * @reason	cos i can lol
 	 */
-	@Overwrite
-	public void connect(Minecraft minecraft, ServerAddress serverAddress) {
-		boolean isAuth = false;
-		if (serverAddress.getHost().equals(authServerHost) && serverAddress.getPort() == authServerPort) {
-			//System.out.println("connection to localhost :)");
-			isAuth = true;
-		} else {
-			//System.out.println("not localhost");
-		}
-		boolean finalIsAuth2 = isAuth;
+	@Override
+	public void eyezahAuthConnect(Minecraft minecraft, ServerAddress serverAddress) {
 		Thread thread = new Thread("Server Connector #" + UNIQUE_THREAD_ID.incrementAndGet()) {
 			public void run() {
 				InetSocketAddress inetSocketAddress = null;
@@ -100,41 +82,29 @@ public class MixinConnectScreen {
 					}
 
 					if (!optional.isPresent()) {
-						if (!finalIsAuth2) {
-							minecraft.execute(() -> {
-								minecraft.setScreen(new DisconnectedScreen(parent, CommonComponents.CONNECT_FAILED, ConnectScreen.UNKNOWN_HOST_MESSAGE));
-							});
-						} else{
-							minecraft.execute(() -> {
-								minecraft.setScreen(new UnauthenticatedScreen(parent, Cosmetics.optionsStorage, false));
-							});
-						}
+						minecraft.execute(() -> {
+							minecraft.setScreen(new UnauthenticatedScreen(parent, Cosmetics.optionsStorage, false));
+						});
 						return;
 					}
 
-					inetSocketAddress = (InetSocketAddress) optional.get();
+					inetSocketAddress = optional.get();
 					connection = Connection.connectToServer(inetSocketAddress, minecraft.options.useNativeTransport());
 					connection.setListener(new ClientHandshakePacketListenerImpl(connection, minecraft, parent, ((MixinConnectScreenInvoker) connectScreen)::doUpdateStatus));
 					connection.send(new ClientIntentionPacket(inetSocketAddress.getHostName(), inetSocketAddress.getPort(), ConnectionProtocol.LOGIN));
 					connection.send(new ServerboundHelloPacket(minecraft.getUser().getGameProfile()));
-				} catch (Exception var4) {
+				} catch (Exception e) {
 					if (aborted) {
 						System.out.println("aborted");
 						return;
 					}
 
-					LOGGER.error((String) "Couldn't connect to server", (Throwable) var4);
-					String string = inetSocketAddress == null ? var4.toString() : var4.toString().replaceAll(inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort(), "");
-					System.out.println(string);
-					if (!finalIsAuth2) {
-						minecraft.execute(() -> {
-							minecraft.setScreen(new DisconnectedScreen(parent, CommonComponents.CONNECT_FAILED, new TranslatableComponent("disconnect.genericReason", new Object[]{string})));
-						});
-					} else {
-						minecraft.execute(() -> {
-							minecraft.setScreen(new UnauthenticatedScreen(parent, Cosmetics.optionsStorage, false));
-						});
-					}
+					LOGGER.error("Couldn't connect to server", e);
+					System.out.println(inetSocketAddress == null ? e.toString() : e.toString().replaceAll(inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort(), ""));
+
+					minecraft.execute(() -> {
+						minecraft.setScreen(new UnauthenticatedScreen(parent, Cosmetics.optionsStorage, false));
+					});
 				}
 
 			}
