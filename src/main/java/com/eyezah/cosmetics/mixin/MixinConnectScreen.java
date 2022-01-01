@@ -1,14 +1,11 @@
 package com.eyezah.cosmetics.mixin;
 
-import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.utils.AuthenticatingScreen;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
-import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerData;
@@ -17,16 +14,11 @@ import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerNameResolver;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,7 +28,7 @@ import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.eyezah.cosmetics.Cosmetics.*;
+import static com.eyezah.cosmetics.Cosmetics.connectScreen;
 
 @Mixin(ConnectScreen.class)
 public class MixinConnectScreen implements AuthenticatingScreen {
