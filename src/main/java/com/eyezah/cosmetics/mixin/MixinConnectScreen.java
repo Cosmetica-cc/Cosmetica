@@ -28,7 +28,7 @@ import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.eyezah.cosmetics.Cosmetics.connectScreen;
+import static com.eyezah.cosmetics.Cosmetics.*;
 
 @Mixin(ConnectScreen.class)
 public class MixinConnectScreen implements AuthenticatingScreen {
@@ -41,7 +41,7 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 
 	@Inject(at = @At("HEAD"), method = "startConnecting", cancellable = true)
 	private static void startConnecting(Screen screen, Minecraft minecraft, ServerAddress serverAddress, @Nullable ServerData serverData, CallbackInfo info) {
-		if (serverAddress.getHost().equals("localhost") && serverAddress.getPort() == 25565) {
+		if (serverAddress.getHost().equals(authServerHost) && serverAddress.getPort() == authServerPort) {
 			System.out.println("connection to localhost :)");
 
 			System.out.println("started connecting :))");
