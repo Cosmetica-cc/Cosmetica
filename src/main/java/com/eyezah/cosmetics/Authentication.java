@@ -30,6 +30,7 @@ import static com.eyezah.cosmetics.Cosmetics.*;
 public class Authentication {
 	private static boolean currentlyAuthenticated = false;
 	private static String token = "";
+	public static boolean currentlyAuthenticating = false;
 
 	public static boolean isCurrentlyAuthenticated() {
 		return currentlyAuthenticated;
@@ -40,10 +41,12 @@ public class Authentication {
 	}
 
 	private static void syncSettings() {
-		System.out.println("syncing settings");
 		Thread requestThread = new Thread(() -> {
+			if (token.equals("")) {
+				runAuthentication(Minecraft.getInstance().screen);
+				return;
+			}
 			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-				System.out.println("https://eyezah.com/cosmetics/api/get/settings?token=" + token);
 				final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/get/settings?token=" + token);
 				try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
 					String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
@@ -55,36 +58,36 @@ public class Authentication {
 						return;
 					}
 					regionSpecificEffects = jsonObject.get("per-region effects").getAsBoolean();
-					System.out.println("UPDATED ALL SETTINGS!");
+					doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
 					if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) {
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage)));
 					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("token was invalid");
+				token = "";
 				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) {
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
 				}
+				runAuthentication(Minecraft.getInstance().screen);
 			}
 		});
 		requestThread.start();
 	}
 
 	public static void setToken(String testToken) {
-		System.out.println("received token");
 		Thread requestThread = new Thread(() -> {
 			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-				System.out.println("https://eyezah.com/cosmetics/api/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken());
 				final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken());
 				try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-					String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+					String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
 					if (responseBody.startsWith("token:")) {
 						token = responseBody.substring(6);
 						currentlyAuthenticated = true;
+						currentlyAuthenticating = false;
 						syncSettings();
 					} else {
-						System.out.println("token was invalid");
+						currentlyAuthenticating = false;
 						if (Minecraft.getInstance().screen instanceof LoadingScreen) {
 							Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
 						}
@@ -92,7 +95,7 @@ public class Authentication {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("token was invalid");
+				currentlyAuthenticating = false;
 				if (Minecraft.getInstance().screen instanceof LoadingScreen) {
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
 				}
@@ -103,9 +106,26 @@ public class Authentication {
 
 	public static void runAuthentication(Screen screen) {
 		if (token.equals("")) {
-			ConnectScreen.startConnecting(screen, Minecraft.getInstance(), new ServerAddress(authServerHost, authServerPort), new ServerData("Authentication Server", authServerHost + ":" + authServerPort, false));
+			if (!currentlyAuthenticating) {
+				currentlyAuthenticating = true;
+				ConnectScreen.startConnecting(screen, Minecraft.getInstance(), new ServerAddress(authServerHost, authServerPort), new ServerData("Authentication Server", authServerHost + ":" + authServerPort, false));
+			}
 		} else {
 			syncSettings();
 		}
+	}
+
+	protected static void runAuthenticationCheckThread() {
+		Thread requestThread = new Thread(() -> {
+			while (true) {
+				try {
+					Thread.sleep(1000 * 60 * 5);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				syncSettings();
+			}
+		});
+		requestThread.start();
 	}
 }

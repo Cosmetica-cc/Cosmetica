@@ -32,37 +32,39 @@ public class UpdatingSettings extends Screen {
 	private MultiLineLabel message;
 	private int textHeight;
 
-	public UpdatingSettings(Screen parentScreen, Options parentOptions, boolean doRegionEffects) throws IOException, InterruptedException {
+	public UpdatingSettings(Screen parentScreen, Options parentOptions, boolean doRegionEffects, boolean doReload, boolean doShoulderBuddies) throws IOException, InterruptedException {
 		super(new TranslatableComponent("extravagantCosmetics.updating"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
 
 		String endString = "";
 		if (doRegionEffects != doRegionSpecificEffects()) endString += "&doregioneffects=" + doRegionEffects;
+		if (doShoulderBuddies != doShoulderBuddies()) endString += "&doshoulderbuddies=" + doShoulderBuddies;
 
 		if (!endString.equals("")) {
 			String finalEndString = endString;
 			Thread requestThread = new Thread(() -> {
 				try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-					System.out.println("https://eyezah.com/cosmetics/api/client/updatesettings?token=" + getToken() + finalEndString);
 					final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/client/updatesettings?token=" + getToken() + finalEndString);
 					try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
 						String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+						if (doReload) reloadCosmetics();
 						if (responseBody.equals("success")) {
-							Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new OptionsScreen(new TitleScreen(), optionsStorage)));
+							Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(screenStorage));
 						} else {
-							Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), this.parentOptions, true)));
+							Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(screenStorage, this.parentOptions, true)));
 						}
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), this.parentOptions, true)));
+					if (doReload) reloadCosmetics();
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(screenStorage, this.parentOptions, true)));
 				}
 			});
 			requestThread.start();
 		} else {
-			System.out.println("switching");
-			Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new OptionsScreen(new TitleScreen(), optionsStorage)));
+			if (doReload) reloadCosmetics();
+			Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(screenStorage));
 		}
 	}
 

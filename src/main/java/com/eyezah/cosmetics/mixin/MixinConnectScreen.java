@@ -42,9 +42,6 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 	@Inject(at = @At("HEAD"), method = "startConnecting", cancellable = true)
 	private static void startConnecting(Screen screen, Minecraft minecraft, ServerAddress serverAddress, @Nullable ServerData serverData, CallbackInfo info) {
 		if (serverAddress.getHost().equals(authServerHost) && serverAddress.getPort() == authServerPort) {
-			System.out.println("connection to localhost :)");
-
-			System.out.println("started connecting :))");
 			connectScreen = MixinConnectScreenInvoker.getConnectScreen(screen);
 			minecraft.setCurrentServer(serverData);
 			((AuthenticatingScreen) connectScreen).eyezahAuthConnect(minecraft, serverAddress);

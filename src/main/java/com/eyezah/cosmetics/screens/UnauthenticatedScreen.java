@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens;
 
+import com.eyezah.cosmetics.Cosmetics;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -14,8 +15,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
 
-import static com.eyezah.cosmetics.Cosmetics.optionsStorage;
-import static com.eyezah.cosmetics.Cosmetics.updateParentScreen;
+import static com.eyezah.cosmetics.Cosmetics.*;
 
 public class UnauthenticatedScreen extends Screen {
 	private Screen parentScreen;
@@ -45,14 +45,14 @@ public class UnauthenticatedScreen extends Screen {
 		Objects.requireNonNull(this.font);
 		if (fromSave) {
 			this.addRenderableWidget(new Button(var10003, Math.min(var10004 + 9, this.height - 30), 200, 20, new TranslatableComponent("extravagantCosmetics.okay"), (button) -> {
-				this.minecraft.setScreen(new OptionsScreen(new TitleScreen(), optionsStorage));
+				this.minecraft.setScreen(new OptionsScreen(screenStorage, optionsStorage));
 			}));
 		} else {
 			this.addRenderableWidget(new Button(var10003, Math.min(var10004 + 9, this.height - 30), 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
-				this.minecraft.setScreen(new SkinCustomizationScreen(new OptionsScreen(new TitleScreen(), optionsStorage), this.parentOptions));
+				this.minecraft.setScreen(new SkinCustomizationScreen(new OptionsScreen(screenStorage, optionsStorage), this.parentOptions));
 			}));
 			this.addRenderableWidget(new Button(var10003, Math.min(var10004 + 9, this.height - 30) + 24, 200, 20, new TranslatableComponent("gui.cancel"), (button) -> {
-				this.minecraft.setScreen(new OptionsScreen(new TitleScreen(), optionsStorage));
+				this.minecraft.setScreen(new OptionsScreen(screenStorage, optionsStorage));
 			}));
 		}
 	}

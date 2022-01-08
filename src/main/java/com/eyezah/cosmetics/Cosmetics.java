@@ -1,16 +1,18 @@
 package com.eyezah.cosmetics;
 
-import com.eyezah.cosmetics.utils.Response;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
@@ -18,33 +20,40 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.apache.http.ParseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.OptionalInt;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
+import static com.eyezah.cosmetics.Authentication.getToken;
+import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
+
+@Environment(EnvType.CLIENT)
 public class Cosmetics implements ClientModInitializer {
 	public static final String authServerHost = "auth.cosmetics.eyezah.com";
 	public static final int authServerPort = 25596;
 
 	protected static boolean regionSpecificEffects = false;
+	protected static boolean doShoulderBuddies = true;
 	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
 
 	@Override
 	public void onInitializeClient() {
 		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
 		LOGGER.info("<Valoeghese> Also try celestine client!");
+		runAuthenticationCheckThread();
+
+
 	}
 
 	public static void onShutdownClient() {
@@ -87,25 +96,30 @@ public class Cosmetics implements ClientModInitializer {
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
-		return true;
+		return CosmeticsAPI.lookUp(player.getUUID(), player.getName().getString(), lookingUpLore, loreCache, Cosmetics::lookUpLore).upsideDown;
 	}
 
-	@Nullable
-	public static String getPlayerLore(UUID uuid, String username) {
+	public static boolean doShoulderBuddies() {
+		return doShoulderBuddies;
+	}
+
+	public static PlayerData getPlayerData(UUID uuid, String username) {
 		return CosmeticsAPI.lookUp(uuid, username, lookingUpLore, loreCache, Cosmetics::lookUpLore);
 	}
 
 	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PoseStack matrixStack, MultiBufferSource multiBufferSource, Font font, int i) {
-		if (entity instanceof RemotePlayer player && CosmeticsAPI.isPlayerLoreEnabled()) {
+		//if (entity instanceof RemotePlayer && CosmeticsAPI.isPlayerLoreEnabled()) {
+		if (entity instanceof Player player) {
+			//RemotePlayer player = (RemotePlayer) entity;
 			UUID lookupId = player.getUUID();
 
 			if (lookupId != null) {
 				double d = entityRenderDispatcher.distanceToSqr(entity);
 
 				if (!(d > 4096.0D)) {
-					String lore = Cosmetics.getPlayerLore(lookupId, player.getName().getString());
+					String lore = getPlayerData(lookupId, player.getName().getString()).lore;
 
-					if (!lore.isEmpty()) {
+					if (!lore.equals("")) {
 						Component component = new TextComponent(lore);
 
 						boolean bl = !entity.isDiscrete();
@@ -136,23 +150,27 @@ public class Cosmetics implements ClientModInitializer {
 		}
 	}
 
-	private static String lookUpLore(UUID uuid, String username) {
-		try {
-			Response response = Response.request("https://eyezah.com/cosmetics/api/get/lore?username=" + username);
-			OptionalInt error = response.getError();
-
-			if (error.isPresent()) {
-				return FabricLoader.getInstance().isDevelopmentEnvironment() ? "Error " + error.getAsInt() + " " + error.getAsInt() : "";
-			} else {
-				return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+	private static PlayerData lookUpLore(UUID uuid, String username) {
+		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+			System.out.println("https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken());
+			final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken());
+			try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+				String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
+				JsonParser parser = new JsonParser();
+				JsonObject jsonObject = parser.parse(responseBody).getAsJsonObject();
+				return new PlayerData(jsonObject.get("lore").getAsString(), jsonObject.get("upside-down").getAsBoolean(), jsonObject.get("prefix").getAsString(), jsonObject.get("suffix").getAsString(), jsonObject.get("shoulder-buddy").getAsString());
 			}
-		} catch (ParseException | IOException e) {
+		} catch (IOException | ParseException e) {
 			e.printStackTrace();
-			return FabricLoader.getInstance().isDevelopmentEnvironment() ? e.toString() : "";
+			return new PlayerData();
 		}
 	}
 
-	private static Map<UUID, String> loreCache = new HashMap<>();
+	public static void reloadCosmetics() {
+		loreCache = new HashMap<>();
+	}
+
+	private static Map<UUID, PlayerData> loreCache = new HashMap<>();
 	private static Set<UUID> lookingUpLore = new HashSet<>();
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetics");

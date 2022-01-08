@@ -22,12 +22,13 @@ public class MainScreen extends Screen {
 	private Options parentOptions;
 
 	public boolean regionSpecificEffects = doRegionSpecificEffects();
+	public boolean doShoulderBuddies = doShoulderBuddies();
+	public boolean doReload = false;
 
 	public MainScreen(Screen parentScreen, Options parentOptions) {
 		super(new TranslatableComponent("extravagantCosmetics.cosmeticsMenu"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
-		updateParentScreen(this, parentOptions);
 	}
 
 	private TextComponent generateButtonToggleText(String translatable, boolean toggle) {
@@ -52,9 +53,22 @@ public class MainScreen extends Screen {
 			regionSpecificEffects = !regionSpecificEffects;
 			button.setMessage(generateButtonToggleText("extravagantCosmetics.australians", regionSpecificEffects));
 		}));
+		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 2, 150, 20, new TranslatableComponent("extravagantCosmetics.reloadCosmetics"), (button) -> {
+			doReload = !doReload;
+			if (doReload) {
+				button.setMessage(new TranslatableComponent("extravagantCosmetics.willReload"));
+			} else {
+				button.setMessage(new TranslatableComponent("extravagantCosmetics.reloadCosmetics"));
+			}
+		}));
+
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 2, 150, 20, generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", doShoulderBuddies), (button) -> {
+			doShoulderBuddies = !doShoulderBuddies;
+			button.setMessage(generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", doShoulderBuddies));
+		}));
 
 
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 3, 200, 20, new TranslatableComponent("extravagantCosmetics.customizeCosmetics"), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("extravagantCosmetics.customizeCosmetics"), (button) -> {
 			try {
 				Util.getPlatform().openUri("https://eyezah.com/cosmetics/manage?" + Authentication.getToken());
 			} catch (Exception e) {
@@ -62,9 +76,9 @@ public class MainScreen extends Screen {
 			}
 		}));
 
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 4, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
-				this.minecraft.setScreen(new UpdatingSettings(this.parentScreen, this.parentOptions, regionSpecificEffects));
+				this.minecraft.setScreen(new UpdatingSettings(this.parentScreen, this.parentOptions, regionSpecificEffects, doReload, doShoulderBuddies));
 			} catch (IOException e) {
 				e.printStackTrace();
 				this.minecraft.setScreen(this.parentScreen);
