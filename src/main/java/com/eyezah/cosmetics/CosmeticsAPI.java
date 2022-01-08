@@ -1,5 +1,7 @@
 package com.eyezah.cosmetics;
 
+import net.minecraft.world.entity.player.Player;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -17,17 +19,17 @@ public final class CosmeticsAPI {
 	}
 
 	public static boolean isPlayerLoreEnabled() {
-		return playerLore;
+		return true;
 	}
 
-	public static String lookUp(UUID uuid, String username, Set<UUID> lookingUp, Map<UUID, String> cache, BiFunction<UUID, String, String> lookupFunction) {
+	public static PlayerData lookUp(UUID uuid, String username, Set<UUID> lookingUp, Map<UUID, PlayerData> cache, BiFunction<UUID, String, PlayerData> lookupFunction) {
 		synchronized (cache) {
 			return cache.computeIfAbsent(uuid, uid -> {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up.
 					lookingUp.add(uuid);
 
 					Cosmetics.runOffthread(() -> {
-						String associatedText = lookupFunction.apply(uuid, username);
+						PlayerData associatedText = lookupFunction.apply(uuid, username);
 
 						synchronized (cache) { // update the information with what we have gotten.
 							cache.put(uuid, associatedText);
@@ -36,7 +38,7 @@ public final class CosmeticsAPI {
 					});
 				}
 
-				return ""; // temporary name: blank.
+				return new PlayerData(); // temporary name: blank.
 			});
 		}
 	}

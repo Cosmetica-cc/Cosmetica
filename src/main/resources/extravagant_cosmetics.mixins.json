@@ -11,7 +11,9 @@
     "MixinScreen",
     "MixinConnectScreen",
     "MixinConnectScreenInvoker",
-    "MixinConnection"
+    "MixinConnection",
+    "MixinTitleScreen",
+    "MixinPlayerEntityRenderer"
   ],
   "injectors": {
     "defaultRequire": 1
