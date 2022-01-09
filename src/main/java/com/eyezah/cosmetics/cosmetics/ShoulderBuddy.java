@@ -52,6 +52,8 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 		String buddyType = getPlayerData(player.getUUID(), player.getName().getString()).shoulderBuddy;
 		CompoundTag compoundTag = bl ? player.getShoulderEntityLeft() : player.getShoulderEntityRight();
 
+		//buddyType = "rabbit"; // temp force set
+
 		if (buddyType.equals("eyezahparrot")) {
 			ShoulderBuddyModelParrot model = new ShoulderBuddyModelParrot(entityModelSet.bakeLayer(ModelLayers.PARROT), "sitting");
 			poseStack.pushPose();
@@ -170,6 +172,51 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			poseStack.pushPose();
 			poseStack.translate(bl ? 0.3500000059604645D : -0.3500000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.6D) + 1.3D, 0.0D);
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/turtle/big_sea_turtle.png")));
+			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
+			poseStack.popPose();
+		}
+
+		if (buddyType.equals("ghast")) {
+			ShoulderBuddyModelGhast model = new ShoulderBuddyModelGhast(entityModelSet.bakeLayer(ModelLayers.GHAST));
+			poseStack.pushPose();
+			poseStack.translate(bl ? 0.4000000059604645D : -0.4000000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.6D) + 1.0D, 0.0D);
+			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/ghast/ghast.png")));
+			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
+			poseStack.popPose();
+		}
+
+		if (buddyType.equals("creeper")) {
+			ShoulderBuddyModelCreeper model = new ShoulderBuddyModelCreeper(entityModelSet.bakeLayer(ModelLayers.CREEPER));
+			poseStack.pushPose();
+			poseStack.translate(bl ? 0.3500000059604645D : -0.3500000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.6D) + 1.23D, 0.0D);
+			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/creeper/creeper.png")));
+			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
+			poseStack.popPose();
+		}
+
+		if (buddyType.equals("goat")) {
+			ShoulderBuddyModelGoat model = new ShoulderBuddyModelGoat(entityModelSet.bakeLayer(ModelLayers.GOAT));
+			poseStack.pushPose();
+			poseStack.translate(bl ? 0.3500000059604645D : -0.3500000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.6D) + 1.23D, 0.0D);
+			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/goat/goat.png")));
+			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
+			poseStack.popPose();
+		}
+
+		if (buddyType.equals("llama")) {
+			ShoulderBuddyModelLlama model = new ShoulderBuddyModelLlama(entityModelSet.bakeLayer(ModelLayers.LLAMA));
+			poseStack.pushPose();
+			poseStack.translate(bl ? 0.3500000059604645D : -0.3500000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.6D) + 1.23D, 0.0D);
+			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/llama/creamy.png")));
+			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
+			poseStack.popPose();
+		}
+
+		if (buddyType.equals("rabbit")) {
+			ShoulderBuddyModelRabbit model = new ShoulderBuddyModelRabbit(entityModelSet.bakeLayer(ModelLayers.RABBIT));
+			poseStack.pushPose();
+			poseStack.translate(bl ? 0.3500000059604645D : -0.3500000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.6D) + 1.07D, 0.0D);
+			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/rabbit/salt.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
 		}
