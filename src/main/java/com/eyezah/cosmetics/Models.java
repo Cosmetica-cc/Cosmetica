@@ -7,6 +7,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
@@ -21,6 +22,8 @@ import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import static net.minecraft.client.renderer.entity.ItemRenderer.getFoilBufferDirect;
@@ -75,7 +78,7 @@ public class Models {
 				boolean bl4 = true;
 				RenderType renderType = RenderType.cutoutMipped(); // hopefully this is the right one
 				VertexConsumer vertexConsumer4 = multiBufferSource.getBuffer(renderType);
-				renderModelLists(bakedModel, itemStack, i, j, stack, vertexConsumer4);
+				renderModelLists(model, i, j, stack, vertexConsumer4);
 
 				stack.popPose();
 			
@@ -88,7 +91,7 @@ public class Models {
 		stack.popPose();
 	}
 
-	private void renderModelLists(BakedModel bakedModel, ItemStack itemStack, int i, int j, PoseStack poseStack, VertexConsumer vertexConsumer) {
+	private static void renderModelLists(BakedModel bakedModel, int i, int j, PoseStack poseStack, VertexConsumer vertexConsumer) {
 		Random random = new Random();
 		long l = 42L;
 		Direction[] var10 = Direction.values();
@@ -97,10 +100,25 @@ public class Models {
 		for(int var12 = 0; var12 < var11; ++var12) {
 			Direction direction = var10[var12];
 			random.setSeed(42L);
-			this.renderQuadList(poseStack, vertexConsumer, bakedModel.getQuads((BlockState)null, direction, random), itemStack, i, j);
+			renderQuadList(poseStack, vertexConsumer, bakedModel.getQuads((BlockState)null, direction, random), i, j);
 		}
 
 		random.setSeed(42L);
-		this.renderQuadList(poseStack, vertexConsumer, bakedModel.getQuads((BlockState)null, (Direction)null, random), itemStack, i, j);
+		renderQuadList(poseStack, vertexConsumer, bakedModel.getQuads((BlockState)null, (Direction)null, random), i, j);
+	}
+
+	private static void renderQuadList(PoseStack poseStack, VertexConsumer vertexConsumer, List<BakedQuad> list, int i, int j) {
+		PoseStack.Pose pose = poseStack.last();
+		Iterator var9 = list.iterator();
+
+		while(var9.hasNext()) {
+			BakedQuad bakedQuad = (BakedQuad)var9.next();
+			int k = -1;
+
+			float f = (float)(k >> 16 & 255) / 255.0F;
+			float g = (float)(k >> 8 & 255) / 255.0F;
+			float h = (float)(k & 255) / 255.0F;
+			vertexConsumer.putBulkData(pose, bakedQuad, f, g, h, i, j);
+		}
 	}
 }
