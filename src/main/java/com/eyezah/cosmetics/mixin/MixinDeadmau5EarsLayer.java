@@ -40,18 +40,18 @@ public abstract class MixinDeadmau5EarsLayer extends RenderLayer<AbstractClientP
 			int m = LivingEntityRenderer.getOverlayCoords(abstractClientPlayer, 0.0F);
 
 			for(int n = 0; n < 2; ++n) {
-				float o = Mth.lerp(h, abstractClientPlayer.yRotO, abstractClientPlayer.getYRot()) - Mth.lerp(h, abstractClientPlayer.yBodyRotO, abstractClientPlayer.yBodyRot);
-				float p = Mth.lerp(h, abstractClientPlayer.xRotO, abstractClientPlayer.getXRot());
+				float yRot = Mth.lerp(h, abstractClientPlayer.yRotO, abstractClientPlayer.getYRot()) - Mth.lerp(h, abstractClientPlayer.yBodyRotO, abstractClientPlayer.yBodyRot);
+				float xRot = Mth.lerp(h, abstractClientPlayer.xRotO, abstractClientPlayer.getXRot());
 				poseStack.pushPose();
-				poseStack.mulPose(Vector3f.YP.rotationDegrees(o));
-				poseStack.mulPose(Vector3f.XP.rotationDegrees(p));
-				poseStack.translate((double)(0.375F * (float)(n * 2 - 1)), 0.0D, 0.0D);
+				poseStack.mulPose(Vector3f.YP.rotationDegrees(yRot));
+				poseStack.mulPose(Vector3f.XP.rotationDegrees(xRot));
+				poseStack.translate((0.375F * (float)(n * 2 - 1)), 0.0D, 0.0D);
 				poseStack.translate(0.0D, -0.375D, 0.0D);
-				poseStack.mulPose(Vector3f.XP.rotationDegrees(-p));
-				poseStack.mulPose(Vector3f.YP.rotationDegrees(-o));
-				float q = 1.3333334F;
-				poseStack.scale(1.3333334F, 1.3333334F, 1.3333334F);
-				((PlayerModel) this.getParentModel()).renderEars(poseStack, vertexConsumer, i, m);
+				poseStack.mulPose(Vector3f.XP.rotationDegrees(-xRot));
+				poseStack.mulPose(Vector3f.YP.rotationDegrees(-yRot));
+				float scale = 1.3333334F;
+				poseStack.scale(scale, scale, scale);
+				this.getParentModel().renderEars(poseStack, vertexConsumer, i, m);
 				poseStack.popPose();
 			}
 		}
