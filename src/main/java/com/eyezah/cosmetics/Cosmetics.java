@@ -45,6 +45,7 @@ public class Cosmetics implements ClientModInitializer {
 
 	protected static boolean regionSpecificEffects = false;
 	protected static boolean doShoulderBuddies = true;
+	protected static boolean doHats = true; // todo setting this value
 	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
 
 	@Override
@@ -52,8 +53,6 @@ public class Cosmetics implements ClientModInitializer {
 		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
 		LOGGER.info("<Valoeghese> Also try celestine client!");
 		runAuthenticationCheckThread();
-
-
 	}
 
 	public static void onShutdownClient() {
@@ -101,6 +100,10 @@ public class Cosmetics implements ClientModInitializer {
 
 	public static boolean doShoulderBuddies() {
 		return doShoulderBuddies;
+	}
+
+	public static boolean doHats() {
+		return doHats;
 	}
 
 	public static PlayerData getPlayerData(UUID uuid, String username) {

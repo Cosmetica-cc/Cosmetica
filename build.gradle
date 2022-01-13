@@ -45,7 +45,7 @@ dependencies {
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 	
-	modImplementation 'com.github.Station-rip:FabriStation:1.17-SNAPSHOT'
+	modImplementation 'com.github.Valoeghese:FabriStation:1.17-SNAPSHOT'
 	
 }
 
