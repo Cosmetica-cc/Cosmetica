@@ -27,9 +27,4 @@ public class MixinScreen implements ExtendedScreen {
 	public Iterable<GuiEventListener> getChildren() {
 		return this.children;
 	}
-
-	@Override
-	public void setTitle(Component title) {
-		this.title = title;
-	}
 }
