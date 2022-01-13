@@ -51,7 +51,7 @@ public class Cosmetics implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
-		LOGGER.info("<Valoeghese> Also try celestine client!");
+		//LOGGER.info("<Valoeghese> Also try celestine client!"); uncomment this when celestine is released
 		runAuthenticationCheckThread();
 	}
 
