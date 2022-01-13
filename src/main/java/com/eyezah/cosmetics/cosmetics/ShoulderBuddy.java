@@ -1,13 +1,12 @@
 package com.eyezah.cosmetics.cosmetics;
 
 import com.eyezah.cosmetics.cosmetics.shoulderbuddies.*;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.*;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -17,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 
+import static com.eyezah.cosmetics.Cosmetics.LOGGER;
 import static com.eyezah.cosmetics.Cosmetics.getPlayerData;
 
 public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
@@ -52,7 +52,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 		String buddyType = getPlayerData(player.getUUID(), player.getName().getString()).shoulderBuddy;
 		CompoundTag compoundTag = bl ? player.getShoulderEntityLeft() : player.getShoulderEntityRight();
 
-		//buddyType = "rabbit"; // temp force set
+		buddyType = "snail"; // temp force set
 
 		if (buddyType.equals("eyezahparrot")) {
 			ShoulderBuddyModelParrot model = new ShoulderBuddyModelParrot(entityModelSet.bakeLayer(ModelLayers.PARROT), "sitting");
@@ -61,6 +61,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("extravagant_cosmetics", "textures/eyezah_parrot.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("fox")) {
@@ -70,6 +71,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/fox/fox.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("snowfox")) {
@@ -79,6 +81,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/fox/snow_fox.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("nakedsheep")) {
@@ -88,6 +91,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("sheep")) {
@@ -104,6 +108,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("cat")) {
@@ -113,6 +118,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/cat/black.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("wolf")) {
@@ -122,6 +128,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/wolf/wolf_tame.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("bee")) {
@@ -131,6 +138,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/bee/bee.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("nectarbee")) {
@@ -140,6 +148,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/bee/bee_nectar.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("slime")) {
@@ -156,6 +165,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/slime/slime.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("axolotl")) {
@@ -165,6 +175,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/axolotl/axolotl_wild.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("turtle")) {
@@ -174,6 +185,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/turtle/big_sea_turtle.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("ghast")) {
@@ -183,6 +195,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/ghast/ghast.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("creeper")) {
@@ -192,6 +205,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/creeper/creeper.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("goat")) {
@@ -201,6 +215,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/goat/goat.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("llama")) {
@@ -210,6 +225,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/llama/creamy.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
 		if (buddyType.equals("rabbit")) {
@@ -219,15 +235,20 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/rabbit/salt.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
+			return;
 		}
 
-		/*if (buddyType.equals("snail")) {
-			ShoulderBuddyModelSnail model = new ShoulderBuddyModelSnail(entityModelSet.bakeLayer(new ModelLayerLocation(new ResourceLocation("extravagant_cosmetics", "textures/snail.png"), "main")));
+		if (buddyType.equals("snail")) {
+			ShoulderBuddyModelSnail model = new ShoulderBuddyModelSnail(ShoulderBuddyModelSnail.createBodyLayer().bakeRoot());
 			poseStack.pushPose();
 			poseStack.translate(bl ? 0.3500000059604645D : -0.3500000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.6D) + 1.3D, 0.0D);
-			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("extravagant_cosmetics", "textures/snail.png")));
+			//VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("extravagant_cosmetics", "textures/snail.png")));
+			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/rabbit/salt.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
-		}*/
+			return;
+		}
+
+		//LOGGER.debug("not valid shoulder buddy: '" + buddyType + "'");
 	}
 }
