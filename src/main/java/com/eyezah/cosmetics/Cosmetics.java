@@ -1,6 +1,6 @@
 package com.eyezah.cosmetics;
 
-import com.eyezah.cosmetics.cosmetics.shoulderbuddies.model.Models;
+import com.eyezah.cosmetics.utils.NamedSingleThreadFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -54,7 +54,6 @@ public class Cosmetics implements ClientModInitializer {
 		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
 		//LOGGER.info("<Valoeghese> Also try celestine client!"); uncomment this when celestine is released
 		runAuthenticationCheckThread();
-		Models.loadTestResource();
 	}
 
 	public static void onShutdownClient() {
@@ -179,5 +178,5 @@ public class Cosmetics implements ClientModInitializer {
 	private static Set<UUID> lookingUpLore = new HashSet<>();
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetics");
-	private static final ExecutorService LOOKUP_THREAD = Executors.newSingleThreadExecutor();
+	private static final ExecutorService LOOKUP_THREAD = Executors.newSingleThreadExecutor(new NamedSingleThreadFactory("Cosmetics Lookup Thread"));
 }
