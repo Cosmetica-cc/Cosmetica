@@ -1,6 +1,6 @@
 package com.eyezah.cosmetics.cosmetics;
 
-import com.eyezah.cosmetics.cosmetics.shoulderbuddies.model.Models;
+import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.Minecraft;
@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
