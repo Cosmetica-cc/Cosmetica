@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.mixin;
+package com.eyezah.cosmetics.mixin.screen;
 
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetics;

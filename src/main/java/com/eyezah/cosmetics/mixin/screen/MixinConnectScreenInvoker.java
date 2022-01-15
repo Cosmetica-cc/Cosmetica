@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.mixin;
+package com.eyezah.cosmetics.mixin.screen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;

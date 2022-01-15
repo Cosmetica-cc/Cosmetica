@@ -3,17 +3,18 @@
   "package": "com.eyezah.cosmetics.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
+    "screen.MixinOptionsScreen",
+    "screen.MixinScreen",
+    "screen.MixinConnectScreen",
+    "screen.MixinConnectScreenInvoker",
+    "screen.MixinTitleScreen",
     "MixinEntityRenderer",
     "MixinLivingEntityRenderer",
     "MixinMinecraft",
-    "MixinOptionsScreen",
     "MixinSkinManager",
-    "MixinScreen",
-    "MixinConnectScreen",
-    "MixinConnectScreenInvoker",
     "MixinConnection",
-    "MixinTitleScreen",
-    "MixinPlayerEntityRenderer"
+    "MixinPlayerEntityRenderer",
+    "MixinModelManager"
   ],
   "injectors": {
     "defaultRequire": 1

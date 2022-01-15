@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.mixin;
+package com.eyezah.cosmetics.mixin.screen;
 
 import com.eyezah.cosmetics.utils.ExtendedScreen;
 import net.minecraft.client.gui.components.Widget;
