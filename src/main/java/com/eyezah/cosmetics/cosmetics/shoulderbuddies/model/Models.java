@@ -33,18 +33,25 @@ public class Models {
 	}
 
 	public static void loadTestResource() {
-		Cosmetics.runOffthread(() -> {
-			try (InputStream is = new FileInputStream(new File(FabricLoader.getInstance().getGameDirectory(), "test.json"))) {
-				loadBakedModel(createBlockModel(TEST_LOCATION, is));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
+		if (!BAKED_MODELS.containsKey(TEST_LOCATION)) {
+			Cosmetics.runOffthread(() -> {
+				try (InputStream is = new FileInputStream(new File(FabricLoader.getInstance().getGameDirectory(), "test.json"))) {
+					loadBakedModel(createBlockModel(TEST_LOCATION, is));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
 	}
 
 	public static void loadBakedModel(BlockModel model) {
 		ResourceLocation location = new ResourceLocation(model.name);
 		BakedModel result = model.bake(thePieShopDownTheRoad, l -> Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(new ResourceLocation("minecraft:block/dirt"))/*TODO*/, BlockModelRotation.X0_Y0, location);
+
+		if (result == null) {
+			throw new RuntimeException("Null Baked Model for " + model.name);
+		}
+
 		BAKED_MODELS.put(location, result);
 	}
 
