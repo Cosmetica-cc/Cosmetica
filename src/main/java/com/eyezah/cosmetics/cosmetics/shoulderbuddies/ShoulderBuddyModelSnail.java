@@ -42,7 +42,7 @@ public class ShoulderBuddyModelSnail<T extends Entity> extends EntityModel<T> {
 
 	public void renderOnShoulder(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int j, float f, float g, float h, float k, int l) {
 		///poseStack.scale(0.35F, 0.35F, 0.35F);
-		System.out.println("rendering snail");
+		//System.out.println("rendering snail");
 		bb_main.render(poseStack, vertexConsumer, i, j);
 	}
 }

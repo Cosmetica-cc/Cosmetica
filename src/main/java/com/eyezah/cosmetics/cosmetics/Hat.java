@@ -1,10 +1,8 @@
 package com.eyezah.cosmetics.cosmetics;
 
-import com.eyezah.cosmetics.Models;
-import com.mojang.authlib.GameProfile;
+import com.eyezah.cosmetics.cosmetics.shoulderbuddies.model.Models;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
-import net.fabricmc.fabric.api.client.model.BakedModelManagerHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -13,7 +11,6 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -23,6 +20,7 @@ public class Hat<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
 	public Hat(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
 		super(renderLayerParent);
 		this.modelManager = Minecraft.getInstance().getModelManager();
+
 	}
 
 	private ModelManager modelManager;
@@ -38,7 +36,7 @@ public class Hat<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
 
 		stack.translate(0, 1.22/2, 0); // vanilla: 0.0 second param
 
-		BakedModel model = this.modelManager.getModel(new ModelResourceLocation("minecraft:stonecutter#inventory"));
+		BakedModel model = Models.getModel(Models.TEST_LOCATION);//this.modelManager.getModel(new ModelResourceLocation("minecraft:stonecutter#facing=south"));
 		//if (is a world size model?) o = 0.5001f; // 0.5 has z fighting
 
 		Models.renderModel(

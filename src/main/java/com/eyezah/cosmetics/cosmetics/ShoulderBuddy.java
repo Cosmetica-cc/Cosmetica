@@ -57,7 +57,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 		if (buddyType.equals("eyezahparrot")) {
 			ShoulderBuddyModelParrot model = new ShoulderBuddyModelParrot(entityModelSet.bakeLayer(ModelLayers.PARROT), "sitting");
 			poseStack.pushPose();
-			poseStack.translate(bl ? 0.4000000059604645D : -0.4000000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.5D), 0.0D);
+			poseStack.translate(bl ? 0.4 : -0.4, (player.isCrouching() ? -1.3 : -1.5), 0.0);
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("extravagant_cosmetics", "textures/eyezah_parrot.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
@@ -67,7 +67,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 		if (buddyType.equals("fox")) {
 			ShoulderBuddyModelFox model = new ShoulderBuddyModelFox(entityModelSet.bakeLayer(ModelLayers.FOX), "sitting");
 			poseStack.pushPose();
-			poseStack.translate(bl ? 0.4000000059604645D : -0.4000000059604645D, (player.isCrouching() ? -1.2999999523162842D : -1.6D) + 1.07D, 0.0D);
+			poseStack.translate(bl ? 0.4 : -0.4, (player.isCrouching() ? -1.3 : -1.6) + 1.07, 0.0);
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/fox/fox.png")));
 			model.renderOnShoulder(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY, f, g, h, j, player.tickCount);
 			poseStack.popPose();
