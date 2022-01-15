@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.cosmetics.shoulderbuddies.model;
+package com.eyezah.cosmetics.cosmetics.model;
 
 import com.eyezah.cosmetics.Cosmetics;
 import com.mojang.blaze3d.vertex.PoseStack;

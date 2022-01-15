@@ -1,6 +1,6 @@
 package com.eyezah.cosmetics.mixin;
 
-import com.eyezah.cosmetics.cosmetics.shoulderbuddies.model.Models;
+import com.eyezah.cosmetics.cosmetics.model.Models;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelManager;

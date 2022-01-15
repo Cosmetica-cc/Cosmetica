@@ -29,7 +29,7 @@ dependencies {
 		"net.fabricmc:yarn:${project.minecraft_version}+build.${project.yarn_build}:v2"
 	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	
+
 	modImplementation "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.8+a00e834b18"
 	//modImplementation "net.fabricmc.fabric-api:fabric-rendering-data-attachment-v1:0.1.5+a02b446318"
 	//modImplementation "net.fabricmc.fabric-api:fabric-rendering-fluids-v1:0.1.13+a02b446318"
