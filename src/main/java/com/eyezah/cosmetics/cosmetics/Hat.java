@@ -36,7 +36,7 @@ public class Hat<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
 
 		stack.translate(0, 1.22/2, 0); // vanilla: 0.0 second param
 
-		BakedModel model = Models.getModel(Cosmetics.getPlayerData(player).hat());//this.modelManager.getModel(new ModelResourceLocation("minecraft:stonecutter#facing=south"));
+		BakedModel model = Models.getBakedModel(Cosmetics.getPlayerData(player).hat());//this.modelManager.getModel(new ModelResourceLocation("minecraft:stonecutter#facing=south"));
 		//if (is a world size model?) o = 0.5001f; // 0.5 has z fighting
 
 		Models.renderModel(

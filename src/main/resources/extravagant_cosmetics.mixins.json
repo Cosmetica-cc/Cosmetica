@@ -14,7 +14,8 @@
     "MixinSkinManager",
     "MixinConnection",
     "MixinPlayerEntityRenderer",
-    "MixinModelManager"
+    "MixinModelManager",
+    "MixinTextureAtlasSpriteInvoker"
   ],
   "injectors": {
     "defaultRequire": 1
