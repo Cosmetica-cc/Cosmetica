@@ -1,6 +1,5 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
-import com.eyezah.cosmetics.utils.QueueTextureCache;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -54,10 +53,18 @@ public class Models {
 		return result;
 	}
 
+	public static void removeBakedModel(String id) {
+		BAKED_MODELS.remove(id);
+	}
+
 	/**
+	 * @returns the existing or created bakable model. Will be null if there is an error creating the model
 	 * @implNote used when adding the BakableModel to player data
 	 */
+	@Nullable
 	public static BakableModel getBakableModel(String location, Supplier<byte[]> jsonGetter, Supplier<String> b64ImageGetter) {
+		if (location.isEmpty()) return null;
+
 		return LOADED_MODELS.computeIfAbsent(location, l -> {
 			try (InputStream is = new ByteArrayInputStream(jsonGetter.get())) {
 				BlockModel model = BlockModel.fromStream(new InputStreamReader(is, StandardCharsets.UTF_8));
@@ -65,6 +72,9 @@ public class Models {
 
 				return new BakableModel(location, model, NativeImage.fromBase64(b64ImageGetter.toString().substring(22)) /*trim nonsense at the start */);
 			} catch (IOException e) {
+				return null;
+			} catch (Exception e) {
+				e.printStackTrace();
 				return null;
 			}
 		});

@@ -136,7 +136,7 @@ public class Cosmetics implements ClientModInitializer {
 											jsonObject.get("prefix").getAsString(),
 											jsonObject.get("suffix").getAsString(),
 											jsonObject.get("shoulder-buddy").getAsString(),
-											Models.getBakableModel(hat.get("id").getAsString(), () -> jsonObject.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> jsonObject.get("texture").getAsString())));
+											Models.getBakableModel(hat.get("id").getAsString(), () -> hat.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> hat.get("texture").getAsString())));
 									lookingUp.remove(uuid);
 								}
 							}
