@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics;
 
+import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.utils.NamedSingleThreadFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,6 +15,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
@@ -96,7 +98,7 @@ public class Cosmetics implements ClientModInitializer {
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
-		return CosmeticsAPI.lookUp(player.getUUID(), player.getName().getString(), lookingUpLore, loreCache, Cosmetics::lookUpLore).upsideDown;
+		return getPlayerData(player).upsideDown();
 	}
 
 	public static boolean doShoulderBuddies() {
@@ -107,8 +109,44 @@ public class Cosmetics implements ClientModInitializer {
 		return doHats;
 	}
 
+	public static PlayerData getPlayerData(Player player) {
+		return getPlayerData(player.getUUID(), player.getName().getString());
+	}
+
 	public static PlayerData getPlayerData(UUID uuid, String username) {
-		return CosmeticsAPI.lookUp(uuid, username, lookingUpLore, loreCache, Cosmetics::lookUpLore);
+		synchronized (playerDataCache) {
+			return playerDataCache.computeIfAbsent(uuid, uid -> {
+				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up.
+					lookingUp.add(uuid);
+
+					Cosmetics.runOffthread(() -> {
+						try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+							System.out.println("https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken());
+							final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken());
+							try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+								String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
+								JsonParser parser = new JsonParser();
+								JsonObject jsonObject = parser.parse(responseBody).getAsJsonObject();
+
+								synchronized (playerDataCache) { // update the information with what we have gotten.
+									playerDataCache.put(uuid, new PlayerData(
+											jsonObject.get("lore").getAsString(),
+											jsonObject.get("upside-down").getAsBoolean(),
+											jsonObject.get("prefix").getAsString(),
+											jsonObject.get("suffix").getAsString(),
+											jsonObject.get("shoulder-buddy").getAsString()));
+									lookingUp.remove(uuid);
+								}
+							}
+						} catch (IOException | ParseException e) {
+							e.printStackTrace();
+						}
+					});
+				}
+
+				return new PlayerData(); // temporary name: blank.
+			});
+		}
 	}
 
 	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PoseStack matrixStack, MultiBufferSource multiBufferSource, Font font, int i) {
@@ -121,7 +159,7 @@ public class Cosmetics implements ClientModInitializer {
 				double d = entityRenderDispatcher.distanceToSqr(entity);
 
 				if (!(d > 4096.0D)) {
-					String lore = getPlayerData(lookupId, player.getName().getString()).lore;
+					String lore = getPlayerData(lookupId, player.getName().getString()).lore();
 
 					if (!lore.equals("")) {
 						Component component = new TextComponent(lore);
@@ -154,28 +192,12 @@ public class Cosmetics implements ClientModInitializer {
 		}
 	}
 
-	private static PlayerData lookUpLore(UUID uuid, String username) {
-		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-			System.out.println("https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken());
-			final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken());
-			try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-				String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
-				JsonParser parser = new JsonParser();
-				JsonObject jsonObject = parser.parse(responseBody).getAsJsonObject();
-				return new PlayerData(jsonObject.get("lore").getAsString(), jsonObject.get("upside-down").getAsBoolean(), jsonObject.get("prefix").getAsString(), jsonObject.get("suffix").getAsString(), jsonObject.get("shoulder-buddy").getAsString());
-			}
-		} catch (IOException | ParseException e) {
-			e.printStackTrace();
-			return new PlayerData();
-		}
-	}
-
 	public static void reloadCosmetics() {
-		loreCache = new HashMap<>();
+		playerDataCache = new HashMap<>();
 	}
 
-	private static Map<UUID, PlayerData> loreCache = new HashMap<>();
-	private static Set<UUID> lookingUpLore = new HashSet<>();
+	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
+	private static Set<UUID> lookingUp = new HashSet<>();
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetics");
 	private static final ExecutorService LOOKUP_THREAD = Executors.newSingleThreadExecutor(new NamedSingleThreadFactory("Cosmetics Lookup Thread"));

@@ -38,8 +38,8 @@ public class MixinEntityRenderer {
 	protected void onRenderNameTag(Entity entity, Component component, PoseStack matrixStack, MultiBufferSource multiBufferSource, int i, CallbackInfo info) {
 		Cosmetics.onRenderNameTag(this.entityRenderDispatcher, entity, matrixStack, multiBufferSource, this.font, i);
 		if (entity instanceof RemotePlayer player) {
-			String prefix = getPlayerData(entity.getUUID(), player.getName().getString()).prefix;
-			String suffix = getPlayerData(entity.getUUID(), player.getName().getString()).suffix;
+			String prefix = getPlayerData(entity.getUUID(), player.getName().getString()).prefix();
+			String suffix = getPlayerData(entity.getUUID(), player.getName().getString()).suffix();
 			if (!(prefix + suffix).equals("")) {
 				double d = this.entityRenderDispatcher.distanceToSqr(entity);
 				if (!(d > 4096.0D)) {
