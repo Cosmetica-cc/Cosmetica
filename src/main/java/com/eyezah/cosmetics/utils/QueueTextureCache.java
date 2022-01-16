@@ -1,8 +1,10 @@
 package com.eyezah.cosmetics.utils;
 
-import com.eyezah.cosmetics.cosmetics.model.ModifiableAtlasSprite;
+import com.eyezah.cosmetics.cosmetics.model.BakableModel;
+import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
 import com.mojang.blaze3d.platform.NativeImage;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.UnbakedModel;
 
 /**
  * Queue-like texture cache. First-Come, First-Served.
@@ -13,23 +15,28 @@ public class QueueTextureCache {
 	 */
 	public QueueTextureCache(int size) {
 		this.size = size;
-		this.indices = new ResourceLocation[size];
-		this.sprites = new ModifiableAtlasSprite[size];
+		this.indices = new String[size];
+		this.sprites = new TextureAtlasSprite[size];
 		this.used = new int[size];
 	}
 
 	private final int size;
-	private final ResourceLocation[] indices; // the numbers index by a resource location
-	private final ModifiableAtlasSprite[] sprites; // the sprite at an index
+	private final String[] indices; // the numbers index by a resource location
+	private final TextureAtlasSprite[] sprites; // the sprite at an index
+	private int emptySpriteIndex = 0;
 
 	// to limit the number of textures loaded and thus baked models created per tick, should this ever be necessary on a server
 	long lastTickTime; // default long value = 0 should be fine
 	final int[] used; // 0 = unused, 1 = used last tick, 2 = used this tick.
 	int search = 0; // current search index for an unused space
 
+	public void addAtlasSprite(TextureAtlasSprite result) {
+		this.sprites[this.emptySpriteIndex++] = result;
+	}
+
 	// should be called from the render thread because of texture setting probably
 	// andThen may not be called on the same thread -- proceed with caution
-	public ModifiableAtlasSprite getAtlasSprite(ResourceLocation runtimeLocation, NativeImage image, long tickTime) {
+	public TextureAtlasSprite getAtlasSprite(BakableModel model, long tickTime) {
 		if (tickTime != this.lastTickTime) {
 			this.lastTickTime = tickTime;
 			this.search = 0;
@@ -39,7 +46,7 @@ public class QueueTextureCache {
 			}
 		}
 
-		int index = this.getIndex(runtimeLocation);
+		int index = this.getIndex(model.id());
 
 		if (index == -1) {
 			if (this.search == this.size) return null;
@@ -59,8 +66,8 @@ public class QueueTextureCache {
 			this.search = index + 1; // the next spot over
 
 			// use this index of reserved texture
-			this.indices[index] = runtimeLocation;
-			this.sprites[index].setTexture(image);
+			this.indices[index] = model.id();
+			((MixinTextureAtlasSpriteInvoker)this.sprites[index]).callUpload(0, 0, new NativeImage[]{model.image()});
 		}
 
 		// mark it as being used
@@ -68,9 +75,9 @@ public class QueueTextureCache {
 		return this.sprites[index];
 	}
 
-	private int getIndex(ResourceLocation location) {
+	private int getIndex(String id) {
 		for (int i = 0; i < this.size; ++i) {
-			if (location.equals(this.indices[i])) {
+			if (id.equals(this.indices[i])) {
 				return i;
 			}
 		}

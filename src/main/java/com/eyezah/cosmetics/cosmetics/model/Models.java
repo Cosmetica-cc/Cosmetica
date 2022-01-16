@@ -17,7 +17,9 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,19 +35,23 @@ public class Models {
 	public static ModelBakery thePieShopDownTheRoad;
 	public static final QueueTextureCache TEXTURE_CACHE = new QueueTextureCache(128); // reserved 0 through 127
 
-	public static BakedModel getModel(String id) {
-		return BAKED_MODELS.getOrDefault(id, Minecraft.getInstance().getModelManager().getMissingModel());
-	}
-
-	public static void loadBakedModel(BakableModel model, TextureAtlasSprite sprite) {
-		BlockModel blockModel = model.model();
-		BakedModel result = blockModel.bake(thePieShopDownTheRoad, l -> l.texture().getNamespace().equals("minecraft") ? Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(l.texture()) : sprite, BlockModelRotation.X0_Y0, location);
+	@Nullable
+	public static BakedModel getBakedModel(BakableModel unbaked) {
+		BakedModel result = BAKED_MODELS.get(unbaked.id());
 
 		if (result == null) {
-			throw new RuntimeException("Null Baked Model for " + model.id());
+			TextureAtlasSprite sprite = TEXTURE_CACHE.getAtlasSprite(unbaked, Minecraft.getInstance().level.getGameTime());
+
+			if (sprite != null) {
+				result = unbaked.model().bake(
+						thePieShopDownTheRoad,
+						l -> l.texture().getNamespace().equals("minecraft") ? Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(l.texture()) : sprite,
+						BlockModelRotation.X0_Y0,
+						new ResourceLocation(unbaked.id()) /*iirc this resource location is just for debugging in the case of errors*/);
+			}
 		}
 
-		BAKED_MODELS.put(model.id(), result);
+		return result;
 	}
 
 	/**
@@ -99,6 +105,8 @@ public class Models {
 
 		stack.popPose();
 	}
+
+	// vanilla code that I don't want to rewrite:
 
 	private static void renderModelLists(BakedModel bakedModel, int packedLight, int overlayType, PoseStack poseStack, VertexConsumer vertexConsumer) {
 		Random random = new Random();
