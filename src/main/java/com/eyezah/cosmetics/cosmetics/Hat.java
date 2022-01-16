@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.cosmetics;
 
 import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
@@ -27,25 +28,32 @@ public class Hat<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
-		stack.pushPose();
-		float o = 1.001f; // 0.5 has z fighting
+		BakableModel modelData = Cosmetics.getPlayerData(player).hat();
 
-		this.getParentModel().getHead().translateAndRotate(stack);
-		stack.scale(o, -o, -o);
-		stack.mulPose(new Quaternion(0, 0.2f, 0, false));
+		if (modelData != null) { // if it has a hat model
+			BakedModel model = Models.getBakedModel(modelData);//this.modelManager.getModel(new ModelResourceLocation("minecraft:stonecutter#facing=south"));
 
-		stack.translate(0, 1.22/2, 0); // vanilla: 0.0 second param
+			if (model != null) { // if it has errors with the baked model or cannot render it for another reason will return null
+				stack.pushPose();
+				float o = 1.001f; // 0.5 has z fighting
 
-		BakedModel model = Models.getBakedModel(Cosmetics.getPlayerData(player).hat());//this.modelManager.getModel(new ModelResourceLocation("minecraft:stonecutter#facing=south"));
-		//if (is a world size model?) o = 0.5001f; // 0.5 has z fighting
+				this.getParentModel().getHead().translateAndRotate(stack);
+				stack.scale(o, -o, -o);
+				stack.mulPose(new Quaternion(0, 0.2f, 0, false));
 
-		Models.renderModel(
-				ensureNonNull(this.modelManager, model),
-				stack,
-				multiBufferSource,
-				packedLightProbably);
+				stack.translate(0, 1.22 / 2, 0); // vanilla: 0.0 second param
 
-		stack.popPose();
+				//if (is a world size model?) o = 0.5001f; // 0.5 has z fighting
+
+				Models.renderModel(
+						ensureNonNull(this.modelManager, model),
+						stack,
+						multiBufferSource,
+						packedLightProbably);
+
+				stack.popPose();
+			}
+		}
 	}
 
 	/**

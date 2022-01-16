@@ -1,10 +1,8 @@
-package com.eyezah.cosmetics.utils;
+package com.eyezah.cosmetics.cosmetics.model;
 
-import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.UnbakedModel;
 
 /**
  * Queue-like texture cache. First-Come, First-Served.
@@ -15,13 +13,13 @@ public class QueueTextureCache {
 	 */
 	public QueueTextureCache(int size) {
 		this.size = size;
-		this.indices = new String[size];
+		this.ids = new String[size];
 		this.sprites = new TextureAtlasSprite[size];
 		this.used = new int[size];
 	}
 
 	private final int size;
-	private final String[] indices; // the numbers index by a resource location
+	private final String[] ids; // the numbers index by a resource location
 	private final TextureAtlasSprite[] sprites; // the sprite at an index
 	private int emptySpriteIndex = 0;
 
@@ -66,7 +64,10 @@ public class QueueTextureCache {
 			this.search = index + 1; // the next spot over
 
 			// use this index of reserved texture
-			this.indices[index] = model.id();
+			// remove existing associated model
+			if (this.ids[index] != null) Models.removeBakedModel(this.ids[index]);
+			// upload new model
+			this.ids[index] = model.id();
 			((MixinTextureAtlasSpriteInvoker)this.sprites[index]).callUpload(0, 0, new NativeImage[]{model.image()});
 		}
 
@@ -77,7 +78,7 @@ public class QueueTextureCache {
 
 	private int getIndex(String id) {
 		for (int i = 0; i < this.size; ++i) {
-			if (id.equals(this.indices[i])) {
+			if (id.equals(this.ids[i])) {
 				return i;
 			}
 		}
