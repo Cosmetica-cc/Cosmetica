@@ -1,10 +1,12 @@
 package com.eyezah.cosmetics.utils;
 
+import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.cosmetics.model.ModifiableAtlasSprite;
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Queue-like texture cache. First-Come, First-Served.
@@ -24,10 +26,65 @@ public class QueueTextureCache {
 	private final ResourceLocation[] indices; // the numbers index by a resource location
 	private final ModifiableAtlasSprite[] sprites; // the sprite at an index
 
-	// to limit the number of textures loaded and thus baked models created per frame, should this ever be necessary on a server
-	long lastRenderTime; // default value = 0 should be fine
-	final int[] used; // 0 = unused, 1 = used last frame, 2 = used this frame.
+	// to limit the number of textures loaded and thus baked models created per tick, should this ever be necessary on a server
+	long lastTickTime; // default long value = 0 should be fine
+	final int[] used; // 0 = unused, 1 = used last tick, 2 = used this tick.
 	int search = 0; // current search index for an unused space
+
+	// should be called from the render thread because of texture setting probably
+	// andThen may not be called on the same thread -- proceed with caution
+	public void getAtlasSprite(ResourceLocation runtimeLocation, long tickTime, Consumer<ModifiableAtlasSprite> andThen) {
+		if (LOOKING_UP.contains(runtimeLocation)) {
+			return;
+		}
+
+		if (tickTime != this.lastTickTime) {
+			this.lastTickTime = tickTime;
+			this.search = 0;
+
+			for (int i = 0; i < this.size; ++i) {
+				if (this.used[i] > 0) this.used[i]--;
+			}
+		}
+
+		int index = this.getIndex(runtimeLocation);
+
+		if (index == -1) {
+			if (this.search == this.size) return;
+			index = this.search;
+
+			while (this.used[index] > 0) {
+				index++;
+
+				// if reached the end and cannot load any new textures
+				if (index == this.size) {
+					this.search = this.size;
+					return;
+				}
+			}
+
+			// at this point, index is guaranteed to be a value which is free
+			this.search = index + 1; // the next spot over
+			NativeImage texture = TEXTURE_CACHE.get(runtimeLocation);
+
+			if (texture == null) {
+				LOOKING_UP.add(runtimeLocation);
+				Cosmetics.runOffthread(() -> {
+					//andThen.accept(something);
+					throw new RuntimeException("Implement This"); // TODO implement this before using it
+				});
+				return; // wait for it to look it up
+			} else {
+				// use this index of reserved texture
+				this.indices[index] = runtimeLocation;
+				this.sprites[index].setTexture(texture);
+			}
+		}
+
+		// mark it as being used
+		this.used[index] = 2;
+		andThen.accept(this.sprites[index]);
+	}
 
 	private int getIndex(ResourceLocation location) {
 		for (int i = 0; i < this.size; ++i) {
@@ -39,43 +96,6 @@ public class QueueTextureCache {
 		return -1;
 	}
 
-	@Nullable
-	public ModifiableAtlasSprite getAtlasSprite(ResourceLocation runtimeLocation, long renderTime) {
-		if (renderTime != this.lastRenderTime) {
-			this.lastRenderTime = renderTime;
-			this.search = 0;
-
-			for (int i = 0; i < this.size; ++i) {
-				if (this.used[i] > 0) this.used[i]--;
-			}
-		}
-
-		int index = this.getIndex(runtimeLocation);
-
-		if (index == -1) {
-			if (this.search == this.size) return null;
-			index = this.search;
-
-			while (this.used[index] > 0) {
-				index++;
-
-				// if reached the end and cannot load any new textures
-				if (index == this.size) {
-					this.search = this.size;
-					return null;
-				}
-			}
-
-			// at this point, index is guaranteed to be a value which is free
-			this.search = index + 1; // the next spot over
-
-			// use this index of reserved texture
-			this.indices[index] = runtimeLocation;
-			//this.sprites[index].setTexture(runtimeLocation); TODO
-		}
-
-		// mark it as being used
-		this.used[index] = 2;
-		return this.sprites[index];
-	}
+	private static Set<ResourceLocation> LOOKING_UP = Collections.synchronizedSet(new HashSet<>());
+	private static Map<ResourceLocation, NativeImage> TEXTURE_CACHE = new HashMap<>();
 }

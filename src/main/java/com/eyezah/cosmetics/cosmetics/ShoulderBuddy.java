@@ -49,7 +49,7 @@ public class ShoulderBuddy<T extends Player> extends RenderLayer<T, PlayerModel<
 		}
 		if (useArm.equals("") || (bl && useArm.equals("right")) || (!bl && useArm.equals("left"))) return;
 
-		String buddyType = getPlayerData(player.getUUID(), player.getName().getString()).shoulderBuddy;
+		String buddyType = getPlayerData(player.getUUID(), player.getName().getString()).shoulderBuddy();
 		CompoundTag compoundTag = bl ? player.getShoulderEntityLeft() : player.getShoulderEntityRight();
 
 		buddyType = "snail"; // temp force set
