@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.cosmetics;
 
+import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
@@ -25,7 +26,7 @@ public class Hat<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
 	private ModelManager modelManager;
 
 	@Override
-	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T entity, float f, float g, float pitch, float j, float k, float l) {
+	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
 		stack.pushPose();
 		float o = 1.001f; // 0.5 has z fighting
 
@@ -35,7 +36,7 @@ public class Hat<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
 
 		stack.translate(0, 1.22/2, 0); // vanilla: 0.0 second param
 
-		BakedModel model = Models.getModel(Models.TEST_LOCATION);//this.modelManager.getModel(new ModelResourceLocation("minecraft:stonecutter#facing=south"));
+		BakedModel model = Models.getModel(Cosmetics.getPlayerData(player).hat());//this.modelManager.getModel(new ModelResourceLocation("minecraft:stonecutter#facing=south"));
 		//if (is a world size model?) o = 0.5001f; // 0.5 has z fighting
 
 		Models.renderModel(

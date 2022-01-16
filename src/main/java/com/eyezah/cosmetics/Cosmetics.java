@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics;
 
 import com.eyezah.cosmetics.api.PlayerData;
+import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.NamedSingleThreadFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -15,7 +16,6 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
@@ -127,6 +127,7 @@ public class Cosmetics implements ClientModInitializer {
 								String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
 								JsonParser parser = new JsonParser();
 								JsonObject jsonObject = parser.parse(responseBody).getAsJsonObject();
+								JsonObject hat = jsonObject.get("hat").getAsJsonObject();
 
 								synchronized (playerDataCache) { // update the information with what we have gotten.
 									playerDataCache.put(uuid, new PlayerData(
@@ -134,7 +135,8 @@ public class Cosmetics implements ClientModInitializer {
 											jsonObject.get("upside-down").getAsBoolean(),
 											jsonObject.get("prefix").getAsString(),
 											jsonObject.get("suffix").getAsString(),
-											jsonObject.get("shoulder-buddy").getAsString()));
+											jsonObject.get("shoulder-buddy").getAsString(),
+											Models.getBakableModel(hat.get("id").getAsString(), () -> jsonObject.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> jsonObject.get("texture").getAsString())));
 									lookingUp.remove(uuid);
 								}
 							}
