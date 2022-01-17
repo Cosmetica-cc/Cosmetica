@@ -1,7 +1,9 @@
 package com.eyezah.cosmetics.screens;
 
 import com.eyezah.cosmetics.Authentication;
+import com.eyezah.cosmetics.Cosmetics;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;

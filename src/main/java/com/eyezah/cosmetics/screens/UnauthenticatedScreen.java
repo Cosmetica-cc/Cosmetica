@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.screens;
 
 import com.eyezah.cosmetics.Cosmetics;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
@@ -11,6 +12,7 @@ import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
@@ -26,7 +28,7 @@ public class UnauthenticatedScreen extends Screen {
 	private MultiLineLabel message;
 	private int textHeight;
 
-	public UnauthenticatedScreen(Screen parentSceen, Options parentOptions, boolean fromSave) {
+	public UnauthenticatedScreen(Screen parentScreen, Options parentOptions, boolean fromSave) {
 		super(new TranslatableComponent("extravagantCosmetics.unauthenticated"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
@@ -40,18 +42,22 @@ public class UnauthenticatedScreen extends Screen {
 		int var10001 = this.message.getLineCount();
 		Objects.requireNonNull(this.font);
 		this.textHeight = var10001 * 9;
-		int var10003 = this.width / 2 - 100;
-		int var10004 = this.height / 2 + this.textHeight / 2;
-		Objects.requireNonNull(this.font);
+		int buttonX = this.width / 2 - 100;
+		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
+
 		if (fromSave) {
-			this.addRenderableWidget(new Button(var10003, Math.min(var10004 + 9, this.height - 30), 200, 20, new TranslatableComponent("extravagantCosmetics.okay"), (button) -> {
+			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("extravagantCosmetics.okay"), (button) -> {
 				this.minecraft.setScreen(new OptionsScreen(screenStorage, optionsStorage));
 			}));
 		} else {
-			this.addRenderableWidget(new Button(var10003, Math.min(var10004 + 9, this.height - 30), 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
+			if (FabricLoader.getInstance().isDevelopmentEnvironment()) { // because I'm not authenticated in dev and can't use the normal button
+				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TextComponent("Immediately Clear Caches"), btn -> Cosmetics.reloadCosmetics()));
+			}
+
+			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
 				this.minecraft.setScreen(new SkinCustomizationScreen(new OptionsScreen(screenStorage, optionsStorage), this.parentOptions));
 			}));
-			this.addRenderableWidget(new Button(var10003, Math.min(var10004 + 9, this.height - 30) + 24, 200, 20, new TranslatableComponent("gui.cancel"), (button) -> {
+			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("gui.cancel"), (button) -> {
 				this.minecraft.setScreen(new OptionsScreen(screenStorage, optionsStorage));
 			}));
 		}

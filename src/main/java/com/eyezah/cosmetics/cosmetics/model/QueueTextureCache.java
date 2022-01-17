@@ -2,7 +2,12 @@ package com.eyezah.cosmetics.cosmetics.model;
 
 import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
 import com.mojang.blaze3d.platform.NativeImage;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Queue-like texture cache. First-Come, First-Served.
@@ -32,6 +37,13 @@ public class QueueTextureCache {
 		this.sprites[this.emptySpriteIndex++] = result;
 	}
 
+	void clear() {
+		for (int i = 0; i < this.size; ++i) {
+			this.used[i] = 0;
+			this.ids[i] = null;
+		}
+	}
+
 	// should be called from the render thread because of texture setting probably
 	// andThen may not be called on the same thread -- proceed with caution
 	public TextureAtlasSprite getAtlasSprite(BakableModel model, long tickTime) {
@@ -51,15 +63,15 @@ public class QueueTextureCache {
 			index = this.search;
 
 			while (this.used[index] > 0) {
-				index++;
-
-				// if reached the end and cannot load any new textures
-				if (index == this.size) {
+				// increment. if reached the end, cannot load any new textures
+				if (++index == this.size) { // attention code editors: keep the ++ operator before index! ++index returns the result after incrementing, whereas index++ returns the result before!
 					this.search = this.size;
 					return null;
 				}
 			}
 
+			//System.out.println("Using New Index: " + index);
+			//System.out.println("Count: " + ((MixinTextureAtlasSpriteInvoker)this.sprites[index]).getMainImage().length); Count: 5
 			// at this point, index is guaranteed to be a value which is free
 			this.search = index + 1; // the next spot over
 
@@ -68,7 +80,23 @@ public class QueueTextureCache {
 			if (this.ids[index] != null) Models.removeBakedModel(this.ids[index]);
 			// upload new model
 			this.ids[index] = model.id();
-			((MixinTextureAtlasSpriteInvoker)this.sprites[index]).callUpload(0, 0, new NativeImage[]{model.image()});
+			MixinTextureAtlasSpriteInvoker sprite = ((MixinTextureAtlasSpriteInvoker)this.sprites[index]);
+			NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), sprite.getMainImage().length);
+
+//			for (int i = 0; i < 5; ++i) {
+//				File test = new File(FabricLoader.getInstance().getGameDirectory(), "reserved_" + index + "_dump.png");
+//				File test = new File(FabricLoader.getInstance().getGameDirectory(), "existing_" + index + "_dump_" + i + ".png");
+//				File test = new File(FabricLoader.getInstance().getGameDirectory(), "reserved_" + index + "_dump_" + i + ".png");
+//				try {
+//					test.createNewFile();
+//					//model.image()[0].writeToFile(test);
+//					//((MixinTextureAtlasSpriteInvoker) this.sprites[index]).getMainImage()[i].writeToFile(test);
+//					mipmap[i].writeToFile(test);
+//				} catch (IOException e) {
+//					throw new RuntimeException(e);
+//				}
+//			}
+			sprite.callUpload(0, 0, mipmap);
 		}
 
 		// mark it as being used
@@ -76,6 +104,8 @@ public class QueueTextureCache {
 		return this.sprites[index];
 	}
 
+	// literally just search the entire array to see if it exists
+	// don't sort the array so probably the fastest way aside from creating and calling a native method with JNI which is overkill
 	private int getIndex(String id) {
 		for (int i = 0; i < this.size; ++i) {
 			if (id.equals(this.ids[i])) {

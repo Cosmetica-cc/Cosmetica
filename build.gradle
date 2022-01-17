@@ -30,14 +30,11 @@ dependencies {
 	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.8+a00e834b18"
-	//modImplementation "net.fabricmc.fabric-api:fabric-rendering-data-attachment-v1:0.1.5+a02b446318"
-	//modImplementation "net.fabricmc.fabric-api:fabric-rendering-fluids-v1:0.1.13+a02b446318"
+	modImplementation "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.10+f09604ce18"
+	modImplementation "net.fabricmc.fabric-api:fabric-textures-v0:1.0.7+cf39a74318"
 
-	include "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.8+a00e834b18"
-	//include "net.fabricmc.fabric-api:fabric-rendering-data-attachment-v1:0.1.5+a02b446318"
-	//include "net.fabricmc.fabric-api:fabric-rendering-fluids-v1:0.1.13+a02b446318"
-
+	include "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.10+f09604ce18"
+	include "net.fabricmc.fabric-api:fabric-textures-v0:1.0.7+cf39a74318"
 
 	modRuntime ("supercoder79:databreaker:0.2.7") {
 		exclude module: "fabric-loader"
