@@ -15,6 +15,7 @@
     "MixinConnection",
     "MixinPlayerEntityRenderer",
     "MixinModelManager",
+    "MixinTextureAtlas",
     "MixinTextureAtlasSpriteInvoker"
   ],
   "injectors": {

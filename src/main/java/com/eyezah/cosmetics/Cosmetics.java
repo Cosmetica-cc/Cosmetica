@@ -10,6 +10,7 @@ import com.mojang.math.Matrix4f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -18,8 +19,10 @@ import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.apache.http.ParseException;
@@ -55,6 +58,12 @@ public class Cosmetics implements ClientModInitializer {
 	public void onInitializeClient() {
 		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
 		//LOGGER.info("<Valoeghese> Also try celestine client!"); uncomment this when celestine is released
+		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
+			// register all reserved textures
+			for (int i = 0; i < 128; ++i) {
+				registry.register(new ResourceLocation("extravagant_cosmetics", "generated/reserved_" + i));
+			}
+		});
 		runAuthenticationCheckThread();
 	}
 
@@ -196,6 +205,7 @@ public class Cosmetics implements ClientModInitializer {
 
 	public static void reloadCosmetics() {
 		playerDataCache = new HashMap<>();
+		Models.resetCaches();
 	}
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();

@@ -34,6 +34,12 @@ public class Models {
 	public static ModelBakery thePieShopDownTheRoad;
 	public static final QueueTextureCache TEXTURE_CACHE = new QueueTextureCache(128); // reserved 0 through 127
 
+	public static void resetCaches() {
+		BAKED_MODELS = new HashMap<>();
+		LOADED_MODELS = new HashMap<>();
+		TEXTURE_CACHE.clear();
+	}
+
 	@Nullable
 	public static BakedModel getBakedModel(BakableModel unbaked) {
 		BakedModel result = BAKED_MODELS.get(unbaked.id());
@@ -46,7 +52,7 @@ public class Models {
 						thePieShopDownTheRoad,
 						l -> l.texture().getNamespace().equals("minecraft") ? Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(l.texture()) : sprite,
 						BlockModelRotation.X0_Y0,
-						new ResourceLocation(unbaked.id()) /*iirc this resource location is just for debugging in the case of errors*/);
+						new ResourceLocation(unbaked.id().toLowerCase(Locale.ROOT)) /*iirc this resource location is just for debugging in the case of errors*/);
 			}
 		}
 
@@ -69,8 +75,8 @@ public class Models {
 			try (InputStream is = new ByteArrayInputStream(jsonGetter.get())) {
 				BlockModel model = BlockModel.fromStream(new InputStreamReader(is, StandardCharsets.UTF_8));
 				model.name = l;
-
-				return new BakableModel(location, model, NativeImage.fromBase64(b64ImageGetter.toString().substring(22)) /*trim nonsense at the start */);
+				NativeImage image = NativeImage.fromBase64(b64ImageGetter.get().substring(22)); // trim nonsense at the start
+				return new BakableModel(location, model, image);
 			} catch (IOException e) {
 				return null;
 			} catch (Exception e) {

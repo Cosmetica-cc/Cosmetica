@@ -21,7 +21,7 @@ public abstract class MixinTextureAtlas {
 		if (result != null) {
 			ResourceLocation location = tasinfo.name();
 
-			if (location.getNamespace().equals("extravagant_cosmetics") && location.getPath().matches(".*reserved_[0-9]+.*")) { // not sure what the format is so here's the catch-all for all the possible formats I think it could be
+			if (location.getNamespace().equals("extravagant_cosmetics") && location.getPath().matches("generated/reserved_[0-9]+")) {
 				Models.TEXTURE_CACHE.addAtlasSprite(result);
 			}
 		}
