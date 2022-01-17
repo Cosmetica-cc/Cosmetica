@@ -34,7 +34,8 @@ public class QueueTextureCache {
 	int search = 0; // current search index for an unused space
 
 	public void addAtlasSprite(TextureAtlasSprite result) {
-		this.sprites[this.emptySpriteIndex++] = result;
+		this.sprites[this.emptySpriteIndex] = result;
+		this.emptySpriteIndex = (this.emptySpriteIndex + 1) & (this.size - 1);
 	}
 
 	void clear() {
@@ -82,20 +83,7 @@ public class QueueTextureCache {
 			this.ids[index] = model.id();
 			MixinTextureAtlasSpriteInvoker sprite = ((MixinTextureAtlasSpriteInvoker)this.sprites[index]);
 			NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), sprite.getMainImage().length);
-
-//			for (int i = 0; i < 5; ++i) {
-//				File test = new File(FabricLoader.getInstance().getGameDirectory(), "reserved_" + index + "_dump.png");
-//				File test = new File(FabricLoader.getInstance().getGameDirectory(), "existing_" + index + "_dump_" + i + ".png");
-//				File test = new File(FabricLoader.getInstance().getGameDirectory(), "reserved_" + index + "_dump_" + i + ".png");
-//				try {
-//					test.createNewFile();
-//					//model.image()[0].writeToFile(test);
-//					//((MixinTextureAtlasSpriteInvoker) this.sprites[index]).getMainImage()[i].writeToFile(test);
-//					mipmap[i].writeToFile(test);
-//				} catch (IOException e) {
-//					throw new RuntimeException(e);
-//				}
-//			}
+			//System.out.println(Thread.currentThread().getName());
 			sprite.callUpload(0, 0, mipmap);
 		}
 
