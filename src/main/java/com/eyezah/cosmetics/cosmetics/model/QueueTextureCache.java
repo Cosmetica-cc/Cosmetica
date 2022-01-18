@@ -1,8 +1,11 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
 import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
+import com.eyezah.cosmetics.utils.Scheduler;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
@@ -81,10 +84,13 @@ public class QueueTextureCache {
 			if (this.ids[index] != null) Models.removeBakedModel(this.ids[index]);
 			// upload new model
 			this.ids[index] = model.id();
-			MixinTextureAtlasSpriteInvoker sprite = ((MixinTextureAtlasSpriteInvoker)this.sprites[index]);
-			NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), sprite.getMainImage().length);
+			MixinTextureAtlasSpriteInvoker sprite = ((MixinTextureAtlasSpriteInvoker) this.sprites[index]);
 			//System.out.println(Thread.currentThread().getName());
-			sprite.callUpload(0, 0, mipmap);
+
+			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
+				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), sprite.getMainImage().length);
+				sprite.callUpload(0, 0, mipmap);
+			});
 		}
 
 		// mark it as being used
