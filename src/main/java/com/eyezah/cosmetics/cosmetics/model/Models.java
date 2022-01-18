@@ -48,7 +48,7 @@ public class Models {
 		boolean compute = !BAKED_MODELS.containsKey(unbaked.id());
 
 		if (compute) {
-			if (FabricLoader.getInstance().isDevelopmentEnvironment()) Cosmetics.LOGGER.info("Computing Baked Model: " + unbaked.id());
+			Cosmetics.devInfo("Computing Baked Model: " + unbaked.id());
 			BAKED_MODELS.put(unbaked.id(), null); // searching
 			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, Minecraft.getInstance().level.getGameTime(), sprite -> {
 				BakedModel model = unbaked.model().bake(

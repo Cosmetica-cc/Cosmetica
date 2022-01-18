@@ -50,7 +50,7 @@ public class UnauthenticatedScreen extends Screen {
 				this.minecraft.setScreen(new OptionsScreen(screenStorage, optionsStorage));
 			}));
 		} else {
-			if (FabricLoader.getInstance().isDevelopmentEnvironment()) { // because I'm not authenticated in dev and can't use the normal button
+			if (IS_DEV) { // because I'm not authenticated in dev and can't use the normal button
 				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TextComponent("Immediately Clear Caches"), btn -> Cosmetics.reloadCosmetics()));
 			}
 

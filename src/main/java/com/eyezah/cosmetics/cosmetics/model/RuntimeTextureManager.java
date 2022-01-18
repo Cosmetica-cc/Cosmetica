@@ -75,7 +75,7 @@ public class RuntimeTextureManager {
 				}
 			}
 
-			if (FabricLoader.getInstance().isDevelopmentEnvironment()) Cosmetics.LOGGER.info("Using New Index: " + index);
+			Cosmetics.devInfo("Using New Index: " + index);
 			//System.out.println("Count: " + ((MixinTextureAtlasSpriteInvoker)this.sprites[index]).getMainImage().length); Count: 5
 			// at this point, index is guaranteed to be a value which is free
 			this.search = index + 1; // the next spot over
@@ -87,15 +87,15 @@ public class RuntimeTextureManager {
 			this.ids[index] = model.id();
 			this.used[index] = Integer.MAX_VALUE; // basically indefinitely marking it as unuseable
 
-			MixinTextureAtlasSpriteInvoker sprite = ((MixinTextureAtlasSpriteInvoker) this.sprites[index]);
+			TextureAtlasSprite sprite = this.sprites[index];
 			final int index_ = index;
 
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
-				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), sprite.getMainImage().length);
-
-				sprite.callUpload(0, 0, mipmap);
+				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage().length);
+				Cosmetics.devInfo("Allocating Sprite: " + sprite.getName());
+				((MixinTextureAtlasSpriteInvoker) sprite).callUpload(0, 0, mipmap);
 				this.used[index_] = 2;
-				callback.accept(this.sprites[index_]);
+				callback.accept(sprite);
 			});
 		}
 
