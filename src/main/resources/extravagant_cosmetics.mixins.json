@@ -8,15 +8,16 @@
     "screen.MixinConnectScreen",
     "screen.MixinConnectScreenInvoker",
     "screen.MixinTitleScreen",
+    "MixinConnection",
     "MixinEntityRenderer",
     "MixinLivingEntityRenderer",
     "MixinMinecraft",
-    "MixinSkinManager",
-    "MixinConnection",
     "MixinPlayerEntityRenderer",
     "MixinModelManager",
     "MixinTextureAtlas",
-    "MixinTextureAtlasSpriteInvoker"
+    "MixinTextureAtlasSpriteInvoker",
+    "MixinTextureManager",
+    "MixinSkinManager"
   ],
   "injectors": {
     "defaultRequire": 1
