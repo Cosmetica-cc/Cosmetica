@@ -1,7 +1,6 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.cosmetics.model.Models;
-import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -9,7 +8,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(TextureAtlas.class)
@@ -22,7 +20,7 @@ public abstract class MixinTextureAtlas {
 			ResourceLocation location = tasinfo.name();
 
 			if (location.getNamespace().equals("extravagant_cosmetics") && location.getPath().matches("generated/reserved_[0-9]+")) {
-				Models.TEXTURE_CACHE.addAtlasSprite(result);
+				Models.TEXTURE_MANAGER.addAtlasSprite(result);
 			}
 		}
 	}
