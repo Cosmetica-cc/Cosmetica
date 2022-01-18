@@ -1,8 +1,10 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
+import com.eyezah.cosmetics.Cosmetics;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -46,6 +48,7 @@ public class Models {
 		boolean compute = !BAKED_MODELS.containsKey(unbaked.id());
 
 		if (compute) {
+			if (FabricLoader.getInstance().isDevelopmentEnvironment()) Cosmetics.LOGGER.info("Computing Baked Model: " + unbaked.id());
 			BAKED_MODELS.put(unbaked.id(), null); // searching
 			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, Minecraft.getInstance().level.getGameTime(), sprite -> {
 				BakedModel model = unbaked.model().bake(

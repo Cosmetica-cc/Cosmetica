@@ -85,12 +85,14 @@ public class RuntimeTextureManager {
 			if (this.ids[index] != null) Models.removeBakedModel(this.ids[index]);
 			// upload new model
 			this.ids[index] = model.id();
-			MixinTextureAtlasSpriteInvoker sprite = ((MixinTextureAtlasSpriteInvoker) this.sprites[index]);
+			this.used[index] = Integer.MAX_VALUE; // basically indefinitely marking it as unuseable
 
+			MixinTextureAtlasSpriteInvoker sprite = ((MixinTextureAtlasSpriteInvoker) this.sprites[index]);
 			final int index_ = index;
-			this.used[index_] = Integer.MAX_VALUE; // basically indefinitely marking it as unuseable
+
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
 				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), sprite.getMainImage().length);
+
 				sprite.callUpload(0, 0, mipmap);
 				this.used[index_] = 2;
 				callback.accept(this.sprites[index_]);
