@@ -3,23 +3,17 @@ package com.eyezah.cosmetics.cosmetics.model;
 import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
 import com.eyezah.cosmetics.utils.Scheduler;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Queue-like texture cache. First-Come, First-Served.
  */
-public class QueueTextureCache {
+public class RuntimeTextureManager {
 	/**
 	 * @param size the size of the cache, must be a power of tool due to bitwise operations utilised (technically could use modulo instead but speed)
 	 */
-	public QueueTextureCache(int size) {
+	public RuntimeTextureManager(int size) {
 		this.size = size;
 		this.ids = new String[size];
 		this.sprites = new TextureAtlasSprite[size];
