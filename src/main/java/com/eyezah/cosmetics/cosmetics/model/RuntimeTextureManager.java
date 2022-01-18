@@ -1,10 +1,15 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
+import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
 import com.eyezah.cosmetics.utils.Scheduler;
 import com.mojang.blaze3d.platform.NativeImage;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.function.Consumer;
 
 /**
  * Queue-like texture cache. First-Come, First-Served.
@@ -27,7 +32,7 @@ public class RuntimeTextureManager {
 
 	// to limit the number of textures loaded and thus baked models created per tick, should this ever be necessary on a server
 	long lastTickTime; // default long value = 0 should be fine
-	final int[] used; // 0 = unused, 1 = used last tick, 2 = used this tick.
+	final int[] used; // 0 = unused, 1 = used last tick, 2 = used this tick, 3 - MAX_VALUE = searching
 	int search = 0; // current search index for an unused space
 
 	public void addAtlasSprite(TextureAtlasSprite result) {
@@ -36,6 +41,8 @@ public class RuntimeTextureManager {
 	}
 
 	void clear() {
+		this.search = 0;
+
 		for (int i = 0; i < this.size; ++i) {
 			this.used[i] = 0;
 			this.ids[i] = null;
@@ -44,7 +51,7 @@ public class RuntimeTextureManager {
 
 	// should be called from the render thread because of texture setting probably
 	// andThen may not be called on the same thread -- proceed with caution
-	public TextureAtlasSprite getAtlasSprite(BakableModel model, long tickTime) {
+	public void retrieveAllocatedSprite(BakableModel model, long tickTime, Consumer<TextureAtlasSprite> callback) {
 		if (tickTime != this.lastTickTime) {
 			this.lastTickTime = tickTime;
 			this.search = 0;
@@ -57,18 +64,18 @@ public class RuntimeTextureManager {
 		int index = this.getIndex(model.id());
 
 		if (index == -1) {
-			if (this.search == this.size) return null;
+			if (this.search == this.size) return;
 			index = this.search;
 
 			while (this.used[index] > 0) {
 				// increment. if reached the end, cannot load any new textures
 				if (++index == this.size) { // attention code editors: keep the ++ operator before index! ++index returns the result after incrementing, whereas index++ returns the result before!
 					this.search = this.size;
-					return null;
+					return;
 				}
 			}
 
-			//System.out.println("Using New Index: " + index);
+			if (FabricLoader.getInstance().isDevelopmentEnvironment()) Cosmetics.LOGGER.info("Using New Index: " + index);
 			//System.out.println("Count: " + ((MixinTextureAtlasSpriteInvoker)this.sprites[index]).getMainImage().length); Count: 5
 			// at this point, index is guaranteed to be a value which is free
 			this.search = index + 1; // the next spot over
@@ -79,17 +86,20 @@ public class RuntimeTextureManager {
 			// upload new model
 			this.ids[index] = model.id();
 			MixinTextureAtlasSpriteInvoker sprite = ((MixinTextureAtlasSpriteInvoker) this.sprites[index]);
-			//System.out.println(Thread.currentThread().getName());
 
+			final int index_ = index;
+			this.used[index_] = Integer.MAX_VALUE; // basically indefinitely marking it as unuseable
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
 				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), sprite.getMainImage().length);
 				sprite.callUpload(0, 0, mipmap);
+				this.used[index_] = 2;
+				callback.accept(this.sprites[index_]);
 			});
 		}
 
 		// mark it as being used
 		this.used[index] = 2;
-		return this.sprites[index];
+		callback.accept(this.sprites[index]);
 	}
 
 	// literally just search the entire array to see if it exists

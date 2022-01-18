@@ -19,10 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Supplier;
@@ -40,27 +37,27 @@ public class Models {
 	}
 
 	public static void resetTextureBasedCaches() {
-		BAKED_MODELS = new HashMap<>();
-		TEXTURE_MANAGER.clear();
+		BAKED_MODELS = new HashMap<>(); // from the test mentioned later I found that this on its own just screws model textures somehow
+		TEXTURE_MANAGER.clear(); // this gives opengl errors when called from resource loader (tested by having it not run)
 	}
 
 	@Nullable
 	public static BakedModel getBakedModel(BakableModel unbaked) {
-		BakedModel result = BAKED_MODELS.get(unbaked.id());
+		boolean compute = !BAKED_MODELS.containsKey(unbaked.id());
 
-		if (result == null) {
-			TextureAtlasSprite sprite = TEXTURE_MANAGER.getAtlasSprite(unbaked, Minecraft.getInstance().level.getGameTime());
-
-			if (sprite != null) {
-				result = unbaked.model().bake(
+		if (compute) {
+			BAKED_MODELS.put(unbaked.id(), null); // searching
+			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, Minecraft.getInstance().level.getGameTime(), sprite -> {
+				BakedModel model = unbaked.model().bake(
 						thePieShopDownTheRoad,
 						l -> l.texture().getNamespace().equals("minecraft") ? Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(l.texture()) : sprite,
 						BlockModelRotation.X0_Y0,
-						new ResourceLocation(unbaked.id().toLowerCase(Locale.ROOT)) /*iirc this resource location is just for debugging in the case of errors*/);
-			}
+						new ResourceLocation(unbaked.id().toLowerCase(Locale.ROOT)) /*this resource location is just for debugging in the case of errors*/);
+				BAKED_MODELS.put(unbaked.id(), model);
+			});
 		}
 
-		return result;
+		return BAKED_MODELS.get(unbaked.id());
 	}
 
 	public static void removeBakedModel(String id) {
