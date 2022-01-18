@@ -37,7 +37,7 @@ public class Models {
 	}
 
 	public static void resetTextureBasedCaches() {
-		BAKED_MODELS = new HashMap<>(); // from the test mentioned later I found that this on its own just screws model textures somehow
+		BAKED_MODELS = new HashMap<>(); // from the test mentioned later I found that this on its own just screws model textures some0how
 		TEXTURE_MANAGER.clear(); // this gives opengl errors when called from resource loader (tested by having it not run)
 	}
 

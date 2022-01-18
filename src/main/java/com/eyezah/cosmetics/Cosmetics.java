@@ -89,7 +89,7 @@ public class Cosmetics implements ClientModInitializer {
 
 		// make sure it clears relevant caches on resource reload
 		// comment this out if you want the mod to actually work
-		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+		/*ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override
 			public ResourceLocation getFabricId() {
 				return new ResourceLocation("extravagant_cosmetics", "cache_clearer");
@@ -100,7 +100,7 @@ public class Cosmetics implements ClientModInitializer {
 				System.out.println("Resetting Texture Based Caches");
 				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
 			}
-		});
+		});*/
 
 		runAuthenticationCheckThread();
 	}
