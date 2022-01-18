@@ -57,7 +57,14 @@ public class Cosmetics implements ClientModInitializer {
 	protected static boolean regionSpecificEffects = false;
 	protected static boolean doShoulderBuddies = true;
 	protected static boolean doHats = true; // todo setting this value
+	public static boolean IS_DEV = FabricLoader.getInstance().isDevelopmentEnvironment();
 	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
+
+	public static void devInfo(String str) {
+		if (IS_DEV) {
+			LOGGER.info(str);
+		}
+	}
 
 	@Override
 	public void onInitializeClient() {
@@ -75,7 +82,7 @@ public class Cosmetics implements ClientModInitializer {
 					}
 				}
 			} catch (IOException e) {
-				if (FabricLoader.getInstance().isDevelopmentEnvironment()) e.printStackTrace();
+				if (Cosmetics.IS_DEV) e.printStackTrace();
 			}
 		});
 
