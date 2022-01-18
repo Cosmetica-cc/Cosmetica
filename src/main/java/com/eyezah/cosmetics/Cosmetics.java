@@ -2,18 +2,16 @@ package com.eyezah.cosmetics;
 
 import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.Models;
+import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.NamedSingleThreadFactory;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -26,16 +24,9 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.apache.http.ParseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,18 +48,15 @@ public class Cosmetics implements ClientModInitializer {
 	protected static boolean regionSpecificEffects = false;
 	protected static boolean doShoulderBuddies = true;
 	protected static boolean doHats = true; // todo setting this value
-	public static boolean IS_DEV = FabricLoader.getInstance().isDevelopmentEnvironment();
-	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
 
-	public static void devInfo(String str) {
-		if (IS_DEV) {
-			LOGGER.info(str);
-		}
-	}
+	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
 
 	@Override
 	public void onInitializeClient() {
 		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
+
+		// delete debug dump images
+		Debug.clearImages();
 
 		// only print "also try celestine client" once it's out
 		// will simplify the code to just the log once celestine client is out since this is only necessary for when cosmetics is out before celestine
@@ -82,7 +70,7 @@ public class Cosmetics implements ClientModInitializer {
 					}
 				}
 			} catch (IOException e) {
-				if (Cosmetics.IS_DEV) e.printStackTrace();
+				if (Debug.DEBUG_MODE) e.printStackTrace();
 			}
 		});
 

@@ -1,10 +1,9 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
-import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -13,7 +12,6 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -48,7 +46,7 @@ public class Models {
 		boolean compute = !BAKED_MODELS.containsKey(unbaked.id());
 
 		if (compute) {
-			Cosmetics.devInfo("Computing Baked Model: " + unbaked.id());
+			Debug.info("Computing Baked Model: " + unbaked.id());
 			BAKED_MODELS.put(unbaked.id(), null); // searching
 			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, Minecraft.getInstance().level.getGameTime(), sprite -> {
 				BakedModel model = unbaked.model().bake(

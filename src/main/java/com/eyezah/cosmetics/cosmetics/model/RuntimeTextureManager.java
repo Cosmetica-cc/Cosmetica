@@ -1,13 +1,12 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
-import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
+import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Scheduler;
 import com.mojang.blaze3d.platform.NativeImage;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Consumer;
 
@@ -75,7 +74,7 @@ public class RuntimeTextureManager {
 				}
 			}
 
-			Cosmetics.devInfo("Using New Index: " + index);
+			Debug.info("Using New Index: " + index);
 			//System.out.println("Count: " + ((MixinTextureAtlasSpriteInvoker)this.sprites[index]).getMainImage().length); Count: 5
 			// at this point, index is guaranteed to be a value which is free
 			this.search = index + 1; // the next spot over
@@ -92,8 +91,11 @@ public class RuntimeTextureManager {
 
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
 				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage().length);
-				Cosmetics.devInfo("Allocating Sprite: " + sprite.getName());
+				Debug.info("Allocating Sprite: " + sprite.getName());
+				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage());
+				Debug.dumpImages(sprite.getName().toDebugFileName(), mipmap);
 				((MixinTextureAtlasSpriteInvoker) sprite).callUpload(0, 0, mipmap);
+				//sprite.uploadFirstFrame();
 				this.used[index_] = 2;
 				callback.accept(sprite);
 			});
