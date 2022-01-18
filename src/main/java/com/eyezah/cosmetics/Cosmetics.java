@@ -3,6 +3,7 @@ package com.eyezah.cosmetics;
 import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.NamedSingleThreadFactory;
+import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -61,7 +62,23 @@ public class Cosmetics implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
-		//LOGGER.info("<Valoeghese> Also try celestine client!"); uncomment this when celestine is released
+
+		// only print "also try celestine client" once it's out
+		// will simplify the code to just the log once celestine client is out since this is only necessary for when cosmetics is out before celestine
+		runOffthread(() -> {
+			try {
+				Response response = Response.request("https://raw.githubusercontent.com/BenzeneStudios/Celestine-Installer/master/release_data.json?rng=" + new Random().nextInt(1000));
+				if (response.getError().isEmpty()) {
+					JsonObject object = response.getAsJson();
+
+					if (!object.get("latest_version").getAsString().isEmpty()) {
+						LOGGER.info("<Valoeghese> Also try celestine client!");
+					}
+				}
+			} catch (IOException e) {
+				if (FabricLoader.getInstance().isDevelopmentEnvironment()) e.printStackTrace();
+			}
+		});
 
 		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
 			// register all reserved textures
@@ -71,6 +88,7 @@ public class Cosmetics implements ClientModInitializer {
 		});
 
 		// make sure it clears relevant caches on resource reload
+		// comment this out if you want the mod to actually work
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override
 			public ResourceLocation getFabricId() {
@@ -79,6 +97,7 @@ public class Cosmetics implements ClientModInitializer {
 
 			@Override
 			public void onResourceManagerReload(ResourceManager resourceManager) {
+				System.out.println("Resetting Texture Based Caches");
 				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
 			}
 		});
@@ -144,29 +163,26 @@ public class Cosmetics implements ClientModInitializer {
 	public static PlayerData getPlayerData(UUID uuid, String username) {
 		synchronized (playerDataCache) {
 			return playerDataCache.computeIfAbsent(uuid, uid -> {
-				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up.
+				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
 					Cosmetics.runOffthread(() -> {
-						try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-							System.out.println("https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken());
-							final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken());
-							try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-								String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
-								JsonParser parser = new JsonParser();
-								JsonObject jsonObject = parser.parse(responseBody).getAsJsonObject();
-								JsonObject hat = jsonObject.get("hat").getAsJsonObject();
+						String target = "https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken();
+						System.out.println(target);
 
-								synchronized (playerDataCache) { // update the information with what we have gotten.
-									playerDataCache.put(uuid, new PlayerData(
-											jsonObject.get("lore").getAsString(),
-											jsonObject.get("upside-down").getAsBoolean(),
-											jsonObject.get("prefix").getAsString(),
-											jsonObject.get("suffix").getAsString(),
-											jsonObject.get("shoulder-buddy").getAsString(),
-											Models.getBakableModel(hat.get("id").getAsString(), () -> hat.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> hat.get("texture").getAsString())));
-									lookingUp.remove(uuid);
-								}
+						try (Response response = Response.request(target)) {
+							JsonObject jsonObject = response.getAsJson();
+							JsonObject hat = jsonObject.get("hat").getAsJsonObject();
+
+							synchronized (playerDataCache) { // update the information with what we have gotten.
+								playerDataCache.put(uuid, new PlayerData(
+										jsonObject.get("lore").getAsString(),
+										jsonObject.get("upside-down").getAsBoolean(),
+										jsonObject.get("prefix").getAsString(),
+										jsonObject.get("suffix").getAsString(),
+										jsonObject.get("shoulder-buddy").getAsString(),
+										Models.getBakableModel(hat.get("id").getAsString(), () -> hat.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> hat.get("texture").getAsString())));
+								lookingUp.remove(uuid);
 							}
 						} catch (IOException | ParseException e) {
 							e.printStackTrace();

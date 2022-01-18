@@ -1,8 +1,12 @@
 package com.eyezah.cosmetics.utils;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.OptionalInt;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
@@ -10,15 +14,18 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
-public class Response {
-	private Response(StatusLine status, HttpEntity entity) {
-		this.status = status;
-		this.entity = entity;
+public class Response implements Closeable {
+	private Response(CloseableHttpClient client, CloseableHttpResponse response) {
+		this.client = client;
+		this.response = response;
+		this.status = this.response.getStatusLine();
 	}
 	
+	private final CloseableHttpClient client;
+	private final CloseableHttpResponse response;
 	private final StatusLine status;
-	private final HttpEntity entity;
 
 	public StatusLine getStatus() {
 		return this.status;
@@ -39,16 +46,26 @@ public class Response {
 	}
 
 	public HttpEntity getEntity() {
-		return this.entity;
+		return this.response.getEntity();
+	}
+
+	public JsonObject getAsJson() throws IOException {
+		return PARSER.parse(EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim()).getAsJsonObject();
 	}
 
 	public static Response request(String request) throws ParseException, IOException {
-		try (CloseableHttpClient client = HttpClients.createDefault()) {
-			final HttpGet get = new HttpGet(request);
+		CloseableHttpClient client = HttpClients.createDefault();
+		final HttpGet get = new HttpGet(request);
 
-			try (CloseableHttpResponse response = client.execute(get)) {
-				return new Response(response.getStatusLine(), response.getEntity());
-			}
-		}
+		CloseableHttpResponse response = client.execute(get);
+		return new Response(client, response);
+	}
+
+	private static final JsonParser PARSER = new JsonParser();
+
+	@Override
+	public void close() throws IOException {
+		this.response.close();
+		this.client.close();
 	}
 }
