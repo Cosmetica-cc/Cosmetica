@@ -66,8 +66,7 @@ public class Cosmetics implements ClientModInitializer {
 		// only print "also try celestine client" once it's out
 		// will simplify the code to just the log once celestine client is out since this is only necessary for when cosmetics is out before celestine
 		runOffthread(() -> {
-			try {
-				Response response = Response.request("https://raw.githubusercontent.com/BenzeneStudios/Celestine-Installer/master/release_data.json?rng=" + new Random().nextInt(1000));
+			try (Response response = Response.request("https://raw.githubusercontent.com/BenzeneStudios/Celestine-Installer/master/release_data.json?timestamp=" + System.currentTimeMillis())) {
 				if (response.getError().isEmpty()) {
 					JsonObject object = response.getAsJson();
 
@@ -89,18 +88,18 @@ public class Cosmetics implements ClientModInitializer {
 
 		// make sure it clears relevant caches on resource reload
 		// comment this out if you want the mod to actually work
-		/*ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-			@Override
-			public ResourceLocation getFabricId() {
-				return new ResourceLocation("extravagant_cosmetics", "cache_clearer");
-			}
-
-			@Override
-			public void onResourceManagerReload(ResourceManager resourceManager) {
-				System.out.println("Resetting Texture Based Caches");
-				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
-			}
-		});*/
+//		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+//			@Override
+//			public ResourceLocation getFabricId() {
+//				return new ResourceLocation("extravagant_cosmetics", "cache_clearer");
+//			}
+//
+//			@Override
+//			public void onResourceManagerReload(ResourceManager resourceManager) {
+//				System.out.println("Resetting Texture Based Caches");
+//				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
+//			}
+//		});
 
 		runAuthenticationCheckThread();
 	}
