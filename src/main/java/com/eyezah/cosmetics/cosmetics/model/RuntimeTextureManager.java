@@ -90,8 +90,13 @@ public class RuntimeTextureManager {
 			final int index_ = index;
 
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
-				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage().length);
-				Debug.info("Allocating Sprite: " + sprite.getName());
+				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage().length - 1);
+				Debug.info(() -> {
+					NativeImage[] oldMipmap = ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage();
+					ImageDebugInfo oldDebugInfo = new ImageDebugInfo(oldMipmap);
+					ImageDebugInfo newDebugInfo = new ImageDebugInfo(mipmap);
+					return "Allocating Sprite: " + sprite.getName() + ". OldImg: " + oldDebugInfo + " | NewImg: " + newDebugInfo;
+				});
 				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage());
 				Debug.dumpImages(sprite.getName().toDebugFileName(), mipmap);
 				((MixinTextureAtlasSpriteInvoker) sprite).callUpload(0, 0, mipmap);
@@ -116,5 +121,11 @@ public class RuntimeTextureManager {
 		}
 
 		return -1;
+	}
+
+	private record ImageDebugInfo(int mipmapLevels, String dimensions, int glFormat, int formatComponents) {
+		ImageDebugInfo(NativeImage[] mipmap) {
+			this(mipmap.length, mipmap[0].getWidth() + "x" + mipmap[0].getHeight(), mipmap[0].format().glFormat(), mipmap[0].format().components());
+		}
 	}
 }

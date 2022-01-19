@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.function.Supplier;
 
 /**
  * A set of classes
@@ -25,6 +26,12 @@ public class Debug {
 	public static void info(String str) {
 		if (DEBUG_MODE && DEBUG_SETTINGS.logging()) {
 			Cosmetics.LOGGER.info(str);
+		}
+	}
+
+	public static void info(Supplier<String> str) {
+		if (DEBUG_MODE && DEBUG_SETTINGS.logging()) {
+			Cosmetics.LOGGER.info(str.get());
 		}
 	}
 
