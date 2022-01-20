@@ -12,6 +12,7 @@
     "MixinEntityRenderer",
     "MixinLivingEntityRenderer",
     "MixinMinecraft",
+    "MixinNativeImage",
     "MixinPlayerEntityRenderer",
     "MixinModelManager",
     "MixinTextureAtlas",
