@@ -4,7 +4,6 @@ import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Scheduler;
 import com.mojang.blaze3d.platform.NativeImage;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
@@ -102,6 +101,7 @@ public class RuntimeTextureManager {
 				((MixinTextureAtlasSpriteInvoker) sprite).callUpload(0, 0, mipmap);
 				//sprite.uploadFirstFrame();
 				this.used[index_] = 2;
+				System.out.println(Thread.currentThread().getName());
 				callback.accept(sprite);
 			});
 		}
@@ -123,9 +123,24 @@ public class RuntimeTextureManager {
 		return -1;
 	}
 
-	private record ImageDebugInfo(int mipmapLevels, String dimensions, int glFormat, int formatComponents) {
+	// Debug Stuff
+
+	private record ImageDebugInfo(int mipmapLevels, String dimensions, String allocInfo, NativeImage.Format format, int glFormatNum, int formatComponents) {
 		ImageDebugInfo(NativeImage[] mipmap) {
-			this(mipmap.length, mipmap[0].getWidth() + "x" + mipmap[0].getHeight(), mipmap[0].format().glFormat(), mipmap[0].format().components());
+			this(mipmap.length, mipmap[0].getWidth() + "x" + mipmap[0].getHeight(),
+					((NIDebugInfoProvider) (Object) mipmap[0]).getAllocType().toString() + (((NIDebugInfoProvider) (Object) mipmap[0]).usesStbFree() ? "_S" : "_N"),
+					mipmap[0].format(), mipmap[0].format().glFormat(), mipmap[0].format().components());
 		}
+	}
+
+	public enum PixelAllocType {
+		PROVIDED,
+		CALLOC,
+		ALLOC
+	}
+
+	public interface NIDebugInfoProvider {
+		boolean usesStbFree();
+		PixelAllocType getAllocType();
 	}
 }

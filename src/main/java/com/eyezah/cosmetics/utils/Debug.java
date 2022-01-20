@@ -6,6 +6,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.system.CallbackI;
 
 import java.io.File;
@@ -19,19 +21,20 @@ import java.util.function.Supplier;
  */
 public class Debug {
 	public static boolean DEBUG_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || System.getProperty("cosmetics.debug", "false").equals("true");
+	private static Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetics Debug");
 	public static File DUMP_FOLDER;
 	// edit this to change debug settings
 	private static Settings DEBUG_SETTINGS = new Settings();
 
 	public static void info(String str) {
 		if (DEBUG_MODE && DEBUG_SETTINGS.logging()) {
-			Cosmetics.LOGGER.info(str);
+			DEBUG_LOGGER.info(str);
 		}
 	}
 
 	public static void info(Supplier<String> str) {
 		if (DEBUG_MODE && DEBUG_SETTINGS.logging()) {
-			Cosmetics.LOGGER.info(str.get());
+			DEBUG_LOGGER.info(str.get());
 		}
 	}
 
