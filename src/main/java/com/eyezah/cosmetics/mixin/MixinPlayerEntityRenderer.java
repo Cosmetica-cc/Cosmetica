@@ -24,7 +24,9 @@ public abstract class MixinPlayerEntityRenderer extends LivingEntityRenderer<Abs
 
 	@Inject(at=@At("TAIL"), method="<init>", allow=1)
 	private void init(EntityRendererProvider.Context context, boolean bl, CallbackInfo ci) {
-		if (doShoulderBuddies()) this.addLayer(new ShoulderBuddy(this, context.getModelSet()));
+		//if (doShoulderBuddies()) this.addLayer(new ShoulderBuddy(this, context.getModelSet()));
+		//if (doHats()) this.addLayer(new Hat<>(this));
 		if (doHats()) this.addLayer(new Hat<>(this));
+		if (doShoulderBuddies()) this.addLayer(new ShoulderBuddy<>(this));
 	}
 }

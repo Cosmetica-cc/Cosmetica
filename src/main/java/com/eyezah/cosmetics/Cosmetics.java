@@ -12,6 +12,8 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -24,6 +26,8 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.apache.http.ParseException;
@@ -83,18 +87,18 @@ public class Cosmetics implements ClientModInitializer {
 
 		// make sure it clears relevant caches on resource reload
 		// comment this out if you want the mod to actually work
-//		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-//			@Override
-//			public ResourceLocation getFabricId() {
-//				return new ResourceLocation("extravagant_cosmetics", "cache_clearer");
-//			}
-//
-//			@Override
-//			public void onResourceManagerReload(ResourceManager resourceManager) {
-//				System.out.println("Resetting Texture Based Caches");
-//				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
-//			}
-//		});
+		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+			@Override
+			public ResourceLocation getFabricId() {
+				return new ResourceLocation("extravagant_cosmetics", "cache_clearer");
+			}
+
+			@Override
+			public void onResourceManagerReload(ResourceManager resourceManager) {
+				System.out.println("Resetting Texture Based Caches");
+				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
+			}
+		});
 
 		runAuthenticationCheckThread();
 	}
@@ -174,7 +178,7 @@ public class Cosmetics implements ClientModInitializer {
 										jsonObject.get("upside-down").getAsBoolean(),
 										jsonObject.get("prefix").getAsString(),
 										jsonObject.get("suffix").getAsString(),
-										jsonObject.get("shoulder-buddy").getAsString(),
+										Models.getBakableModel(hat.get("id").getAsString(), () -> hat.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> hat.get("texture").getAsString()),
 										Models.getBakableModel(hat.get("id").getAsString(), () -> hat.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> hat.get("texture").getAsString())));
 								lookingUp.remove(uuid);
 							}
