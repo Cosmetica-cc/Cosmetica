@@ -3,8 +3,10 @@ package com.eyezah.cosmetics.cosmetics.model;
 import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Scheduler;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 import java.util.function.Consumer;
@@ -98,10 +100,11 @@ public class RuntimeTextureManager {
 				});
 				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage());
 				Debug.dumpImages(sprite.getName().toDebugFileName(), mipmap);
+				GlStateManager._bindTexture(((MixinTextureAtlasSpriteInvoker) sprite).getAtlas().getId());
 				((MixinTextureAtlasSpriteInvoker) sprite).callUpload(0, 0, mipmap);
 				//sprite.uploadFirstFrame();
 				this.used[index_] = 2;
-				System.out.println(Thread.currentThread().getName());
+				//System.out.println(Thread.currentThread().getName());
 				callback.accept(sprite);
 			});
 		}

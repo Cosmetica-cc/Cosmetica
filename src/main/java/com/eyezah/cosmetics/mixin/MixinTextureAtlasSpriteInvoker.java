@@ -17,6 +17,9 @@ public interface MixinTextureAtlasSpriteInvoker {
 	@Mutable
 	void setMainImage(NativeImage[] images);
 
+	@Accessor
+	TextureAtlas getAtlas();
+
 	@Invoker
 	void callUpload(int i, int j, NativeImage[] nativeImages);
 }
