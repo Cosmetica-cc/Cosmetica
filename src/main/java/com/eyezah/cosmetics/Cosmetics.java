@@ -53,6 +53,17 @@ public class Cosmetics implements ClientModInitializer {
 	protected static boolean doShoulderBuddies = true;
 	protected static boolean doHats = true; // todo setting this value
 
+	// used for screens
+	public static ConnectScreen connectScreen;
+	public static Screen screenStorage;
+	public static Options optionsStorage;
+
+	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
+	private static Set<UUID> lookingUp = new HashSet<>();
+
+	public static final Logger LOGGER = LogManager.getLogger("Cosmetics");
+	private static final ExecutorService LOOKUP_THREAD = Executors.newSingleThreadExecutor(new NamedSingleThreadFactory("Cosmetics Lookup Thread"));
+
 	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
 
 	@Override
@@ -86,7 +97,6 @@ public class Cosmetics implements ClientModInitializer {
 		});
 
 		// make sure it clears relevant caches on resource reload
-		// comment this out if you want the mod to actually work
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override
 			public ResourceLocation getFabricId() {
@@ -110,11 +120,6 @@ public class Cosmetics implements ClientModInitializer {
 			e.printStackTrace();
 		}
 	}
-
-	// used for screens
-	public static ConnectScreen connectScreen;
-	public static Screen screenStorage;
-	public static Options optionsStorage;
 
 	public static void updateParentScreen(Screen screen, Options options) {
 		screenStorage = screen;
@@ -240,10 +245,4 @@ public class Cosmetics implements ClientModInitializer {
 		playerDataCache = new HashMap<>();
 		Models.resetCaches();
 	}
-
-	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
-	private static Set<UUID> lookingUp = new HashSet<>();
-
-	public static final Logger LOGGER = LogManager.getLogger("Cosmetics");
-	private static final ExecutorService LOOKUP_THREAD = Executors.newSingleThreadExecutor(new NamedSingleThreadFactory("Cosmetics Lookup Thread"));
 }
