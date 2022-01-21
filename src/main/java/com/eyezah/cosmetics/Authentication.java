@@ -4,6 +4,7 @@ import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.screens.UpdatingSettings;
+import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.fabricmc.loader.api.FabricLoader;
@@ -46,22 +47,17 @@ public class Authentication {
 				runAuthentication(Minecraft.getInstance().screen);
 				return;
 			}
-			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-				final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/get/settings?token=" + token);
-				try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-					String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-					JsonParser parser = new JsonParser();
-					JsonObject jsonObject = parser.parse(responseBody).getAsJsonObject();
-					if (jsonObject.has("error")) {
-						System.out.println("error: " + jsonObject.get("error").getAsString());
-						if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
-						return;
-					}
-					regionSpecificEffects = jsonObject.get("per-region effects").getAsBoolean();
-					doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
-					if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) {
-						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage)));
-					}
+			try (Response response = Response.request("https://eyezah.com/cosmetics/api/get/settings?token=\" + token")) {
+				JsonObject jsonObject = response.getAsJson();
+				if (jsonObject.has("error")) {
+					System.out.println("error: " + jsonObject.get("error").getAsString());
+					if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
+					return;
+				}
+				regionSpecificEffects = jsonObject.get("per-region effects").getAsBoolean();
+				doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
+				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) {
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage)));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -77,20 +73,17 @@ public class Authentication {
 
 	public static void setToken(String testToken) {
 		Thread requestThread = new Thread(() -> {
-			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-				final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken());
-				try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-					String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
-					if (responseBody.startsWith("token:")) {
-						token = responseBody.substring(6);
-						currentlyAuthenticated = true;
-						currentlyAuthenticating = false;
-						syncSettings();
-					} else {
-						currentlyAuthenticating = false;
-						if (Minecraft.getInstance().screen instanceof LoadingScreen) {
-							Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
-						}
+			try (Response response = Response.request("https://eyezah.com/cosmetics/api/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken())) {
+				String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
+				if (responseBody.startsWith("token:")) {
+					token = responseBody.substring(6);
+					currentlyAuthenticated = true;
+					currentlyAuthenticating = false;
+					syncSettings();
+				} else {
+					currentlyAuthenticating = false;
+					if (Minecraft.getInstance().screen instanceof LoadingScreen) {
+						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
 					}
 				}
 			} catch (IOException e) {
