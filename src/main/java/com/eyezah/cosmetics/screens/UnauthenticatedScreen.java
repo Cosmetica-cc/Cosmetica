@@ -55,7 +55,7 @@ public class UnauthenticatedScreen extends Screen {
 				this.minecraft.setScreen(new SkinCustomizationScreen(new OptionsScreen(screenStorage, optionsStorage), this.parentOptions));
 			}));
 			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("gui.cancel"), (button) -> {
-				this.minecraft.setScreen(new OptionsScreen(screenStorage, optionsStorage));
+				this.minecraft.setScreen(screenStorage);
 			}));
 		}
 	}
