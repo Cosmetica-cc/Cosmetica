@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.mixin;
+package com.eyezah.cosmetics.mixin.textures;
 
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import net.minecraft.client.renderer.texture.TextureAtlas;

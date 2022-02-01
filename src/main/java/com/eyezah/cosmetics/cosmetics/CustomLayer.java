@@ -14,17 +14,12 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.world.entity.player.Player;
 
-public class CustomLayer<T extends Player, P extends HumanoidModel<T>> extends RenderLayer<T, PlayerModel<T>> {
+public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> extends RenderLayer<T, PlayerModel<T>> {
     public ModelManager modelManager;
 
     public CustomLayer(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
         super(renderLayerParent);
         this.modelManager = Minecraft.getInstance().getModelManager();
-    }
-
-    @Override
-    public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, T entity, float f, float g, float h, float j, float k, float l) {
-
     }
 
     public void doCoolRenderThings(BakableModel bakableModel, ModelPart modelPart, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, float x, float y, float z) {

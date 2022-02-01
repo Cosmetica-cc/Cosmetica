@@ -14,5 +14,11 @@
   "extravagantCosmetics.unauthenticated": "Error connecting to ExtravagantCosmetics",
   "extravagantCosmetics.unauthenticated.message": "We couldn't authenticate your account! This could be because you're using a cracked Minecraft account or your internet isn't working.",
   "extravagantCosmetics.updating": "Connecting to ExtravagantCosmetics...",
-  "extravagantCosmetics.updating.message": "Updating your settings..."
+  "extravagantCosmetics.updating.message": "Updating your settings...",
+  "extravagantCosmetics.options.yes": "Yes",
+  "extravagantCosmetics.options.no": "No",
+  "extravagantCosmetics.rsewarning.title": "Do you want to enable Region-Specific Effects?",
+  "extravagantCosmetics.rsewarning.description1": "If you choose 'yes,' people will be able to see your region-specific cosmetics",
+  "extravagantCosmetics.rsewarning.description2": "and may use them to determine your country of origin.",
+  "extravagantCosmetics.rsewarning.description3": "You will also be able to see the region-specific cosmetics of others."
 }

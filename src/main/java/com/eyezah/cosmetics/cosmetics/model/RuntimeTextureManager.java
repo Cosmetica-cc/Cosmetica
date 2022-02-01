@@ -1,12 +1,11 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
-import com.eyezah.cosmetics.mixin.MixinTextureAtlasSpriteInvoker;
+import com.eyezah.cosmetics.mixin.textures.MixinTextureAtlasSpriteInvoker;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Scheduler;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 import java.util.function.Consumer;
@@ -91,20 +90,17 @@ public class RuntimeTextureManager {
 			final int index_ = index;
 
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
+				// generate mipmap
 				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage().length - 1);
-				Debug.info(() -> {
-					NativeImage[] oldMipmap = ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage();
-					ImageDebugInfo oldDebugInfo = new ImageDebugInfo(oldMipmap);
-					ImageDebugInfo newDebugInfo = new ImageDebugInfo(mipmap);
-					return "Allocating Sprite: " + sprite.getName() + ". OldImg: " + oldDebugInfo + " | NewImg: " + newDebugInfo;
-				});
+				Debug.info("Allocating Sprite: " + sprite.getName());
 				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage());
 				Debug.dumpImages(sprite.getName().toDebugFileName(), mipmap);
+				// bind the texture
 				GlStateManager._bindTexture(((MixinTextureAtlasSpriteInvoker) sprite).getAtlas().getId());
+				// upload to the texture
 				((MixinTextureAtlasSpriteInvoker) sprite).callUpload(0, 0, mipmap);
 				//sprite.uploadFirstFrame();
 				this.used[index_] = 2;
-				//System.out.println(Thread.currentThread().getName());
 				callback.accept(sprite);
 			});
 		}
@@ -124,26 +120,5 @@ public class RuntimeTextureManager {
 		}
 
 		return -1;
-	}
-
-	// Debug Stuff
-
-	private record ImageDebugInfo(int mipmapLevels, String dimensions, String allocInfo, NativeImage.Format format, int glFormatNum, int formatComponents) {
-		ImageDebugInfo(NativeImage[] mipmap) {
-			this(mipmap.length, mipmap[0].getWidth() + "x" + mipmap[0].getHeight(),
-					((NIDebugInfoProvider) (Object) mipmap[0]).getAllocType().toString() + (((NIDebugInfoProvider) (Object) mipmap[0]).usesStbFree() ? "_S" : "_N"),
-					mipmap[0].format(), mipmap[0].format().glFormat(), mipmap[0].format().components());
-		}
-	}
-
-	public enum PixelAllocType {
-		PROVIDED,
-		CALLOC,
-		ALLOC
-	}
-
-	public interface NIDebugInfoProvider {
-		boolean usesStbFree();
-		PixelAllocType getAllocType();
 	}
 }

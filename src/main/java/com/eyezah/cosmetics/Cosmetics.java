@@ -105,7 +105,6 @@ public class Cosmetics implements ClientModInitializer {
 
 			@Override
 			public void onResourceManagerReload(ResourceManager resourceManager) {
-				System.out.println("Resetting Texture Based Caches");
 				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
 			}
 		});

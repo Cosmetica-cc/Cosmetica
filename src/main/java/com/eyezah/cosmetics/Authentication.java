@@ -2,8 +2,10 @@ package com.eyezah.cosmetics;
 
 import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.MainScreen;
+import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.screens.UpdatingSettings;
+import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
@@ -40,13 +42,23 @@ public class Authentication {
 				return;
 			}
 			try (Response response = Response.request("https://eyezah.com/cosmetics/api/get/settings?token=\" + token")) {
+				Debug.info("Handling successful cosmetics auth response.");
+
 				JsonObject jsonObject = response.getAsJson();
 				if (jsonObject.has("error")) {
 					System.out.println("error: " + jsonObject.get("error").getAsString());
 					if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
 					return;
 				}
-				regionSpecificEffects = jsonObject.get("per-region effects").getAsBoolean();
+
+				// regional effects checking. the absence of this field indicates the user has not set it yet, and the presence of it allows us to cache the current setting on the client
+				if (jsonObject.has("per-region effects")) {
+					regionSpecificEffects = jsonObject.get("per-region effects").getAsBoolean();
+				} else {
+					regionSpecificEffects = false;
+					RSEWarningScreen.appearNextScreenChange = true;
+				}
+
 				doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
 				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) {
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage)));

@@ -49,6 +49,10 @@ public class Response implements Closeable {
 		return this.response.getEntity();
 	}
 
+	public String getAsString() throws IOException {
+		return EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8);
+	}
+
 	public JsonObject getAsJson() throws IOException {
 		return PARSER.parse(EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim()).getAsJsonObject();
 	}
