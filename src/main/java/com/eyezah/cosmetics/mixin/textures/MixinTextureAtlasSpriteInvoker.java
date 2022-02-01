@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.mixin;
+package com.eyezah.cosmetics.mixin.textures;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.TextureAtlas;

@@ -1,6 +1,5 @@
 package com.eyezah.cosmetics.mixin.screen;
 
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

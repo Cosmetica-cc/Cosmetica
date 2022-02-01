@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.screens;
 
 import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.utils.Response;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -44,16 +45,14 @@ public class UpdatingSettings extends Screen {
 		if (!endString.equals("")) {
 			String finalEndString = endString;
 			Thread requestThread = new Thread(() -> {
-				try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-					final HttpGet httpGet = new HttpGet("https://eyezah.com/cosmetics/api/client/updatesettings?token=" + getToken() + finalEndString);
-					try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-						String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-						if (doReload) reloadCosmetics();
-						if (responseBody.equals("success")) {
-							Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(screenStorage));
-						} else {
-							Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(screenStorage, this.parentOptions, true)));
-						}
+				try (Response response = Response.request("https://eyezah.com/cosmetics/api/client/updatesettings?token=" + getToken() + finalEndString)) {
+					String responseBody = response.getAsString();
+
+					if (doReload) reloadCosmetics();
+					if (responseBody.equals("success")) {
+						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(screenStorage));
+					} else {
+						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(screenStorage, this.parentOptions, true)));
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -74,19 +73,14 @@ public class UpdatingSettings extends Screen {
 		int var10001 = this.message.getLineCount();
 		Objects.requireNonNull(this.font);
 		this.textHeight = var10001 * 9;
-		int var10003 = this.width / 2 - 100;
-		int var10004 = this.height / 2 + this.textHeight / 2;
-		Objects.requireNonNull(this.font);
 	}
 
 	public void render(PoseStack poseStack, int i, int j, float f) {
 		this.renderBackground(poseStack);
-		Font var10001 = this.font;
-		Component var10002 = this.title;
-		int var10003 = this.width / 2;
-		int var10004 = this.height / 2 - this.textHeight / 2;
+		int x = this.width / 2;
+		int y = this.height / 2 - this.textHeight / 2;
 		Objects.requireNonNull(this.font);
-		drawCenteredString(poseStack, var10001, var10002, var10003, var10004 - 9 * 2, 11184810);
+		drawCenteredString(poseStack, this.font, this.title, x, y - 9 * 2, 11184810);
 		this.message.renderCentered(poseStack, this.width / 2, this.height / 2 - this.textHeight / 2);
 		super.render(poseStack, i, j, f);
 	}

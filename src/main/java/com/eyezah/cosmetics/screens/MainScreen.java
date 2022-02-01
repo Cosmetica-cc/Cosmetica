@@ -69,7 +69,6 @@ public class MainScreen extends Screen {
 			button.setMessage(generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", doShoulderBuddies));
 		}));
 
-
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("extravagantCosmetics.customizeCosmetics"), (button) -> {
 			try {
 				Util.getPlatform().openUri("https://eyezah.com/cosmetics/manage?" + Authentication.getToken());
