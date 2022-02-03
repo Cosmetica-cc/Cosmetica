@@ -41,7 +41,7 @@ public class Authentication {
 				runAuthentication(Minecraft.getInstance().screen);
 				return;
 			}
-			try (Response response = Response.request("https://eyezah.com/cosmetics/api/get/settings?token=\" + token")) {
+			try (Response response = Response.request("https://eyezah.com/cosmetics/api/get/settings?token=" + token)) {
 				Debug.info("Handling successful cosmetics auth response.");
 
 				JsonObject jsonObject = response.getAsJson();
