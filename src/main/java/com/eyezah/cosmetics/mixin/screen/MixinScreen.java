@@ -18,11 +18,6 @@ public class MixinScreen implements ExtendedScreen {
 	@Shadow
 	private List<GuiEventListener> children;
 
-	@Shadow
-	@Final
-	@Mutable
-	private Component title;
-
 	@Override
 	public Iterable<GuiEventListener> getChildren() {
 		return this.children;

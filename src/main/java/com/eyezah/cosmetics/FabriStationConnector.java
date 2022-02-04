@@ -1,6 +1,5 @@
 package com.eyezah.cosmetics;
 
-
 import com.eyezah.station.FabriStationAPI;
 
 public class FabriStationConnector {
