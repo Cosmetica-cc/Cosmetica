@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.utils;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
@@ -53,8 +54,15 @@ public class Response implements Closeable {
 		return EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8);
 	}
 
-	public JsonObject getAsJson() throws IOException {
-		return PARSER.parse(EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim()).getAsJsonObject();
+	public JsonObject getAsJson() throws IOException, JsonParseException {
+		String s = EntityUtils.toString(this.getEntity(), StandardCharsets.UTF_8).trim();
+
+		try {
+			return PARSER.parse(s).getAsJsonObject();
+		} catch (JsonParseException e) {
+			Debug.info(s);
+			throw e;
+		}
 	}
 
 	public static Response request(String request) throws ParseException, IOException {
