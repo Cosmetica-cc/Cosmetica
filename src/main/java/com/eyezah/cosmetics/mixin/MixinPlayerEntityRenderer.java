@@ -17,16 +17,13 @@ import static com.eyezah.cosmetics.Cosmetics.doShoulderBuddies;
 
 @Mixin(PlayerRenderer.class)
 public abstract class MixinPlayerEntityRenderer extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
-
 	public MixinPlayerEntityRenderer(EntityRendererProvider.Context context, PlayerModel<AbstractClientPlayer> entityModel, float f) {
 		super(context, entityModel, f);
 	}
 
 	@Inject(at=@At("TAIL"), method="<init>", allow=1)
 	private void init(EntityRendererProvider.Context context, boolean bl, CallbackInfo ci) {
-		//if (doShoulderBuddies()) this.addLayer(new ShoulderBuddy(this, context.getModelSet()));
-		//if (doHats()) this.addLayer(new Hat<>(this));
 		if (doHats()) this.addLayer(new Hat<>(this));
-		if (doShoulderBuddies()) this.addLayer(new ShoulderBuddy<>(this));
+		if (doShoulderBuddies()) this.addLayer(new ShoulderBuddy<>(this, context.getModelSet()));
 	}
 }
