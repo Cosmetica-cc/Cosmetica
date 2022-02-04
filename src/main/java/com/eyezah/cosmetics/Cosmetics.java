@@ -165,6 +165,8 @@ public class Cosmetics implements ClientModInitializer {
 	public static PlayerData getPlayerData(UUID uuid, String username) {
 		synchronized (playerDataCache) {
 			return playerDataCache.computeIfAbsent(uuid, uid -> {
+				if (username.contains(" ")) return new PlayerData();
+
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
