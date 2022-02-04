@@ -7,7 +7,7 @@ sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "${project.minecraft_version}-${project.mod_version}"
 group = project.maven_group
 
 repositories {
@@ -30,11 +30,9 @@ dependencies {
 	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.10+f09604ce18"
-	modImplementation "net.fabricmc.fabric-api:fabric-textures-v0:1.0.7+cf39a74318"
-
-	include "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.10+f09604ce18"
-	include "net.fabricmc.fabric-api:fabric-textures-v0:1.0.7+cf39a74318"
+	include(modImplementation(fabricApi.module("fabric-api-base", "0.46.1+1.17")))
+	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", "0.46.1+1.17")))
+	include(modImplementation(fabricApi.module("fabric-textures-v0", "0.46.1+1.17")))
 
 	modRuntime ("supercoder79:databreaker:0.2.7") {
 		exclude module: "fabric-loader"
@@ -42,15 +40,15 @@ dependencies {
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 	
-	modImplementation 'com.github.valoeghese:FabriStation:1.17-SNAPSHOT'
+	modImplementation 'com.github.Station-rip:FabriStation:1.17-SNAPSHOT'
 	
 }
 
 processResources {
-	inputs.property "version", project.version
+	inputs.property "version", project.mod_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand "version": project.mod_version
 	}
 }
 

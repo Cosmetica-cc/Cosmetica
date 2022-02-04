@@ -4,6 +4,7 @@ import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -11,6 +12,8 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.function.Function;
 
 public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
     private ModelManager modelManager;
@@ -22,33 +25,43 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
 
     @Override
     public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
-        render(stack, multiBufferSource, packedLightProbably, player, f, g, pitch, j, k, l, true);
-        render(stack, multiBufferSource, packedLightProbably, player, f, g, pitch, j, k, l, false);
-    }
+        Boolean left = null;
 
-    public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l, boolean arm) {
-        String useArm = "";
         if (player.getMainArm() == HumanoidArm.RIGHT) {
             if (player.getShoulderEntityLeft().isEmpty()) {
-                useArm = "left";
+                left = true;
             } else if (player.getShoulderEntityRight().isEmpty()) {
-                useArm = "right";
+                left = false;
             }
         } else {
             if (player.getShoulderEntityRight().isEmpty()) {
-                useArm = "right";
+                left = false;
             } else if (player.getShoulderEntityLeft().isEmpty()) {
-                useArm = "left";
+                left = true;
             }
         }
-        if (useArm.equals("") || (arm && useArm.equals("right")) || (!arm && useArm.equals("left"))) return;
+
+        if (left != null) render(stack, multiBufferSource, packedLightProbably, player, f, g, pitch, j, k, l, left);
+    }
+
+    public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l, boolean left) {
         BakableModel modelData = Cosmetics.getPlayerData(player).hat();
+        boolean static_position = true;
+        System.out.println(left);
         ModelPart modelPart;
-        if (arm) {
+
+        stack.pushPose();
+
+        if (static_position) {
+            modelPart = this.getParentModel().body;
+            stack.translate(left ? 0.4 : -0.4, 0, 0);
+        } else if (left) {
             modelPart = this.getParentModel().leftArm;
         } else {
             modelPart = this.getParentModel().rightArm;
         }
+
         doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0f, 0);
+        stack.popPose();
     }
 }
