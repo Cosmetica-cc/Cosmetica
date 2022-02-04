@@ -1,23 +1,17 @@
 plugins {
-	id 'fabric-loom' version '0.9-SNAPSHOT'
+	id 'fabric-loom' version '0.10-SNAPSHOT'
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "${project.minecraft_version}-${project.mod_version}"
 group = project.maven_group
 
 repositories {
-	maven { url "https://server.bbkr.space/artifactory/libs-release" } // Cotton maven - home of Cotton projects
-	maven { url "https://maven.modmuss50.me" }
-	maven { url "https://maven.abusedmaster.xyz" } // NerdHub maven
-	maven {
-		name = "Onyx Studios"
-		url = "https://maven.onyxstudios.dev"
-	}
+	maven { url = 'https://maven.parchmentmc.org' }
 	maven { url 'https://maven.gegy.dev' }
 	maven { url 'https://jitpack.io' }
 }
@@ -26,31 +20,30 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.layered() {
 		officialMojangMappings()
-		"net.fabricmc:yarn:${project.minecraft_version}+build.${project.yarn_build}:v2"
+		parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
 	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.10+f09604ce18"
-	modImplementation "net.fabricmc.fabric-api:fabric-textures-v0:1.0.7+cf39a74318"
+	modImplementation "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.14+713c266865"
+	modImplementation "net.fabricmc.fabric-api:fabric-textures-v0:1.0.10+3ac43d9565"
 
-	include "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.10+f09604ce18"
-	include "net.fabricmc.fabric-api:fabric-textures-v0:1.0.7+cf39a74318"
+	include "net.fabricmc.fabric-api:fabric-resource-loader-v0:0.4.14+713c266865"
+	include "net.fabricmc.fabric-api:fabric-textures-v0:1.0.10+3ac43d9565"
 
-	modRuntime ("supercoder79:databreaker:0.2.7") {
-		exclude module: "fabric-loader"
+	modRuntime ("supercoder79:databreaker:0.2.8") {
+		exclude module: "fabric-loader"	
 	}
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
-	
-	modImplementation 'com.github.valoeghese:FabriStation:1.17-SNAPSHOT'
-	
+
+	modImplementation 'com.github.Station-rip:FabriStation:1.18-SNAPSHOT'
 }
 
 processResources {
-	inputs.property "version", project.version
+	inputs.property "version", project.mod_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand "version": project.mod_version
 	}
 }
 
@@ -61,8 +54,7 @@ tasks.withType(JavaCompile).configureEach {
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
 
-	// Minecraft 1.17 (21w19a) upwards uses Java 16.
-	it.options.release = 16
+	it.options.release = 17
 }
 
 java {
