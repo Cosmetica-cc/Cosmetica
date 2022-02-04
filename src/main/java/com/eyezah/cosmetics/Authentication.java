@@ -60,6 +60,7 @@ public class Authentication {
 				}
 
 				doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
+				doHats = jsonObject.get("do hats").getAsBoolean();
 				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) {
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage)));
 				}
@@ -77,6 +78,7 @@ public class Authentication {
 
 	public static void setToken(String testToken) {
 		Thread requestThread = new Thread(() -> {
+			System.out.println(testToken);
 			try (Response response = Response.request("https://eyezah.com/cosmetics/api/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken())) {
 				String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
 				if (responseBody.startsWith("token:")) {

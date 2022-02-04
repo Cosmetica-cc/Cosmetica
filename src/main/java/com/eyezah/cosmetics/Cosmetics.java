@@ -174,7 +174,12 @@ public class Cosmetics implements ClientModInitializer {
 
 						try (Response response = Response.request(target)) {
 							JsonObject jsonObject = response.getAsJson();
-							JsonObject hat = jsonObject.get("hat").getAsJsonObject();
+							System.out.println(jsonObject.toString());
+							JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
+							JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
+
+							System.out.println(hat == null ? "no hat" : "found hat");
+							System.out.println(shoulderBuddy == null ? "no shoulder buddy" : "found shoulder buddy");
 
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, new PlayerData(
@@ -182,8 +187,8 @@ public class Cosmetics implements ClientModInitializer {
 										jsonObject.get("upside-down").getAsBoolean(),
 										jsonObject.get("prefix").getAsString(),
 										jsonObject.get("suffix").getAsString(),
-										Models.getBakableModel(hat.get("id").getAsString(), () -> hat.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> hat.get("texture").getAsString()),
-										Models.getBakableModel(hat.get("id").getAsString(), () -> hat.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> hat.get("texture").getAsString())));
+										hat == null ? null : Models.getBakableModel(hat.get("id").getAsString(), () -> hat.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> hat.get("texture").getAsString()),
+										shoulderBuddy == null ? null : Models.getBakableModel(shoulderBuddy.get("id").getAsString(), () -> shoulderBuddy.get("model").getAsString().getBytes(StandardCharsets.UTF_8), () -> shoulderBuddy.get("texture").getAsString())));
 								lookingUp.remove(uuid);
 							}
 						} catch (IOException | ParseException e) {
