@@ -165,13 +165,12 @@ public class Cosmetics implements ClientModInitializer {
 	public static PlayerData getPlayerData(UUID uuid, String username) {
 		synchronized (playerDataCache) {
 			return playerDataCache.computeIfAbsent(uuid, uid -> {
-				if (username.contains(" ")) return new PlayerData();
-
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
 					Cosmetics.runOffthread(() -> {
-						String target = "https://eyezah.com/cosmetics/api/get/info?username=" + username + "&uuid=" + uuid.toString() + "&token=" + getToken();
+						String target = "https://eyezah.com/cosmetics/api/get/info?username=" + username.replace(" ", "%20") /* handle weird server stuff */
+								+ "&uuid=" + uuid.toString() + "&token=" + getToken();
 						Debug.info(target);
 
 						try (Response response = Response.request(target)) {
