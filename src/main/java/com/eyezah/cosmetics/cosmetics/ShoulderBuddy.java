@@ -46,13 +46,13 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
 
     public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l, boolean left) {
         BakableModel modelData = Cosmetics.getPlayerData(player).hat();
-        boolean static_position = true;
+        boolean staticPosition = true;
         System.out.println(left);
         ModelPart modelPart;
 
         stack.pushPose();
 
-        if (static_position) {
+        if (staticPosition) {
             modelPart = this.getParentModel().body;
             stack.translate(left ? 0.4 : -0.4, 0, 0);
         } else if (left) {
