@@ -20,7 +20,24 @@ import java.util.function.Supplier;
  * A set of classes
  */
 public class Debug {
-	public static boolean DEBUG_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || System.getProperty("cosmetics.debug", "false").equals("true");
+	public static boolean DEBUG_MODE;
+
+	static {
+		boolean e = FabricLoader.getInstance().isDevelopmentEnvironment()
+				|| Boolean.getBoolean("cosmetics.debug");
+
+		if (!e) {
+			try {
+				if (new File(FabricLoader.getInstance().getGameDir().toFile(), "yes_i_want_to_debug_cosmetics").isFile()) { // hack
+					e = true;
+				}
+			} catch (Exception exception) {
+			}
+		}
+
+		DEBUG_MODE = e;
+	}
+
 	private static Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetics Debug");
 	public static File DUMP_FOLDER;
 	// edit this to change debug settings

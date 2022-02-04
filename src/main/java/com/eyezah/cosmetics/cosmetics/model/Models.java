@@ -44,6 +44,7 @@ public class Models {
 
 	@Nullable
 	public static BakedModel getBakedModel(BakableModel unbaked) {
+		if (unbaked.id().charAt(0) == '-') return null; // help i wrote this at 1:!5am
 		boolean compute = !BAKED_MODELS.containsKey(unbaked.id());
 
 		if (compute) {
@@ -77,6 +78,10 @@ public class Models {
 		String location = json.get("id").getAsString();
 
 		if (location.isEmpty()) return null;
+
+		if (location.charAt(0) == '-') {
+			return LOADED_MODELS.computeIfAbsent(location, l -> new BakableModel(location, null, null, 0));
+		}
 
 		return LOADED_MODELS.computeIfAbsent(location, l -> {
 			try (InputStream is = new ByteArrayInputStream(json.get("model").getAsString().getBytes(StandardCharsets.UTF_8))) {
