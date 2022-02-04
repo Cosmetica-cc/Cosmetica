@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
 import com.eyezah.cosmetics.utils.Debug;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -70,15 +71,19 @@ public class Models {
 	 * @implNote used when adding the BakableModel to player data
 	 */
 	@Nullable
-	public static BakableModel getBakableModel(String location, Supplier<byte[]> jsonGetter, Supplier<String> b64ImageGetter) {
+	public static BakableModel createBakableModel(@Nullable JsonObject json) {
+		if (json == null) return null;
+
+		String location = json.get("id").getAsString();
+
 		if (location.isEmpty()) return null;
 
 		return LOADED_MODELS.computeIfAbsent(location, l -> {
-			try (InputStream is = new ByteArrayInputStream(jsonGetter.get())) {
+			try (InputStream is = new ByteArrayInputStream(json.get("model").getAsString().getBytes(StandardCharsets.UTF_8))) {
 				BlockModel model = BlockModel.fromStream(new InputStreamReader(is, StandardCharsets.UTF_8));
 				model.name = l;
-				NativeImage image = NativeImage.fromBase64(b64ImageGetter.get().substring(22)); // trim nonsense at the start
-				return new BakableModel(location, model, image);
+				NativeImage image = NativeImage.fromBase64(json.get("texture").getAsString().substring(22)); // trim nonsense at the start
+				return new BakableModel(location, model, image, json.get("extra info").getAsInt());
 			} catch (IOException e) {
 				return null;
 			} catch (Exception e) {
