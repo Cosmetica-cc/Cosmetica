@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 /**
  * Data class for Player Data
  */
-public record PlayerData(String lore, boolean upsideDown, String prefix, String suffix, BakableModel shoulderBuddy, BakableModel hat) {
+public record PlayerData(String lore, boolean upsideDown, String prefix, String suffix, BakableModel hat, BakableModel shoulderBuddy) {
 	public PlayerData() {
 		this("", false, "", "", null, null);
 	}
