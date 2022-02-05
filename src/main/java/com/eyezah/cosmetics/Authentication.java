@@ -65,7 +65,7 @@ public class Authentication {
 
 				boolean doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
 				boolean doHats = jsonObject.get("do hats").getAsBoolean();
-				boolean doLore = true;//jsonObject.get("do lore").getAsBoolean();
+				boolean doLore = jsonObject.get("do lore").getAsBoolean();
 
 				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), doShoulderBuddies, doHats, regionSpecificEffects, doLore)));

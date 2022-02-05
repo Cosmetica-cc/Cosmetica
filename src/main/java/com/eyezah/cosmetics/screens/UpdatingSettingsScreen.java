@@ -60,8 +60,9 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 			});
 			requestThread.start();
 		} else {
+			Debug.info("No settings changed.");
 			if (doReload) clearAllCaches();
-			this.onClose();
+			Minecraft.getInstance().tell(this::onClose);
 		}
 	}
 
