@@ -63,9 +63,10 @@ public class Authentication {
 
 				boolean doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
 				boolean doHats = jsonObject.get("do hats").getAsBoolean();
+				boolean doLore = jsonObject.get("do lore").getAsBoolean();
 
 				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettingsScreen) {
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage, doShoulderBuddies, doHats, regionSpecificEffects)));
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage, doShoulderBuddies, doHats, regionSpecificEffects, doLore)));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
