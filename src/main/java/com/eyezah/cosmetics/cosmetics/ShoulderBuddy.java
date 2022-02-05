@@ -29,6 +29,7 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
 
     @Override
     public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
+        if (player.isInvisible()) return;
         Boolean left = null;
 
         if (player.getMainArm() == HumanoidArm.RIGHT) {
@@ -61,6 +62,7 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
             LiveSheepModel model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP_FUR));
             stack.pushPose();
             stack.translate(left ? 0.35 : -0.35, (player.isCrouching() ? -1.3 : -1.6D) + 1.07D, 0.0D);
+            stack.scale(0.8f, 0.8f, 0.8f);
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
             model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, player.tickCount);
             stack.popPose();
@@ -68,6 +70,7 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
             model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP));
             stack.pushPose();
             stack.translate(left ? 0.35 : -0.35, (player.isCrouching() ? -1.3 : -1.6D) + 1.07D, 0.0D);
+            stack.scale(0.8f, 0.8f, 0.8f);
             vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
             model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, player.tickCount);
             stack.popPose();
