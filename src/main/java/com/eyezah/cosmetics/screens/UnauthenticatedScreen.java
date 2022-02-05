@@ -30,7 +30,6 @@ public class UnauthenticatedScreen extends Screen {
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
 		this.fromSave = fromSave;
-		//updateParentScreen(parentScreen, parentOptions);
 	}
 
 	@Override
