@@ -4,7 +4,7 @@ import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.main.GameConfig;
+import net.minecraft.client.multiplayer.ClientLevel;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,6 +30,13 @@ public abstract class MixinMinecraft {
 			RSEWarningScreen.appearNextScreenChange = false;
 			this.setScreen(new RSEWarningScreen(screen));
 			info.cancel();
+		}
+	}
+
+	@Inject(at = @At("HEAD"), method = "setLevel")
+	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
+		if (Cosmetics.getCacheSize() > 1024) {
+			Cosmetics.clearAllCaches();
 		}
 	}
 }
