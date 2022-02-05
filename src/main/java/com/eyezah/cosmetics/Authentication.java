@@ -78,7 +78,6 @@ public class Authentication {
 
 	public static void setToken(String testToken) {
 		Thread requestThread = new Thread(() -> {
-			System.out.println(testToken);
 			try (Response response = Response.request("https://eyezah.com/cosmetics/api/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken())) {
 				String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
 				if (responseBody.startsWith("token:")) {

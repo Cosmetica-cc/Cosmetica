@@ -1,6 +1,5 @@
 package com.eyezah.cosmetics.utils;
 
-import com.eyezah.cosmetics.Cosmetics;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
@@ -8,7 +7,6 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.system.CallbackI;
 
 import java.io.File;
 import java.io.FileReader;
@@ -20,23 +18,7 @@ import java.util.function.Supplier;
  * A set of classes
  */
 public class Debug {
-	public static boolean DEBUG_MODE;
-
-	static {
-		boolean e = FabricLoader.getInstance().isDevelopmentEnvironment()
-				|| Boolean.getBoolean("cosmetics.debug");
-
-		if (!e) {
-			try {
-				if (new File(FabricLoader.getInstance().getGameDir().toFile(), "yes_i_want_to_debug_cosmetics").isFile()) { // hack
-					e = true;
-				}
-			} catch (Exception exception) {
-			}
-		}
-
-		DEBUG_MODE = e;
-	}
+	public static final boolean DEBUG_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("cosmetics.debug");
 
 	private static Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetics Debug");
 	public static File DUMP_FOLDER;
