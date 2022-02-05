@@ -38,10 +38,13 @@ class Option implements Cloneable {
 		this.value = !this.value;
 	}
 
-	void appendToIfChanged(Option old, StringBuilder sb) {
+	boolean appendToIfChanged(Option old, StringBuilder sb) {
 		if (old.value != this.value) {
 			sb.append('&').append(this.urlKey).append('=').append(this.value);
+			return true;
 		}
+
+		return false;
 	}
 
 	@Override

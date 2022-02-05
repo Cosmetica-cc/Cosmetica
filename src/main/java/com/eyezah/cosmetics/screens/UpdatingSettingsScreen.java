@@ -31,9 +31,10 @@ public class UpdatingSettingsScreen extends Screen {
 
 		StringBuilder endString = new StringBuilder();
 
-		newOptions.regionSpecificEffects.appendToIfChanged(oldOptions.regionSpecificEffects, endString);
-		newOptions.shoulderBuddies.appendToIfChanged(oldOptions.shoulderBuddies, endString);
-		newOptions.hats.appendToIfChanged(oldOptions.hats, endString);
+		doReload |= newOptions.regionSpecificEffects.appendToIfChanged(oldOptions.regionSpecificEffects, endString);
+		doReload |= newOptions.shoulderBuddies.appendToIfChanged(oldOptions.shoulderBuddies, endString);
+		doReload |= newOptions.hats.appendToIfChanged(oldOptions.hats, endString);
+		boolean finalDoReload = doReload;
 
 		if (!endString.isEmpty()) {
 			String finalEndString = endString.toString();
@@ -54,12 +55,12 @@ public class UpdatingSettingsScreen extends Screen {
 					e.printStackTrace();
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(screenStorage, this.parentOptions, true)));
 				} finally {
-					if (doReload) reloadCosmetics();
+					if (finalDoReload) clearAllCaches();
 				}
 			});
 			requestThread.start();
 		} else {
-			if (doReload) reloadCosmetics();
+			if (doReload) clearAllCaches();
 			Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(screenStorage));
 		}
 	}

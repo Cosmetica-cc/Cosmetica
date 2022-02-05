@@ -32,6 +32,9 @@ public class Models {
 	public static ModelBakery thePieShopDownTheRoad;
 	public static final RuntimeTextureManager TEXTURE_MANAGER = new RuntimeTextureManager(128); // reserved 0 through 127
 
+	/**
+	 * PLEASE DO NOT CALL THIS DIRECTLY (call Cosmetics#clearAllCaches(), or resetTextureBasedCaches() to clear texture related caches)
+	 */
 	public static void resetCaches() {
 		LOADED_MODELS = new HashMap<>();
 		resetTextureBasedCaches();
