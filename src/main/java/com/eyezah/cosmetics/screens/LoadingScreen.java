@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens;
 
+import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
@@ -13,9 +14,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import java.util.Objects;
 
 import static com.eyezah.cosmetics.Authentication.runAuthentication;
-import static com.eyezah.cosmetics.Cosmetics.updateParentScreen;
 
-public class LoadingScreen extends Screen {
+public class LoadingScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;
 	private Options parentOptions;
 
@@ -27,8 +27,12 @@ public class LoadingScreen extends Screen {
 		super(new TranslatableComponent("extravagantCosmetics.loading"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
-		updateParentScreen(parentScreen, parentOptions);
 		runAuthentication(parentScreen);
+	}
+
+	@Override
+	public Screen getParent() {
+		return this.parentScreen;
 	}
 
 	@Override

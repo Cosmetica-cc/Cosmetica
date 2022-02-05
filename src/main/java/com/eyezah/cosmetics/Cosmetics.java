@@ -16,10 +16,8 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -38,10 +36,13 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 
 import static com.eyezah.cosmetics.Authentication.getToken;
 import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
@@ -53,8 +54,6 @@ public class Cosmetics implements ClientModInitializer {
 
 	// used for screens
 	public static ConnectScreen connectScreen;
-	public static Screen screenStorage;
-	public static Options optionsStorage;
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();
@@ -116,11 +115,6 @@ public class Cosmetics implements ClientModInitializer {
 		} catch (RuntimeException e) { // Just in case.
 			e.printStackTrace();
 		}
-	}
-
-	public static void updateParentScreen(Screen screen, Options options) {
-		screenStorage = screen;
-		optionsStorage = options;
 	}
 
 	// example fabristation connection
