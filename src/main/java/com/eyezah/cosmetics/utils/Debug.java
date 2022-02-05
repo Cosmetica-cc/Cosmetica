@@ -98,13 +98,14 @@ public class Debug {
 					}
 				} else {
 					try (FileReader reader = new FileReader(settings)) {
-						JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+						JsonObject data = new JsonParser().parse(reader).getAsJsonObject();
 						Object2BooleanMap<String> cache = new Object2BooleanArrayMap<>();
+						Predicate<String> predicate = k_ -> data.has(k_) && Boolean.parseBoolean(data.get(k_).getAsString());
 
 						DEBUG_SETTINGS = new Settings(
 								data.get("logging").getAsBoolean(),
 								data.get("image_dumping").getAsBoolean(),
-								key -> cache.computeIfAbsent(key, (Predicate<String>) (k_ -> data.get(k_).getAsString().equals("true"))));
+								key -> cache.computeBooleanIfAbsent(key, predicate));
 					}
 				}
 			} catch (IOException e) {
