@@ -152,6 +152,10 @@ public class Cosmetics implements ClientModInitializer {
 		return getPlayerData(player.getUUID(), player.getName().getString());
 	}
 
+	public static int getCacheSize() {
+		return playerDataCache.size();
+	}
+
 	private static String urlEncode(String value) {
 		try {
 			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
@@ -242,7 +246,8 @@ public class Cosmetics implements ClientModInitializer {
 		}
 	}
 
-	public static void reloadCosmetics() {
+	public static void clearAllCaches() {
+		Debug.info("Clearing all Cosmetics Caches");
 		playerDataCache = new HashMap<>();
 		Models.resetCaches();
 	}
