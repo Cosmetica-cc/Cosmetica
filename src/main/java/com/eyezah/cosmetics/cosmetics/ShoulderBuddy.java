@@ -52,9 +52,7 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
     public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, boolean left) {
         BakableModel modelData = Cosmetics.getPlayerData(player).shoulderBuddy();
 
-        if (modelData == null) {
-            return;
-        }
+        if (modelData == null) return; // if it has a model
 
         stack.pushPose();
 
