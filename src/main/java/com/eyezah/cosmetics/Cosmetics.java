@@ -3,7 +3,7 @@ package com.eyezah.cosmetics;
 import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
-import com.eyezah.cosmetics.utils.NamedSingleThreadFactory;
+import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -35,6 +35,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -62,7 +64,9 @@ public class Cosmetics implements ClientModInitializer {
 	private static Set<UUID> lookingUp = new HashSet<>();
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetics");
-	private static final ExecutorService LOOKUP_THREAD = Executors.newSingleThreadExecutor(new NamedSingleThreadFactory("Cosmetics Lookup Thread"));
+	private static final ExecutorService LOOKUP_THREAD = Executors.newFixedThreadPool(
+			Integer.parseInt(System.getProperty("cosmetics.lookupThreads", "3")),
+			new NamedThreadFactory("Cosmetics Lookup Thread"));
 
 	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
 
@@ -162,6 +166,14 @@ public class Cosmetics implements ClientModInitializer {
 		return getPlayerData(player.getUUID(), player.getName().getString());
 	}
 
+	private static String urlEncode(String value) {
+		try {
+			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException ex) {
+			throw new RuntimeException(ex.getCause());
+		}
+	}
+
 	public static PlayerData getPlayerData(UUID uuid, String username) {
 		synchronized (playerDataCache) {
 			return playerDataCache.computeIfAbsent(uuid, uid -> {
@@ -169,9 +181,9 @@ public class Cosmetics implements ClientModInitializer {
 					lookingUp.add(uuid);
 
 					Cosmetics.runOffthread(() -> {
-						String target = "https://eyezah.com/cosmetics/api/get/info?username=" + username.replace(" ", "%20") /* handle weird server stuff */
+						String target = "https://eyezah.com/cosmetics/api/get/info?username=" + urlEncode(username)
 								+ "&uuid=" + uuid.toString() + "&token=" + getToken();
-						Debug.info(target);
+						Debug.info(target, "always_print_urls");
 
 						try (Response response = Response.request(target)) {
 							JsonObject jsonObject = response.getAsJson();
@@ -187,10 +199,11 @@ public class Cosmetics implements ClientModInitializer {
 										hat == null ? null : Models.createBakableModel(hat),
 										shoulderBuddy == null ? null : Models.createBakableModel(shoulderBuddy)
 								));
+
 								lookingUp.remove(uuid);
 							}
-						} catch (IOException | ParseException e) {
-							e.printStackTrace();
+						} catch (IOException | ParseException e) {;
+							new RuntimeException("Error connecting to " + target, e).printStackTrace();
 						}
 					});
 				}
