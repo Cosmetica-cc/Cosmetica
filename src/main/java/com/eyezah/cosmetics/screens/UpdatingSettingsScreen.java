@@ -34,6 +34,7 @@ public class UpdatingSettingsScreen extends Screen {
 		doReload |= newOptions.regionSpecificEffects.appendToIfChanged(oldOptions.regionSpecificEffects, endString);
 		doReload |= newOptions.shoulderBuddies.appendToIfChanged(oldOptions.shoulderBuddies, endString);
 		doReload |= newOptions.hats.appendToIfChanged(oldOptions.hats, endString);
+		doReload |= newOptions.lore.appendToIfChanged(oldOptions.lore, endString);
 		boolean finalDoReload = doReload;
 
 		if (!endString.isEmpty()) {
