@@ -60,7 +60,7 @@ public class Response implements Closeable {
 		try {
 			return PARSER.parse(s).getAsJsonObject();
 		} catch (JsonParseException e) {
-			Debug.info(s);
+			Debug.info("Error parsing json: " + s);
 			throw e;
 		}
 	}

@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.mojang.blaze3d.platform.NativeImage;
+import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +14,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.function.IntPredicate;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -27,6 +31,12 @@ public class Debug {
 
 	public static void info(String str) {
 		if (DEBUG_MODE && DEBUG_SETTINGS.logging()) {
+			DEBUG_LOGGER.info(str);
+		}
+	}
+
+	public static void info(String str, String check) {
+		if (DEBUG_MODE && DEBUG_SETTINGS.other.test(check)) {
 			DEBUG_LOGGER.info(str);
 		}
 	}
@@ -88,10 +98,13 @@ public class Debug {
 					}
 				} else {
 					try (FileReader reader = new FileReader(settings)) {
-						JsonObject data = new JsonParser().parse(reader).getAsJsonObject();
+						JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+						Object2BooleanMap<String> cache = new Object2BooleanArrayMap<>();
+
 						DEBUG_SETTINGS = new Settings(
 								data.get("logging").getAsBoolean(),
-								data.get("image_dumping").getAsBoolean());
+								data.get("image_dumping").getAsBoolean(),
+								key -> cache.computeIfAbsent(key, (Predicate<String>) (k_ -> data.get(k_).getAsString().equals("true"))));
 					}
 				}
 			} catch (IOException e) {
@@ -99,9 +112,9 @@ public class Debug {
 		}
 	}
 
-	private record Settings(boolean logging, boolean imageDumping) {
+	private record Settings(boolean logging, boolean imageDumping, Predicate<String> other) {
 		Settings() {
-			this(false, false);
+			this(false, false, i -> false);
 		}
 	}
 }
