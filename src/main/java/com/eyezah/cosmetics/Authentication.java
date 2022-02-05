@@ -41,12 +41,13 @@ public class Authentication {
 				runAuthentication(Minecraft.getInstance().screen);
 				return;
 			}
+
 			try (Response response = Response.request("https://eyezah.com/cosmetics/api/get/settings?token=" + token)) {
-				Debug.info("Handling successful cosmetics auth response.");
+				Debug.info("Handling successful cosmetics settings response.");
 
 				JsonObject jsonObject = response.getAsJson();
 				if (jsonObject.has("error")) {
-					System.out.println("error: " + jsonObject.get("error").getAsString());
+					Debug.info("error: " + jsonObject.get("error").getAsString());
 					if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettingsScreen) Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
 					return;
 				}

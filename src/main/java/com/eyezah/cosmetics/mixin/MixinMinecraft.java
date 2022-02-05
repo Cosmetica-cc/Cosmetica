@@ -35,7 +35,7 @@ public abstract class MixinMinecraft {
 
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
-		if (Cosmetics.getCacheSize() > 1024) {
+		if (Cosmetics.getCacheSize() > 1024) { // clear cache on level change if it's too big
 			Cosmetics.clearAllCaches();
 		}
 	}

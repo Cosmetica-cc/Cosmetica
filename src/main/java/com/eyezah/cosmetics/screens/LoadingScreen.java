@@ -1,6 +1,5 @@
 package com.eyezah.cosmetics.screens;
 
-import com.eyezah.cosmetics.Cosmetics;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
@@ -9,12 +8,10 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
 
-import static com.eyezah.cosmetics.Authentication.getToken;
 import static com.eyezah.cosmetics.Authentication.runAuthentication;
 import static com.eyezah.cosmetics.Cosmetics.updateParentScreen;
 
