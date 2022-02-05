@@ -1,12 +1,17 @@
 package com.eyezah.cosmetics.mixin.screen;
 
+import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.utils.AuthenticatingScreen;
+import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.DirectJoinServerScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ResolvedServerAddress;
@@ -42,9 +47,13 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 	@Inject(at = @At("HEAD"), method = "startConnecting", cancellable = true)
 	private static void startConnecting(Screen screen, Minecraft minecraft, ServerAddress serverAddress, @Nullable ServerData serverData, CallbackInfo info) {
 		if (serverAddress.getHost().equals(authServerHost) && serverAddress.getPort() == authServerPort) {
-			connectScreen = MixinConnectScreenInvoker.getConnectScreen(screen);
-			minecraft.setCurrentServer(serverData);
-			((AuthenticatingScreen) connectScreen).eyezahAuthConnect(minecraft, serverAddress);
+			if (!Authentication.currentlyAuthenticating && (minecraft.screen instanceof JoinMultiplayerScreen || minecraft.screen instanceof DirectJoinServerScreen)) {
+				minecraft.setScreen(new LoadingScreen(minecraft.screen, minecraft.options));
+			} else {
+				connectScreen = MixinConnectScreenInvoker.getConnectScreen(screen);
+				minecraft.setCurrentServer(serverData);
+				((AuthenticatingScreen) connectScreen).eyezahAuthConnect(minecraft, serverAddress);
+			}
 
 			info.cancel();
 		}
@@ -61,7 +70,7 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 
 				try {
 					if (aborted) {
-						System.out.println("aborted");
+						Debug.info("aborted");
 						return;
 					}
 
