@@ -21,6 +21,7 @@ public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
 
     @Override
     public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
+        if (player.isInvisible()) return;
         BakableModel modelData = Cosmetics.getPlayerData(player).hat();
         ModelPart modelPart = this.getParentModel().getHead();
         doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0.61f, 0);
