@@ -23,7 +23,6 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
     }
 
     public void doCoolRenderThings(BakableModel bakableModel, ModelPart modelPart, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, float x, float y, float z) {
-        if (bakableModel == null) return; // if it has a model
         BakedModel model = Models.getBakedModel(bakableModel);
         if (model == null) return; // if it has errors with the baked model or cannot render it for another reason will return null
         stack.pushPose();
