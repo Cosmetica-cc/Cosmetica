@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.screens;
 import com.eyezah.cosmetics.Authentication;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -14,17 +15,15 @@ import net.minecraft.network.chat.TranslatableComponent;
 import java.io.IOException;
 
 public class MainScreen extends Screen {
-	public MainScreen(Screen parentScreen, Options parentOptions, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects, boolean doLore) {
+	public MainScreen(Screen parentScreen, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects, boolean doLore) {
 		super(new TranslatableComponent("extravagantCosmetics.cosmeticsMenu"));
 		this.parentScreen = parentScreen;
-		this.parentOptions = parentOptions;
 
 		this.oldOptions = new ServerOptions(doShoulderBuddies, doHats, doRegionSpecificEffects, doLore);
 		this.newOptions = new ServerOptions(this.oldOptions);
 	}
 
 	private final Screen parentScreen;
-	private final Options parentOptions;
 	private final ServerOptions oldOptions;
 	private final ServerOptions newOptions;
 
@@ -47,7 +46,7 @@ public class MainScreen extends Screen {
 		// normal stuff
 
 		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 1, 150, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
-			this.minecraft.setScreen(new SkinCustomizationScreen(this, this.parentOptions));
+			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options));
 		}));
 
 		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 2, 150, 20, new TranslatableComponent("extravagantCosmetics.reloadCosmetics"), (button) -> {
@@ -92,7 +91,7 @@ public class MainScreen extends Screen {
 
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
-				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.parentOptions, this.oldOptions, this.newOptions, this.doReload));
+				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.oldOptions, this.newOptions, this.doReload));
 			} catch (IOException e) {
 				e.printStackTrace();
 				this.minecraft.setScreen(this.parentScreen);

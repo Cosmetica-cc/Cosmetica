@@ -80,8 +80,8 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 					}
 
 					if (!optional.isPresent()) {
-						minecraft.execute(() -> {
-							minecraft.setScreen(new UnauthenticatedScreen(parent, Cosmetics.optionsStorage, false));
+						minecraft.tell(() -> {
+							minecraft.setScreen(new UnauthenticatedScreen(parent, false));
 						});
 						return;
 					}
@@ -100,8 +100,8 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 					LOGGER.error("Couldn't connect to server", e);
 					System.out.println(inetSocketAddress == null ? e.toString() : e.toString().replaceAll(inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort(), ""));
 
-					minecraft.execute(() -> {
-						minecraft.setScreen(new UnauthenticatedScreen(parent, Cosmetics.optionsStorage, false));
+					minecraft.tell(() -> {
+						minecraft.setScreen(new UnauthenticatedScreen(parent, false));
 					});
 				}
 

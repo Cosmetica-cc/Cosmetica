@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.screens;
 
 import com.eyezah.cosmetics.utils.Debug;
+import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.eyezah.cosmetics.utils.Response;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -16,18 +17,16 @@ import java.util.Objects;
 import static com.eyezah.cosmetics.Authentication.getToken;
 import static com.eyezah.cosmetics.Cosmetics.*;
 
-public class UpdatingSettingsScreen extends Screen {
+public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;
-	private Options parentOptions;
 
 	private Component reason = new TranslatableComponent("extravagantCosmetics.updating.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
-	public UpdatingSettingsScreen(Screen parentScreen, Options parentOptions, ServerOptions oldOptions, ServerOptions newOptions, boolean doReload) throws IOException, InterruptedException {
+	public UpdatingSettingsScreen(Screen parentScreen, ServerOptions oldOptions, ServerOptions newOptions, boolean doReload) throws IOException, InterruptedException {
 		super(new TranslatableComponent("extravagantCosmetics.updating"));
 		this.parentScreen = parentScreen;
-		this.parentOptions = parentOptions;
 
 		StringBuilder endString = new StringBuilder();
 
@@ -48,13 +47,13 @@ public class UpdatingSettingsScreen extends Screen {
 					String responseBody = response.getAsString();
 
 					if (responseBody.equals("success")) {
-						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(screenStorage));
+						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 					} else {
-						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(screenStorage, this.parentOptions, true)));
+						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(screenStorage, this.parentOptions, true)));
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
 				} finally {
 					if (finalDoReload) clearAllCaches();
 				}
@@ -62,8 +61,18 @@ public class UpdatingSettingsScreen extends Screen {
 			requestThread.start();
 		} else {
 			if (doReload) clearAllCaches();
-			Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(screenStorage));
+			this.onClose();
 		}
+	}
+
+	@Override
+	public void onClose() {
+		Minecraft.getInstance().setScreen(this.parentScreen);
+	}
+
+	@Override
+	public Screen getParent() {
+		return this.parentScreen;
 	}
 
 	@Override

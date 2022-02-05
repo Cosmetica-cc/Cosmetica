@@ -6,6 +6,7 @@ import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.screens.UpdatingSettingsScreen;
 import com.eyezah.cosmetics.utils.Debug;
+import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
@@ -48,7 +49,7 @@ public class Authentication {
 				JsonObject jsonObject = response.getAsJson();
 				if (jsonObject.has("error")) {
 					Debug.info("error: " + jsonObject.get("error").getAsString());
-					if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettingsScreen) Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
+					showUnauthenticatedIfLoading();
 					return;
 				}
 
@@ -64,21 +65,28 @@ public class Authentication {
 
 				boolean doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
 				boolean doHats = jsonObject.get("do hats").getAsBoolean();
-				boolean doLore = jsonObject.get("do lore").getAsBoolean();
+				boolean doLore = true;//jsonObject.get("do lore").getAsBoolean();
 
-				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettingsScreen) {
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage, doShoulderBuddies, doHats, regionSpecificEffects, doLore)));
+				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), doShoulderBuddies, doHats, regionSpecificEffects, doLore)));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 				token = "";
-				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettingsScreen) {
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
-				}
+				showUnauthenticatedIfLoading();
 				runAuthentication(Minecraft.getInstance().screen);
 			}
 		});
 		requestThread.start();
+	}
+
+	private static void showUnauthenticatedIfLoading() {
+		Minecraft minecraft = Minecraft.getInstance();
+		Screen previous = minecraft.screen;
+
+		if (previous instanceof LoadingTypeScreen lts) {
+			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), false)));
+		}
 	}
 
 	public static void setToken(String testToken) {
@@ -92,16 +100,12 @@ public class Authentication {
 					syncSettings();
 				} else {
 					currentlyAuthenticating = false;
-					if (Minecraft.getInstance().screen instanceof LoadingScreen) {
-						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
-					}
+					showUnauthenticatedIfLoading();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 				currentlyAuthenticating = false;
-				if (Minecraft.getInstance().screen instanceof LoadingScreen) {
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
-				}
+				showUnauthenticatedIfLoading();
 			}
 		});
 		requestThread.start();

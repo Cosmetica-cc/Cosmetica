@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.screens;
 import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -18,17 +19,15 @@ import static com.eyezah.cosmetics.Cosmetics.*;
 
 public class UnauthenticatedScreen extends Screen {
 	private Screen parentScreen;
-	private Options parentOptions;
 	private boolean fromSave;
 
 	private Component reason = new TranslatableComponent("extravagantCosmetics.unauthenticated.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
-	public UnauthenticatedScreen(Screen parentScreen, Options parentOptions, boolean fromSave) {
+	public UnauthenticatedScreen(Screen parentScreen, boolean fromSave) {
 		super(new TranslatableComponent("extravagantCosmetics.unauthenticated"));
 		this.parentScreen = parentScreen;
-		this.parentOptions = parentOptions;
 		this.fromSave = fromSave;
 	}
 
@@ -42,21 +41,22 @@ public class UnauthenticatedScreen extends Screen {
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 
 		if (fromSave) {
-			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("extravagantCosmetics.okay"), (button) -> {
-				this.minecraft.setScreen(new OptionsScreen(screenStorage, optionsStorage));
-			}));
+			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("extravagantCosmetics.okay"), button -> this.onClose()));
 		} else {
 			if (Debug.DEBUG_MODE) { // because I'm not authenticated in dev and can't use the normal button
 				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TextComponent("Immediately Clear Caches"), btn -> Cosmetics.clearAllCaches()));
 			}
 
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
-				this.minecraft.setScreen(new SkinCustomizationScreen(new OptionsScreen(screenStorage, optionsStorage), this.parentOptions));
+				this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options));
 			}));
-			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("gui.cancel"), (button) -> {
-				this.minecraft.setScreen(screenStorage);
-			}));
+			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("gui.cancel"), button -> this.onClose()));
 		}
+	}
+
+	@Override
+	public void onClose() {
+		this.minecraft.setScreen(this.parentScreen);
 	}
 
 	public void render(PoseStack poseStack, int i, int j, float f) {
