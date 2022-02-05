@@ -14,12 +14,12 @@ import net.minecraft.network.chat.TranslatableComponent;
 import java.io.IOException;
 
 public class MainScreen extends Screen {
-	public MainScreen(Screen parentScreen, Options parentOptions, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects) {
+	public MainScreen(Screen parentScreen, Options parentOptions, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects, boolean doLore) {
 		super(new TranslatableComponent("extravagantCosmetics.cosmeticsMenu"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
 
-		this.oldOptions = new ServerOptions(doShoulderBuddies, doHats, doRegionSpecificEffects);
+		this.oldOptions = new ServerOptions(doShoulderBuddies, doHats, doRegionSpecificEffects, doLore);
 		this.newOptions = new ServerOptions(this.oldOptions);
 	}
 
@@ -76,6 +76,11 @@ public class MainScreen extends Screen {
 			button.setMessage(generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		}));
 
+		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 3, 150, 20, generateButtonToggleText("extravagantCosmetics.doLore", this.newOptions.lore.get()), (button) -> {
+			this.newOptions.lore.toggle();
+			button.setMessage(generateButtonToggleText("extravagantCosmetics.doLore", this.newOptions.lore.get()));
+		}));
+
 		// bottom of the menu
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("extravagantCosmetics.customizeCosmetics"), (button) -> {
 			try {
@@ -103,6 +108,7 @@ public class MainScreen extends Screen {
 		this.minecraft.setScreen(this.parentScreen);
 	}
 
+	@Override
 	public void render(PoseStack poseStack, int i, int j, float f) {
 		this.renderBackground(poseStack);
 		drawCenteredString(poseStack, this.font, this.title, this.width / 2, 15, 16777215);
