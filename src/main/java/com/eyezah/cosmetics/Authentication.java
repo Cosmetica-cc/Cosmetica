@@ -4,7 +4,7 @@ import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
-import com.eyezah.cosmetics.screens.UpdatingSettings;
+import com.eyezah.cosmetics.screens.UpdatingSettingsScreen;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
@@ -47,9 +47,11 @@ public class Authentication {
 				JsonObject jsonObject = response.getAsJson();
 				if (jsonObject.has("error")) {
 					System.out.println("error: " + jsonObject.get("error").getAsString());
-					if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
+					if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettingsScreen) Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
 					return;
 				}
+
+				boolean regionSpecificEffects;
 
 				// regional effects checking. the absence of this field indicates the user has not set it yet, and the presence of it allows us to cache the current setting on the client
 				if (jsonObject.has("per-region effects")) {
@@ -59,15 +61,16 @@ public class Authentication {
 					RSEWarningScreen.appearNextScreenChange = true;
 				}
 
-				doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
-				doHats = jsonObject.get("do hats").getAsBoolean();
-				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) {
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage)));
+				boolean doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
+				boolean doHats = jsonObject.get("do hats").getAsBoolean();
+
+				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettingsScreen) {
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(screenStorage, optionsStorage, doShoulderBuddies, doHats, regionSpecificEffects)));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 				token = "";
-				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettings) {
+				if (Minecraft.getInstance().screen instanceof LoadingScreen || Minecraft.getInstance().screen instanceof UpdatingSettingsScreen) {
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(new OptionsScreen(new TitleScreen(), optionsStorage), optionsStorage, false)));
 				}
 				runAuthentication(Minecraft.getInstance().screen);

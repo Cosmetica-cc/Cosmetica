@@ -1,9 +1,7 @@
 package com.eyezah.cosmetics.screens;
 
 import com.eyezah.cosmetics.Authentication;
-import com.eyezah.cosmetics.Cosmetics;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
@@ -15,23 +13,22 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import java.io.IOException;
 
-import static com.eyezah.cosmetics.Cosmetics.*;
-
-
 public class MainScreen extends Screen {
-
-	private Screen parentScreen;
-	private Options parentOptions;
-
-	public boolean regionSpecificEffects = doRegionSpecificEffects();
-	public boolean doShoulderBuddies = doShoulderBuddies();
-	public boolean doReload = false;
-
-	public MainScreen(Screen parentScreen, Options parentOptions) {
+	public MainScreen(Screen parentScreen, Options parentOptions, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects) {
 		super(new TranslatableComponent("extravagantCosmetics.cosmeticsMenu"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
+
+		this.oldOptions = new ServerOptions(doShoulderBuddies, doHats, doRegionSpecificEffects);
+		this.newOptions = new ServerOptions(this.oldOptions);
 	}
+
+	private final Screen parentScreen;
+	private final Options parentOptions;
+	private final ServerOptions oldOptions;
+	private final ServerOptions newOptions;
+
+	private boolean doReload;
 
 	private TextComponent generateButtonToggleText(String translatable, boolean toggle) {
 		TextComponent component = new TextComponent("");
@@ -45,16 +42,14 @@ public class MainScreen extends Screen {
 		return component;
 	}
 
-
 	@Override
 	protected void init() {
+		// normal stuff
+
 		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 1, 150, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this, this.parentOptions));
 		}));
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 1, 150, 20, generateButtonToggleText("extravagantCosmetics.australians", regionSpecificEffects), (button) -> {
-			regionSpecificEffects = !regionSpecificEffects;
-			button.setMessage(generateButtonToggleText("extravagantCosmetics.australians", regionSpecificEffects));
-		}));
+
 		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 2, 150, 20, new TranslatableComponent("extravagantCosmetics.reloadCosmetics"), (button) -> {
 			doReload = !doReload;
 			if (doReload) {
@@ -64,11 +59,24 @@ public class MainScreen extends Screen {
 			}
 		}));
 
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 2, 150, 20, generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", doShoulderBuddies), (button) -> {
-			doShoulderBuddies = !doShoulderBuddies;
-			button.setMessage(generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", doShoulderBuddies));
+		// toggles
+
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 1, 150, 20, generateButtonToggleText("extravagantCosmetics.australians", this.newOptions.regionSpecificEffects.get()), button -> {
+			this.newOptions.regionSpecificEffects.toggle();
+			button.setMessage(generateButtonToggleText("extravagantCosmetics.australians", this.newOptions.regionSpecificEffects.get()));
 		}));
 
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 2, 150, 20, generateButtonToggleText("extravagantCosmetics.doHats", this.newOptions.hats.get()), button -> {
+			this.newOptions.hats.toggle();
+			button.setMessage(generateButtonToggleText("extravagantCosmetics.doHats", this.newOptions.hats.get()));
+		}));
+
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 3, 150, 20, generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", this.newOptions.shoulderBuddies.get()), (button) -> {
+			this.newOptions.shoulderBuddies.toggle();
+			button.setMessage(generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
+		}));
+
+		// bottom of the menu
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("extravagantCosmetics.customizeCosmetics"), (button) -> {
 			try {
 				Util.getPlatform().openUri("https://eyezah.com/cosmetics/manage?" + Authentication.getToken());
@@ -79,7 +87,7 @@ public class MainScreen extends Screen {
 
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
-				this.minecraft.setScreen(new UpdatingSettings(this.parentScreen, this.parentOptions, regionSpecificEffects, doReload, doShoulderBuddies));
+				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.parentOptions, this.oldOptions, this.newOptions, this.doReload));
 			} catch (IOException e) {
 				e.printStackTrace();
 				this.minecraft.setScreen(this.parentScreen);

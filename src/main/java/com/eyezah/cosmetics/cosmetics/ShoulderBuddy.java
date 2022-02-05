@@ -75,7 +75,7 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
             model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, player.tickCount);
             stack.popPose();
         } else {
-            boolean staticPosition = (modelData.extraInfo() & 0b1) == 1;
+            boolean staticPosition = (modelData.extraInfo() & 0x1) == 1;
             ModelPart modelPart;
 
             if (staticPosition) {

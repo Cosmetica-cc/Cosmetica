@@ -51,10 +51,6 @@ public class Cosmetics implements ClientModInitializer {
 	public static final String authServerHost = "auth.cosmetics.eyezah.com";
 	public static final int authServerPort = 25596;
 
-	protected static boolean regionSpecificEffects = false;
-	protected static boolean doShoulderBuddies = true;
-	protected static boolean doHats = true; // todo setting this value
-
 	// used for screens
 	public static ConnectScreen connectScreen;
 	public static Screen screenStorage;
@@ -67,8 +63,6 @@ public class Cosmetics implements ClientModInitializer {
 	private static final ExecutorService LOOKUP_THREAD = Executors.newFixedThreadPool(
 			Integer.parseInt(System.getProperty("cosmetics.lookupThreads", "3")),
 			new NamedThreadFactory("Cosmetics Lookup Thread"));
-
-	public static boolean doRegionSpecificEffects() {return regionSpecificEffects;}
 
 	@Override
 	public void onInitializeClient() {
@@ -152,14 +146,6 @@ public class Cosmetics implements ClientModInitializer {
 
 	public static boolean shouldRenderUpsideDown(Player player) {
 		return getPlayerData(player).upsideDown();
-	}
-
-	public static boolean doShoulderBuddies() {
-		return doShoulderBuddies;
-	}
-
-	public static boolean doHats() {
-		return doHats;
 	}
 
 	public static PlayerData getPlayerData(Player player) {

@@ -1,31 +1,22 @@
 package com.eyezah.cosmetics.screens;
 
-import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Response;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.MultiLineLabel;
-import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static com.eyezah.cosmetics.Authentication.getToken;
 import static com.eyezah.cosmetics.Cosmetics.*;
 
-public class UpdatingSettings extends Screen {
+public class UpdatingSettingsScreen extends Screen {
 	private Screen parentScreen;
 	private Options parentOptions;
 
@@ -33,22 +24,27 @@ public class UpdatingSettings extends Screen {
 	private MultiLineLabel message;
 	private int textHeight;
 
-	public UpdatingSettings(Screen parentScreen, Options parentOptions, boolean doRegionEffects, boolean doReload, boolean doShoulderBuddies) throws IOException, InterruptedException {
+	public UpdatingSettingsScreen(Screen parentScreen, Options parentOptions, ServerOptions oldOptions, ServerOptions newOptions, boolean doReload) throws IOException, InterruptedException {
 		super(new TranslatableComponent("extravagantCosmetics.updating"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
 
-		String endString = "";
-		if (doRegionEffects != doRegionSpecificEffects()) endString += "&doregioneffects=" + doRegionEffects;
-		if (doShoulderBuddies != doShoulderBuddies()) endString += "&doshoulderbuddies=" + doShoulderBuddies;
+		StringBuilder endString = new StringBuilder();
 
-		if (!endString.equals("")) {
-			String finalEndString = endString;
+		newOptions.regionSpecificEffects.appendToIfChanged(oldOptions.regionSpecificEffects, endString);
+		newOptions.shoulderBuddies.appendToIfChanged(oldOptions.shoulderBuddies, endString);
+		newOptions.hats.appendToIfChanged(oldOptions.hats, endString);
+
+		if (!endString.isEmpty()) {
+			String finalEndString = endString.toString();
+
 			Thread requestThread = new Thread(() -> {
-				try (Response response = Response.request("https://eyezah.com/cosmetics/api/client/updatesettings?token=" + getToken() + finalEndString)) {
+				String url = "https://eyezah.com/cosmetics/api/client/updatesettings?token=" + getToken() + finalEndString;
+				Debug.info(url, "always_print_urls");
+
+				try (Response response = Response.request(url)) {
 					String responseBody = response.getAsString();
 
-					if (doReload) reloadCosmetics();
 					if (responseBody.equals("success")) {
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(screenStorage));
 					} else {
@@ -56,8 +52,9 @@ public class UpdatingSettings extends Screen {
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-					if (doReload) reloadCosmetics();
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(screenStorage, this.parentOptions, true)));
+				} finally {
+					if (doReload) reloadCosmetics();
 				}
 			});
 			requestThread.start();
