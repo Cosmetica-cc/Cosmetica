@@ -9,6 +9,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 
 public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
@@ -23,6 +24,8 @@ public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
     public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
         if (player.isInvisible()) return;
         BakableModel modelData = Cosmetics.getPlayerData(player).hat();
+        if ((modelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) return;
+
         ModelPart modelPart = this.getParentModel().getHead();
         doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0.61f, 0);
     }

@@ -92,6 +92,7 @@ public class Debug {
 					JsonObject data = new JsonObject();
 					data.add("logging", new JsonPrimitive(false));
 					data.add("image_dumping", new JsonPrimitive(false));
+					data.add("always_print_urls", new JsonPrimitive(false));
 
 					try (FileWriter writer = new FileWriter(settings)) {
 						writer.write(data.toString());
