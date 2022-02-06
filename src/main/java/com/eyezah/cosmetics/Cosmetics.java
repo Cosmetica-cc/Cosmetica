@@ -32,12 +32,20 @@ import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -54,6 +62,7 @@ public class Cosmetics implements ClientModInitializer {
 
 	// used for screens
 	public static ConnectScreen connectScreen;
+	public static String apiUrl = "https://eyezah.com/cosmetics/api";
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();
@@ -70,19 +79,34 @@ public class Cosmetics implements ClientModInitializer {
 		// delete debug dump images
 		Debug.clearImages();
 
-		// only print "also try celestine client" once it's out
-		// will simplify the code to just the log once celestine client is out since this is only necessary for when cosmetics is out before celestine
+		// API Url Getter
 		runOffthread(() -> {
-			try (Response response = Response.request("https://raw.githubusercontent.com/BenzeneStudios/Celestine-Installer/master/release_data.json?timestamp=" + System.currentTimeMillis())) {
-				if (response.getError().isEmpty()) {
-					JsonObject object = response.getAsJson();
+			File file = new File(findDefaultInstallDir("minecraft").toFile(), "api_url_cache.txt");
+			boolean resp = false;
 
-					if (!object.get("latest_version").getAsString().isEmpty()) {
-						LOGGER.info("<Valoeghese> Also try celestine client!");
+			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.json?timestamp=" + System.currentTimeMillis())) {
+				if (response.getError().isEmpty()) {
+					Cosmetics.apiUrl = response.getAsString();
+					resp = true;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				if (resp) {
+					file.createNewFile();
+
+					try (FileWriter writer = new FileWriter(file)) {
+						writer.write(Cosmetics.apiUrl);
+					}
+				} else if (file.isFile()) {
+					try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+						Cosmetics.apiUrl = reader.readLine().trim();
 					}
 				}
 			} catch (IOException e) {
-				if (Debug.DEBUG_MODE) e.printStackTrace();
+				e.printStackTrace();
 			}
 		});
 
@@ -107,6 +131,44 @@ public class Cosmetics implements ClientModInitializer {
 		});
 
 		runAuthenticationCheckThread();
+	}
+
+	/*
+	 * Adapted from code at https://github.com/FabricMC/fabric-installer
+	 * Original license has been preserved for this method.
+	 *
+	 * Copyright (c) 2016, 2017, 2018, 2019 FabricMC
+	 *
+	 * Licensed under the Apache License, Version 2.0 (the "License");
+	 * you may not use this file except in compliance with the License.
+	 * You may obtain a copy of the License at
+	 *
+	 *     http://www.apache.org/licenses/LICENSE-2.0
+	 *
+	 * Unless required by applicable law or agreed to in writing, software
+	 * distributed under the License is distributed on an "AS IS" BASIS,
+	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 * See the License for the specific language governing permissions and
+	 * limitations under the License.
+	 */
+	private static Path findDefaultInstallDir(String application) {
+		String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+		Path dir;
+
+		if (os.contains("win") && System.getenv("APPDATA") != null) {
+			dir = Paths.get(System.getenv("APPDATA")).resolve("." + application);
+		} else {
+			String home = System.getProperty("user.home", ".");
+			Path homeDir = Paths.get(home);
+
+			if (os.contains("mac")) {
+				dir = homeDir.resolve("Library").resolve("Application Support").resolve(application);
+			} else {
+				dir = homeDir.resolve("." + application);
+			}
+		}
+
+		return dir.toAbsolutePath().normalize();
 	}
 
 	public static void onShutdownClient() {
