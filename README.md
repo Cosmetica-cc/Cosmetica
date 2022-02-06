@@ -1,4 +1,4 @@
-# Eyezah's Extravagant Cosmetics
+# Cosmetica
 
 The all new cosmetic system to allow complete customisation for anyone else using the mod!
 
