@@ -87,6 +87,8 @@ public class Cosmetics implements ClientModInitializer {
 
 			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.txt?timestamp=" + System.currentTimeMillis(), 10)) {
 				if (response.getError().isEmpty()) {
+					Debug.info("Received response from Github CDN. We do not require a fallback!");
+
 					Cosmetics.apiUrl = response.getAsString();
 					resp = true;
 				}
