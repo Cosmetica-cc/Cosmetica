@@ -1,6 +1,26 @@
-			  LGPL-v3 With Cape Server Exception
-						7 February 2007
+			  Cosmetica Open-Source License
+					7 February 2022
 
-The software is provided under the terms of the GNU Lesser General Public License v3 with the following exceptions:
-	- You MAY NOT alter the software in any way, shape, or form, such that it provides capes from a server other than our own.
+Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
 
+The Cosmetica Open-Source License incorporates the terms and conditions of version 3 of the GNU Lesser General Public License, with the exceptions listed below.
+
+This license document MAY be updated at any time without public notification.
+
+The original source code of Cosmetica may be found at https://github.com/eyezahmc/Cosmetica.
+
+0. Definitions
+
+"The Software" refers to any version, past or present, of the binaries and/or the source code, partial or in full.
+
+"Cosmetics" refers to any modifications to the display of a player character made possible by the software.
+
+"To Modify" is defined as to alter the software in any way, shape, or form.
+
+A "Server" is any cloud based service.
+
+1. Exceptions
+
+You MAY NOT modify the software to provide cosmetics from a server other than our own.
+
+Any derivative work of the software must be licensed under the Cosmetica Open-Source License, and publicly provide a verbatim copy of the license.
