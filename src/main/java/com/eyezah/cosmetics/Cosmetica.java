@@ -15,6 +15,7 @@ import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
@@ -38,7 +39,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -57,13 +57,14 @@ import static com.eyezah.cosmetics.Authentication.getToken;
 import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
 @Environment(EnvType.CLIENT)
-public class Cosmetics implements ClientModInitializer {
+public class Cosmetica implements ClientModInitializer {
 	public static final String authServerHost = "auth.cosmetics.eyezah.com";
 	public static final int authServerPort = 25596;
 
 	// used for screens
 	public static ConnectScreen connectScreen;
 	public static String apiUrl = "https://eyezah.com/cosmetics/api";
+	public static String displayNext;
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();
@@ -85,11 +86,11 @@ public class Cosmetics implements ClientModInitializer {
 			File file = new File(findDefaultInstallDir("minecraft").toFile(), "api_url_cache.txt");
 			boolean resp = false;
 
-			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.txt?timestamp=" + System.currentTimeMillis(), 10)) {
+			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.txt?timestamp=" + System.currentTimeMillis())) {
 				if (response.getError().isEmpty()) {
 					Debug.info("Received response from Github CDN. We do not require a fallback!");
 
-					Cosmetics.apiUrl = response.getAsString();
+					Cosmetica.apiUrl = response.getAsString();
 					resp = true;
 				}
 			} catch (Exception e) {
@@ -101,25 +102,42 @@ public class Cosmetics implements ClientModInitializer {
 					file.createNewFile();
 
 					try (FileWriter writer = new FileWriter(file)) {
-						writer.write(Cosmetics.apiUrl);
+						writer.write(Cosmetica.apiUrl);
 					}
 				} else if (file.isFile()) {
 					try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-						Cosmetics.apiUrl = reader.readLine().trim();
+						Cosmetica.apiUrl = reader.readLine().trim();
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			Debug.info("Finished retrieving API Url. Conclusion: the API is hosted at " + Cosmetics.apiUrl);
+			Debug.info("Finished retrieving API Url. Conclusion: the API is hosted at " + Cosmetica.apiUrl);
 			Authentication.runAuthentication(new TitleScreen(), 1);
+
+			String versionCheck = Cosmetica.apiUrl + "/get/versioncheck?modversion="
+					+ urlEncode(FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString())
+					+ "&mcversion=" + SharedConstants.getCurrentVersion().getId();
+
+			Debug.info(versionCheck, "always_print_urls");
+
+			try (Response response = Response.request(versionCheck)) {
+				String s = response.getAsString();
+
+				if (!s.isEmpty()) {
+					displayNext = s;
+				}
+			} catch (IOException e) {
+				LOGGER.error("Error checking version:");
+				e.printStackTrace();
+			}
 		});
 
 		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
 			// register all reserved textures
 			for (int i = 0; i < 128; ++i) {
-				registry.register(new ResourceLocation("extravagant_cosmetics", "generated/reserved_" + i));
+				registry.register(new ResourceLocation("cosmetica", "generated/reserved_" + i));
 			}
 		});
 
@@ -127,7 +145,7 @@ public class Cosmetics implements ClientModInitializer {
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override
 			public ResourceLocation getFabricId() {
-				return new ResourceLocation("extravagant_cosmetics", "cache_clearer");
+				return new ResourceLocation("cosmetica", "cache_clearer");
 			}
 
 			@Override
@@ -232,8 +250,8 @@ public class Cosmetics implements ClientModInitializer {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
-					Cosmetics.runOffthread(() -> {
-						String target = Cosmetics.apiUrl + "/get/info?username=" + urlEncode(username)
+					Cosmetica.runOffthread(() -> {
+						String target = Cosmetica.apiUrl + "/get/info?username=" + urlEncode(username)
 								+ "&uuid=" + uuid.toString() + "&token=" + getToken();
 						Debug.info(target, "always_print_urls");
 

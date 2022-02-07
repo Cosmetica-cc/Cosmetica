@@ -7,6 +7,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -67,17 +68,17 @@ public class Response implements Closeable {
 	}
 
 	public static Response request(String request) throws ParseException, IOException {
-		CloseableHttpClient client = HttpClients.createDefault();
-		final HttpGet get = new HttpGet(request);
+		int timeout = 15 * 1000;
 
-		CloseableHttpResponse response = client.execute(get);
-		return new Response(client, response);
-	}
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectionRequestTimeout(timeout)
+				.setConnectTimeout(timeout)
+				.setSocketTimeout(timeout)
+				.build();
 
-	public static Response request(String request, int timeout) throws ParseException, IOException {
-		timeout *= 1000;
-		CloseableHttpClient client = HttpClients.createDefault();
-		setTimeout(client, timeout);
+		CloseableHttpClient client = HttpClients.custom()
+				.setDefaultRequestConfig(requestConfig)
+				.build();
 
 		final HttpGet get = new HttpGet(request);
 
@@ -86,12 +87,6 @@ public class Response implements Closeable {
 	}
 
 	private static final JsonParser PARSER = new JsonParser();
-
-	@SuppressWarnings("deprecation")
-	private static void setTimeout(HttpClient client, int timeout) {
-		client.getParams().setParameter("http.socket.timeout", timeout);
-		client.getParams().setParameter("http.connection.timeout", timeout);
-	}
 
 	@Override
 	public void close() throws IOException {

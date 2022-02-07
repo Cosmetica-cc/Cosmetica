@@ -17,8 +17,8 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.eyezah.cosmetics.Cosmetics.authServerHost;
-import static com.eyezah.cosmetics.Cosmetics.authServerPort;
+import static com.eyezah.cosmetics.Cosmetica.authServerHost;
+import static com.eyezah.cosmetics.Cosmetica.authServerPort;
 
 public class Authentication {
 	private static boolean currentlyAuthenticated = false;
@@ -41,7 +41,7 @@ public class Authentication {
 				return;
 			}
 
-			try (Response response = Response.request(Cosmetics.apiUrl + "/get/settings?token=" + token)) {
+			try (Response response = Response.request(Cosmetica.apiUrl + "/get/settings?token=" + token)) {
 				Debug.info("Handling successful cosmetics settings response.");
 
 				JsonObject jsonObject = response.getAsJson();
@@ -89,7 +89,7 @@ public class Authentication {
 
 	public static void setToken(String testToken) {
 		Thread requestThread = new Thread(() -> {
-			try (Response response = Response.request(Cosmetics.apiUrl + "/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken())) {
+			try (Response response = Response.request(Cosmetica.apiUrl + "/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken())) {
 				String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
 				if (responseBody.startsWith("token:")) {
 					token = responseBody.substring(6);
