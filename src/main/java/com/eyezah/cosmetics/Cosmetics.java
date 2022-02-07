@@ -18,6 +18,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -84,12 +85,12 @@ public class Cosmetics implements ClientModInitializer {
 			File file = new File(findDefaultInstallDir("minecraft").toFile(), "api_url_cache.txt");
 			boolean resp = false;
 
-			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.json?timestamp=" + System.currentTimeMillis())) {
+			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.txt?timestamp=" + System.currentTimeMillis(), 10)) {
 				if (response.getError().isEmpty()) {
 					Cosmetics.apiUrl = response.getAsString();
 					resp = true;
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
@@ -105,9 +106,12 @@ public class Cosmetics implements ClientModInitializer {
 						Cosmetics.apiUrl = reader.readLine().trim();
 					}
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
+
+			Debug.info("Finished retrieving API Url. Conclusion: the API is hosted at " + Cosmetics.apiUrl);
+			Authentication.runAuthentication(new TitleScreen(), 1);
 		});
 
 		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
@@ -227,7 +231,7 @@ public class Cosmetics implements ClientModInitializer {
 					lookingUp.add(uuid);
 
 					Cosmetics.runOffthread(() -> {
-						String target = "https://eyezah.com/cosmetics/api/get/info?username=" + urlEncode(username)
+						String target = Cosmetics.apiUrl + "/get/info?username=" + urlEncode(username)
 								+ "&uuid=" + uuid.toString() + "&token=" + getToken();
 						Debug.info(target, "always_print_urls");
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -73,7 +74,24 @@ public class Response implements Closeable {
 		return new Response(client, response);
 	}
 
+	public static Response request(String request, int timeout) throws ParseException, IOException {
+		timeout *= 1000;
+		CloseableHttpClient client = HttpClients.createDefault();
+		setTimeout(client, timeout);
+
+		final HttpGet get = new HttpGet(request);
+
+		CloseableHttpResponse response = client.execute(get);
+		return new Response(client, response);
+	}
+
 	private static final JsonParser PARSER = new JsonParser();
+
+	@SuppressWarnings("deprecation")
+	private static void setTimeout(HttpClient client, int timeout) {
+		client.getParams().setParameter("http.socket.timeout", timeout);
+		client.getParams().setParameter("http.connection.timeout", timeout);
+	}
 
 	@Override
 	public void close() throws IOException {
