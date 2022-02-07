@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens;
 
+import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.eyezah.cosmetics.utils.Response;
@@ -40,7 +41,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 			String finalEndString = endString.toString();
 
 			Thread requestThread = new Thread(() -> {
-				String url = "https://eyezah.com/cosmetics/api/client/updatesettings?token=" + getToken() + finalEndString;
+				String url = apiUrl + "/client/updatesettings?token=" + getToken() + finalEndString;
 				Debug.info(url, "always_print_urls");
 
 				try (Response response = Response.request(url)) {
