@@ -27,7 +27,7 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		super(new TranslatableComponent("extravagantCosmetics.loading"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
-		runAuthentication(parentScreen);
+		runAuthentication(parentScreen, 2);
 	}
 
 	@Override

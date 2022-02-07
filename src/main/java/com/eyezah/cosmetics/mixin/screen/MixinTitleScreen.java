@@ -13,6 +13,6 @@ import static com.eyezah.cosmetics.Authentication.runAuthentication;
 public class MixinTitleScreen {
 	@Inject(at = @At("HEAD"), method = "init")
 	private void titleScreenInject(CallbackInfo ci) {
-		if (getToken().equals("")) runAuthentication(new TitleScreen());
+		if (getToken().equals("")) runAuthentication(new TitleScreen(), 2);
 	}
 }
