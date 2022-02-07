@@ -1,11 +1,14 @@
 package com.eyezah.cosmetics.mixin;
 
-import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,9 +21,11 @@ public abstract class MixinMinecraft {
 
 	@Shadow @Nullable public Screen screen;
 
+	@Shadow @Final public Gui gui;
+
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;shutdownExecutors()V"), method = "close")
 	private void onClose(CallbackInfo info) {
-		Cosmetics.onShutdownClient();
+		Cosmetica.onShutdownClient();
 	}
 
 	@Inject(at = @At("HEAD"), method = "setScreen", cancellable = true)
@@ -35,8 +40,14 @@ public abstract class MixinMinecraft {
 
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
-		if (Cosmetics.getCacheSize() > 1024) { // clear cache on level change if it's too big
-			Cosmetics.clearAllCaches();
+		if (Cosmetica.getCacheSize() > 1024) { // clear cache on level change if it's too big
+			Cosmetica.clearAllCaches();
+		}
+
+		// also do the check thing
+		if (Cosmetica.displayNext != null) {
+			this.gui.getChat().addMessage(new TextComponent(Cosmetica.displayNext));
+			Cosmetica.displayNext = null;
 		}
 	}
 }
