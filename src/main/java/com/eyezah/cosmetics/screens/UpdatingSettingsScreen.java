@@ -1,12 +1,10 @@
 package com.eyezah.cosmetics.screens;
 
-import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.eyezah.cosmetics.utils.Response;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -16,7 +14,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import static com.eyezah.cosmetics.Authentication.getToken;
-import static com.eyezah.cosmetics.Cosmetics.*;
+import static com.eyezah.cosmetics.Cosmetica.*;
 
 public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;

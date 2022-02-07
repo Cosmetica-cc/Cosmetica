@@ -1,10 +1,9 @@
 package com.eyezah.cosmetics.screens;
 
-import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -14,8 +13,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
-
-import static com.eyezah.cosmetics.Cosmetics.*;
 
 public class UnauthenticatedScreen extends Screen {
 	private Screen parentScreen;
@@ -44,7 +41,7 @@ public class UnauthenticatedScreen extends Screen {
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("extravagantCosmetics.okay"), button -> this.onClose()));
 		} else {
 			if (Debug.DEBUG_MODE) { // because I'm not authenticated in dev and can't use the normal button
-				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TextComponent("Immediately Clear Caches"), btn -> Cosmetics.clearAllCaches()));
+				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TextComponent("Immediately Clear Caches"), btn -> Cosmetica.clearAllCaches()));
 			}
 
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {

@@ -1,6 +1,6 @@
 package com.eyezah.cosmetics.screens;
 
-import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Response;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -39,7 +39,7 @@ public class RSEWarningScreen extends Screen {
 			String token = getToken();
 
 			if (!token.isEmpty()) {
-				try (Response response = Response.request(Cosmetics.apiUrl + "/client/updatesettings?token=" + getToken() + "&doregioneffects=" + enabled)) {
+				try (Response response = Response.request(Cosmetica.apiUrl + "/client/updatesettings?token=" + getToken() + "&doregioneffects=" + enabled)) {
 					Debug.info("Received successful response for RSE update.");
 				} catch (IOException e) {
 					if (Debug.DEBUG_MODE) e.printStackTrace();

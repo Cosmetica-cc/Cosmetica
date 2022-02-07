@@ -1,18 +1,13 @@
 package com.eyezah.cosmetics.mixin.screen;
 
-import com.eyezah.cosmetics.Authentication;
-import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.screens.LoadingScreen;
-import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.utils.ExtendedScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.spongepowered.asm.mixin.Final;

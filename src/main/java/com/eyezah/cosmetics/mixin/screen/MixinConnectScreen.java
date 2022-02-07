@@ -1,7 +1,6 @@
 package com.eyezah.cosmetics.mixin.screen;
 
 import com.eyezah.cosmetics.Authentication;
-import com.eyezah.cosmetics.Cosmetics;
 import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.utils.AuthenticatingScreen;
@@ -33,7 +32,7 @@ import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.eyezah.cosmetics.Cosmetics.*;
+import static com.eyezah.cosmetics.Cosmetica.*;
 
 @Mixin(ConnectScreen.class)
 public class MixinConnectScreen implements AuthenticatingScreen {

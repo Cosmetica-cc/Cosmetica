@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "id": "extravagant_cosmetics",
+  "id": "cosmetica",
   "version": "${version}",
-  
-  "name": "Eyezah's Extravagant Cosmetics",
+
+  "name": "Cosmetica",
   "description": "Custom cosmetics for free, forever!",
   "authors": [
     "Eyezah",
     "Valoeghese"
   ],
   
-  "icon": "assets/cosmetics/icon.png",
-  "license": "LGPL 3.0",
+  "icon": "assets/cosmetica/icon.png",
+  "license": "Cosmetica Open-Source License",
   
   "environment": "client",
   
   "entrypoints": {
     "client": [
-      "com.eyezah.cosmetics.Cosmetics"
+      "com.eyezah.cosmetics.Cosmetica"
     ]
   },
   
@@ -26,6 +26,6 @@
   },
   
   "mixins": [
-    "extravagant_cosmetics.mixins.json"
+    "cosmetica.mixins.json"
   ]
 }

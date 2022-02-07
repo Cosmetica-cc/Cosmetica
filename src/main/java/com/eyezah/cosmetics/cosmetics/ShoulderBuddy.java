@@ -1,6 +1,6 @@
 package com.eyezah.cosmetics.cosmetics;
 
-import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -50,7 +50,7 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
     }
 
     public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, boolean left) {
-        BakableModel modelData = Cosmetics.getPlayerData(player).shoulderBuddy();
+        BakableModel modelData = Cosmetica.getPlayerData(player).shoulderBuddy();
 
         if (modelData == null) return; // if it has a model
 

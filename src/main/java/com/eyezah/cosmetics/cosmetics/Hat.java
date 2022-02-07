@@ -1,6 +1,6 @@
 package com.eyezah.cosmetics.cosmetics;
 
-import com.eyezah.cosmetics.Cosmetics;
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -23,7 +23,7 @@ public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
     @Override
     public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
         if (player.isInvisible()) return;
-        BakableModel modelData = Cosmetics.getPlayerData(player).hat();
+        BakableModel modelData = Cosmetica.getPlayerData(player).hat();
         if (modelData == null) return; // if it has a model
         if ((modelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) return; // disable hat flag
 
