@@ -1,5 +1,5 @@
 			  Cosmetica Open-Source License
-					7 February 2022
+			         7 February 2022
 
 Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
 
@@ -7,9 +7,11 @@ The Cosmetica Open-Source License incorporates the terms and conditions of versi
 
 This license document MAY be updated at any time without public notification.
 
-The original source code of Cosmetica may be found at https://github.com/eyezahmc/Cosmetica.
+The original source code of Cosmetica may be found at https://github.com/eyezahmc/Cosmetica, and the latest terms and conditions of this license may be found at https://github.com/EyezahMC/Cosmetica/blob/master/LICENSE.
 
 0. Definitions
+
+As used herein, "this license" refers to the latest version of the Cosmetica Open-Source License, which can be found at https://github.com/EyezahMC/Cosmetica/blob/master/LICENSE.
 
 "The Software" refers to any version, past or present, of the binaries and/or the source code, partial or in full.
 
@@ -21,6 +23,6 @@ A "Server" is any cloud based service.
 
 1. Exceptions
 
-You MAY NOT modify the software to provide cosmetics from a server other than the one hosted publicly at the URL provided in https://github.com/EyezahMC/Cosmetica/blob/master/api_url.json.
+You understand that the cosmetics servers permitted by this license are those provided by an HTTP GET to any of the hosts in https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json, and you MAY NOT modify the software to provide cosmetics from a server other than the cosmetics servers permitted by this license.
 
-Any derivative work of the software must be licensed under the Cosmetica Open-Source License, and publicly provide a verbatim copy of the license.
+Any derivative work of the software must be licensed under the Cosmetica Open-Source License, and publicly provide a verbatim copy of this license.

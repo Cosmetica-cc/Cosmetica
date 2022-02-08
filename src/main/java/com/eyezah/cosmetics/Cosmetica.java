@@ -6,6 +6,7 @@ import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import net.fabricmc.api.ClientModInitializer;
@@ -34,6 +35,7 @@ import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -58,12 +60,12 @@ import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
 @Environment(EnvType.CLIENT)
 public class Cosmetica implements ClientModInitializer {
-	public static String authServerHost = "auth.cosmetics.eyezah.com";
-	public static int authServerPort = 25596;
+	public static String authServerHost;
+	public static int authServerPort;
 
 	// used for screens
 	public static ConnectScreen connectScreen;
-	public static String apiServerHost = "https://eyezah.com/cosmetics";
+	public static String apiServerHost;
 	public static String displayNext;
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
@@ -76,65 +78,80 @@ public class Cosmetica implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		LOGGER.info("<Eyezah> Enjoy the new cosmetics!");
-
 		// delete debug dump images
 		Debug.clearImages();
 
 		// API Url Getter
 		runOffthread(() -> {
-			File file = new File(findDefaultInstallDir("minecraft").toFile(), "api_url_cache.txt");
-			boolean resp = false;
+			File minecraftDir = findDefaultInstallDir("minecraft").toFile();
+			File file = new File(minecraftDir, "cosmetica_website_host_cache.txt");
 
-			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.json?timestamp=" + System.currentTimeMillis())) {
+			String apiGetHost = null;
+
+			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/website_host.json?timestamp=" + System.currentTimeMillis())) {
 				if (response.getError().isEmpty()) {
 					Debug.info("Received response from Github CDN. We do not require a fallback (hopefully)!");
 
-					JsonObject data = response.getAsJson();
-					Cosmetica.apiServerHost = data.get("api_host").getAsJsonArray().get(0).getAsString();
-					JsonObject auth = data.get("auth_host").getAsJsonArray().get(0).getAsJsonObject();
-					Cosmetica.authServerHost = auth.get("host").getAsString();
+					apiGetHost = response.getAsJson().get("current_host").getAsString();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			apiGetHost = loadOrCache(file, apiGetHost);
+			if (apiGetHost == null) apiGetHost = "https://eyezah.com/cosmetics/getapi"; // fallback
+
+			Debug.info("Finished retrieving GetAPI Url. Conclusion: we can get an API server from " + apiGetHost);
+
+			file = new File(minecraftDir, "cosmetica_get_api_cache.json");
+
+			String apiGetData = null;
+
+			try (Response apiGetResponse = Response.request(apiGetHost)) {
+				apiGetData = apiGetResponse.getAsString();
+
+				Debug.info("Received API Url from Server");
+			} catch (Exception e) {
+				LOGGER.warn("Connection error to API GET. Trying to retrieve from local cache...");
+			}
+
+			apiGetData = loadOrCache(file, apiGetData);
+
+			if (apiGetData == null) {
+				LOGGER.error("Could not receive Cosmetica API host. Mod functionality will be disabled!");
+			} else {
+				try {
+					JsonObject data = new JsonParser().parse(apiGetData).getAsJsonObject();
+					Cosmetica.apiServerHost = data.get("api").getAsString();
+					JsonObject auth = data.get("auth-server").getAsJsonObject();
+					Cosmetica.authServerHost = auth.get("hostname").getAsString();
 					Cosmetica.authServerPort = auth.get("port").getAsInt();
-					resp = true;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
-			try {
-				if (resp) {
-					file.createNewFile();
+					LOGGER.info(data.get("message"));
+					Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + Cosmetica.apiServerHost);
 
-					try (FileWriter writer = new FileWriter(file)) {
-						writer.write(Cosmetica.apiServerHost);
+					Authentication.runAuthentication(new TitleScreen(), 1);
+
+					String versionCheck = Cosmetica.apiServerHost + "/api/get/versioncheck?modversion="
+							+ urlEncode(FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString())
+							+ "&mcversion=" + SharedConstants.getCurrentVersion().getId();
+
+					Debug.info(versionCheck, "always_print_urls");
+
+					try (Response response = Response.request(versionCheck)) {
+						String s = response.getAsString();
+
+						if (!s.isEmpty()) {
+							displayNext = s;
+						}
+					} catch (IOException e) {
+						LOGGER.error("Error checking version:");
+						e.printStackTrace();
 					}
-				} else if (file.isFile()) {
-					try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-						Cosmetica.apiServerHost = reader.readLine().trim();
-					}
+				} catch (Exception e) {
+					LOGGER.error("Error reading JSON data for API Url. Mod functionality will be disabled!");
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			Debug.info("Finished retrieving API Url. Conclusion: the API is hosted at " + Cosmetica.apiServerHost);
-			Authentication.runAuthentication(new TitleScreen(), 1);
-
-			String versionCheck = Cosmetica.apiServerHost + "/api/get/versioncheck?modversion="
-					+ urlEncode(FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString())
-					+ "&mcversion=" + SharedConstants.getCurrentVersion().getId();
-
-			Debug.info(versionCheck, "always_print_urls");
-
-			try (Response response = Response.request(versionCheck)) {
-				String s = response.getAsString();
-
-				if (!s.isEmpty()) {
-					displayNext = s;
-				}
-			} catch (IOException e) {
-				LOGGER.error("Error checking version:");
-				e.printStackTrace();
 			}
 		});
 
@@ -159,6 +176,26 @@ public class Cosmetica implements ClientModInitializer {
 		});
 
 		runAuthenticationCheckThread();
+	}
+
+	private static String loadOrCache(File file, @Nullable String value) {
+		try {
+			if (value != null) {
+				file.createNewFile();
+
+				try (FileWriter writer = new FileWriter(file)) {
+					writer.write(value);
+				}
+			} else if (file.isFile()) {
+				try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+					value = reader.readLine().trim();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return value;
 	}
 
 	/*
