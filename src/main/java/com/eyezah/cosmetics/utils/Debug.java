@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -45,6 +44,10 @@ public class Debug {
 		if (DEBUG_MODE && DEBUG_SETTINGS.logging()) {
 			DEBUG_LOGGER.info(str.get());
 		}
+	}
+
+	public static boolean debugCommands() {
+		return DEBUG_MODE && DEBUG_SETTINGS.testUnverifiedCosmetics();
 	}
 
 	/**
@@ -93,6 +96,7 @@ public class Debug {
 					data.add("logging", new JsonPrimitive(false));
 					data.add("image_dumping", new JsonPrimitive(false));
 					data.add("always_print_urls", new JsonPrimitive(false));
+					data.add("test_unverified_cosmetics", new JsonPrimitive(false));
 
 					try (FileWriter writer = new FileWriter(settings)) {
 						writer.write(data.toString());
@@ -106,6 +110,7 @@ public class Debug {
 						DEBUG_SETTINGS = new Settings(
 								data.get("logging").getAsBoolean(),
 								data.get("image_dumping").getAsBoolean(),
+								data.has("test_unverified_cosmetics") ? data.get("test_unverified_cosmetics").getAsBoolean() : false,
 								key -> cache.computeBooleanIfAbsent(key, predicate));
 					}
 				}
@@ -114,9 +119,9 @@ public class Debug {
 		}
 	}
 
-	private record Settings(boolean logging, boolean imageDumping, Predicate<String> other) {
+	private record Settings(boolean logging, boolean imageDumping, boolean testUnverifiedCosmetics, Predicate<String> other) {
 		Settings() {
-			this(false, false, i -> false);
+			this(false, false, false, i -> false);
 		}
 	}
 }

@@ -39,7 +39,7 @@ public abstract class MixinOptionsScreen extends Screen {
 				}
 			}
 		}
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, new TranslatableComponent("extravagantCosmetics.cosmetics"),
+		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, new TranslatableComponent("cosmetica.cosmetics"),
 				button -> this.minecraft.setScreen(new LoadingScreen(this, this.options))));
 	}
 }

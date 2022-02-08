@@ -20,12 +20,12 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;
 	private Options parentOptions;
 
-	private Component reason = new TranslatableComponent("extravagantCosmetics.loading.message");
+	private Component reason = new TranslatableComponent("cosmetica.loading.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
 	public LoadingScreen(Screen parentScreen, Options parentOptions) {
-		super(new TranslatableComponent("extravagantCosmetics.loading"));
+		super(new TranslatableComponent("cosmetica.loading"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
 

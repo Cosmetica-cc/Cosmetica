@@ -19,12 +19,12 @@ import static com.eyezah.cosmetics.Cosmetica.*;
 public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;
 
-	private Component reason = new TranslatableComponent("extravagantCosmetics.updating.message");
+	private Component reason = new TranslatableComponent("cosmetica.updating.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
 	public UpdatingSettingsScreen(Screen parentScreen, ServerOptions oldOptions, ServerOptions newOptions, boolean doReload) throws IOException, InterruptedException {
-		super(new TranslatableComponent("extravagantCosmetics.updating"));
+		super(new TranslatableComponent("cosmetica.updating"));
 		this.parentScreen = parentScreen;
 
 		StringBuilder endString = new StringBuilder();

@@ -41,7 +41,7 @@ public class Authentication {
 				return;
 			}
 
-			try (Response response = Response.request(Cosmetica.apiServerHost + "/api/get/settings?token=" + token)) {
+			try (Response response = Response.request(Cosmetica.apiServerHost + "/get/settings?token=" + token)) {
 				Debug.info("Handling successful cosmetics settings response.");
 
 				JsonObject jsonObject = response.getAsJson();
