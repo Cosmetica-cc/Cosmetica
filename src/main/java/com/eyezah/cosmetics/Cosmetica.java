@@ -88,7 +88,7 @@ public class Cosmetica implements ClientModInitializer {
 
 			String apiGetHost = null;
 
-			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/website_host.json?timestamp=" + System.currentTimeMillis())) {
+			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json?timestamp=" + System.currentTimeMillis())) {
 				if (response.getError().isEmpty()) {
 					Debug.info("Received response from Github CDN. We do not require a fallback (hopefully)!");
 
