@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.screens;
 
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -27,7 +28,10 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		super(new TranslatableComponent("extravagantCosmetics.loading"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
-		runAuthentication(parentScreen, 2);
+
+		if (!runAuthentication(parentScreen, 2)) {
+			Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new OfflineScreen(parentScreen)));
+		}
 	}
 
 	@Override
