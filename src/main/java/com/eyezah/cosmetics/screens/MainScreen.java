@@ -17,7 +17,7 @@ import java.io.IOException;
 
 public class MainScreen extends Screen {
 	public MainScreen(Screen parentScreen, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects, boolean doLore) {
-		super(new TranslatableComponent("extravagantCosmetics.cosmeticsMenu"));
+		super(new TranslatableComponent("cosmetica.cosmeticsMenu"));
 		this.parentScreen = parentScreen;
 
 		this.oldOptions = new ServerOptions(doShoulderBuddies, doHats, doRegionSpecificEffects, doLore);
@@ -35,9 +35,9 @@ public class MainScreen extends Screen {
 		component.append(new TranslatableComponent(translatable));
 		component.append(": ");
 		if (toggle) {
-			component.append(new TranslatableComponent("extravagantCosmetics.enabled"));
+			component.append(new TranslatableComponent("cosmetica.enabled"));
 		} else {
-			component.append(new TranslatableComponent("extravagantCosmetics.disabled"));
+			component.append(new TranslatableComponent("cosmetica.disabled"));
 		}
 		return component;
 	}
@@ -50,39 +50,39 @@ public class MainScreen extends Screen {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options));
 		}));
 
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 2, 150, 20, new TranslatableComponent("extravagantCosmetics.reloadCosmetics"), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 2, 150, 20, new TranslatableComponent("cosmetica.reloadCosmetics"), (button) -> {
 			doReload = !doReload;
 			if (doReload) {
-				button.setMessage(new TranslatableComponent("extravagantCosmetics.willReload"));
+				button.setMessage(new TranslatableComponent("cosmetica.willReload"));
 			} else {
-				button.setMessage(new TranslatableComponent("extravagantCosmetics.reloadCosmetics"));
+				button.setMessage(new TranslatableComponent("cosmetica.reloadCosmetics"));
 			}
 		}));
 
 		// toggles
 
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 1, 150, 20, generateButtonToggleText("extravagantCosmetics.australians", this.newOptions.regionSpecificEffects.get()), button -> {
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 1, 150, 20, generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()), button -> {
 			this.newOptions.regionSpecificEffects.toggle();
-			button.setMessage(generateButtonToggleText("extravagantCosmetics.australians", this.newOptions.regionSpecificEffects.get()));
+			button.setMessage(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()));
 		}));
 
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 2, 150, 20, generateButtonToggleText("extravagantCosmetics.doHats", this.newOptions.hats.get()), button -> {
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 2, 150, 20, generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()), button -> {
 			this.newOptions.hats.toggle();
-			button.setMessage(generateButtonToggleText("extravagantCosmetics.doHats", this.newOptions.hats.get()));
+			button.setMessage(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()));
 		}));
 
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 3, 150, 20, generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", this.newOptions.shoulderBuddies.get()), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 3, 150, 20, generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()), (button) -> {
 			this.newOptions.shoulderBuddies.toggle();
-			button.setMessage(generateButtonToggleText("extravagantCosmetics.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
+			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		}));
 
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 3, 150, 20, generateButtonToggleText("extravagantCosmetics.doLore", this.newOptions.lore.get()), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 3, 150, 20, generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
 			this.newOptions.lore.toggle();
-			button.setMessage(generateButtonToggleText("extravagantCosmetics.doLore", this.newOptions.lore.get()));
+			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
 		}));
 
 		// bottom of the menu
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("extravagantCosmetics.customizeCosmetics"), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
 			try {
 				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());
 			} catch (Exception e) {

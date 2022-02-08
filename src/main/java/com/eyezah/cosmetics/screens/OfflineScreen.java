@@ -15,12 +15,12 @@ import java.util.Objects;
 public class OfflineScreen extends Screen {
 	private Screen parentScreen;
 
-	private Component reason = new TranslatableComponent("extravagantCosmetics.offline.message");
+	private Component reason = new TranslatableComponent("cosmetica.offline.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
 	public OfflineScreen(Screen parentScreen) {
-		super(new TranslatableComponent("extravagantCosmetics.offline"));
+		super(new TranslatableComponent("cosmetica.offline"));
 		this.parentScreen = parentScreen;
 	}
 
@@ -34,7 +34,7 @@ public class OfflineScreen extends Screen {
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 
 		this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), button -> this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options))));
-		this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("extravagantCosmetics.okay"), button -> this.onClose()));
+		this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
 	}
 
 	@Override

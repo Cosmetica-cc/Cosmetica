@@ -18,12 +18,12 @@ public class UnauthenticatedScreen extends Screen {
 	private Screen parentScreen;
 	private boolean fromSave;
 
-	private Component reason = new TranslatableComponent("extravagantCosmetics.unauthenticated.message");
+	private Component reason = new TranslatableComponent("cosmetica.unauthenticated.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
 	public UnauthenticatedScreen(Screen parentScreen, boolean fromSave) {
-		super(new TranslatableComponent("extravagantCosmetics.unauthenticated"));
+		super(new TranslatableComponent("cosmetica.unauthenticated"));
 		this.parentScreen = parentScreen;
 		this.fromSave = fromSave;
 	}
@@ -38,7 +38,7 @@ public class UnauthenticatedScreen extends Screen {
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 
 		if (fromSave) {
-			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("extravagantCosmetics.okay"), button -> this.onClose()));
+			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
 		} else {
 			if (Debug.DEBUG_MODE) { // because I'm not authenticated in dev and can't use the normal button
 				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TextComponent("Immediately Clear Caches"), btn -> Cosmetica.clearAllCaches()));
