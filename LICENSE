@@ -23,6 +23,6 @@ A "Server" is any cloud based service.
 
 1. Exceptions
 
-You understand that the cosmetics servers permitted by this license are those provided by an HTTP GET to any of the hosts in https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json, and you MAY NOT modify the software to provide cosmetics from a server other than the cosmetics servers permitted by this license.
+You understand that the cosmetics servers permitted by this license are those provided by an HTTP GET to any of the hosts in https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json. You MAY NOT modify the software to provide cosmetics from a server other than the cosmetics servers permitted by this license.
 
 Any derivative work of the software must be licensed under the Cosmetica Open-Source License, and publicly provide a verbatim copy of this license.
