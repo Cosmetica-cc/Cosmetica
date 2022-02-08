@@ -279,7 +279,7 @@ public class Cosmetica implements ClientModInitializer {
 		return playerDataCache.size();
 	}
 
-	private static String urlEncode(String value) {
+	public static String urlEncode(String value) {
 		try {
 			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
 		} catch (UnsupportedEncodingException ex) {

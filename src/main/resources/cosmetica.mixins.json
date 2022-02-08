@@ -15,9 +15,10 @@
     "MixinConnection",
     "MixinEntityRenderer",
     "MixinLivingEntityRenderer",
+    "MixinLocalPlayer",
     "MixinMinecraft",
-    "MixinPlayerEntityRenderer",
-    "MixinModelManager"
+    "MixinModelManager",
+    "MixinPlayerEntityRenderer"
   ],
   "injectors": {
     "defaultRequire": 1
