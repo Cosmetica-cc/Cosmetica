@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.screens;
 
 import com.eyezah.cosmetics.Authentication;
+import com.eyezah.cosmetics.Cosmetica;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -83,7 +84,7 @@ public class MainScreen extends Screen {
 		// bottom of the menu
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("extravagantCosmetics.customizeCosmetics"), (button) -> {
 			try {
-				Util.getPlatform().openUri("https://eyezah.com/cosmetics/manage?" + Authentication.getToken());
+				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());
 			} catch (Exception e) {
 				throw new RuntimeException("bruh", e);
 			}
