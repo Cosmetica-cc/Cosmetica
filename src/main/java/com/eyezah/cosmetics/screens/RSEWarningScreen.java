@@ -39,7 +39,7 @@ public class RSEWarningScreen extends Screen {
 			String token = getToken();
 
 			if (!token.isEmpty()) {
-				try (Response response = Response.request(Cosmetica.apiServerHost + "/api/client/updatesettings?token=" + getToken() + "&doregioneffects=" + enabled)) {
+				try (Response response = Response.request(Cosmetica.apiServerHost + "/client/updatesettings?token=" + getToken() + "&doregioneffects=" + enabled)) {
 					Debug.info("Received successful response for RSE update.");
 				} catch (IOException e) {
 					if (Debug.DEBUG_MODE) e.printStackTrace();

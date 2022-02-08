@@ -39,7 +39,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 			String finalEndString = endString.toString();
 
 			Thread requestThread = new Thread(() -> {
-				String url = apiServerHost + "/api/client/updatesettings?token=" + getToken() + finalEndString;
+				String url = apiServerHost + "/client/updatesettings?token=" + getToken() + finalEndString;
 				Debug.info(url, "always_print_urls");
 
 				try (Response response = Response.request(url)) {
