@@ -60,13 +60,14 @@ import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
 @Environment(EnvType.CLIENT)
 public class Cosmetica implements ClientModInitializer {
-	public static String authServerHost;
-	public static int authServerPort;
-
 	// used for screens
 	public static ConnectScreen connectScreen;
+
+	public static String authServerHost;
+	public static int authServerPort;
 	public static String apiServerHost;
 	public static String displayNext;
+	public static String websiteHost;
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();
@@ -123,6 +124,7 @@ public class Cosmetica implements ClientModInitializer {
 				try {
 					JsonObject data = new JsonParser().parse(apiGetData).getAsJsonObject();
 					Cosmetica.apiServerHost = data.get("api").getAsString();
+					Cosmetica.websiteHost = data.get("website").getAsString();
 					JsonObject auth = data.get("auth-server").getAsJsonObject();
 					Cosmetica.authServerHost = auth.get("hostname").getAsString();
 					Cosmetica.authServerPort = auth.get("port").getAsInt();
@@ -132,7 +134,7 @@ public class Cosmetica implements ClientModInitializer {
 
 					Authentication.runAuthentication(new TitleScreen(), 1);
 
-					String versionCheck = Cosmetica.apiServerHost + "/api/get/versioncheck?modversion="
+					String versionCheck = Cosmetica.apiServerHost + "/get/versioncheck?modversion="
 							+ urlEncode(FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString())
 							+ "&mcversion=" + SharedConstants.getCurrentVersion().getId();
 
@@ -292,7 +294,7 @@ public class Cosmetica implements ClientModInitializer {
 					lookingUp.add(uuid);
 
 					Cosmetica.runOffthread(() -> {
-						String target = Cosmetica.apiServerHost + "/api/get/info?username=" + urlEncode(username)
+						String target = Cosmetica.apiServerHost + "/get/info?username=" + urlEncode(username)
 								+ "&uuid=" + uuid.toString() + "&token=" + getToken();
 						Debug.info(target, "always_print_urls");
 
@@ -342,6 +344,8 @@ public class Cosmetica implements ClientModInitializer {
 						boolean bl = !entity.isDiscrete();
 						float height = entity.getBbHeight() + 0.25F;
 
+						matrixStack.translate(0, 0.1, 0);
+
 						matrixStack.pushPose();
 						matrixStack.translate(0.0D, height, 0.0D);
 						matrixStack.mulPose(entityRenderDispatcher.cameraOrientation());
@@ -354,6 +358,7 @@ public class Cosmetica implements ClientModInitializer {
 						int alphaARGB = (int)(backgroundOpacity * 255.0F) << 24;
 
 						float xOffset = (float)(-font.width(component) / 2);
+
 						font.drawInBatch(component, xOffset, 0, 553648127, false, model, multiBufferSource, bl, alphaARGB, i);
 
 						if (bl) {

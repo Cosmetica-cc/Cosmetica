@@ -39,8 +39,14 @@ public class MixinEntityRenderer {
 		return new TextComponent(prefix + entity.getDisplayName().getString() + suffix);
 	}
 
+	@Inject(at = @At("HEAD"), method = "renderNameTag")
+	protected void onRenderNameTag(Entity entity, Component component, PoseStack stack, MultiBufferSource multiBufferSource, int i, CallbackInfo info) {
+		stack.pushPose();
+		Cosmetica.onRenderNameTag(this.entityRenderDispatcher, entity, stack, multiBufferSource, this.font, i);
+	}
+
 	@Inject(at = @At("RETURN"), method = "renderNameTag")
-	protected void onRenderNameTag(Entity entity, Component component, PoseStack matrixStack, MultiBufferSource multiBufferSource, int i, CallbackInfo info) {
-		Cosmetica.onRenderNameTag(this.entityRenderDispatcher, entity, matrixStack, multiBufferSource, this.font, i);
+	protected void afterRenderNameTag(Entity entity, Component component, PoseStack stack, MultiBufferSource multiBufferSource, int i, CallbackInfo info) {
+		stack.popPose();
 	}
 }
