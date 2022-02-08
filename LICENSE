@@ -5,19 +5,19 @@ Everyone is permitted to copy and distribute verbatim copies of this license doc
 
 The Cosmetica Open-Source License incorporates the terms and conditions of version 3 of the GNU Lesser General Public License, with the exceptions listed below.
 
-This license document MAY be updated at any time without public notification.
+This license document MAY be updated at any time without public notification. The latest terms and conditions of this license may be found at https://github.com/EyezahMC/Cosmetica/blob/master/LICENSE.
 
-The original source code of Cosmetica may be found at https://github.com/eyezahmc/Cosmetica, and the latest terms and conditions of this license may be found at https://github.com/EyezahMC/Cosmetica/blob/master/LICENSE.
+The original source code of Cosmetica may be found at https://github.com/EyezahMC/Cosmetica. 
 
 0. Definitions
 
-As used herein, "this license" refers to the latest version of the Cosmetica Open-Source License, which can be found at https://github.com/EyezahMC/Cosmetica/blob/master/LICENSE.
+As used herein, "this license" refers to this version of the Cosmetica Open-Source License.
 
 "The Software" refers to any version, past or present, of the binaries and/or the source code, partial or in full.
 
 "Cosmetics" refers to any modifications to the display of a player character made possible by the software.
 
-"To Modify" is defined as to alter the software in any way, shape, or form.
+"To Modify" is defined as to alter the software in any way, shape, or form. This includes, but is not limited to, dynamic manipulation of the software at runtime using software such as "ObjectWeb ASM," "Reflection," "Javaassist," and "SpongePowered Mixin."
 
 A "Server" is any cloud based service.
 
