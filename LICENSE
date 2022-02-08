@@ -21,6 +21,6 @@ A "Server" is any cloud based service.
 
 1. Exceptions
 
-You MAY NOT modify the software to provide cosmetics from a server other than the one hosted publicly at the URL provided in https://github.com/EyezahMC/Cosmetica/blob/master/api_url.txt.
+You MAY NOT modify the software to provide cosmetics from a server other than the one hosted publicly at the URL provided in https://github.com/EyezahMC/Cosmetica/blob/master/api_url.json.
 
 Any derivative work of the software must be licensed under the Cosmetica Open-Source License, and publicly provide a verbatim copy of the license.
