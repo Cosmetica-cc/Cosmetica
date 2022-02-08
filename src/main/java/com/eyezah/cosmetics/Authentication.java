@@ -109,13 +109,16 @@ public class Authentication {
 		requestThread.start();
 	}
 
-	public static void runAuthentication(Screen screen, int flag) {
+	public static boolean runAuthentication(Screen screen, int flag) {
 		// 0x1 = API_URL_FETCH || 0x2 = LOAD_FINISH
 		bits |= flag;
 
 		if (bits >= 3) {
 			runAuthentication(screen);
+			return true;
 		}
+
+		return false;
 	}
 
 	private static void runAuthentication(Screen screen) {

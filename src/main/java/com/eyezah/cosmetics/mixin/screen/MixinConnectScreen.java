@@ -1,7 +1,9 @@
 package com.eyezah.cosmetics.mixin.screen;
 
 import com.eyezah.cosmetics.Authentication;
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.screens.LoadingScreen;
+import com.eyezah.cosmetics.screens.OfflineScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.utils.AuthenticatingScreen;
 import com.eyezah.cosmetics.utils.Debug;
