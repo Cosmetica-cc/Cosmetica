@@ -58,12 +58,12 @@ import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
 @Environment(EnvType.CLIENT)
 public class Cosmetica implements ClientModInitializer {
-	public static final String authServerHost = "auth.cosmetics.eyezah.com";
-	public static final int authServerPort = 25596;
+	public static String authServerHost = "auth.cosmetics.eyezah.com";
+	public static int authServerPort = 25596;
 
 	// used for screens
 	public static ConnectScreen connectScreen;
-	public static String apiUrl = "https://eyezah.com/cosmetics/api";
+	public static String apiServerHost = "https://eyezah.com/cosmetics";
 	public static String displayNext;
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
@@ -86,11 +86,15 @@ public class Cosmetica implements ClientModInitializer {
 			File file = new File(findDefaultInstallDir("minecraft").toFile(), "api_url_cache.txt");
 			boolean resp = false;
 
-			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.txt?timestamp=" + System.currentTimeMillis())) {
+			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetics/master/api_url.json?timestamp=" + System.currentTimeMillis())) {
 				if (response.getError().isEmpty()) {
-					Debug.info("Received response from Github CDN. We do not require a fallback!");
+					Debug.info("Received response from Github CDN. We do not require a fallback (hopefully)!");
 
-					Cosmetica.apiUrl = response.getAsString();
+					JsonObject data = response.getAsJson();
+					Cosmetica.apiServerHost = data.get("api_host").getAsJsonArray().get(0).getAsString();
+					JsonObject auth = data.get("auth_host").getAsJsonArray().get(0).getAsJsonObject();
+					Cosmetica.authServerHost = auth.get("host").getAsString();
+					Cosmetica.authServerPort = auth.get("port").getAsInt();
 					resp = true;
 				}
 			} catch (Exception e) {
@@ -102,21 +106,21 @@ public class Cosmetica implements ClientModInitializer {
 					file.createNewFile();
 
 					try (FileWriter writer = new FileWriter(file)) {
-						writer.write(Cosmetica.apiUrl);
+						writer.write(Cosmetica.apiServerHost);
 					}
 				} else if (file.isFile()) {
 					try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-						Cosmetica.apiUrl = reader.readLine().trim();
+						Cosmetica.apiServerHost = reader.readLine().trim();
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			Debug.info("Finished retrieving API Url. Conclusion: the API is hosted at " + Cosmetica.apiUrl);
+			Debug.info("Finished retrieving API Url. Conclusion: the API is hosted at " + Cosmetica.apiServerHost);
 			Authentication.runAuthentication(new TitleScreen(), 1);
 
-			String versionCheck = Cosmetica.apiUrl + "/get/versioncheck?modversion="
+			String versionCheck = Cosmetica.apiServerHost + "/api/get/versioncheck?modversion="
 					+ urlEncode(FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString())
 					+ "&mcversion=" + SharedConstants.getCurrentVersion().getId();
 
@@ -251,7 +255,7 @@ public class Cosmetica implements ClientModInitializer {
 					lookingUp.add(uuid);
 
 					Cosmetica.runOffthread(() -> {
-						String target = Cosmetica.apiUrl + "/get/info?username=" + urlEncode(username)
+						String target = Cosmetica.apiServerHost + "/api/get/info?username=" + urlEncode(username)
 								+ "&uuid=" + uuid.toString() + "&token=" + getToken();
 						Debug.info(target, "always_print_urls");
 
