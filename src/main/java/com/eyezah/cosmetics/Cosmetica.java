@@ -100,7 +100,7 @@ public class Cosmetica implements ClientModInitializer {
 			}
 
 			apiGetHost = loadOrCache(file, apiGetHost);
-			if (apiGetHost == null) apiGetHost = "https://eyezah.com/cosmetics/getapi"; // fallback
+			if (apiGetHost == null) apiGetHost = "https://cosmetica.cc/getapi"; // fallback
 
 			Debug.info("Finished retrieving GetAPI Url. Conclusion: we can get an API server from " + apiGetHost);
 
