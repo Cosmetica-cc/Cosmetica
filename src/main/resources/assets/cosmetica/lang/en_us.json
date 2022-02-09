@@ -1,6 +1,6 @@
 {
-  "cosmetica.cosmeticsMenu": "Enhanced Cosmetics",
-  "cosmetica.cosmetics": "Cosmetics Settings...",
+  "cosmetica.cosmeticsMenu": "Cosmetica Settings",
+  "cosmetica.cosmetics": "Cosmetica Settings...",
   "cosmetica.australians": "Regional Effects",
   "cosmetica.doHats": "Hats",
   "cosmetica.doShoulderBuddies": "Shoulder Buddies",
@@ -11,7 +11,7 @@
   "cosmetica.enabled": "ON",
   "cosmetica.disabled": "OFF",
   "cosmetica.okay": "Okay :(",
-  "cosmetica.loading": "Connecting to ExtravagantCosmetics...",
+  "cosmetica.loading": "Connecting to Cosmetica servers...",
   "cosmetica.loading.message": "This shouldn't take too long",
   "cosmetica.offline": "You are currently offline!",
   "cosmetica.offline.message": "We couldn't connect to Cosmetica servers! This could be because you have an issue with or a slow internet connection, or there was an error at startup.",
