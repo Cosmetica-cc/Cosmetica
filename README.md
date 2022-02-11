@@ -1,6 +1,6 @@
 # Cosmetica
 
-The all new cosmetic system to allow complete customisation for anyone else using the mod!
+The all new cosmetic system to allow complete customisation of your player character, visible to anyone else using the mod!
 
 Credits
 =================================
