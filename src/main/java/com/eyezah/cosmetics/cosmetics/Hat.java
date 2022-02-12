@@ -29,7 +29,7 @@ public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
 		if ((modelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) return; // disable hat flag
 
 		ModelPart modelPart = this.getParentModel().getHead();
-		doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0.61f, 0);
+		doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0.75f, 0);
 	}
 
 	public static final OverriddenModel overridden = new OverriddenModel();
