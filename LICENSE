@@ -1,0 +1,28 @@
+			Cosmetica Public License
+			    13 February 2022
+
+Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
+
+The Cosmetica Public License incorporates the terms and conditions of version 3 of the GNU Lesser General Public License, with the exceptions listed below.
+
+This license document MAY be updated at any time without public notification. Only the latest terms and conditions apply. The latest terms and conditions of this license may be found at https://github.com/EyezahMC/Cosmetica/blob/master/LICENSE.
+
+The original source code of Cosmetica may be found at https://github.com/EyezahMC/Cosmetica. 
+
+0. Definitions
+
+As used herein, "this license" refers to this version of the Cosmetica Public License.
+
+"The Software" refers to any version, past or present, of the binaries and/or the source code, partial or in full.
+
+"Cosmetics" refers to any modifications to the display of a player character made possible by the software.
+
+"To Modify" is defined as to alter the software in any way, shape, or form. This includes, but is not limited to, dynamic manipulation of the software at runtime using software such as, but not restricted to, "ObjectWeb ASM," "Reflection," "Javaassist," and "SpongePowered Mixin."
+
+A "Server" is any cloud based service.
+
+1. Exceptions
+
+You understand that the cosmetics servers permitted by this license are those provided by an HTTP GET or HTTP POST to any of the hosts in https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json. You MAY NOT modify the software to provide cosmetics from a server other than the cosmetics servers permitted by this license.
+
+Any derivative work of the software must be licensed under the Cosmetica Public License, and publicly provide a verbatim copy of this license.
