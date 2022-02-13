@@ -54,7 +54,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 					e.printStackTrace();
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
 				} finally {
-					if (finalDoReload) clearAllCaches();
+					if (finalDoReload) Minecraft.getInstance().tell(() -> clearAllCaches());
 				}
 			});
 			requestThread.start();
