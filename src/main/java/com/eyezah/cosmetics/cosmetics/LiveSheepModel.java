@@ -41,7 +41,7 @@ public class LiveSheepModel<T extends Sheep> extends QuadrupedModel<T> {
 		this.head.xRot = this.headXRot;
 	}
 
-	public void renderOnShoulder(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int j, int tickCount) {
+	public void renderOnShoulder(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int j) {
 		poseStack.scale(0.35F, 0.35F, 0.35F);
 		root.render(poseStack, vertexConsumer, i, j);
 	}

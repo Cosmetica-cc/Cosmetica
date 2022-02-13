@@ -16,7 +16,9 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 
 public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
 	private ModelManager modelManager;
@@ -60,35 +62,53 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
 		if (modelData.id().equals("-sheep")) { // builtin live sheep
 			LiveSheepModel model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP_FUR));
 			stack.pushPose();
-			stack.translate(left ? 0.35 : -0.35, (player.isCrouching() ? -1.3 : -1.6D) + 1.07D, 0.0D);
 			stack.scale(0.8f, 0.8f, 0.8f);
+			stack.translate(left ? 0.42 : -0.42, (player.isCrouching() ? -1.3 : -1.6D) + 1.07D, 0.0D);
+			stack.scale(0.35f, 0.35f, 0.35f);
+
+			// calculate colour like a jeb sheep
+			final int rate = 25;
+
+			int n = player.tickCount / rate + player.getId();
+			int o = DyeColor.values().length;
+			int p = n % o;
+			int q = (n + 1) % o;
+			float r = ((float)(player.tickCount % rate) + 0) / (float) rate;
+			float[] fs = Sheep.getColorArray(DyeColor.byId(p));
+			float[] gs = Sheep.getColorArray(DyeColor.byId(q));
+
+			float red = fs[0] * (1.0F - r) + gs[0] * r;
+			float green = fs[1] * (1.0F - r) + gs[1] * r;
+			float blue = fs[2] * (1.0F - r) + gs[2] * r;
+
+			// render
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
+			model.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0f);
 			// TODO jeb_ sheep code but here. it's in SheepFurLayer.class.
-			model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, player.tickCount);
+
 			stack.popPose();
 
 			model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP));
+
 			stack.pushPose();
-			stack.translate(left ? 0.35 : -0.35, (player.isCrouching() ? -1.3 : -1.6D) + 1.07D, 0.0D);
+
 			stack.scale(0.8f, 0.8f, 0.8f);
+			stack.translate(left ? 0.42 : -0.42, (player.isCrouching() ? -1.3 : -1.6D) + 1.07D, 0.0D);
+
 			vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
-			model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, player.tickCount);
+			model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
+
 			stack.popPose();
 		} else {
 			boolean staticPosition = (modelData.extraInfo() & 0x1) == 1;
-			ModelPart modelPart;
 
 			if (staticPosition) {
-				modelPart = this.getParentModel().body;
-				stack.translate(left ? 0.35 : -0.35, 0, 0);
-			} else if (left) {
-				modelPart = this.getParentModel().leftArm;
+				stack.translate(left ? 0.35 : -0.35, -0.2, 0);
+				doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, 0f, 0);
 			} else {
-				modelPart = this.getParentModel().rightArm;
+				ModelPart modelPart = left ? this.getParentModel().leftArm : this.getParentModel().rightArm;
+				doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0.37f, 0);
 			}
-
-			stack.translate(0, -0.2, 0);
-			doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0f, 0);
 		}
 
 		stack.popPose();
