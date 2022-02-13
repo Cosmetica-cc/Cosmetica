@@ -71,7 +71,7 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 
 				try {
 					if (aborted) {
-						Debug.info("aborted");
+						Cosmetica.LOGGER.warn("aborted");
 						return;
 					}
 
@@ -94,12 +94,11 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 					connection.send(new ServerboundHelloPacket(minecraft.getUser().getGameProfile()));
 				} catch (Exception e) {
 					if (aborted) {
-						System.out.println("aborted");
+						Cosmetica.LOGGER.warn("aborted");
 						return;
 					}
 
-					LOGGER.error("Couldn't connect to server", e);
-					System.out.println(inetSocketAddress == null ? e.toString() : e.toString().replaceAll(inetSocketAddress.getHostName() + ":" + inetSocketAddress.getPort(), ""));
+					LOGGER.error("Couldn't connect to cosmetica auth server", e);
 
 					minecraft.tell(() -> {
 						minecraft.setScreen(new UnauthenticatedScreen(parent, false));

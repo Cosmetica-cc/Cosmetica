@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -13,8 +14,10 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +59,7 @@ public class Models {
 			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, Minecraft.getInstance().level.getGameTime(), sprite -> {
 				BakedModel model = unbaked.model().bake(
 						thePieShopDownTheRoad,
-						l -> l.texture().getNamespace().equals("minecraft") ? Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(l.texture()) : sprite,
+						l -> Models.getAppropriateTexture(l, sprite, unbaked.id()),
 						BlockModelRotation.X0_Y0,
 						new ResourceLocation(unbaked.id().toLowerCase(Locale.ROOT)) /*this resource location is just for debugging in the case of errors*/);
 				BAKED_MODELS.put(unbaked.id(), model);
@@ -64,6 +67,21 @@ public class Models {
 		}
 
 		return BAKED_MODELS.get(unbaked.id());
+	}
+
+	/**
+	 * @apiNote result is nullable if and only if "allocated" is null.
+	 */
+	private static TextureAtlasSprite getAppropriateTexture(Material material, TextureAtlasSprite allocated, String id) {
+		if (material.texture().getNamespace().equals("minecraft")) { // if in the "minecraft" namespace they may be requesting a vanilla texture.
+			TextureAtlasSprite vanillaSprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(material.texture());
+
+			if (vanillaSprite == null) {
+				Cosmetica.LOGGER.warn("Model " + id + " requested a 'minecraft' texture but the associated sprite is NULL! Requested texture: " + material.texture() + ", Fallback Sprite: " + allocated);
+			}
+		}
+
+		return allocated;
 	}
 
 	public static void removeBakedModel(String id) {
