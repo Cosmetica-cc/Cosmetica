@@ -56,9 +56,9 @@ public class MixinLocalPlayer {
 						}
 					});
 				}
-			}
 
-			info.cancel();
+				info.cancel();
+			}
 		}
 	}
 }
