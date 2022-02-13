@@ -3,6 +3,8 @@ package com.eyezah.cosmetics.cosmetics;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -29,6 +31,7 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
         float o = 1.001f; // 0.5 has z fighting
         modelPart.translateAndRotate(stack);
         stack.scale(o, -o, -o);
+        stack.mulPose(new Quaternion(Vector3f.YP, (float)Math.PI, false)); // pi radians on y axis
         stack.translate(x, y, z); // vanilla: 0.0 second param
         Models.renderModel(
                 model,
