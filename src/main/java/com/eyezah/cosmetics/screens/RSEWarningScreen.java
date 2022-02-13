@@ -29,9 +29,9 @@ public class RSEWarningScreen extends Screen {
 	protected void init() {
 		int y = 2 * this.height / 3;
 
-		this.addRenderableWidget(new Button(this.width / 2 - 140, y, 120, 20, new TranslatableComponent("cosmetica.options.yes"), bn -> setRSEAndClose(true)));
+		this.addRenderableWidget(new Button(this.width / 2 + 20, y, 120, 20, new TranslatableComponent("cosmetica.options.yes"), bn -> setRSEAndClose(true)));
 
-		this.addRenderableWidget(new Button(this.width / 2 + 20, y, 120, 20, new TranslatableComponent("cosmetica.options.no"), bn -> setRSEAndClose(false)));
+		this.addRenderableWidget(new Button(this.width / 2 - 140, y, 120, 20, new TranslatableComponent("cosmetica.options.no"), bn -> setRSEAndClose(false)));
 	}
 
 	private void setRSEAndClose(boolean enabled) {
