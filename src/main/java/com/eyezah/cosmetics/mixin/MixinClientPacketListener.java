@@ -14,7 +14,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public class MixinClientPacketListener {
-	@Shadow @Final private Minecraft minecraft;
+	@Shadow
+	@Final
+	private Minecraft minecraft;
 
 	@Inject(at = @At("RETURN"), method = "handleAddPlayer")
 	private void onHandleAddPlayer(ClientboundAddPlayerPacket packet, CallbackInfo ci) {

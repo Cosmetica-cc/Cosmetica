@@ -34,7 +34,7 @@ public class RuntimeTextureManager {
 	// to limit the number of textures loaded and thus baked models created per tick, should this ever be necessary on a server
 	long lastTickTime; // default long value = 0 should be fine
 	final int[] used; // 0 = unused, 1 = used last tick, 2 = used this tick, 3 - MAX_VALUE = searching
-	int search = 0; // current search index for an unused space
+	int search = 0; // current search index for an unused space (reset each tick)
 
 	public void addAtlasSprite(TextureAtlasSprite result) {
 		this.sprites[this.emptySpriteIndex] = result;
