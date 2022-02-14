@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.mixin.textures.MixinTextureAtlasSpriteInvoker;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Scheduler;
@@ -7,6 +8,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import org.w3c.dom.Text;
 
 import java.util.function.Consumer;
 
@@ -56,7 +58,7 @@ public class RuntimeTextureManager {
 			this.search = 0;
 
 			for (int i = 0; i < this.size; ++i) {
-				if (this.used[i] > 0) this.used[i]--;
+				if (this.used[i] > 0) this.used[i]--; // once it reaches zero it's not gonna be overwritten just yet, but it will be marked as able to be overwritten. So if it needs the space it will overwrite it.
 			}
 		}
 
@@ -70,7 +72,7 @@ public class RuntimeTextureManager {
 				// increment. if reached the end, cannot load any new textures
 				if (++index == this.size) { // attention code editors: keep the ++ operator before index! ++index returns the result after incrementing, whereas index++ returns the result before!
 					this.search = this.size;
-					return;
+					return; // return silently. we ran out of space. no major worry.
 				}
 			}
 
@@ -87,6 +89,12 @@ public class RuntimeTextureManager {
 			this.used[index] = Integer.MAX_VALUE; // basically indefinitely marking it as unuseable
 
 			TextureAtlasSprite sprite = this.sprites[index];
+
+			if (sprite == null) { // this should not happen, however it does seem to be happening sometimes if Iris is installed, so here's a catch to not destroy the game and give the game some time.
+				Cosmetica.LOGGER.error("The sprite assigned to model {} is null! Will try again in 20 ticks.", model.id());
+				this.used[index] = 20;
+			}
+
 			final int index_ = index;
 
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
@@ -105,9 +113,15 @@ public class RuntimeTextureManager {
 			});
 		}
 
-		// mark it as being used
-		this.used[index] = 2;
-		callback.accept(this.sprites[index]);
+		TextureAtlasSprite sprite = this.sprites[index];
+
+		if (sprite != null) {
+			// mark it as still being used
+			this.used[index] = 2;
+			callback.accept(sprite);
+		} else if (this.used[0] == 0) { // after 20 ticks make it try again by dissociating the model
+			Cosmetica.LOGGER.info("Preparing to try assign a sprite for {} again...", model.id());
+		}
 	}
 
 	// literally just search the entire array to see if it exists

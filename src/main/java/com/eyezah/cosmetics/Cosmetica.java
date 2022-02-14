@@ -275,6 +275,10 @@ public class Cosmetica implements ClientModInitializer {
 		return getPlayerData(player.getUUID(), player.getName().getString());
 	}
 
+	public static void clearPlayerData(UUID uuid) {
+		playerDataCache.remove(uuid);
+	}
+
 	public static int getCacheSize() {
 		return playerDataCache.size();
 	}
