@@ -84,7 +84,6 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
 			// render
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
 			model.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0f);
-			// TODO jeb_ sheep code but here. it's in SheepFurLayer.class.
 
 			stack.popPose();
 

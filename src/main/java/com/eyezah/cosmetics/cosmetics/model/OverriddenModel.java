@@ -10,38 +10,46 @@ public final class OverriddenModel {
 		instances.add(this);
 	}
 
+	// the replaced model -- only this model will render
 	@Nullable
-	private BakableModel bakableModel;
-	private boolean replace;
+	private BakableModel debugModel;
+	// test "soft replaced" model. this model will render at all times for its type unless a 'hard replace' (debug model) is currently in session
+	@Nullable
+	private BakableModel testModel;
 
-	public void setReplacedModel(BakableModel model) {
+	public void setDebugModel(BakableModel model) {
 		if (currentOverride != null) {
-			currentOverride.bakableModel = null;
-			currentOverride.replace = false;
+			currentOverride.debugModel = null;
 		}
 
 		currentOverride = this;
-		this.bakableModel = model;
-		this.replace = true;
+		this.debugModel = model;
+	}
+
+	public void setTestModel(BakableModel model) {
+		this.testModel = model;
 	}
 
 	@Nullable
 	public BakableModel get(Supplier<BakableModel> orElse) {
-		if (this.replace) {
-			return this.bakableModel;
+		if (this.debugModel != null) {
+			return this.debugModel;
 		} else if (currentOverride != null) {
 			return null;
 		} else {
-			return orElse.get();
+			return this.testModel == null ? orElse.get() : this.testModel;
 		}
 	}
 
-	public static void disable() {
+	public void removeTestModel() {
+		this.testModel = null;
+	}
+
+	public static void disableDebugModels() {
 		currentOverride = null;
 
 		for (OverriddenModel instance : instances) {
-			instance.bakableModel = null;
-			instance.replace = false;
+			instance.debugModel = null;
 		}
 	}
 
