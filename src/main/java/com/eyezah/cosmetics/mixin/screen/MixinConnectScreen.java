@@ -81,7 +81,7 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 					}
 
 					if (!optional.isPresent()) {
-						// TODO if in-game some small, unintrusive text on bottom right
+						Authentication.showUnauthenticatedIfLoading();
 						return;
 					}
 
@@ -97,7 +97,8 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 					}
 
 					LOGGER.error("Couldn't connect to cosmetica auth server", e);
-					// TODO if in-game some small, unintrusive text on bottom right
+
+					Authentication.showUnauthenticatedIfLoading();
 				}
 			}
 		};

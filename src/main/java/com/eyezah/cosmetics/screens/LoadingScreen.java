@@ -29,9 +29,11 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
 
-		if (!runAuthentication(parentScreen, 2)) {
-			Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new OfflineScreen(parentScreen)));
-		}
+		Minecraft.getInstance().tell(() -> {
+			if (!runAuthentication(parentScreen, 2)) {
+				Minecraft.getInstance().setScreen(new OfflineScreen(parentScreen));
+			}
+		});
 	}
 
 	@Override
