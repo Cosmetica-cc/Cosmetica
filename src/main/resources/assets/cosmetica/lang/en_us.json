@@ -7,6 +7,7 @@
   "cosmetica.doLore": "Player Lore",
   "cosmetica.customizeCosmetics": "Customize Cosmetics",
   "cosmetica.reloadCosmetics": "Reload Cosmetics",
+  "cosmetica.reloadTestCosmetics": "Reload Cosmetica Test Models",
   "cosmetica.willReload": "Will Reload",
   "cosmetica.enabled": "ON",
   "cosmetica.disabled": "OFF",

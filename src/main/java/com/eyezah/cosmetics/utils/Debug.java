@@ -40,31 +40,32 @@ public class Debug {
 	private static final File TEST_PROPERTIES_FILE;
 	private static final Properties TEST_PROPERTIES;
 
-	private static Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetics Debug");
-	public static File DUMP_FOLDER;
+	private static final Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetics Debug");
+	public static final File DUMP_FOLDER;
+
 	// edit this to change debug settings
-	private static Settings DEBUG_SETTINGS = new Settings();
+	private static Settings debugSettings = new Settings();
 
 	public static void info(String str) {
-		if (DEBUG_MODE && DEBUG_SETTINGS.logging()) {
+		if (DEBUG_MODE && debugSettings.logging()) {
 			DEBUG_LOGGER.info(str);
 		}
 	}
 
 	public static void info(String str, String check) {
-		if (DEBUG_MODE && DEBUG_SETTINGS.other.test(check)) {
+		if (DEBUG_MODE && debugSettings.other.test(check)) {
 			DEBUG_LOGGER.info(str);
 		}
 	}
 
 	public static void info(Supplier<String> str) {
-		if (DEBUG_MODE && DEBUG_SETTINGS.logging()) {
+		if (DEBUG_MODE && debugSettings.logging()) {
 			DEBUG_LOGGER.info(str.get());
 		}
 	}
 
 	public static boolean debugCommands() {
-		return DEBUG_MODE && DEBUG_SETTINGS.testUnverifiedCosmetics();
+		return DEBUG_MODE && debugSettings.testUnverifiedCosmetics();
 	}
 
 	/**
@@ -72,7 +73,7 @@ public class Debug {
 	 * These images will be cleared on the next run.
 	 */
 	public static void dumpImages(String name, NativeImage... images) {
-		if (DEBUG_MODE && DEBUG_SETTINGS.imageDumping()) {
+		if (DEBUG_MODE && debugSettings.imageDumping()) {
 			int i = 0;
 			for (NativeImage image : images) {
 				try {
@@ -88,7 +89,7 @@ public class Debug {
 	}
 
 	public static void clearImages() {
-		if (Debug.DEBUG_MODE && Debug.DEBUG_SETTINGS.imageDumping()) {
+		if (Debug.DEBUG_MODE && Debug.debugSettings.imageDumping()) {
 			for (File file : DUMP_FOLDER.listFiles()) {
 				if (file.isFile() && file.getName().endsWith(".png")) {
 					file.delete();
@@ -151,7 +152,7 @@ public class Debug {
 		}
 	}
 
-	private static void loadTestProperties() {
+	public static void loadTestProperties() {
 		try (FileReader reader = new FileReader(TEST_PROPERTIES_FILE)) {
 			TEST_PROPERTIES.load(reader);
 		} catch (Exception e) {
@@ -227,13 +228,13 @@ public class Debug {
 						Object2BooleanMap<String> cache = new Object2BooleanArrayMap<>();
 						Predicate<String> predicate = k_ -> data.has(k_) && Boolean.parseBoolean(data.get(k_).getAsString());
 
-						DEBUG_SETTINGS = new Settings(
+						debugSettings = new Settings(
 								data.get("logging").getAsBoolean(),
 								data.get("image_dumping").getAsBoolean(),
 								data.has("test_unverified_cosmetics") ? data.get("test_unverified_cosmetics").getAsBoolean() : false,
 								key -> cache.computeBooleanIfAbsent(key, predicate));
 
-						if (DEBUG_SETTINGS.imageDumping()) {
+						if (debugSettings.imageDumping()) {
 							DUMP_FOLDER.mkdir();
 						}
 					}

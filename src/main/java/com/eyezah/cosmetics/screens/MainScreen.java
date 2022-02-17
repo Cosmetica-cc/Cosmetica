@@ -4,6 +4,7 @@ import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -33,6 +34,7 @@ public class MainScreen extends SulphateScreen {
 	private final ServerOptions newOptions;
 
 	private boolean doReload;
+	private boolean doTestReload;
 
 	private TextComponent generateButtonToggleText(String translatable, boolean toggle) {
 		TextComponent component = new TextComponent("");
@@ -85,6 +87,18 @@ public class MainScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		});
 
+		if (Debug.TEST_MODE) {
+			this.addButton(200, 20, new TranslatableComponent("cosmetica.reloadTestCosmetics"), (button) -> {
+				doTestReload = !doTestReload;
+
+				if (doTestReload) {
+					button.setMessage(new TranslatableComponent("cosmetica.willReload"));
+				} else {
+					button.setMessage(new TranslatableComponent("cosmetica.reloadTestCosmetics"));
+				}
+			});
+		}
+
 		// bottom of the menu
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
 			try {
@@ -96,6 +110,12 @@ public class MainScreen extends SulphateScreen {
 
 		// when done, update settings
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+			if (this.doTestReload) {
+				Debug.loadTestProperties();
+				Debug.loadTestModel(Debug.LocalModelType.HAT);
+				Debug.loadTestModel(Debug.LocalModelType.SHOULDERBUDDY);
+			}
+
 			try {
 				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.oldOptions, this.newOptions, this.doReload));
 			} catch (IOException e) {
