@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.9-SNAPSHOT'
+	id 'fabric-loom' version '0.10-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -28,20 +28,22 @@ dependencies {
 		officialMojangMappings()
 		"net.fabricmc:yarn:${project.minecraft_version}+build.${project.yarn_build}:v2"
 	}
+
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	include(modImplementation(fabricApi.module("fabric-api-base", "0.46.1+1.17")))
 	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", "0.46.1+1.17")))
 	include(modImplementation(fabricApi.module("fabric-textures-v0", "0.46.1+1.17")))
 
-	modRuntime ("com.github.valoeghese:databreaker:-SNAPSHOT") {
+	include(modImplementation("com.github.BenzeneStudios:Sulphate:${project.sulphate_version}"))
+
+	modRuntimeOnly ("com.github.valoeghese:databreaker:-SNAPSHOT") {
 		exclude module: "fabric-loader"
 	}
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 	
 	modImplementation 'com.github.Station-rip:FabriStation:1.17-SNAPSHOT'
-	
 }
 
 processResources {

@@ -1,11 +1,12 @@
 package com.eyezah.cosmetics.screens;
 
+import benzenestudios.sulphate.Anchor;
+import benzenestudios.sulphate.SulphateScreen;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
@@ -15,13 +16,16 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import java.io.IOException;
 
-public class MainScreen extends Screen {
+public class MainScreen extends SulphateScreen {
 	public MainScreen(Screen parentScreen, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects, boolean doLore) {
-		super(new TranslatableComponent("cosmetica.cosmeticsMenu"));
+		super(new TranslatableComponent("cosmetica.cosmeticsMenu"), parentScreen);
 		this.parentScreen = parentScreen;
 
 		this.oldOptions = new ServerOptions(doShoulderBuddies, doHats, doRegionSpecificEffects, doLore);
 		this.newOptions = new ServerOptions(this.oldOptions);
+
+		this.setAnchorY(Anchor.TOP, () -> this.height / 6 + 12);
+		this.setRows(2);
 	}
 
 	private final Screen parentScreen;
@@ -43,43 +47,43 @@ public class MainScreen extends Screen {
 	}
 
 	@Override
-	protected void init() {
-		// normal stuff
+	protected void addWidgets() {
+		// top row
 
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 1, 150, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
+		this.addButton(new TranslatableComponent("options.skinCustomisation"), (button) -> {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options));
-		}));
+		});
 
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 2, 150, 20, new TranslatableComponent("cosmetica.reloadCosmetics"), (button) -> {
+		this.addButton(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()), button -> {
+			this.newOptions.regionSpecificEffects.toggle();
+			button.setMessage(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()));
+		});
+
+		// second row, etc...
+
+		this.addButton(new TranslatableComponent("cosmetica.reloadCosmetics"), (button) -> {
 			doReload = !doReload;
 			if (doReload) {
 				button.setMessage(new TranslatableComponent("cosmetica.willReload"));
 			} else {
 				button.setMessage(new TranslatableComponent("cosmetica.reloadCosmetics"));
 			}
-		}));
+		});
 
-		// toggles
-
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 1, 150, 20, generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()), button -> {
-			this.newOptions.regionSpecificEffects.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()));
-		}));
-
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 2, 150, 20, generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()), button -> {
+		this.addButton(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()), button -> {
 			this.newOptions.hats.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()));
-		}));
+		});
 
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 3, 150, 20, generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()), (button) -> {
-			this.newOptions.shoulderBuddies.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
-		}));
-
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 - 12 + 24 * 3, 150, 20, generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
+		this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
 			this.newOptions.lore.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
-		}));
+		});
+
+		this.addButton(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()), (button) -> {
+			this.newOptions.shoulderBuddies.toggle();
+			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
+		});
 
 		// bottom of the menu
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
@@ -90,6 +94,7 @@ public class MainScreen extends Screen {
 			}
 		}));
 
+		// when done, update settings
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
 				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.oldOptions, this.newOptions, this.doReload));
@@ -103,15 +108,9 @@ public class MainScreen extends Screen {
 		}));
 	}
 
+	// on close is like cancel
 	@Override
 	public void onClose() {
 		this.minecraft.setScreen(this.parentScreen);
-	}
-
-	@Override
-	public void render(PoseStack poseStack, int i, int j, float f) {
-		this.renderBackground(poseStack);
-		drawCenteredString(poseStack, this.font, this.title, this.width / 2, 15, 16777215);
-		super.render(poseStack, i, j, f);
 	}
 }
