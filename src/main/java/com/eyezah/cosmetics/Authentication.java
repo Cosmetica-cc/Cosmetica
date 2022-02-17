@@ -84,7 +84,7 @@ public class Authentication {
 
 		if (previous instanceof LoadingTypeScreen lts) {
 			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), false)));
-		}
+		} // TODO if in-game some small, unintrusive text on bottom right
 	}
 
 	public static void setToken(String testToken) {
