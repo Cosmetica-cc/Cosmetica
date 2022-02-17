@@ -35,7 +35,7 @@ public class SessionWrapperService implements MinecraftSessionService {
 		Map<Type, MinecraftProfileTexture> textures = this.original.getTextures(profile, requireSecure);
 
 		if (!textures.isEmpty()) { // if is a request that is returning a result
-			textures.put(Type.CAPE, new MinecraftProfileTexture(Cosmetica.apiServerHost + "/get/cloak?uuid=" + profile.getId() + "&username=" + profile.getName() + "&timestamp=" + System.currentTimeMillis(), new HashMap<>()));
+			textures.put(Type.CAPE, new MinecraftProfileTexture(Cosmetica.apiServerHost + "/get/cloak?uuid=" + profile.getId() + "&username=" + profile.getName() + "&timestamp=" + System.currentTimeMillis() + "&token=" + Authentication.getToken(), new HashMap<>()));
 		}
 
 		return textures;
