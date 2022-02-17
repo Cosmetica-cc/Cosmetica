@@ -81,9 +81,7 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 					}
 
 					if (!optional.isPresent()) {
-						minecraft.tell(() -> {
-							minecraft.setScreen(new UnauthenticatedScreen(parent, false));
-						});
+						// TODO if in-game some small, unintrusive text on bottom right
 						return;
 					}
 
@@ -99,12 +97,8 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 					}
 
 					LOGGER.error("Couldn't connect to cosmetica auth server", e);
-
-					minecraft.tell(() -> {
-						minecraft.setScreen(new UnauthenticatedScreen(parent, false));
-					});
+					// TODO if in-game some small, unintrusive text on bottom right
 				}
-
 			}
 		};
 		thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));

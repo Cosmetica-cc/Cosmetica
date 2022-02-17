@@ -78,7 +78,7 @@ public class Authentication {
 		requestThread.start();
 	}
 
-	private static void showUnauthenticatedIfLoading() {
+	public static void showUnauthenticatedIfLoading() {
 		Minecraft minecraft = Minecraft.getInstance();
 		Screen previous = minecraft.screen;
 

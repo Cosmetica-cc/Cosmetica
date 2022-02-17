@@ -19,6 +19,7 @@ public class MixinConnection {
 			Authentication.setToken(component.getString().substring(26));
 		} else {
 			Authentication.currentlyAuthenticating = false;
+
 			if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
 				Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(lts.getParent(), false)));
 			}
