@@ -9,6 +9,7 @@
     "screen.MixinConnectScreenInvoker",
     "screen.MixinTitleScreen",
     "textures.MixinHttpTexture",
+    "textures.MixinNativeImageAccessor",
     "textures.MixinSkinManager",
     "textures.MixinTextureAtlas",
     "textures.MixinTextureAtlasSpriteInvoker",
