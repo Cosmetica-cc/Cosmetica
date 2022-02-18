@@ -36,7 +36,7 @@ public class MixinEntityRenderer {
 		String prefix = getPlayerData(entity.getUUID(), entity.getName().getString()).prefix();
 		String suffix = getPlayerData(entity.getUUID(), entity.getName().getString()).suffix();
 
-		return new TextComponent(prefix + entity.getDisplayName().getString() + suffix);
+		return new TextComponent(prefix).append(entity.getDisplayName()).append(suffix);
 	}
 
 	@Inject(at = @At("HEAD"), method = "renderNameTag")
