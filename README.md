@@ -10,6 +10,7 @@ Mod:
 
 Website:
 - Eyezah
+- Valoeghese
 
 Backend Server:
 - Eyezah
