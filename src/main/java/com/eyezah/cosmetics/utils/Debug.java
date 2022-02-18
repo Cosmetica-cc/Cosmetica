@@ -5,6 +5,7 @@ import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddy;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -33,14 +34,14 @@ import java.util.function.Supplier;
  * A set of classes
  */
 public class Debug {
-	public static final boolean DEBUG_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("cosmetics.debug");
+	public static final boolean DEBUG_MODE = FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("cosmetica.debug");
 	public static final boolean TEST_MODE;
 
 	private static final File CONFIG_DIR;
 	private static final File TEST_PROPERTIES_FILE;
 	private static final Properties TEST_PROPERTIES;
 
-	private static final Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetics Debug");
+	private static final Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetica Debug");
 	public static final File DUMP_FOLDER;
 
 	// edit this to change debug settings
@@ -72,8 +73,8 @@ public class Debug {
 	 * Dump images to the image dump folder.
 	 * These images will be cleared on the next run.
 	 */
-	public static void dumpImages(String name, NativeImage... images) {
-		if (DEBUG_MODE && debugSettings.imageDumping()) {
+	public static void dumpImages(String name, boolean capeModification, NativeImage... images) {
+		if (DEBUG_MODE && (capeModification ? debugSettings.imageDumping().capeModifications() : debugSettings.imageDumping().textureLoading())) {
 			int i = 0;
 			for (NativeImage image : images) {
 				try {
@@ -89,7 +90,7 @@ public class Debug {
 	}
 
 	public static void clearImages() {
-		if (Debug.DEBUG_MODE && Debug.debugSettings.imageDumping()) {
+		if (Debug.DEBUG_MODE && Debug.debugSettings.imageDumping().either()) {
 			for (File file : DUMP_FOLDER.listFiles()) {
 				if (file.isFile() && file.getName().endsWith(".png")) {
 					file.delete();
@@ -213,9 +214,13 @@ public class Debug {
 			// load cosmetic settings or write to a file if it doesn't exist
 			try {
 				if (settings.createNewFile()) {
+					JsonObject imageDumping = new JsonObject();
+					imageDumping.add("texture_loading", new JsonPrimitive(false));
+					imageDumping.add("cape_modifications", new JsonPrimitive(false));
+
 					JsonObject data = new JsonObject();
 					data.add("logging", new JsonPrimitive(false));
-					data.add("image_dumping", new JsonPrimitive(false));
+					data.add("image_dumping", imageDumping);
 					data.add("always_print_urls", new JsonPrimitive(false));
 					data.add("test_unverified_cosmetics", new JsonPrimitive(false));
 
@@ -228,13 +233,27 @@ public class Debug {
 						Object2BooleanMap<String> cache = new Object2BooleanArrayMap<>();
 						Predicate<String> predicate = k_ -> data.has(k_) && Boolean.parseBoolean(data.get(k_).getAsString());
 
+						JsonElement imageDumping = data.get("image_dumping");
+						ImageDumpingSettings imageDumpingSettings;
+
+						if (imageDumping.isJsonPrimitive()) {
+							imageDumpingSettings = new ImageDumpingSettings(imageDumping.getAsBoolean());
+						} else {
+							JsonObject jo = imageDumping.getAsJsonObject();
+
+							imageDumpingSettings = new ImageDumpingSettings(
+									jo.get("texture_loading").getAsBoolean(),
+									jo.get("cape_modifications").getAsBoolean()
+							);
+						}
+
 						debugSettings = new Settings(
 								data.get("logging").getAsBoolean(),
-								data.get("image_dumping").getAsBoolean(),
+								imageDumpingSettings,
 								data.has("test_unverified_cosmetics") ? data.get("test_unverified_cosmetics").getAsBoolean() : false,
 								key -> cache.computeBooleanIfAbsent(key, predicate));
 
-						if (debugSettings.imageDumping()) {
+						if (debugSettings.imageDumping().either()) {
 							DUMP_FOLDER.mkdir();
 						}
 					}
@@ -244,9 +263,19 @@ public class Debug {
 		}
 	}
 
-	private record Settings(boolean logging, boolean imageDumping, boolean testUnverifiedCosmetics, Predicate<String> other) {
+	private record Settings(boolean logging, ImageDumpingSettings imageDumping, boolean testUnverifiedCosmetics, Predicate<String> other) {
 		Settings() {
-			this(false, false, false, i -> false);
+			this(false, new ImageDumpingSettings(false), false, i -> false);
+		}
+	}
+
+	public record ImageDumpingSettings(boolean textureLoading, boolean capeModifications) {
+		ImageDumpingSettings(boolean val) {
+			this(val, val);
+		}
+
+		boolean either() {
+			return this.textureLoading || this.capeModifications;
 		}
 	}
 
