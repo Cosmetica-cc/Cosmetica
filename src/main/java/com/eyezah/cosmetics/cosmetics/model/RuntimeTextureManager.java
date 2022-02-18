@@ -93,6 +93,7 @@ public class RuntimeTextureManager {
 			if (sprite == null) { // this should not happen, however it does seem to be happening sometimes if Iris is installed, so here's a catch to not destroy the game and give the game some time.
 				Cosmetica.LOGGER.error("The sprite assigned to model {} is null! Will try again in 20 ticks.", model.id());
 				this.used[index] = 20;
+				return; // don't run code that requires it
 			}
 
 			final int index_ = index;
@@ -101,8 +102,8 @@ public class RuntimeTextureManager {
 				// generate mipmap
 				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage().length - 1);
 				Debug.info("Allocating Sprite: " + sprite.getName());
-				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage());
-				Debug.dumpImages(sprite.getName().toDebugFileName(), mipmap);
+				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", false, ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage());
+				Debug.dumpImages(sprite.getName().toDebugFileName(), false, mipmap);
 				// bind the texture
 				GlStateManager._bindTexture(((MixinTextureAtlasSpriteInvoker) sprite).getAtlas().getId());
 				// upload to the texture

@@ -72,9 +72,9 @@ public class Cosmetica implements ClientModInitializer {
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();
 
-	public static final Logger LOGGER = LogManager.getLogger("Cosmetics");
+	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
 	private static final ExecutorService LOOKUP_THREAD = Executors.newFixedThreadPool(
-			Integer.parseInt(System.getProperty("cosmetics.lookupThreads", "3")),
+			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "3")),
 			new NamedThreadFactory("Cosmetics Lookup Thread"));
 
 	@Override
