@@ -72,17 +72,17 @@ public class SessionWrapperService implements MinecraftSessionService {
 		if (this.original instanceof LegacyMinecraftSessionService) {
 			return profile;
 		} else {
-			System.out.println("testing 1 2 3");
+			//System.out.println("testing 1 2 3");
 			if (profile.getId() == null) {
 				return profile;
 			}
 
-			System.out.println("testing 4 5 6");
+			//System.out.println("testing 4 5 6");
 			if (!requireSecure) {
 				return insecureProfiles.getUnchecked(profile);
 			}
 
-			System.out.println("12478gt43thtbhy5t34v5y3459t23h5vt9235bvt9273vgt2793tvf23695v");
+			//System.out.println("12478gt43thtbhy5t34v5y3459t23h5vt9235bvt9273vgt2793tvf23695v");
 			return fillGameProfile(profile, true);
 		}
 	}
