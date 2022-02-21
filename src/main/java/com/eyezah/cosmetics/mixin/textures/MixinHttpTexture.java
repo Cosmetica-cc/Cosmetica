@@ -1,6 +1,6 @@
 package com.eyezah.cosmetics.mixin.textures;
 
-import com.eyezah.cosmetics.CosmeticaSkinManager;
+import com.eyezah.cosmetics.SessionWrapperService;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.HttpTexture;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +22,7 @@ public class MixinHttpTexture {
 		@Nullable NativeImage image = info.getReturnValue();
 
 		if (!this.processLegacySkin && image != null) {
-			info.setReturnValue(CosmeticaSkinManager.processBadCapes(image));
+			info.setReturnValue(SessionWrapperService.processBadCapes(image));
 		}
 	}
 }
