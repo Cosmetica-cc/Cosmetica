@@ -10,7 +10,7 @@
     "screen.MixinTitleScreen",
     "textures.MixinHttpTexture",
     "textures.MixinNativeImageAccessor",
-    "textures.MixinSkinManager",
+    "textures.MixinYggdrasilSessionService",
     "textures.MixinYggdrasilAuthenticationServiceInvoker",
     "textures.MixinTextureAtlas",
     "textures.MixinTextureAtlasSpriteInvoker",

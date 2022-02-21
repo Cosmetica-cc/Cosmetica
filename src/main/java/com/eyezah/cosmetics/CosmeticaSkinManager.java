@@ -1,62 +1,26 @@
 package com.eyezah.cosmetics;
 
 import com.eyezah.cosmetics.mixin.textures.MixinNativeImageAccessor;
-import com.eyezah.cosmetics.mixin.textures.MixinYggdrasilAuthenticationServiceInvoker;
 import com.eyezah.cosmetics.utils.Debug;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.HttpAuthenticationService;
-import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
-import com.mojang.authlib.legacy.LegacyMinecraftSessionService;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.authlib.yggdrasil.response.MinecraftProfilePropertiesResponse;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.util.UUIDTypeAdapter;
-import org.lwjgl.system.CallbackI;
 import org.lwjgl.system.MemoryUtil;
 
-import java.net.InetAddress;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class SessionWrapperService implements MinecraftSessionService {
-	public SessionWrapperService(MinecraftSessionService original) {
-		this.original = original;
-	}
-
-	private final MinecraftSessionService original;
-
-	private final LoadingCache<GameProfile, GameProfile> insecureProfiles = CacheBuilder
-			.newBuilder()
-			.expireAfterWrite(6, TimeUnit.HOURS)
-			.build(new CacheLoader<>() {
-				@Override
-				public GameProfile load(final GameProfile key) {
-					return fillGameProfile(key, false);
-				}
-			});
-
-	@Override
-	public void joinServer(GameProfile profile, String authenticationToken, String serverId)
-			throws AuthenticationException {
-		this.original.joinServer(profile, authenticationToken, serverId);
-	}
-
-	@Override
-	public GameProfile hasJoinedServer(GameProfile user, String serverId, InetAddress address)
-			throws AuthenticationUnavailableException {
-		return this.original.hasJoinedServer(user, serverId, address);
-	}
-
-	@Override
-	public Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> getTextures(GameProfile profile, boolean requireSecure) {
+public class CosmeticaSkinManager {
+//	@Override
+//	public Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> getTextures(GameProfile profile, boolean requireSecure) {
 //		Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures = this.original.getTextures(profile, requireSecure);
 //
 //		if (!textures.isEmpty()) { // if is a request that is returning a result
@@ -64,52 +28,10 @@ public class SessionWrapperService implements MinecraftSessionService {
 //		}
 //
 //		return textures;
-		return this.original.getTextures(profile, requireSecure);
-	}
+//		return this.original.getTextures(profile, requireSecure);
+//	}
 
-	@Override
-	public GameProfile fillProfileProperties(GameProfile profile, boolean requireSecure) {
-		if (this.original instanceof LegacyMinecraftSessionService) {
-			return profile;
-		} else {
-			//System.out.println("testing 1 2 3");
-			if (profile.getId() == null) {
-				return profile;
-			}
-
-			//System.out.println("testing 4 5 6");
-			if (!requireSecure) {
-				return insecureProfiles.getUnchecked(profile);
-			}
-
-			//System.out.println("12478gt43thtbhy5t34v5y3459t23h5vt9235bvt9273vgt2793tvf23695v");
-			return fillGameProfile(profile, true);
-		}
-	}
-
-	protected GameProfile fillGameProfile(final GameProfile profile, final boolean requireSecure) {
-		try {
-			URL url = getCosmeticaURL(profile, requireSecure);
-			final MinecraftProfilePropertiesResponse response = url == null ? null : ((MixinYggdrasilAuthenticationServiceInvoker)((YggdrasilMinecraftSessionService)this.original)
-					.getAuthenticationService()).invokeMakeRequest(url, null, MinecraftProfilePropertiesResponse.class);
-
-			if (response == null) {
-				Cosmetica.LOGGER.debug("(SessionWrapperService) Couldn't fetch profile properties for " + profile + " as the profile does not exist");
-				return profile;
-			} else {
-				final GameProfile result = new GameProfile(response.getId(), response.getName());
-				result.getProperties().putAll(response.getProperties());
-				profile.getProperties().putAll(response.getProperties());
-				Cosmetica.LOGGER.debug("(SessionWrapperService) Successfully fetched profile properties for " + profile);
-				return result;
-			}
-		} catch (AuthenticationException e) {
-			Cosmetica.LOGGER.warn("(SessionWrapperService) Couldn't look up profile properties for " + profile, e);
-			return profile;
-		}
-	}
-
-	public static URL getCosmeticaURL(final GameProfile profile, final boolean requireSecure) {
+	public static URL getCosmeticaURL(URL fallback, final GameProfile profile, final boolean requireSecure) {
 		String requestEndpoint = Cosmetica.apiServerHost + "/get/textures?";
 
 		if (profile.isComplete()) {
@@ -125,7 +47,7 @@ public class SessionWrapperService implements MinecraftSessionService {
 			return new URL(requestEndpoint);
 		} catch (MalformedURLException e) {
 			Cosmetica.LOGGER.error("Malformed URL on redirecting skin server to cosmetica???", e);
-			return null;
+			return fallback;
 		}
 	}
 
@@ -231,5 +153,8 @@ public class SessionWrapperService implements MinecraftSessionService {
 				img.setPixelRGBA(x + dx, y + dy, 0);
 			}
 		}
+	}
+
+	private record YggdrasilGameProfile(GameProfile gp, YggdrasilMinecraftSessionService ss) {
 	}
 }
