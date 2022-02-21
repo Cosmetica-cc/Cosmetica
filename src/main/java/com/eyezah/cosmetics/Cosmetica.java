@@ -77,8 +77,23 @@ public class Cosmetica implements ClientModInitializer {
 			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "3")),
 			new NamedThreadFactory("Cosmetics Lookup Thread"));
 
+	private static CosmeticaConfig config;
+
+	public static CosmeticaConfig getConfig() {
+		return config;
+	}
+
 	@Override
 	public void onInitializeClient() {
+		config = new CosmeticaConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("cosmetica.properties"));
+
+		try {
+			config.initialize();
+		} catch (IOException e) {
+			LOGGER.warn("Failed to load config, falling back to defaults!");
+			e.printStackTrace();
+		}
+
 		// delete debug dump images
 		Debug.clearImages();
 

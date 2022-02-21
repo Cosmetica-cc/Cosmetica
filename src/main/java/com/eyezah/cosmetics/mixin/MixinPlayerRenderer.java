@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,14 +20,14 @@ public abstract class MixinPlayerRenderer extends LivingEntityRenderer<AbstractC
 		super(context, entityModel, f);
 	}
 
-	@Inject(at = @At("HEAD"), method = "renderNameTag")
-	protected void onRenderNameTag(Entity entity, Component component, PoseStack stack, MultiBufferSource multiBufferSource, int i, CallbackInfo info) {
+	@Inject(at = @At("HEAD"), method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
+	protected void onRenderNameTag(AbstractClientPlayer entity, Component displayName, PoseStack stack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
 		stack.pushPose();
-		Cosmetica.onRenderNameTag(this.entityRenderDispatcher, entity, stack, multiBufferSource, this.getFont(), i);
+		Cosmetica.onRenderNameTag(this.entityRenderDispatcher, entity, stack, buffer, this.getFont(), packedLight);
 	}
 
-	@Inject(at = @At("RETURN"), method = "renderNameTag")
-	protected void afterRenderNameTag(Entity entity, Component component, PoseStack stack, MultiBufferSource multiBufferSource, int i, CallbackInfo info) {
+	@Inject(at = @At("RETURN"), method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
+	protected void afterRenderNameTag(AbstractClientPlayer entity, Component displayName, PoseStack stack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
 		stack.popPose();
 	}
 }
