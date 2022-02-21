@@ -87,6 +87,11 @@ public class MainScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		});
 
+		this.addButton(200, 20, generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()), (button) -> {
+			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldShowNametagInThirdPerson());
+			button.setMessage(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()));
+		});
+
 		if (Debug.TEST_MODE) {
 			this.addButton(200, 20, new TranslatableComponent("cosmetica.reloadTestCosmetics"), (button) -> {
 				doTestReload = !doTestReload;
@@ -124,6 +129,13 @@ public class MainScreen extends SulphateScreen {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				this.minecraft.setScreen(this.parentScreen);
+			}
+
+			try {
+				Cosmetica.getConfig().save();
+			} catch (IOException e) {
+				Cosmetica.LOGGER.warn("Failed to save cosmetica config!");
+				e.printStackTrace();
 			}
 		}));
 	}
