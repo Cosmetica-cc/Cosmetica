@@ -331,9 +331,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PoseStack matrixStack, MultiBufferSource multiBufferSource, Font font, int i) {
-		//if (entity instanceof RemotePlayer && CosmeticsAPI.isPlayerLoreEnabled()) {
 		if (entity instanceof Player player) {
-			//RemotePlayer player = (RemotePlayer) entity;
 			UUID lookupId = player.getUUID();
 
 			if (lookupId != null) {
@@ -377,7 +375,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void clearAllCaches() {
-		Debug.info("Clearing all Cosmetics Caches");
+		Debug.info("Clearing all Cosmetica Caches");
 		playerDataCache = new HashMap<>();
 		Models.resetCaches();
 	}

@@ -2,52 +2,34 @@ package com.eyezah.cosmetics;
 
 import com.eyezah.cosmetics.mixin.textures.MixinNativeImageAccessor;
 import com.eyezah.cosmetics.utils.Debug;
+import com.eyezah.cosmetics.utils.Response;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.blaze3d.platform.NativeImage;
 import org.lwjgl.system.MemoryUtil;
 
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.UUID;
 
-public class SessionWrapperService implements MinecraftSessionService {
-	public SessionWrapperService(MinecraftSessionService original) {
-		this.original = original;
-	}
+public class CosmeticaSkinManager {
+	public static URL getCosmeticaURL(final GameProfile profile, final boolean requireSecure, final URL original) {
+		String requestEndpoint = Cosmetica.apiServerHost + "/get/textures?";
 
-	private final MinecraftSessionService original;
-
-	@Override
-	public void joinServer(GameProfile profile, String authenticationToken, String serverId)
-			throws AuthenticationException {
-		this.original.joinServer(profile, authenticationToken, serverId);
-	}
-
-	@Override
-	public GameProfile hasJoinedServer(GameProfile user, String serverId, InetAddress address)
-			throws AuthenticationUnavailableException {
-		return this.original.hasJoinedServer(user, serverId, address);
-	}
-
-	@Override
-	public Map<Type, MinecraftProfileTexture> getTextures(GameProfile profile, boolean requireSecure) {
-		Map<Type, MinecraftProfileTexture> textures = this.original.getTextures(profile, requireSecure);
-
-		if (!textures.isEmpty()) { // if is a request that is returning a result
-			textures.put(Type.CAPE, new MinecraftProfileTexture(Cosmetica.apiServerHost + "/get/cloak?uuid=" + profile.getId() + "&username=" + profile.getName() + "&timestamp=" + System.currentTimeMillis() + "&token=" + Authentication.getToken(), new HashMap<>()));
+		if (profile.isComplete()) {
+			requestEndpoint += "uuid=" + profile.getId().toString() + "&username=" + profile.getName();
+		} else if (profile.getId() == null) {
+			requestEndpoint += "username=" + profile.getName();
+		} else {
+			requestEndpoint += "uuid=" + profile.getId();
 		}
 
-		return textures;
-	}
-
-	@Override
-	public GameProfile fillProfileProperties(GameProfile profile, boolean requireSecure) {
-		return this.original.fillProfileProperties(profile, requireSecure);
+		try {
+			return new URL(requestEndpoint + "&token=" + Authentication.getToken() + "&timestamp=" + System.currentTimeMillis());
+		} catch (MalformedURLException e) {
+			Cosmetica.LOGGER.error("Malformed URL on redirecting skin server to cosmetica???", e);
+			return original;
+		}
 	}
 
 	public static NativeImage processBadCapes(NativeImage image) {
