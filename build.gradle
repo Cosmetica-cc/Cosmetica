@@ -30,10 +30,10 @@ dependencies {
 	include(modImplementation(fabricApi.module("fabric-textures-v0", "0.46.4+1.18")))
 
 	include(modImplementation("com.github.BenzeneStudios:Sulphate:${project.sulphate_version}"))
-
-	modRuntimeOnly ("com.github.valoeghese:databreaker:-SNAPSHOT") {
-		exclude module: "fabric-loader"
-	}
+//
+//	modRuntimeOnly ("com.github.valoeghese:databreaker:643a426") {
+//		exclude module: "fabric-loader"
+//	}
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 

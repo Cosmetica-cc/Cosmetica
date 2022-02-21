@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.mixin;
 
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,30 +24,15 @@ import static com.eyezah.cosmetics.Cosmetica.getPlayerData;
 
 @Mixin(EntityRenderer.class)
 public class MixinEntityRenderer {
-	@Shadow
-	@Final
-	private EntityRenderDispatcher entityRenderDispatcher;
-
-	@Shadow
-	@Final
-	private Font font;
-
 	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getDisplayName()Lnet/minecraft/network/chat/Component;"), method = "render")
 	private Component getDisplayName(Entity entity) {
-		String prefix = getPlayerData(entity.getUUID(), entity.getName().getString()).prefix();
-		String suffix = getPlayerData(entity.getUUID(), entity.getName().getString()).suffix();
+		if (entity instanceof Player) {
+			String prefix = getPlayerData(entity.getUUID(), entity.getName().getString()).prefix();
+			String suffix = getPlayerData(entity.getUUID(), entity.getName().getString()).suffix();
 
-		return new TextComponent(prefix).append(entity.getDisplayName()).append(suffix);
-	}
-
-	@Inject(at = @At("HEAD"), method = "renderNameTag")
-	protected void onRenderNameTag(Entity entity, Component component, PoseStack stack, MultiBufferSource multiBufferSource, int i, CallbackInfo info) {
-		stack.pushPose();
-		Cosmetica.onRenderNameTag(this.entityRenderDispatcher, entity, stack, multiBufferSource, this.font, i);
-	}
-
-	@Inject(at = @At("RETURN"), method = "renderNameTag")
-	protected void afterRenderNameTag(Entity entity, Component component, PoseStack stack, MultiBufferSource multiBufferSource, int i, CallbackInfo info) {
-		stack.popPose();
+			return new TextComponent(prefix).append(entity.getDisplayName()).append(suffix);
+		} else {
+			return entity.getDisplayName();
+		}
 	}
 }

@@ -1,9 +1,5 @@
 package com.eyezah.cosmetics;
 
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.eyezah.cosmetics.mixin.textures.MixinNativeImageAccessor;
 import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.authlib.GameProfile;
@@ -14,6 +10,10 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.blaze3d.platform.NativeImage;
 import org.lwjgl.system.MemoryUtil;
+
+import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SessionWrapperService implements MinecraftSessionService {
 	public SessionWrapperService(MinecraftSessionService original) {
