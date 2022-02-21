@@ -87,7 +87,7 @@ public class MainScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		});
 
-		this.addButton(200, 20, generateButtonToggleText("cosmetica.showNametagInThirdPerson", this.newOptions.shoulderBuddies.get()), (button) -> {
+		this.addButton(200, 20, generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()), (button) -> {
 			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldShowNametagInThirdPerson());
 			button.setMessage(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()));
 		});
