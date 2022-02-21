@@ -77,6 +77,12 @@ public class Cosmetica implements ClientModInitializer {
 			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "3")),
 			new NamedThreadFactory("Cosmetics Lookup Thread"));
 
+	private static boolean showNametagInThirdPerson = true;
+
+	public static boolean shouldShowNametagInThirdPerson() {
+		return showNametagInThirdPerson;
+	}
+
 	@Override
 	public void onInitializeClient() {
 		// delete debug dump images
