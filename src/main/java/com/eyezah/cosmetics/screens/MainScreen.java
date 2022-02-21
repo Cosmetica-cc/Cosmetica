@@ -77,9 +77,11 @@ public class MainScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()));
 		});
 
-		this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
-			this.newOptions.lore.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
+		//
+
+		this.addButton(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()), (button) -> {
+			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldShowNametagInThirdPerson());
+			button.setMessage(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()));
 		});
 
 		this.addButton(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()), (button) -> {
@@ -87,10 +89,12 @@ public class MainScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		});
 
-		this.addButton(200, 20, generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()), (button) -> {
-			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldShowNametagInThirdPerson());
-			button.setMessage(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()));
-		});
+		//
+
+		this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
+			this.newOptions.lore.toggle();
+			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
+		}); // MOVE TO RIGHT (dont have the time to see how sulphate lol)
 
 		if (Debug.TEST_MODE) {
 			this.addButton(200, 20, new TranslatableComponent("cosmetica.reloadTestCosmetics"), (button) -> {
@@ -105,7 +109,7 @@ public class MainScreen extends SulphateScreen {
 		}
 
 		// bottom of the menu
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 5, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
 			try {
 				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());
 			} catch (Exception e) {
@@ -114,7 +118,7 @@ public class MainScreen extends SulphateScreen {
 		}));
 
 		// when done, update settings
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 7, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			if (this.doTestReload) {
 				Debug.loadTestProperties();
 				Debug.loadTestModel(Debug.LocalModelType.HAT);
