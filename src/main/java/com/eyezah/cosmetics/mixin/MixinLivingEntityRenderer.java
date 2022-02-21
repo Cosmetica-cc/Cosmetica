@@ -25,6 +25,6 @@ public class MixinLivingEntityRenderer {
 			cancellable = true
 	)
 	private void shouldShowName(LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
-		if (Cosmetica.shouldShowNametagInThirdPerson() && entity == Minecraft.getInstance().getCameraEntity()) cir.setReturnValue(Minecraft.renderNames());
+		if (Cosmetica.getConfig().shouldShowNametagInThirdPerson() && entity == Minecraft.getInstance().getCameraEntity()) cir.setReturnValue(Minecraft.renderNames());
 	}
 }
