@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 public class CosmeticaConfig {
-    private Path propertiesPath;
+    private final Path propertiesPath;
     private boolean showNametagInThirdPerson = true;
 
     public CosmeticaConfig(Path propertiesPath) {
@@ -38,5 +38,9 @@ public class CosmeticaConfig {
 
     public boolean shouldShowNametagInThirdPerson() {
         return showNametagInThirdPerson;
+    }
+
+    public void setShowNametagInThirdPerson(boolean showNametagInThirdPerson) {
+        this.showNametagInThirdPerson = showNametagInThirdPerson;
     }
 }
