@@ -23,7 +23,7 @@ public abstract class MixinPlayerRenderer extends LivingEntityRenderer<AbstractC
 	@Inject(at = @At("HEAD"), method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
 	protected void onRenderNameTag(AbstractClientPlayer entity, Component displayName, PoseStack stack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
 		stack.pushPose();
-		Cosmetica.onRenderNameTag(this.entityRenderDispatcher, entity, stack, buffer, this.getFont(), packedLight);
+		Cosmetica.onRenderNameTag(this.entityRenderDispatcher, entity, this.getModel(), stack, buffer, this.getFont(), packedLight);
 	}
 
 	@Inject(at = @At("RETURN"), method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
