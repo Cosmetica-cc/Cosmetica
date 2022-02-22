@@ -65,10 +65,16 @@ public class CosmeticaSkinManager {
 				}
 
 				var unupdatedInfos = toUpdateProfiles.get(uuid);
-				return new String[]{"Cached:" + cosmeticaProfileCache.size(), "ToUpdate:" + (unupdatedInfos == null ? 0 : unupdatedInfos.size())};
+				return new String[]{"Cached:" + cosmeticaProfileCache.get(uuid), "ToUpdate:" + (unupdatedInfos == null ? 0 : unupdatedInfos.size())};
 			} else {
 				return new String[] {"Not Stored."};
 			}
+		}
+	}
+
+	public static int getCacheSize() {
+		synchronized (cosmeticaProfileCache) {
+			return cosmeticaProfileCache.size();
 		}
 	}
 

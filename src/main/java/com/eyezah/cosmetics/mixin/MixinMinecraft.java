@@ -1,7 +1,9 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
+import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
@@ -40,8 +42,19 @@ public abstract class MixinMinecraft {
 
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
-		if (Cosmetica.getCacheSize() > 1024) { // clear cache on level change if it's too big
-			Cosmetica.clearAllCaches();
+		boolean shouldClearCosmeticCaches = Cosmetica.getCacheSize() > 1024;
+		boolean shouldClearSkinCaches = CosmeticaSkinManager.getCacheSize() > 1024;
+
+		// clear cache on level change if it's too big
+		if (shouldClearCosmeticCaches || shouldClearSkinCaches) {
+			if (shouldClearCosmeticCaches) Cosmetica.clearCosmeticCaches();
+
+			if (shouldClearSkinCaches) {
+				Debug.info("Clearing Cosmetica skin Caches");
+				CosmeticaSkinManager.clearCaches();
+			}
+
+			System.gc(); // garbage collect
 		}
 
 		// also do the check thing
