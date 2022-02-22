@@ -466,5 +466,6 @@ public class Cosmetica implements ClientModInitializer {
 		playerDataCache = new HashMap<>();
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();
+		System.gc(); // force jvm to garbage collect our unused data
 	}
 }

@@ -21,25 +21,54 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class CosmeticaSkinManager {
 	// caches
+	/**
+	 * A cache of profiles that have been stored this session of caches-not-being-cleared. Associates UUIDS to cosmetica's GameProfiles. A value may be null if it's being computed or is unretrievable.
+	 */
 	private static Map<UUID, GameProfile> cosmeticaProfileCache = new HashMap<>();
+	/**
+	 * A cache of profiles to update once computations are done. If a game profile has been marked as unretrievable or has an associated game profile, this should have no associated value for the UUID. If it did, it would cause a memory leak.
+	 */
 	private static Map<UUID, List<PlayerInfo>> toUpdateProfiles = new HashMap<>();
+	/**
+	 * Cache of uuids that were unable to have associated profiles retrieved properly from cosmetica. This will probably just have NPC uuids. Perhaps an optimisation can be made for this in the future.
+	 */
+	private static Set<UUID> unretrievable = new HashSet<>();
 
 	public static void clearCaches() {
 		synchronized (cosmeticaProfileCache) {
+			// letting the garbage collector do the work
 			cosmeticaProfileCache = new HashMap<>();
 			toUpdateProfiles = new HashMap<>();
+			unretrievable = new HashSet<>();
 		}
 	}
 
 	public static String[] getCacheData() {
 		synchronized (cosmeticaProfileCache) {
-			return new String[] {"Cached:" + cosmeticaProfileCache.toString(), "ToUpdate:" + toUpdateProfiles.toString()};
+			return new String[] {"Cached:" + cosmeticaProfileCache.size(), "ToUpdate:" + toUpdateProfiles.size(), "Unretrievable:" + unretrievable.size()};
+		}
+	}
+
+	public static String[] getCacheData(UUID uuid) {
+		synchronized (cosmeticaProfileCache) {
+			if (cosmeticaProfileCache.containsKey(uuid)) {
+				if (unretrievable.contains(uuid)) {
+					return new String[] { "Unretrievable." };
+				}
+
+				var unupdatedInfos = toUpdateProfiles.get(uuid);
+				return new String[]{"Cached:" + cosmeticaProfileCache.size(), "ToUpdate:" + (unupdatedInfos == null ? 0 : unupdatedInfos.size())};
+			} else {
+				return new String[] {"Not Stored."};
+			}
 		}
 	}
 
@@ -47,16 +76,18 @@ public class CosmeticaSkinManager {
 		UUID uuid = existing.getId();
 
 		synchronized (cosmeticaProfileCache) {
-			if (cosmeticaProfileCache.containsKey(uuid)) {
+			if (cosmeticaProfileCache.containsKey(uuid)) { // if the uuid is already stored...
 				GameProfile profile = cosmeticaProfileCache.get(uuid);
 
-				if (profile == null) {
-					toUpdateProfiles.computeIfAbsent(uuid, $ -> new ArrayList<>(4)).add(info);
+				if (profile == null) { // if it's still calculating or unretrievable, we don't want to update the profile
+					if (!unretrievable.contains(uuid)) {
+						toUpdateProfiles.computeIfAbsent(uuid, $ -> new ArrayList<>(4)).add(info); // add it to the update queue for when lookup is done
+					}
 				} else {
 					updateProfile(info, profile);
 				}
 
-				return; // if already stored
+				return; // don't calculate again
 			}
 
 			cosmeticaProfileCache.put(existing.getId(), null); // dummy.
@@ -64,6 +95,7 @@ public class CosmeticaSkinManager {
 
 		MixinYggdrasilAuthenticationServiceInvoker yggi = (MixinYggdrasilAuthenticationServiceInvoker) ygg.getAuthenticationService();
 
+		// run this on the skin thread because it destroys your server connection to keep it on the network thread
 		Cosmetica.runOffthread(() -> {
 			URL url = CosmeticaSkinManager.getCosmeticaURL(null, existing, false);
 
@@ -96,6 +128,7 @@ public class CosmeticaSkinManager {
 
 									// update those that were queued
 									synchronized (cosmeticaProfileCache) {
+										cosmeticaProfileCache.put(uuid, cosmeticaProfile);
 										List<PlayerInfo> toUpdate = toUpdateProfiles.remove(uuid);
 
 										if (toUpdate != null) {
@@ -122,18 +155,20 @@ public class CosmeticaSkinManager {
 			// stop memory leak
 			synchronized (cosmeticaProfileCache) {
 				toUpdateProfiles.remove(uuid);
+				unretrievable.add(uuid);
 			}
 		}, ThreadPool.SKIN_THREADS);
 	}
 
 	private static void updateProfile(PlayerInfo info, GameProfile profile) {
-		((MixinPlayerInfoAccessor) info).setProfile(profile);
-		((MixinPlayerInfoAccessor) info).setPendingTextures(false);
-		((MixinPlayerInfoAccessor) info).invokeRegisterTextures();
+		MixinPlayerInfoAccessor info_ = (MixinPlayerInfoAccessor) info;
+		info_.setProfile(profile);
+		info_.setPendingTextures(false);
+		info_.invokeRegisterTextures();
 	}
 
 	public static class CosmeticaProfilePropertiesResponse extends MinecraftProfilePropertiesResponse {
-		private String originalSkin;
+		private String originalSkin; // part of the cosmetica response.
 
 		public String getOriginalSkin() {
 			return this.originalSkin;

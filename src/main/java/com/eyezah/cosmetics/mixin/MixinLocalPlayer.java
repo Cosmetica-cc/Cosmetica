@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Mixin(LocalPlayer.class)
 public class MixinLocalPlayer {
@@ -34,6 +35,18 @@ public class MixinLocalPlayer {
 					OverriddenModel.disableDebugModels();
 					Minecraft.getInstance().gui.getChat().addMessage(new TranslatableComponent("cosmetica.debugCosmetica.disable"));
 				} else if (args.length == 3) {
+					if ("profilecache".equals(args[1])) { // /cosmetica profilecache <uuid>
+						try {
+							for (String infoLine : CosmeticaSkinManager.getCacheData(UUID.fromString(args[2]))) {
+								Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(infoLine));
+							}
+						} catch (IllegalArgumentException e) {
+							Cosmetica.LOGGER.error("Error executing debug command", e);
+							info.cancel();
+						}
+					}
+
+					// /cosmetica <type> <cosmeticid>
 					String urlEncodedType = Cosmetica.urlEncode(args[1]);
 					String urlEncodedCosmeticId = Cosmetica.urlEncode(args[2]);
 
@@ -62,7 +75,7 @@ public class MixinLocalPlayer {
 							}
 						}, ThreadPool.LOOKUP_THREADS);
 					}
-				} else if (args.length == 2) {
+				} else if (args.length == 2) { // cache commands
 					switch (args[1]) {
 					case "texcache":
 						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.TEXTURE_MANAGER.toString()));
