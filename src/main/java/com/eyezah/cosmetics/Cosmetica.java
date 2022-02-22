@@ -1,6 +1,8 @@
 package com.eyezah.cosmetics;
 
 import com.eyezah.cosmetics.api.PlayerData;
+import com.eyezah.cosmetics.cosmetics.Hat;
+import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
@@ -9,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -21,9 +24,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -36,22 +43,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -345,7 +342,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PoseStack matrixStack, MultiBufferSource multiBufferSource, Font font, int i) {
+	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
 		if (entity instanceof Player player) {
 			UUID lookupId = player.getUUID();
 
@@ -353,22 +350,76 @@ public class Cosmetica implements ClientModInitializer {
 				double d = entityRenderDispatcher.distanceToSqr(entity);
 
 				if (!(d > 4096.0D)) {
+					BakableModel hatModelData = Hat.overridden.get(() -> Cosmetica.getPlayerData(player).hat());
+
+					if (hatModelData != null) {
+						float highestHatY = 0;
+						for (BlockElement blockElement : hatModelData.model().getElements()) {
+							if (blockElement.rotation != null) {
+								float centerX = (blockElement.from.x() + blockElement.to.x()) / 2;
+								float centerY = (blockElement.from.y() + blockElement.to.y()) / 2;
+								float centerZ = (blockElement.from.z() + blockElement.to.z()) / 2;
+
+								float length = Math.abs(blockElement.to.x() - blockElement.from.x());
+								float width = Math.abs(blockElement.to.y() - blockElement.from.y());
+								float height = Math.abs(blockElement.to.z() - blockElement.from.z());
+
+								Vector3f[] vertices = new Vector3f[8];
+								vertices[0] = new Vector3f((centerX + length) / 2, (centerY + width) / 2, (centerZ + height) / 2);
+								vertices[1] = new Vector3f((centerX + length) / 2, (centerY + width) / 2, (centerZ - height) / 2);
+								vertices[2] = new Vector3f((centerX + length) / 2, (centerY - width) / 2, (centerZ - height) / 2);
+								vertices[3] = new Vector3f((centerX - length) / 2, (centerY - width) / 2, (centerZ - height) / 2);
+								vertices[4] = new Vector3f((centerX - length) / 2, (centerY + width) / 2, (centerZ - height) / 2);
+								vertices[5] = new Vector3f((centerX - length) / 2, (centerY + width) / 2, (centerZ + height) / 2);
+								vertices[6] = new Vector3f((centerX - length) / 2, (centerY - width) / 2, (centerZ + height) / 2);
+								vertices[7] = new Vector3f((centerX + length) / 2, (centerY - width) / 2, (centerZ + height) / 2);
+
+								Vector3f[] rotatedVertices = new Vector3f[8];
+								float highestVertexY = 0;
+								for (int i = 0; i < 8; i++) {
+									rotatedVertices[i] = rotateVertex(vertices[0], blockElement.rotation.origin, blockElement.rotation.axis, (float) Math.toRadians(blockElement.rotation.angle));
+									if (rotatedVertices[i].y() > highestVertexY) {
+										highestVertexY = rotatedVertices[i].y();
+									}
+								}
+
+								if (highestVertexY > highestHatY) {
+									highestHatY = highestVertexY;
+								}
+							} else {
+								if (blockElement.to.y() > highestHatY) {
+									highestHatY = blockElement.to.y();
+								}
+							}
+						}
+
+						float normalizedAngleMultiplier = (float) -(Math.abs(playerModel.head.xRot) / 1.57 - 1);
+						float lookAngleMultiplier;
+						if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
+							lookAngleMultiplier = 0;
+						} else {
+							lookAngleMultiplier = normalizedAngleMultiplier;
+						}
+						stack.translate(0, (highestHatY / 16) * lookAngleMultiplier, 0);
+					}
+
 					String lore = getPlayerData(lookupId, player.getName().getString()).lore();
 
 					if (!lore.equals("")) {
 						Component component = new TextComponent(lore);
 
 						boolean bl = !entity.isDiscrete();
+
 						float height = entity.getBbHeight() + 0.25F;
 
-						matrixStack.translate(0, 0.1, 0);
+						stack.translate(0, 0.1, 0);
 
-						matrixStack.pushPose();
-						matrixStack.translate(0.0D, height, 0.0D);
-						matrixStack.mulPose(entityRenderDispatcher.cameraOrientation());
-						matrixStack.scale(-0.025F, -0.025F, 0.025F);
-						matrixStack.scale(0.75F, 0.75F, 0.75F);
-						Matrix4f model = matrixStack.last().pose();
+						stack.pushPose();
+						stack.translate(0.0D, height, 0.0D);
+						stack.mulPose(entityRenderDispatcher.cameraOrientation());
+						stack.scale(-0.025F, -0.025F, 0.025F);
+						stack.scale(0.75F, 0.75F, 0.75F);
+						Matrix4f textModel = stack.last().pose();
 
 						@SuppressWarnings("resource")
 						float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
@@ -376,17 +427,30 @@ public class Cosmetica implements ClientModInitializer {
 
 						float xOffset = (float)(-font.width(component) / 2);
 
-						font.drawInBatch(component, xOffset, 0, 553648127, false, model, multiBufferSource, bl, alphaARGB, i);
+						font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, bl, alphaARGB, packedLight);
 
 						if (bl) {
-							font.drawInBatch(component, xOffset, 0, -1, false, model, multiBufferSource, false, 0, i);
+							font.drawInBatch(component, xOffset, 0, -1, false, textModel, multiBufferSource, false, 0, packedLight);
 						}
 
-						matrixStack.popPose();
+						stack.popPose();
 					}
 				}
 			}
 		}
+	}
+
+	private static Vector3f rotateVertex(Vector3f vertex, Vector3f origin, Direction.Axis axis, float angle) {
+		vertex.sub(origin);
+		if (axis == Direction.Axis.X) {
+			return new Vector3f(vertex.x() + origin.x(), (float) (vertex.y() * Math.cos(angle) - vertex.z() * Math.sin(angle)) + origin.y(), (float) (vertex.z() * Math.cos(angle) + vertex.y() * Math.sin(angle)) + origin.z());
+		} else if (axis == Direction.Axis.Y) {
+			return new Vector3f((float) (vertex.x() * Math.cos(angle) + vertex.z() * Math.sin(angle)) + origin.x(), vertex.y() + origin.y(), (float) (vertex.z() * Math.cos(angle) - vertex.x() * Math.sin(angle)) + origin.z());
+		} else if (axis == Direction.Axis.Z) {
+			return new Vector3f((float) (vertex.x() * Math.cos(angle) - vertex.y() * Math.sin(angle)) + origin.x(), (float) (vertex.y() * Math.cos(angle) + vertex.x() * Math.sin(angle)) + origin.y(), vertex.z() + origin.z());
+		}
+
+		throw new UnsupportedOperationException();
 	}
 
 	public static void clearAllCaches() {
