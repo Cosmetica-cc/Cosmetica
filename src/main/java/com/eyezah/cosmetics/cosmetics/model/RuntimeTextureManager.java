@@ -136,4 +136,17 @@ public class RuntimeTextureManager {
 
 		return -1;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("RuntimeTextureManager");
+
+		for (int i = 0; i < this.size; ++i) {
+			if (this.used[i] > 0) {
+				sb.append("[u:").append(this.used[i]).append(",k:").append(this.ids[i]).append("]");
+			}
+		}
+
+		return sb.toString();
+	}
 }

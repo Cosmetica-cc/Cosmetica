@@ -295,6 +295,10 @@ public class Cosmetica implements ClientModInitializer {
 		return playerDataCache.size();
 	}
 
+	public static Collection<UUID> getCachedPlayers() {
+		return playerDataCache.keySet();
+	}
+
 	public static String urlEncode(String value) {
 		try {
 			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());

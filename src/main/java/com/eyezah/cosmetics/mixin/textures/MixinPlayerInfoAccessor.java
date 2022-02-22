@@ -15,4 +15,7 @@ public interface MixinPlayerInfoAccessor {
 
 	@Invoker
 	void invokeRegisterTextures();
+
+	@Accessor
+	void setPendingTextures(boolean pendingTextures);
 }

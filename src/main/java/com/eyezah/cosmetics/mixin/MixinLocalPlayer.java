@@ -11,6 +11,7 @@ import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -58,6 +59,20 @@ public class MixinLocalPlayer {
 								e.printStackTrace();
 							}
 						});
+					}
+				} else if (args.length == 2) {
+					switch (args[1]) {
+					case "texcache":
+						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.TEXTURE_MANAGER.toString()));
+						break;
+					case "infocache":
+						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Cosmetica.getCachedPlayers().toString()));
+						break;
+					case "modelcache":
+						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.getCachedModels().toString()));
+						break;
+					default:
+						break;
 					}
 				}
 

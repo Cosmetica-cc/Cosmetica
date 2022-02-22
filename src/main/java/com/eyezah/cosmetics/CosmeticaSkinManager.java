@@ -51,7 +51,8 @@ public class CosmeticaSkinManager {
 									cosmeticaProfile.getProperties().putAll(cmaResponse.getProperties());
 									// set our one
 									((MixinPlayerInfoAccessor) info).setProfile(cosmeticaProfile);
-
+									Debug.info("Force Re-Registering Textures for {}", cosmeticaProfile.getName());
+									((MixinPlayerInfoAccessor) info).setPendingTextures(false);
 									((MixinPlayerInfoAccessor) info).invokeRegisterTextures();
 								});
 							}

@@ -48,6 +48,10 @@ public class Models {
 		TEXTURE_MANAGER.clear();
 	}
 
+	public static Collection<String> getCachedModels() {
+		return LOADED_MODELS.keySet();
+	}
+
 	@Nullable
 	public static BakedModel getBakedModel(BakableModel unbaked) {
 		if (unbaked.id().charAt(0) == '-') return null; // help i wrote this at 1:!5am
