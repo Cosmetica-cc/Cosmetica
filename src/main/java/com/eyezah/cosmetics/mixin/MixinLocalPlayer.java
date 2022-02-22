@@ -40,7 +40,7 @@ public class MixinLocalPlayer {
 					} else {
 						Cosmetica.runOffthread(() -> {
 							String url = Cosmetica.apiServerHost + "/get/cosmetic?type=" + urlEncodedType + "&id=" + urlEncodedCosmeticId + "&timestamp=" + System.currentTimeMillis();
-							Debug.info(url, "always_print_urls");
+							Debug.checkedInfo(url, "always_print_urls");
 
 							try (Response response = Response.request(url)) {
 								JsonObject json = response.getAsJson();

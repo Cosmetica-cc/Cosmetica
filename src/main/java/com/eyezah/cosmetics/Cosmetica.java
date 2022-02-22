@@ -150,7 +150,7 @@ public class Cosmetica implements ClientModInitializer {
 							+ urlEncode(FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString())
 							+ "&mcversion=" + SharedConstants.getCurrentVersion().getId();
 
-					Debug.info(versionCheck, "always_print_urls");
+					Debug.checkedInfo(versionCheck, "always_print_urls");
 
 					try (Response response = Response.request(versionCheck)) {
 						String s = response.getAsString();
@@ -316,7 +316,7 @@ public class Cosmetica implements ClientModInitializer {
 					Cosmetica.runOffthread(() -> {
 						String target = Cosmetica.apiServerHost + "/get/info?username=" + urlEncode(username)
 								+ "&uuid=" + uuid.toString() + "&token=" + getToken();
-						Debug.info(target, "always_print_urls");
+						Debug.checkedInfo(target, "always_print_urls");
 
 						try (Response response = Response.request(target)) {
 							JsonObject jsonObject = response.getAsJson();

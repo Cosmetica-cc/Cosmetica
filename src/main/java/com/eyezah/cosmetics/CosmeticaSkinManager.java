@@ -6,7 +6,6 @@ import com.eyezah.cosmetics.mixin.textures.MixinYggdrasilAuthenticationServiceIn
 import com.eyezah.cosmetics.utils.Debug;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.annotations.SerializedName;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
@@ -30,7 +29,7 @@ public class CosmeticaSkinManager {
 
 			if (url != null) {
 				try {
-					Debug.info(url.toString(), "always_print_urls");
+					Debug.checkedInfo(url.toString(), "always_print_urls");
 					CosmeticaSkinManager.CosmeticaProfilePropertiesResponse cmaResponse = yggi.invokeMakeRequest(url, null, CosmeticaSkinManager.CosmeticaProfilePropertiesResponse.class);
 					String mojangSkin = cmaResponse.getOriginalSkin();
 
@@ -44,6 +43,7 @@ public class CosmeticaSkinManager {
 							String originalSkinURL = jo.get("textures").getAsJsonObject().get("SKIN").getAsJsonObject().get("url").getAsString();
 
 							// and finally checking it against our "actual skin" requirement
+
 							if (mojangSkin.equals(originalSkinURL)) {
 								Minecraft.getInstance().tell(() -> {
 									// now we can replace with our game profile.
@@ -59,7 +59,7 @@ public class CosmeticaSkinManager {
 
 							break; // only need one?
 						}
-					}
+					} else Debug.info("Mojang skin is null for {}", existing.getName().isBlank() ? existing.getId() : existing.getName());
 				} catch (Exception e) {
 					Cosmetica.LOGGER.error("Error adding cosmetica skin service to multiplayer skins", e);
 				}

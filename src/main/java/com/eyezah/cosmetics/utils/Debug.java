@@ -47,13 +47,13 @@ public class Debug {
 	// edit this to change debug settings
 	private static Settings debugSettings = new Settings();
 
-	public static void info(String str) {
+	public static void info(String str, Object... objects) {
 		if (DEBUG_MODE && debugSettings.logging()) {
-			DEBUG_LOGGER.info(str);
+			DEBUG_LOGGER.info(str, objects);
 		}
 	}
 
-	public static void info(String str, String check) {
+	public static void checkedInfo(String str, String check) {
 		if (DEBUG_MODE && debugSettings.other.test(check)) {
 			DEBUG_LOGGER.info(str);
 		}
