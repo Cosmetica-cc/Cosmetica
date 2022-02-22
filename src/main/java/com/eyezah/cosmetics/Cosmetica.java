@@ -74,7 +74,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
 	private static final ExecutorService LOOKUP_THREAD = Executors.newFixedThreadPool(
-			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "3")),
+			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "5")),
 			new NamedThreadFactory("Cosmetics Lookup Thread"));
 
 	private static CosmeticaConfig config;
