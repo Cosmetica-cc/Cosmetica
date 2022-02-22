@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics;
 
+import com.eyezah.cosmetics.utils.Debug;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import net.fabricmc.loader.impl.util.UrlConversionException;
 import net.fabricmc.loader.impl.util.UrlUtil;
@@ -40,7 +41,7 @@ public class AuthlibMixinEnabler implements PreLaunchEntrypoint {
 			Method m = classLoader.getClass().getMethod("addURL", URL.class);
 			m.setAccessible(true);
 			for (String mixinTarget : libraryMixinTargets) {
-				Cosmetica.LOGGER.info("Added {} to allowed mixin targets", mixinTarget);
+				Debug.info("Added {} to allowed mixin targets", mixinTarget);
 				m.invoke(classLoader, getSource(classLoader.getParent().getParent().getParent(), mixinTarget).orElseThrow());
 			}
 		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {

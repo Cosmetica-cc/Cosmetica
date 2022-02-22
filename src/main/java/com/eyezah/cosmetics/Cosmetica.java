@@ -144,7 +144,7 @@ public class Cosmetica implements ClientModInitializer {
 					Cosmetica.authServerHost = auth.get("hostname").getAsString();
 					Cosmetica.authServerPort = auth.get("port").getAsInt();
 
-					LOGGER.info(data.get("message"));
+					LOGGER.info(data.get("message").getAsString());
 					Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + Cosmetica.apiServerHost);
 
 					Authentication.runAuthentication(new TitleScreen(), 1);

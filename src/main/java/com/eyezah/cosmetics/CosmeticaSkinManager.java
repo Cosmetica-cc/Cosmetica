@@ -19,17 +19,13 @@ import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 public class CosmeticaSkinManager {
-//	@Override
-//	public Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> getTextures(GameProfile profile, boolean requireSecure) {
-//		Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures = this.original.getTextures(profile, requireSecure);
-//
-//		if (!textures.isEmpty()) { // if is a request that is returning a result
-//			textures.put(MinecraftProfileTexture.Type.CAPE, new MinecraftProfileTexture(Cosmetica.apiServerHost + "/get/cloak?uuid=" + profile.getId() + "&username=" + profile.getName() + "&timestamp=" + System.currentTimeMillis() + "&token=" + Authentication.getToken(), new HashMap<>()));
-//		}
-//
-//		return textures;
-//		return this.original.getTextures(profile, requireSecure);
-//	}
+	public static class CosmeticaProfilePropertiesResponse extends MinecraftProfilePropertiesResponse {
+		private String originalSkin;
+
+		public String getOriginalSkin() {
+			return this.originalSkin;
+		}
+	}
 
 	public static URL getCosmeticaURL(URL fallback, final GameProfile profile, final boolean requireSecure) {
 		String requestEndpoint = Cosmetica.apiServerHost + "/get/textures?";
