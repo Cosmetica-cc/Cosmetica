@@ -1,6 +1,8 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.CosmeticaSkinManager;
+import com.eyezah.cosmetics.ThreadPool;
 import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddy;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
@@ -58,7 +60,7 @@ public class MixinLocalPlayer {
 								Cosmetica.LOGGER.error("Error recieving override cosmetic:");
 								e.printStackTrace();
 							}
-						});
+						}, ThreadPool.LOOKUP_THREADS);
 					}
 				} else if (args.length == 2) {
 					switch (args[1]) {
@@ -70,6 +72,11 @@ public class MixinLocalPlayer {
 						break;
 					case "modelcache":
 						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.getCachedModels().toString()));
+						break;
+					case "profilecache":
+						for (String infoLine : CosmeticaSkinManager.getCacheData()) {
+							Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(infoLine));
+						}
 						break;
 					default:
 						break;

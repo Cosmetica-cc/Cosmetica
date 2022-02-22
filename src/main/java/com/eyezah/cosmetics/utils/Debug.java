@@ -222,7 +222,7 @@ public class Debug {
 					data.add("logging", new JsonPrimitive(false));
 					data.add("image_dumping", imageDumping);
 					data.add("always_print_urls", new JsonPrimitive(false));
-					data.add("test_unverified_cosmetics", new JsonPrimitive(false));
+					data.add("debug_commands", new JsonPrimitive(false));
 
 					try (FileWriter writer = new FileWriter(settings)) {
 						writer.write(data.toString());
@@ -247,10 +247,15 @@ public class Debug {
 							);
 						}
 
+						// legacy property first
+						boolean useDebugCommands = data.has("test_unverified_cosmetics") ? data.get("test_unverified_cosmetics").getAsBoolean() : false;
+						// then OR with current name for the property
+						useDebugCommands |= data.has("debug_commands") ? data.get("debug_commands").getAsBoolean() : false;
+
 						debugSettings = new Settings(
 								data.get("logging").getAsBoolean(),
 								imageDumpingSettings,
-								data.has("test_unverified_cosmetics") ? data.get("test_unverified_cosmetics").getAsBoolean() : false,
+								useDebugCommands,
 								key -> cache.computeBooleanIfAbsent(key, predicate));
 
 						if (debugSettings.imageDumping().either()) {

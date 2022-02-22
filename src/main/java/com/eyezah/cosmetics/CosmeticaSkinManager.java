@@ -19,9 +19,49 @@ import org.lwjgl.system.MemoryUtil;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class CosmeticaSkinManager {
+	// caches
+	private static Map<UUID, GameProfile> cosmeticaProfileCache = new HashMap<>();
+	private static Map<UUID, List<PlayerInfo>> toUpdateProfiles = new HashMap<>();
+
+	public static void clearCaches() {
+		synchronized (cosmeticaProfileCache) {
+			cosmeticaProfileCache = new HashMap<>();
+			toUpdateProfiles = new HashMap<>();
+		}
+	}
+
+	public static String[] getCacheData() {
+		synchronized (cosmeticaProfileCache) {
+			return new String[] {"Cached:" + cosmeticaProfileCache.toString(), "ToUpdate:" + toUpdateProfiles.toString()};
+		}
+	}
+
 	public static void modifyServerGameProfiles(PlayerInfo info, GameProfile existing, YggdrasilMinecraftSessionService ygg) {
+		UUID uuid = existing.getId();
+
+		synchronized (cosmeticaProfileCache) {
+			if (cosmeticaProfileCache.containsKey(uuid)) {
+				GameProfile profile = cosmeticaProfileCache.get(uuid);
+
+				if (profile == null) {
+					toUpdateProfiles.computeIfAbsent(uuid, $ -> new ArrayList<>(4)).add(info);
+				} else {
+					updateProfile(info, profile);
+				}
+
+				return; // if already stored
+			}
+
+			cosmeticaProfileCache.put(existing.getId(), null); // dummy.
+		}
+
 		MixinYggdrasilAuthenticationServiceInvoker yggi = (MixinYggdrasilAuthenticationServiceInvoker) ygg.getAuthenticationService();
 
 		Cosmetica.runOffthread(() -> {
@@ -50,21 +90,46 @@ public class CosmeticaSkinManager {
 									GameProfile cosmeticaProfile = new GameProfile(cmaResponse.getId(), cmaResponse.getName());
 									cosmeticaProfile.getProperties().putAll(cmaResponse.getProperties());
 									// set our one
-									((MixinPlayerInfoAccessor) info).setProfile(cosmeticaProfile);
 									Debug.info("Force Re-Registering Textures for {}", cosmeticaProfile.getName());
-									((MixinPlayerInfoAccessor) info).setPendingTextures(false);
-									((MixinPlayerInfoAccessor) info).invokeRegisterTextures();
+
+									updateProfile(info, cosmeticaProfile);
+
+									// update those that were queued
+									synchronized (cosmeticaProfileCache) {
+										List<PlayerInfo> toUpdate = toUpdateProfiles.remove(uuid);
+
+										if (toUpdate != null) {
+											Debug.info("Force Re-Registering Textures for other player info of {}", cosmeticaProfile.getName());
+
+											for (PlayerInfo updating : toUpdate) {
+												updateProfile(updating, cosmeticaProfile);
+											}
+										}
+									}
 								});
+
+								return; // don't remove it in the memory leak preventer
 							}
 
 							break; // only need one?
 						}
-					} else Debug.info("Mojang skin is null for {}", existing.getName().isBlank() ? existing.getId() : existing.getName());
+					} else Debug.info("Mojang skin is null for {}", existing.getName());
 				} catch (Exception e) {
 					Cosmetica.LOGGER.error("Error adding cosmetica skin service to multiplayer skins", e);
 				}
 			}
-		});
+
+			// stop memory leak
+			synchronized (cosmeticaProfileCache) {
+				toUpdateProfiles.remove(uuid);
+			}
+		}, ThreadPool.SKIN_THREADS);
+	}
+
+	private static void updateProfile(PlayerInfo info, GameProfile profile) {
+		((MixinPlayerInfoAccessor) info).setProfile(profile);
+		((MixinPlayerInfoAccessor) info).setPendingTextures(false);
+		((MixinPlayerInfoAccessor) info).invokeRegisterTextures();
 	}
 
 	public static class CosmeticaProfilePropertiesResponse extends MinecraftProfilePropertiesResponse {

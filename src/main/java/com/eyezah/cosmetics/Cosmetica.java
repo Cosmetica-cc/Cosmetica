@@ -70,9 +70,13 @@ public class Cosmetica implements ClientModInitializer {
 	private static Set<UUID> lookingUp = new HashSet<>();
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
-	private static final ExecutorService LOOKUP_THREAD = Executors.newFixedThreadPool(
-			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "5")),
+
+	private static final ExecutorService LOOKUP_POOL = Executors.newFixedThreadPool(
+			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "3")),
 			new NamedThreadFactory("Cosmetics Lookup Thread"));
+	private static final ExecutorService SKIN_POOL = Executors.newFixedThreadPool(
+			Integer.parseInt(System.getProperty("cosmetica.skinThreads", "3")),
+			new NamedThreadFactory("Cosmetica Skin Thread"));
 
 	private static CosmeticaConfig config;
 
@@ -167,7 +171,7 @@ public class Cosmetica implements ClientModInitializer {
 					e.printStackTrace();
 				}
 			}
-		});
+		}, ThreadPool.LOOKUP_THREADS);
 
 		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
 			// register all reserved textures
@@ -252,7 +256,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void onShutdownClient() {
 		try {
-			LOOKUP_THREAD.shutdownNow();
+			LOOKUP_POOL.shutdownNow();
 		} catch (RuntimeException e) { // Just in case.
 			e.printStackTrace();
 		}
@@ -275,8 +279,8 @@ public class Cosmetica implements ClientModInitializer {
 	//       IMPL
 	// =================
 
-	public static void runOffthread(Runnable runnable) {
-		LOOKUP_THREAD.execute(runnable);
+	public static void runOffthread(Runnable runnable, ThreadPool pool) {
+		(pool == ThreadPool.LOOKUP_THREADS ? LOOKUP_POOL : SKIN_POOL).execute(runnable);
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
@@ -338,7 +342,7 @@ public class Cosmetica implements ClientModInitializer {
 						} catch (IOException | ParseException e) {;
 							new RuntimeException("Error connecting to " + target, e).printStackTrace();
 						}
-					});
+					}, ThreadPool.LOOKUP_THREADS);
 				}
 
 				return new PlayerData(); // temporary name: blank.
@@ -461,5 +465,6 @@ public class Cosmetica implements ClientModInitializer {
 		Debug.info("Clearing all Cosmetica Caches");
 		playerDataCache = new HashMap<>();
 		Models.resetCaches();
+		CosmeticaSkinManager.clearCaches();
 	}
 }
