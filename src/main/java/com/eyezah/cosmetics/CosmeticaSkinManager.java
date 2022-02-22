@@ -22,13 +22,15 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class CosmeticaSkinManager {
-	public static void modifyServerGameProfiles(PlayerInfo info, GameProfile existing, MixinYggdrasilAuthenticationServiceInvoker yggi) {
+	public static void modifyServerGameProfiles(PlayerInfo info, GameProfile existing, YggdrasilMinecraftSessionService ygg) {
+		MixinYggdrasilAuthenticationServiceInvoker yggi = (MixinYggdrasilAuthenticationServiceInvoker) ygg.getAuthenticationService();
+
 		Cosmetica.runOffthread(() -> {
 			URL url = CosmeticaSkinManager.getCosmeticaURL(null, existing, false);
 
 			if (url != null) {
 				try {
-					//Debug.info(url.toString(), "always_print_urls");
+					Debug.info(url.toString(), "always_print_urls");
 					CosmeticaSkinManager.CosmeticaProfilePropertiesResponse cmaResponse = yggi.invokeMakeRequest(url, null, CosmeticaSkinManager.CosmeticaProfilePropertiesResponse.class);
 					String mojangSkin = cmaResponse.getOriginalSkin();
 
@@ -49,6 +51,8 @@ public class CosmeticaSkinManager {
 									cosmeticaProfile.getProperties().putAll(cmaResponse.getProperties());
 									// set our one
 									((MixinPlayerInfoAccessor) info).setProfile(cosmeticaProfile);
+
+									((MixinPlayerInfoAccessor) info).invokeRegisterTextures();
 								});
 							}
 

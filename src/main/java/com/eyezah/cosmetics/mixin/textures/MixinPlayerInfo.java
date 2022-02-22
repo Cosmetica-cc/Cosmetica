@@ -22,8 +22,7 @@ public class MixinPlayerInfo {
 	@Inject(at = @At("RETURN"), method = "<init>")
 	private void onConstructInfo(ClientboundPlayerInfoPacket.PlayerUpdate playerUpdate, CallbackInfo ci) {
 		if (Minecraft.getInstance().getMinecraftSessionService() instanceof YggdrasilMinecraftSessionService ygg) {
-			MixinYggdrasilAuthenticationServiceInvoker yggi = (MixinYggdrasilAuthenticationServiceInvoker) ygg.getAuthenticationService();
-			CosmeticaSkinManager.modifyServerGameProfiles((PlayerInfo) (Object) this, this.profile, yggi);
+			CosmeticaSkinManager.modifyServerGameProfiles((PlayerInfo) (Object) this, this.profile, ygg);
 		}
 	}
 
