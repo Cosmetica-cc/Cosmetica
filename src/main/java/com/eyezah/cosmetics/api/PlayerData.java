@@ -11,4 +11,6 @@ public record PlayerData(String lore, boolean upsideDown, String prefix, String 
 	public PlayerData() {
 		this("", false, "", "", null, null);
 	}
+
+	public static PlayerData NONE = new PlayerData();
 }

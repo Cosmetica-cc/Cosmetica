@@ -196,6 +196,10 @@ public class Cosmetica implements ClientModInitializer {
 		runAuthenticationCheckThread();
 	}
 
+	public static boolean isProbablyNPC(UUID uuid) {
+		return uuid.version() == 2; // NPCs are uuid version 2. Of course, this can't always be guaranteed with the many different server software, but it seems to be the case at least on hypixel
+	}
+
 	private static String loadOrCache(File file, @Nullable String value) {
 		try {
 			if (value != null) {
@@ -313,6 +317,8 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static PlayerData getPlayerData(UUID uuid, String username) {
+		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
+
 		synchronized (playerDataCache) {
 			return playerDataCache.computeIfAbsent(uuid, uid -> {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
@@ -320,7 +326,7 @@ public class Cosmetica implements ClientModInitializer {
 
 					Cosmetica.runOffthread(() -> {
 						String target = Cosmetica.apiServerHost + "/get/info?username=" + urlEncode(username)
-								+ "&uuid=" + uuid.toString() + "&token=" + getToken();
+								+ "&uuid=" + uuid + "&token=" + getToken();
 						Debug.checkedInfo(target, "always_print_urls");
 
 						try (Response response = Response.request(target)) {
@@ -346,7 +352,7 @@ public class Cosmetica implements ClientModInitializer {
 					}, ThreadPool.LOOKUP_THREADS);
 				}
 
-				return new PlayerData(); // temporary name: blank.
+				return PlayerData.NONE; // temporary name: blank.
 			});
 		}
 	}

@@ -90,7 +90,7 @@ public class CosmeticaSkinManager {
 	public static void modifyServerGameProfiles(PlayerInfo info, GameProfile existing, YggdrasilMinecraftSessionService ygg) {
 		UUID uuid = existing.getId();
 
-		if (uuid.version() == 2) return; // NPCs are uuid version 2. Of course, this can't always be guaranteed with the many different server software, but it seems to be the case at least on hypixel
+		if (Cosmetica.isProbablyNPC(uuid)) return;
 
 		synchronized (cosmeticaProfileCache) {
 			if (cosmeticaProfileCache.containsKey(uuid)) { // if the uuid is already stored...
@@ -182,6 +182,7 @@ public class CosmeticaSkinManager {
 		MixinPlayerInfoAccessor info_ = (MixinPlayerInfoAccessor) info;
 		info_.setProfile(profile);
 		info_.setPendingTextures(false);
+		info_.getTextureLocations().clear(); // it doesn't clear it already, so clear it
 		info_.invokeRegisterTextures();
 	}
 

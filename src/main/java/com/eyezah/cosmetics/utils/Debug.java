@@ -25,7 +25,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -46,6 +48,14 @@ public class Debug {
 
 	// edit this to change debug settings
 	private static Settings debugSettings = new Settings();
+	private static Set<String> complainedAbout = new HashSet<>();
+
+	public static void complainOnce(String key, String str, Object... objects) {
+		if (DEBUG_MODE && debugSettings.logging() && !complainedAbout.contains(key)) {
+			complainedAbout.add(key);
+			DEBUG_LOGGER.info("[COMPLAINT] " + str, objects);
+		}
+	}
 
 	public static void info(String str, Object... objects) {
 		if (DEBUG_MODE && debugSettings.logging()) {
