@@ -88,10 +88,10 @@ public class Cosmetica implements ClientModInitializer {
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
 
 	private static final ExecutorService LOOKUP_POOL = Executors.newFixedThreadPool(
-			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "3")),
+			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "5")),
 			new NamedThreadFactory("Cosmetics Lookup Thread"));
 	private static final ExecutorService SKIN_POOL = Executors.newFixedThreadPool(
-			Integer.parseInt(System.getProperty("cosmetica.skinThreads", "3")),
+			Integer.parseInt(System.getProperty("cosmetica.skinThreads", "5")),
 			new NamedThreadFactory("Cosmetica Skin Thread"));
 
 	private static CosmeticaConfig config;

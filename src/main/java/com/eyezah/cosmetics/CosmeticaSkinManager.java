@@ -3,6 +3,7 @@ package com.eyezah.cosmetics;
 import com.eyezah.cosmetics.mixin.textures.MixinNativeImageAccessor;
 import com.eyezah.cosmetics.mixin.textures.MixinPlayerInfoAccessor;
 import com.eyezah.cosmetics.mixin.textures.MixinYggdrasilAuthenticationServiceInvoker;
+import com.eyezah.cosmetics.utils.CosmeticaGameProfile;
 import com.eyezah.cosmetics.utils.Debug;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -152,7 +153,7 @@ public class CosmeticaSkinManager {
 							if (mojangSkin.equals(originalSkinURL)) {
 								Minecraft.getInstance().tell(() -> {
 									// now we can replace with our game profile.
-									GameProfile cosmeticaProfile = new GameProfile(cmaResponse.getId(), cmaResponse.getName());
+									GameProfile cosmeticaProfile = new CosmeticaGameProfile(cmaResponse.getId(), cmaResponse.getName());
 									cosmeticaProfile.getProperties().putAll(cmaResponse.getProperties());
 									// set our one
 									Debug.info("Force Re-Registering Textures for {} (UUID {})", cosmeticaProfile.getName(), cosmeticaProfile.getId());
@@ -165,7 +166,7 @@ public class CosmeticaSkinManager {
 										List<PlayerInfo> toUpdate = toUpdateProfiles.remove(uuid);
 
 										if (toUpdate != null) {
-											Debug.info("Force Re-Registering Textures for other player info of {}", cosmeticaProfile.getName());
+											//Debug.info("Force Re-Registering Textures for other player info of {}", cosmeticaProfile.getName());
 
 											for (PlayerInfo updating : toUpdate) {
 												updateProfile(updating, cosmeticaProfile);

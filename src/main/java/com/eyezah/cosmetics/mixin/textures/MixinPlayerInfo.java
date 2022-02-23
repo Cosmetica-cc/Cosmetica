@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.mixin.textures;
 
 import com.eyezah.cosmetics.CosmeticaSkinManager;
+import com.eyezah.cosmetics.utils.CosmeticaGameProfile;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
@@ -38,6 +39,6 @@ public class MixinPlayerInfo {
 
 	@Inject(at = @At("RETURN"), method = "method_2956")
 	private void onSkinTextureCallback(MinecraftProfileTexture.Type type, ResourceLocation location, MinecraftProfileTexture texture, CallbackInfo info) {
-		CosmeticaSkinManager.markPlayerLoaded(this.profile.getId());
+		if (this.profile instanceof CosmeticaGameProfile) CosmeticaSkinManager.markPlayerLoaded(this.profile.getId());
 	}
 }

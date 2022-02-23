@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -51,5 +52,6 @@ public abstract class MixinClientPacketListener {
 	private void onHandleLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
 		Debug.info("Clearing player data due to login.");
 		Cosmetica.clearPlayerData(this.minecraft.player.getUUID());
+		CosmeticaSkinManager.clearCaches();
 	}
 }
