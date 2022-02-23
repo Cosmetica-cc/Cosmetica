@@ -91,7 +91,7 @@ public class Cosmetica implements ClientModInitializer {
 			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "5")),
 			new NamedThreadFactory("Cosmetics Lookup Thread"));
 	private static final ExecutorService SKIN_POOL = Executors.newFixedThreadPool(
-			Integer.parseInt(System.getProperty("cosmetica.skinThreads", "5")),
+			Integer.parseInt(System.getProperty("cosmetica.skinThreads", "8")),
 			new NamedThreadFactory("Cosmetica Skin Thread"));
 
 	private static CosmeticaConfig config;
