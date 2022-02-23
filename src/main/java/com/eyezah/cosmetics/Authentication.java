@@ -12,10 +12,8 @@ import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import static com.eyezah.cosmetics.Cosmetica.authServerHost;
 import static com.eyezah.cosmetics.Cosmetica.authServerPort;
@@ -23,6 +21,7 @@ import static com.eyezah.cosmetics.Cosmetica.authServerPort;
 public class Authentication {
 	private static boolean currentlyAuthenticated = false;
 	private static String token = "";
+	private static String limitedToken = "";
 	public static boolean currentlyAuthenticating = false;
 	private static int bits; // to mark the two required things that must have happened to start cosmetics auth: fetching API url (may fail), and finishing loading.
 
@@ -32,6 +31,14 @@ public class Authentication {
 
 	public static String getToken() {
 		return token;
+	}
+
+	/**
+	 * Retrieves a token which only has GET power, for use on faster, less secure 'HTTP' connections.
+	 * @return the limited token.
+	 */
+	public static String getLimitedToken() {
+		return limitedToken;
 	}
 
 	private static void syncSettings() {
@@ -87,18 +94,21 @@ public class Authentication {
 		} // TODO if in-game some small, unintrusive text on bottom right
 	}
 
-	public static void setToken(String testToken) {
+	public static void requestTokens(String testToken) {
 		Thread requestThread = new Thread(() -> {
-			try (Response response = Response.request(Cosmetica.apiServerHost + "/client/verifyauthtoken?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken())) {
-				String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).trim();
-				if (responseBody.startsWith("token:")) {
-					token = responseBody.substring(6);
+			try (Response response = Response.request(Cosmetica.apiServerHost + "/client/verifyforauthtokens?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken())) {
+				JsonObject object = response.getAsJson();
+
+				if (object.has("error")) {
+					Cosmetica.LOGGER.warn("Error on authentication. Will be offline. {}", object.get("error"));
+					currentlyAuthenticating = false;
+					showUnauthenticatedIfLoading();
+				} else {
+					token = object.get("master_token").getAsString();
+					limitedToken = object.get("limited_token").getAsString();
 					currentlyAuthenticated = true;
 					currentlyAuthenticating = false;
 					syncSettings();
-				} else {
-					currentlyAuthenticating = false;
-					showUnauthenticatedIfLoading();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

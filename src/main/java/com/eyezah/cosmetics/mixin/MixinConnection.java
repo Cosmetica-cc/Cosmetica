@@ -16,7 +16,7 @@ public class MixinConnection {
 	@Inject(at = @At("HEAD"), method = "disconnect")
 	public void onDisconnect(Component component, CallbackInfo ci) {
 		if (component.getString().startsWith("ExtravagantCosmeticsToken:")) {
-			Authentication.setToken(component.getString().substring(26));
+			Authentication.requestTokens(component.getString().substring(26));
 		} else {
 			Authentication.currentlyAuthenticating = false;
 

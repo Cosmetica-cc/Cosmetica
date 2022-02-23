@@ -38,21 +38,33 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.eyezah.cosmetics.Authentication.getToken;
+import static com.eyezah.cosmetics.Authentication.getLimitedToken;
 import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
 @Environment(EnvType.CLIENT)
@@ -63,6 +75,10 @@ public class Cosmetica implements ClientModInitializer {
 	public static String authServerHost;
 	public static int authServerPort;
 	public static String apiServerHost;
+	/**
+	 * For connections which need to be fast and do not require security.
+	 */
+	public static String insecureApiServerHost;
 	public static String displayNext;
 	public static String websiteHost;
 
@@ -140,6 +156,7 @@ public class Cosmetica implements ClientModInitializer {
 				try {
 					JsonObject data = new JsonParser().parse(apiGetData).getAsJsonObject();
 					Cosmetica.apiServerHost = data.get("api").getAsString();
+					Cosmetica.insecureApiServerHost = "http" + Cosmetica.apiServerHost.substring(5);
 					Cosmetica.websiteHost = data.get("website").getAsString();
 					JsonObject auth = data.get("auth-server").getAsJsonObject();
 					Cosmetica.authServerHost = auth.get("hostname").getAsString();
@@ -318,6 +335,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static PlayerData getPlayerData(UUID uuid, String username) {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
+		Level level = Minecraft.getInstance().level;
 
 		synchronized (playerDataCache) {
 			return playerDataCache.computeIfAbsent(uuid, uid -> {
@@ -325,8 +343,13 @@ public class Cosmetica implements ClientModInitializer {
 					lookingUp.add(uuid);
 
 					Cosmetica.runOffthread(() -> {
-						String target = Cosmetica.apiServerHost + "/get/info?username=" + urlEncode(username)
-								+ "&uuid=" + uuid + "&token=" + getToken();
+						if (Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different)!
+							lookingUp.remove(uuid);
+							return;
+						}
+
+						String target = Cosmetica.insecureApiServerHost + "/get/info?username=" + urlEncode(username)
+								+ "&uuid=" + uuid + "&token=" + getLimitedToken();
 						Debug.checkedInfo(target, "always_print_urls");
 
 						try (Response response = Response.request(target)) {

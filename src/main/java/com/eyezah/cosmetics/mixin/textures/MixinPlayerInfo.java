@@ -2,11 +2,12 @@ package com.eyezah.cosmetics.mixin.textures;
 
 import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,5 +34,10 @@ public class MixinPlayerInfo {
 	)
 	private boolean e(boolean requireSecure) {
 		return false;
+	}
+
+	@Inject(at = @At("RETURN"), method = "method_2956")
+	private void onSkinTextureCallback(MinecraftProfileTexture.Type type, ResourceLocation location, MinecraftProfileTexture texture, CallbackInfo info) {
+		CosmeticaSkinManager.markPlayerLoaded(this.profile.getId());
 	}
 }

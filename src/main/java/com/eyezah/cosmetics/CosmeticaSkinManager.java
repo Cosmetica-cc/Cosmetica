@@ -13,6 +13,7 @@ import com.mojang.authlib.yggdrasil.response.MinecraftProfilePropertiesResponse;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.world.level.Level;
 import org.apache.commons.codec.binary.Base64;
 import org.lwjgl.system.MemoryUtil;
 
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class CosmeticaSkinManager {
+	private static final Object PROFILE_CACHE_LOCK = new Object();
 	// caches
 	/**
 	 * A cache of profiles that have been stored this session of caches-not-being-cleared. Associates UUIDS to cosmetica's GameProfiles. A value may be null if it's being computed or is unretrievable.
@@ -41,40 +43,54 @@ public class CosmeticaSkinManager {
 	 * Cache of uuids that were unable to have associated profiles retrieved properly from cosmetica. This will probably just have NPC uuids. Perhaps an optimisation can be made for this in the future.
 	 */
 	private static Set<UUID> unretrievable = new HashSet<>();
+	/**
+	 * Cache of loaded skins, for checking if the cape should be loaded.
+	 */
+	private static Set<UUID> loaded = new HashSet<>();
 
 	public static void clearCaches() {
-		synchronized (cosmeticaProfileCache) {
+		synchronized (PROFILE_CACHE_LOCK) {
 			// letting the garbage collector do the work
 			cosmeticaProfileCache = new HashMap<>();
 			toUpdateProfiles = new HashMap<>();
 			unretrievable = new HashSet<>();
+			loaded = new HashSet<>();
 		}
 	}
 
 	public static void removePlayer(UUID uuid) {
-		synchronized (cosmeticaProfileCache) {
+		synchronized (PROFILE_CACHE_LOCK) {
 			// letting the garbage collector do the work
 			cosmeticaProfileCache.remove(uuid);
 			toUpdateProfiles.remove(uuid);
 			unretrievable.remove(uuid);
+			loaded.remove(uuid);
+		}
+	}
+
+	public static boolean isPlayerCapeLoaded(UUID uuid) {
+		if (Cosmetica.isProbablyNPC(uuid)) return true;
+
+		synchronized (PROFILE_CACHE_LOCK) { // is it really worth synchronising vs the potential performance boost of not
+			return loaded.contains(uuid);
 		}
 	}
 
 	public static String[] getCacheData() {
-		synchronized (cosmeticaProfileCache) {
-			return new String[] {"Cached:" + cosmeticaProfileCache.size(), "ToUpdate:" + toUpdateProfiles.size(), "Unretrievable:" + unretrievable.size()};
+		synchronized (PROFILE_CACHE_LOCK) {
+			return new String[] {"Cached:" + cosmeticaProfileCache.size(), "ToUpdate:" + toUpdateProfiles.size(), "Unretrievable:" + unretrievable.size(), "Loaded:" + loaded.size()};
 		}
 	}
 
 	public static String[] getCacheData(UUID uuid) {
-		synchronized (cosmeticaProfileCache) {
+		synchronized (PROFILE_CACHE_LOCK) {
 			if (cosmeticaProfileCache.containsKey(uuid)) {
 				if (unretrievable.contains(uuid)) {
 					return new String[] { "Unretrievable." };
 				}
 
 				var unupdatedInfos = toUpdateProfiles.get(uuid);
-				return new String[]{"Cached:" + cosmeticaProfileCache.get(uuid), "ToUpdate:" + (unupdatedInfos == null ? 0 : unupdatedInfos.size())};
+				return new String[]{"Cached:" + cosmeticaProfileCache.get(uuid), "ToUpdate:" + (unupdatedInfos == null ? 0 : unupdatedInfos.size()), loaded.contains(uuid) ? "Cape Loaded." : "Cape Not Loaded."};
 			} else {
 				return new String[] {"Not Stored."};
 			}
@@ -82,7 +98,7 @@ public class CosmeticaSkinManager {
 	}
 
 	public static int getCacheSize() {
-		synchronized (cosmeticaProfileCache) {
+		synchronized (PROFILE_CACHE_LOCK) {
 			return cosmeticaProfileCache.size();
 		}
 	}
@@ -92,7 +108,7 @@ public class CosmeticaSkinManager {
 
 		if (Cosmetica.isProbablyNPC(uuid)) return;
 
-		synchronized (cosmeticaProfileCache) {
+		synchronized (PROFILE_CACHE_LOCK) {
 			if (cosmeticaProfileCache.containsKey(uuid)) { // if the uuid is already stored...
 				GameProfile profile = cosmeticaProfileCache.get(uuid);
 
@@ -114,7 +130,7 @@ public class CosmeticaSkinManager {
 
 		// run this on the skin thread because it destroys your server connection to keep it on the network thread
 		Cosmetica.runOffthread(() -> {
-			URL url = CosmeticaSkinManager.getCosmeticaURL(null, existing, false);
+			URL url = getCosmeticaURL(null, existing);
 
 			if (url != null) {
 				try {
@@ -139,12 +155,12 @@ public class CosmeticaSkinManager {
 									GameProfile cosmeticaProfile = new GameProfile(cmaResponse.getId(), cmaResponse.getName());
 									cosmeticaProfile.getProperties().putAll(cmaResponse.getProperties());
 									// set our one
-									Debug.info("Force Re-Registering Textures for {}", cosmeticaProfile.getName());
+									Debug.info("Force Re-Registering Textures for {} (UUID {})", cosmeticaProfile.getName(), cosmeticaProfile.getId());
 
 									updateProfile(info, cosmeticaProfile);
 
 									// update those that were queued
-									synchronized (cosmeticaProfileCache) {
+									synchronized (PROFILE_CACHE_LOCK) {
 										cosmeticaProfileCache.put(uuid, cosmeticaProfile);
 										List<PlayerInfo> toUpdate = toUpdateProfiles.remove(uuid);
 
@@ -170,10 +186,11 @@ public class CosmeticaSkinManager {
 			}
 
 			// stop memory leak
-			synchronized (cosmeticaProfileCache) {
+			synchronized (PROFILE_CACHE_LOCK) {
 				//Debug.info("Discarded uuid of version {}", uuid.version());
 				toUpdateProfiles.remove(uuid);
 				unretrievable.add(uuid);
+				loaded.add(uuid);
 			}
 		}, ThreadPool.SKIN_THREADS);
 	}
@@ -186,6 +203,12 @@ public class CosmeticaSkinManager {
 		info_.invokeRegisterTextures();
 	}
 
+	public static void markPlayerLoaded(UUID id) {
+		synchronized (PROFILE_CACHE_LOCK) {
+			loaded.add(id);
+		}
+	}
+
 	public static class CosmeticaProfilePropertiesResponse extends MinecraftProfilePropertiesResponse {
 		private String originalSkin; // part of the cosmetica response.
 
@@ -194,8 +217,8 @@ public class CosmeticaSkinManager {
 		}
 	}
 
-	public static URL getCosmeticaURL(URL fallback, final GameProfile profile, final boolean requireSecure) {
-		String requestEndpoint = Cosmetica.apiServerHost + "/get/textures?";
+	public static URL getCosmeticaURL(URL fallback, final GameProfile profile) {
+		String requestEndpoint = Cosmetica.insecureApiServerHost + "/get/textures?";
 
 		if (profile.isComplete()) {
 			requestEndpoint += "uuid=" + profile.getId().toString() + "&username=" + profile.getName();
@@ -206,7 +229,7 @@ public class CosmeticaSkinManager {
 		}
 
 		try {
-			requestEndpoint += "&token=" + Authentication.getToken() + "&timestamp=" + System.currentTimeMillis();
+			requestEndpoint += "&token=" + Authentication.getLimitedToken() + "&timestamp=" + System.currentTimeMillis();
 			return new URL(requestEndpoint);
 		} catch (MalformedURLException e) {
 			Cosmetica.LOGGER.error("Malformed URL on redirecting skin server to cosmetica???", e);

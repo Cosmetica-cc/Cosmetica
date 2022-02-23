@@ -26,7 +26,7 @@ public class MixinYggdrasilSessionService {
 	)
 	private <T extends Response> T fillCosmeticaProfileProperties(YggdrasilAuthenticationService instance, URL url, Object input, Class<T> classOfT,
 																  GameProfile profile, boolean requireSecure) throws AuthenticationException {
-		return ((MixinYggdrasilAuthenticationServiceInvoker) instance).invokeMakeRequest(CosmeticaSkinManager.getCosmeticaURL(url, profile, requireSecure), input, classOfT);
+		return ((MixinYggdrasilAuthenticationServiceInvoker) instance).invokeMakeRequest(CosmeticaSkinManager.getCosmeticaURL(url, profile), input, classOfT);
 	}
 
 	@Inject(at = @At("HEAD"), method = "isAllowedTextureDomain", cancellable = true)
