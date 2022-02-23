@@ -293,6 +293,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void clearPlayerData(UUID uuid) {
 		playerDataCache.remove(uuid);
+		CosmeticaSkinManager.removePlayer(uuid);
 	}
 
 	public static int getCacheSize() {

@@ -51,6 +51,15 @@ public class CosmeticaSkinManager {
 		}
 	}
 
+	public static void removePlayer(UUID uuid) {
+		synchronized (cosmeticaProfileCache) {
+			// letting the garbage collector do the work
+			cosmeticaProfileCache.remove(uuid);
+			toUpdateProfiles.remove(uuid);
+			unretrievable.remove(uuid);
+		}
+	}
+
 	public static String[] getCacheData() {
 		synchronized (cosmeticaProfileCache) {
 			return new String[] {"Cached:" + cosmeticaProfileCache.size(), "ToUpdate:" + toUpdateProfiles.size(), "Unretrievable:" + unretrievable.size()};
