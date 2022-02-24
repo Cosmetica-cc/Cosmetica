@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.cosmetics.model;
 
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -104,8 +105,10 @@ public class Models {
 
 		if (location.isEmpty()) return null;
 
+		JsonArray bounds = json.getAsJsonArray("bounds");
+
 		if (location.charAt(0) == '-') {
-			return LOADED_MODELS.computeIfAbsent(location, l -> new BakableModel(location, null, null, 0));
+			return LOADED_MODELS.computeIfAbsent(location, l -> new BakableModel(location, null, null, 0, bounds));
 		}
 
 		return LOADED_MODELS.computeIfAbsent(location, l -> {
@@ -113,7 +116,7 @@ public class Models {
 				BlockModel model = BlockModel.fromStream(new InputStreamReader(is, StandardCharsets.UTF_8));
 				model.name = l;
 				NativeImage image = NativeImage.fromBase64(json.get("texture").getAsString().substring(22)); // trim nonsense at the start
-				return new BakableModel(location, model, image, json.get("extra info").getAsInt());
+				return new BakableModel(location, model, image, json.get("extra info").getAsInt(), bounds);
 			} catch (IOException e) {
 				return null;
 			} catch (Exception e) {

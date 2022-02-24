@@ -137,7 +137,7 @@ public class Debug {
 						"test-" + modelLoc,
 						blockModel,
 						image,
-						extraInfo));
+						extraInfo, JsonParser.parseString("[[0, 0, 0], [0, 0, 0]]").getAsJsonArray()));
 
 				return true;
 			} else {

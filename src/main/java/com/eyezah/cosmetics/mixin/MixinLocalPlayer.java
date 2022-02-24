@@ -11,6 +11,7 @@ import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.TextComponent;
@@ -51,7 +52,7 @@ public class MixinLocalPlayer {
 					String urlEncodedCosmeticId = Cosmetica.urlEncode(args[2]);
 
 					if (urlEncodedCosmeticId.charAt(0) == '-' && "shoulderbuddy".equals(urlEncodedType)) {
-						ShoulderBuddy.overridden.setDebugModel(new BakableModel("-sheep", null, null, 0));
+						ShoulderBuddy.overridden.setDebugModel(new BakableModel("-sheep", null, null, 0, JsonParser.parseString("[[0, 0, 0], [0, 0, 0]]").getAsJsonArray()));
 					} else {
 						Cosmetica.runOffthread(() -> {
 							String url = Cosmetica.apiServerHost + "/get/cosmetic?type=" + urlEncodedType + "&id=" + urlEncodedCosmeticId + "&timestamp=" + System.currentTimeMillis();

@@ -391,45 +391,7 @@ public class Cosmetica implements ClientModInitializer {
 					BakableModel hatModelData = Hat.overridden.get(() -> Cosmetica.getPlayerData(player).hat());
 
 					if (hatModelData != null) {
-						float highestHatY = 0;
-						for (BlockElement blockElement : hatModelData.model().getElements()) {
-							if (blockElement.rotation != null) {
-								float centerX = (blockElement.from.x() + blockElement.to.x()) / 2;
-								float centerY = (blockElement.from.y() + blockElement.to.y()) / 2;
-								float centerZ = (blockElement.from.z() + blockElement.to.z()) / 2;
-
-								float length = Math.abs(blockElement.to.x() - blockElement.from.x());
-								float width = Math.abs(blockElement.to.y() - blockElement.from.y());
-								float height = Math.abs(blockElement.to.z() - blockElement.from.z());
-
-								Vector3f[] vertices = new Vector3f[8];
-								vertices[0] = new Vector3f((centerX + length) / 2, (centerY + width) / 2, (centerZ + height) / 2);
-								vertices[1] = new Vector3f((centerX + length) / 2, (centerY + width) / 2, (centerZ - height) / 2);
-								vertices[2] = new Vector3f((centerX + length) / 2, (centerY - width) / 2, (centerZ - height) / 2);
-								vertices[3] = new Vector3f((centerX - length) / 2, (centerY - width) / 2, (centerZ - height) / 2);
-								vertices[4] = new Vector3f((centerX - length) / 2, (centerY + width) / 2, (centerZ - height) / 2);
-								vertices[5] = new Vector3f((centerX - length) / 2, (centerY + width) / 2, (centerZ + height) / 2);
-								vertices[6] = new Vector3f((centerX - length) / 2, (centerY - width) / 2, (centerZ + height) / 2);
-								vertices[7] = new Vector3f((centerX + length) / 2, (centerY - width) / 2, (centerZ + height) / 2);
-
-								Vector3f[] rotatedVertices = new Vector3f[8];
-								float highestVertexY = 0;
-								for (int i = 0; i < 8; i++) {
-									rotatedVertices[i] = rotateVertex(vertices[0], blockElement.rotation.origin, blockElement.rotation.axis, (float) Math.toRadians(blockElement.rotation.angle));
-									if (rotatedVertices[i].y() > highestVertexY) {
-										highestVertexY = rotatedVertices[i].y();
-									}
-								}
-
-								if (highestVertexY > highestHatY) {
-									highestHatY = highestVertexY;
-								}
-							} else {
-								if (blockElement.to.y() > highestHatY) {
-									highestHatY = blockElement.to.y();
-								}
-							}
-						}
+						float hatTopY = hatModelData.bounds().get(1).getAsJsonArray().get(1).getAsFloat();
 
 						float normalizedAngleMultiplier = (float) -(Math.abs(playerModel.head.xRot) / 1.57 - 1);
 						float lookAngleMultiplier;
@@ -438,7 +400,7 @@ public class Cosmetica implements ClientModInitializer {
 						} else {
 							lookAngleMultiplier = normalizedAngleMultiplier;
 						}
-						stack.translate(0, (highestHatY / 16) * lookAngleMultiplier, 0);
+						stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
 					}
 
 					String lore = getPlayerData(lookupId, player.getName().getString()).lore();
