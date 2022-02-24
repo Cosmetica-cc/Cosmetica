@@ -2,8 +2,11 @@ package com.eyezah.cosmetics.mixin.textures;
 
 import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,5 +23,14 @@ public abstract class MixinAbstractClientPlayer extends Player {
 	@Inject(at = @At("RETURN"), method = "isCapeLoaded", cancellable = true)
 	private void isCosmeticaCapeLoaded(CallbackInfoReturnable<Boolean> info) {
 		info.setReturnValue(info.getReturnValueZ() && CosmeticaSkinManager.isPlayerCapeLoaded(this.getUUID()));
+	}
+
+	@Inject(at = @At("RETURN"), method = "getCloakTextureLocation", cancellable = true)
+	private void removeSteve(CallbackInfoReturnable<ResourceLocation> info) {
+		if (Minecraft.getInstance().getTextureManager().getTexture(info.getReturnValue()) instanceof HttpTexture texture) {
+			if (!((MixinHttpTextureAccessor)texture).isUploaded()) {
+				info.setReturnValue(null);
+			}
+		}
 	}
 }

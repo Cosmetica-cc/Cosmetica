@@ -10,6 +10,7 @@
     "screen.MixinTitleScreen",
     "textures.MixinAbstractClientPlayer",
     "textures.MixinHttpTexture",
+    "textures.MixinHttpTextureAccessor",
     "textures.MixinNativeImageAccessor",
     "textures.MixinPlayerInfo",
     "textures.MixinPlayerInfoAccessor",
