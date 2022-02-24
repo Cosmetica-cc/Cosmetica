@@ -27,7 +27,9 @@ public abstract class MixinAbstractClientPlayer extends Player {
 
 	@Inject(at = @At("RETURN"), method = "getCloakTextureLocation", cancellable = true)
 	private void removeSteve(CallbackInfoReturnable<ResourceLocation> info) {
-		if (Minecraft.getInstance().getTextureManager().getTexture(info.getReturnValue()) instanceof HttpTexture texture) {
+		ResourceLocation rl = info.getReturnValue();
+
+		if (rl != null && Minecraft.getInstance().getTextureManager().getTexture(rl) instanceof HttpTexture texture) {
 			if (!((MixinHttpTextureAccessor)texture).isUploaded()) {
 				info.setReturnValue(null);
 			}
