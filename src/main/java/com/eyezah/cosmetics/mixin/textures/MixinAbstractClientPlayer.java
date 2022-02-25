@@ -22,17 +22,11 @@ public abstract class MixinAbstractClientPlayer extends Player {
 
 	@Inject(at = @At("RETURN"), method = "isCapeLoaded", cancellable = true)
 	private void isCosmeticaCapeLoaded(CallbackInfoReturnable<Boolean> info) {
-		info.setReturnValue(info.getReturnValueZ() && CosmeticaSkinManager.isPlayerCapeLoaded(this.getUUID()));
+		info.setReturnValue(info.getReturnValueZ() && CosmeticaSkinManager.isCapeLoaded(this.getUUID()));
 	}
 
 	@Inject(at = @At("RETURN"), method = "getCloakTextureLocation", cancellable = true)
-	private void removeSteve(CallbackInfoReturnable<ResourceLocation> info) {
-		ResourceLocation rl = info.getReturnValue();
-
-		if (rl != null && Minecraft.getInstance().getTextureManager().getTexture(rl) instanceof HttpTexture texture) {
-			if (!((MixinHttpTextureAccessor)texture).isUploaded()) {
-				info.setReturnValue(null);
-			}
-		}
+	private void addCosmeticaCapes(CallbackInfoReturnable<ResourceLocation> info) {
+		// yeet TODO
 	}
 }
