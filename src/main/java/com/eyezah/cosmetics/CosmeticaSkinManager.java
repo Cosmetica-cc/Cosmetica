@@ -2,14 +2,19 @@ package com.eyezah.cosmetics;
 
 import com.eyezah.cosmetics.mixin.textures.MixinNativeImageAccessor;
 import com.eyezah.cosmetics.utils.Debug;
+import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService;
 import com.mojang.blaze3d.platform.NativeImage;
 import org.lwjgl.system.MemoryUtil;
 
 public class CosmeticaSkinManager {
-	public boolean isCapeLoaded() {
+	public void processCape(JsonObject object) {
+		// TODO
+	}
 
+	public boolean isCapeLoaded() {
+		return false;
 	}
 
 	public static NativeImage processBadCapes(NativeImage image) {

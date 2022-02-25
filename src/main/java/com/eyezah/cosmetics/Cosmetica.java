@@ -356,6 +356,7 @@ public class Cosmetica implements ClientModInitializer {
 							JsonObject jsonObject = response.getAsJson();
 							JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
 							JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
+							JsonObject cloak = jsonObject.has("cape") ? jsonObject.get("cape").getAsJsonObject() : null;
 
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, new PlayerData(
@@ -364,7 +365,8 @@ public class Cosmetica implements ClientModInitializer {
 										jsonObject.get("prefix").getAsString(),
 										jsonObject.get("suffix").getAsString(),
 										hat == null ? null : Models.createBakableModel(hat),
-										shoulderBuddy == null ? null : Models.createBakableModel(shoulderBuddy)
+										shoulderBuddy == null ? null : Models.createBakableModel(shoulderBuddy),
+										cloak == null ? null : CosmeticaSkinManager.processCape(cloak)
 								));
 
 								lookingUp.remove(uuid);
