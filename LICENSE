@@ -1,9 +1,9 @@
 			Cosmetica Public License
-			    13 February 2022
+			    27 February 2022
 
 Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
 
-The Cosmetica Public License incorporates the terms and conditions of version 3 of the GNU Lesser General Public License, with the exceptions listed below.
+The Cosmetica Public License incorporates the terms and conditions of the MIT license, with the exceptions listed below.
 
 This license document MAY be updated at any time without public notification. Only the latest terms and conditions apply. The latest terms and conditions of this license may be found at https://github.com/EyezahMC/Cosmetica/blob/master/LICENSE.
 
@@ -28,3 +28,5 @@ A "Server" is any cloud based service.
 You understand that the cosmetics servers permitted by this license are those provided by an HTTP GET or HTTP POST to any of the hosts in https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json. You MAY NOT modify the Software to provide cosmetics from a server other than the cosmetics servers permitted by this license.
 
 Any derivative work of the Software must be licensed under the Cosmetica Public License, and publicly provide a verbatim copy of this license.
+
+The source code of the software and/or any derivative work must be made publicly available. You may not charge a price for any copy of the source code.
