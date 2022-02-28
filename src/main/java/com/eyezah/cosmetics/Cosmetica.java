@@ -314,7 +314,6 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void clearPlayerData(UUID uuid) {
 		playerDataCache.remove(uuid);
-		CosmeticaSkinManager.removePlayer(uuid);
 	}
 
 	public static int getCacheSize() {
@@ -323,6 +322,10 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static Collection<UUID> getCachedPlayers() {
 		return playerDataCache.keySet();
+	}
+
+	public static boolean isPlayerCached(UUID uuid) {
+		return playerDataCache.containsKey(uuid);
 	}
 
 	public static String urlEncode(String value) {
@@ -461,11 +464,5 @@ public class Cosmetica implements ClientModInitializer {
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();
 		System.gc(); // force jvm to garbage collect our unused data
-	}
-
-	public static void clearCosmeticCaches() {
-		Debug.info("Clearing Cosmetica cosmetic Caches");
-		playerDataCache = new HashMap<>();
-		Models.resetCaches();
 	}
 }

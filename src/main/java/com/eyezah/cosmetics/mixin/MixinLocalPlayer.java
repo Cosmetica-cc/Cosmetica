@@ -36,17 +36,6 @@ public class MixinLocalPlayer {
 					OverriddenModel.disableDebugModels();
 					Minecraft.getInstance().gui.getChat().addMessage(new TranslatableComponent("cosmetica.debugCosmetica.disable"));
 				} else if (args.length == 3) {
-					if ("profilecache".equals(args[1])) { // /cosmetica profilecache <uuid>
-						try {
-							for (String infoLine : CosmeticaSkinManager.getCacheData(UUID.fromString(args[2]))) {
-								Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(infoLine));
-							}
-						} catch (IllegalArgumentException e) {
-							Cosmetica.LOGGER.error("Error executing debug command", e);
-							info.cancel();
-						}
-					}
-
 					// /cosmetica <type> <cosmeticid>
 					String urlEncodedType = Cosmetica.urlEncode(args[1]);
 					String urlEncodedCosmeticId = Cosmetica.urlEncode(args[2]);
@@ -86,11 +75,6 @@ public class MixinLocalPlayer {
 						break;
 					case "modelcache":
 						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.getCachedModels().toString()));
-						break;
-					case "profilecache":
-						for (String infoLine : CosmeticaSkinManager.getCacheData()) {
-							Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(infoLine));
-						}
 						break;
 					default:
 						break;

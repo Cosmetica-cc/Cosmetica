@@ -42,19 +42,9 @@ public abstract class MixinMinecraft {
 
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
-		boolean shouldClearCosmeticCaches = Cosmetica.getCacheSize() > 1024;
-		boolean shouldClearSkinCaches = CosmeticaSkinManager.getCacheSize() > 1024;
-
-		// clear cache on level change if it's too big
-		if (shouldClearCosmeticCaches || shouldClearSkinCaches) {
-			if (shouldClearCosmeticCaches) Cosmetica.clearCosmeticCaches();
-
-			if (shouldClearSkinCaches) {
-				Debug.info("Clearing Cosmetica skin Caches");
-				CosmeticaSkinManager.clearCaches();
-			}
-
-			System.gc(); // garbage collect
+		if (Cosmetica.getCacheSize() > 1024) {
+			Debug.info("Clearing Cosmetica Caches");
+			Cosmetica.clearAllCaches();
 		}
 
 		// also do the check thing
