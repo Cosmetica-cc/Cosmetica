@@ -1,10 +1,8 @@
 package com.eyezah.cosmetics.mixin.textures;
 
-import com.eyezah.cosmetics.CosmeticaSkinManager;
+import com.eyezah.cosmetics.Cosmetica;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -20,19 +18,13 @@ public abstract class MixinAbstractClientPlayer extends Player {
 		super(level, blockPos, f, gameProfile);
 	}
 
-	@Inject(at = @At("RETURN"), method = "isCapeLoaded", cancellable = true)
+	@Inject(at = @At("HEAD"), method = "isCapeLoaded", cancellable = true)
 	private void isCosmeticaCapeLoaded(CallbackInfoReturnable<Boolean> info) {
-		info.setReturnValue(info.getReturnValueZ() && CosmeticaSkinManager.isPlayerCapeLoaded(this.getUUID()));
+		if (!Cosmetica.isProbablyNPC(this.uuid)) info.setReturnValue(Cosmetica.isPlayerCached(this.uuid));
 	}
 
-	@Inject(at = @At("RETURN"), method = "getCloakTextureLocation", cancellable = true)
-	private void removeSteve(CallbackInfoReturnable<ResourceLocation> info) {
-		ResourceLocation rl = info.getReturnValue();
-
-		if (rl != null && Minecraft.getInstance().getTextureManager().getTexture(rl) instanceof HttpTexture texture) {
-			if (!((MixinHttpTextureAccessor)texture).isUploaded()) {
-				info.setReturnValue(null);
-			}
-		}
+	@Inject(at = @At("HEAD"), method = "getCloakTextureLocation", cancellable = true)
+	private void addCosmeticaCapes(CallbackInfoReturnable<ResourceLocation> info) {
+		if (!Cosmetica.isProbablyNPC(this.uuid)) info.setReturnValue(Cosmetica.isPlayerCached(this.uuid) ? Cosmetica.getPlayerData(this).cape() : null);
 	}
 }

@@ -27,7 +27,6 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.Direction;
@@ -87,12 +86,9 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
 
-	private static final ExecutorService LOOKUP_POOL = Executors.newFixedThreadPool(
-			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "5")),
-			new NamedThreadFactory("Cosmetics Lookup Thread"));
-	private static final ExecutorService SKIN_POOL = Executors.newFixedThreadPool(
-			Integer.parseInt(System.getProperty("cosmetica.skinThreads", "8")),
-			new NamedThreadFactory("Cosmetica Skin Thread"));
+	private static final ExecutorService MAIN_POOL = Executors.newFixedThreadPool(
+			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "8")),
+			new NamedThreadFactory("Cosmetica Lookup Thread"));
 
 	private static CosmeticaConfig config;
 
@@ -188,9 +184,11 @@ public class Cosmetica implements ClientModInitializer {
 					e.printStackTrace();
 				}
 			}
-		}, ThreadPool.LOOKUP_THREADS);
+		}, ThreadPool.GENERAL_THREADS);
 
 		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
+			CosmeticaSkinManager.clearCaches(); // hopefully this should make it work with resource reload
+
 			// register all reserved textures
 			for (int i = 0; i < 128; ++i) {
 				registry.register(new ResourceLocation("cosmetica", "generated/reserved_" + i));
@@ -277,7 +275,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void onShutdownClient() {
 		try {
-			LOOKUP_POOL.shutdownNow();
+			MAIN_POOL.shutdownNow();
 		} catch (RuntimeException e) { // Just in case.
 			e.printStackTrace();
 		}
@@ -300,21 +298,20 @@ public class Cosmetica implements ClientModInitializer {
 	//       IMPL
 	// =================
 
-	public static void runOffthread(Runnable runnable, ThreadPool pool) {
-		(pool == ThreadPool.LOOKUP_THREADS ? LOOKUP_POOL : SKIN_POOL).execute(runnable);
+	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
+		MAIN_POOL.execute(runnable);
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
 		return getPlayerData(player).upsideDown();
 	}
 
-	public static PlayerData getPlayerData(Player player) {
+	public static PlayerData getPlayerData(Player player) { // TODO always get yourself first
 		return getPlayerData(player.getUUID(), player.getName().getString());
 	}
 
 	public static void clearPlayerData(UUID uuid) {
 		playerDataCache.remove(uuid);
-		CosmeticaSkinManager.removePlayer(uuid);
 	}
 
 	public static int getCacheSize() {
@@ -323,6 +320,10 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static Collection<UUID> getCachedPlayers() {
 		return playerDataCache.keySet();
+	}
+
+	public static boolean isPlayerCached(UUID uuid) {
+		return playerDataCache.containsKey(uuid);
 	}
 
 	public static String urlEncode(String value) {
@@ -337,7 +338,7 @@ public class Cosmetica implements ClientModInitializer {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
 		Level level = Minecraft.getInstance().level;
 
-		synchronized (playerDataCache) {
+		synchronized (playerDataCache) { // TODO if the network connection fails, queue it to try again later
 			return playerDataCache.computeIfAbsent(uuid, uid -> {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
@@ -356,6 +357,7 @@ public class Cosmetica implements ClientModInitializer {
 							JsonObject jsonObject = response.getAsJson();
 							JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
 							JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
+							JsonObject cloak = jsonObject.has("cape") ? jsonObject.get("cape").getAsJsonObject() : null;
 
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, new PlayerData(
@@ -364,7 +366,8 @@ public class Cosmetica implements ClientModInitializer {
 										jsonObject.get("prefix").getAsString(),
 										jsonObject.get("suffix").getAsString(),
 										hat == null ? null : Models.createBakableModel(hat),
-										shoulderBuddy == null ? null : Models.createBakableModel(shoulderBuddy)
+										shoulderBuddy == null ? null : Models.createBakableModel(shoulderBuddy),
+										cloak == null ? null : CosmeticaSkinManager.processCape(cloak)
 								));
 
 								lookingUp.remove(uuid);
@@ -372,7 +375,7 @@ public class Cosmetica implements ClientModInitializer {
 						} catch (IOException | ParseException e) {;
 							new RuntimeException("Error connecting to " + target, e).printStackTrace();
 						}
-					}, ThreadPool.LOOKUP_THREADS);
+					}, ThreadPool.GENERAL_THREADS);
 				}
 
 				return PlayerData.NONE; // temporary name: blank.
@@ -459,11 +462,5 @@ public class Cosmetica implements ClientModInitializer {
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();
 		System.gc(); // force jvm to garbage collect our unused data
-	}
-
-	public static void clearCosmeticCaches() {
-		Debug.info("Clearing Cosmetica cosmetic Caches");
-		playerDataCache = new HashMap<>();
-		Models.resetCaches();
 	}
 }
