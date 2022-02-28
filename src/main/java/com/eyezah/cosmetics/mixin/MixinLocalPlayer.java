@@ -63,7 +63,7 @@ public class MixinLocalPlayer {
 								Cosmetica.LOGGER.error("Error recieving override cosmetic:");
 								e.printStackTrace();
 							}
-						}, ThreadPool.LOOKUP_THREADS);
+						}, ThreadPool.GENERAL_THREADS);
 					}
 				} else if (args.length == 2) { // cache commands
 					switch (args[1]) {
