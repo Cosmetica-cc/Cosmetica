@@ -187,8 +187,6 @@ public class Cosmetica implements ClientModInitializer {
 		}, ThreadPool.GENERAL_THREADS);
 
 		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
-			CosmeticaSkinManager.clearCaches(); // hopefully this should make it work with resource reload
-
 			// register all reserved textures
 			for (int i = 0; i < 128; ++i) {
 				registry.register(new ResourceLocation("cosmetica", "generated/reserved_" + i));

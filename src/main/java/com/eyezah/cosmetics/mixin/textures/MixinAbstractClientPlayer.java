@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.mixin.textures;
 
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -25,6 +26,10 @@ public abstract class MixinAbstractClientPlayer extends Player {
 
 	@Inject(at = @At("HEAD"), method = "getCloakTextureLocation", cancellable = true)
 	private void addCosmeticaCapes(CallbackInfoReturnable<ResourceLocation> info) {
-		if (!Cosmetica.isProbablyNPC(this.uuid)) info.setReturnValue(Cosmetica.isPlayerCached(this.uuid) ? Cosmetica.getPlayerData(this).cape() : null);
+		if (!Cosmetica.isProbablyNPC(this.uuid)) { // ignore npcs
+			ResourceLocation location = Cosmetica.isPlayerCached(this.uuid) ? Cosmetica.getPlayerData(this).cape() : null; // get the location if cached
+			if (location != null && !CosmeticaSkinManager.isUploaded(location)) location = null; // only actually get it if it's been uploaded
+			info.setReturnValue(location); // set the return value to our one
+		}
 	}
 }

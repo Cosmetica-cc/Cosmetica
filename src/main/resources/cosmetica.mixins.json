@@ -13,6 +13,7 @@
     "textures.MixinTextureAtlas",
     "textures.MixinTextureAtlasSpriteInvoker",
     "textures.MixinTextureManager",
+    "textures.MixinTextureManagerAccessor",
     "MixinClientPacketListener",
     "MixinConnection",
     "MixinEntityRenderer",

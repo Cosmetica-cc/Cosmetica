@@ -1,9 +1,12 @@
 package com.eyezah.cosmetics.utils;
 
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.mixin.textures.MixinNativeImageAccessor;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.lwjgl.system.MemoryUtil;
 
@@ -11,21 +14,53 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.function.UnaryOperator;
 
-public class NativeTexture extends AbstractTexture {
-	public NativeTexture(String base64, boolean cape) throws IOException {
-		this(loadBase64(base64), cape);
+public class Base64Texture extends AbstractTexture {
+	public Base64Texture(ResourceLocation path, String base64, boolean cape) throws IOException {
+		this.base64 = base64; // TODO for large images is it stupid to store this as a string? Should I store it as a direct byte[]? String is just a byte wrapper so perhapsn't
+		this.cape = cape;
+		this.path = path;
+
+		this.loadBase64();
 	}
 
-	public NativeTexture(NativeImage image, boolean cape) {
-		this.image = cape ? processBadCapes(image) : image;
-	}
+	private final ResourceLocation path;
+	private final boolean cape;
+	private final String base64;
 
-	private final NativeImage image;
+	private NativeImage image;
 
 	@Override
 	public void load(ResourceManager resourceManager) {
+		if (((MixinNativeImageAccessor) (Object) this.image).getPixels() == 0) {
+			if (RenderSystem.isOnRenderThreadOrInit()) {
+				this.reload();
+			} else {
+				RenderSystem.recordRenderCall(this::reload);
+			}
+
+			return;
+		}
+
+		this.upload();
+	}
+
+	private void reload() {
+		Debug.info("Re-uploading texture {}", this.path);
+		try {
+			this.loadBase64();
+			this.upload();
+		} catch (IOException e) {
+			Cosmetica.LOGGER.error("Error re-uploading Base64 Texture", e);
+		}
+	}
+
+	private void loadBase64() throws IOException {
+		NativeImage image = loadBase64(base64); // load the image
+		this.image = cape ? processBadCapes(image) : image;
+	}
+
+	private void upload() {
 		TextureUtil.prepareImage(this.getId(), 0, this.image.getWidth(), this.image.getHeight());
 		this.image.upload(0, 0, 0, 0, 0, this.image.getWidth(), this.image.getHeight(), this.blur, false, false, true);
 	}
