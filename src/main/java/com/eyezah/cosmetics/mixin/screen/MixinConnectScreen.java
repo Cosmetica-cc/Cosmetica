@@ -59,7 +59,7 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 			info.cancel();
 		} else {
 			// ping africa
-
+			Cosmetica.safari(new InetSocketAddress(serverAddress.getHost(), serverAddress.getPort()), true);
 		}
 	}
 
