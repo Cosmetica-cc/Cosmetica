@@ -13,7 +13,7 @@ public class MixinCapeLayer {
 			method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderType;entitySolid(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;")
 	)
-	private RenderType allowCutoutCapes(ResourceLocation location) {
-		return RenderType.entityCutout(location);
+	private RenderType allowTransparentCapes(ResourceLocation location) {
+		return RenderType.entityTranslucent(location);
 	}
 }

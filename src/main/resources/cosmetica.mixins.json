@@ -10,6 +10,7 @@
     "screen.MixinTitleScreen",
     "textures.MixinAbstractClientPlayer",
     "textures.MixinCapeLayer",
+    "textures.MixinElytraLayer",
     "textures.MixinNativeImageAccessor",
     "textures.MixinTextureAtlas",
     "textures.MixinTextureAtlasSpriteInvoker",
