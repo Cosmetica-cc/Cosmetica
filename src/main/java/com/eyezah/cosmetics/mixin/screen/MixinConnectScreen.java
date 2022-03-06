@@ -57,6 +57,9 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 			}
 
 			info.cancel();
+		} else {
+			// ping africa
+
 		}
 	}
 
