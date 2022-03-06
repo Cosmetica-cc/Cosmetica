@@ -125,6 +125,10 @@ public class Cosmetica implements ClientModInitializer {
 			try (Response theLionSleepsTonight = Response.request(awimbawe)) {
 				JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
 
+				if (theMightyJungle.has("error")) {
+					Cosmetica.LOGGER.error("Server responded with error while checking for cosmetic updates : {}", theMightyJungle.get("error"));
+				}
+
 				// the speech from the lion king
 				if (theMightyJungle.has("notifications")) {
 					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(elem.getAsString())));
