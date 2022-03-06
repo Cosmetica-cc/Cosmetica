@@ -112,7 +112,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo) {
-		if (Authentication.getToken().isEmpty()) {
+		if (!Authentication.getToken().isEmpty()) {
 			String awimbawe = Cosmetica.apiServerHost + "/get/everythirtysecondsinafricahalfaminutepasses?token=" + Authentication.getToken()
 					+ "&ip=" + Cosmetica.base64Ip(prideRock) + "&timestamp=";
 
