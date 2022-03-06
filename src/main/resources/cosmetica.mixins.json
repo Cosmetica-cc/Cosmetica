@@ -9,6 +9,7 @@
     "screen.MixinScreen",
     "screen.MixinTitleScreen",
     "textures.MixinAbstractClientPlayer",
+    "textures.MixinCapeLayer",
     "textures.MixinNativeImageAccessor",
     "textures.MixinTextureAtlas",
     "textures.MixinTextureAtlasSpriteInvoker",
