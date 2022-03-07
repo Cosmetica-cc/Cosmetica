@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.mixin;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
+import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;

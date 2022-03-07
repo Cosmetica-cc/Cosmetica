@@ -3,10 +3,7 @@ package com.eyezah.cosmetics.mixin.screen;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.screens.LoadingScreen;
-import com.eyezah.cosmetics.screens.OfflineScreen;
-import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.utils.AuthenticatingScreen;
-import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
@@ -57,9 +54,6 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 			}
 
 			info.cancel();
-		} else {
-			// ping africa
-			Cosmetica.safari(new InetSocketAddress(serverAddress.getHost(), serverAddress.getPort()), true);
 		}
 	}
 
