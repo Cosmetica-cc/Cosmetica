@@ -122,7 +122,7 @@ public class Cosmetica implements ClientModInitializer {
 
 		// delete debug dump images
 		Debug.clearImages();
-
+		
 		// API Url Getter
 		runOffthread(() -> {
 			File minecraftDir = findDefaultInstallDir("minecraft").toFile();

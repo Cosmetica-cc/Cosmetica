@@ -5,7 +5,6 @@ import benzenestudios.sulphate.SulphateScreen;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -36,6 +35,7 @@ public class MainScreen extends SulphateScreen {
 	private boolean doReload;
 	private boolean doTestReload;
 
+
 	private TextComponent generateButtonToggleText(String translatable, boolean toggle) {
 		TextComponent component = new TextComponent("");
 		component.append(new TranslatableComponent(translatable));
@@ -65,6 +65,7 @@ public class MainScreen extends SulphateScreen {
 
 		this.addButton(new TranslatableComponent("cosmetica.reloadCosmetics"), (button) -> {
 			doReload = !doReload;
+			if (Debug.TEST_MODE) doTestReload = doReload;
 			if (doReload) {
 				button.setMessage(new TranslatableComponent("cosmetica.willReload"));
 			} else {
@@ -89,14 +90,17 @@ public class MainScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		});
 
-		//
-
-		this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 4, 150, 20, new TranslatableComponent("cosmetica.doLore"), (button) -> {
 			this.newOptions.lore.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
-		}); // MOVE TO RIGHT (dont have the time to see how sulphate lol)
+		}));
 
-		if (Debug.TEST_MODE) {
+		/*this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
+			this.newOptions.lore.toggle();
+			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
+		});*/ // MOVE TO RIGHT (dont have the time to see how sulphate lol)
+
+		/*if (Debug.TEST_MODE) {
 			this.addButton(200, 20, new TranslatableComponent("cosmetica.reloadTestCosmetics"), (button) -> {
 				doTestReload = !doTestReload;
 
@@ -106,11 +110,12 @@ public class MainScreen extends SulphateScreen {
 					button.setMessage(new TranslatableComponent("cosmetica.reloadTestCosmetics"));
 				}
 			});
-		}
+		}*/
 
 		// bottom of the menu
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
 			try {
+				Minecraft.getInstance().keyboardHandler.setClipboard(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());
 				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());
 			} catch (Exception e) {
 				throw new RuntimeException("bruh", e);
