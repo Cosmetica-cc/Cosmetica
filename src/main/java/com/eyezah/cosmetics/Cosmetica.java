@@ -7,6 +7,7 @@ import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.Response;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -25,6 +26,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -38,6 +40,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,6 +52,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -58,10 +62,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 import static com.eyezah.cosmetics.Authentication.getLimitedToken;
 import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
@@ -91,6 +97,13 @@ public class Cosmetica implements ClientModInitializer {
 			new NamedThreadFactory("Cosmetica Lookup Thread"));
 
 	private static CosmeticaConfig config;
+
+	/**
+	 * The timestamp for the africa endpoint.
+	 */
+	private static OptionalLong toto = OptionalLong.empty();
+	private static final Pattern UNDASHED_UUID_GAPS = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
+	private static final String UUID_DASHIFIER_REPLACEMENT = "$1-$2-$3-$4-$5";
 
 	public static CosmeticaConfig getConfig() {
 		return config;
@@ -296,15 +309,104 @@ public class Cosmetica implements ClientModInitializer {
 	//       IMPL
 	// =================
 
+	// Start Africa
+
+	public static String dashifyUUID(String uuid) {
+		return UNDASHED_UUID_GAPS.matcher(uuid).replaceAll(UUID_DASHIFIER_REPLACEMENT);
+	}
+
+	public static String base64Ip(InetSocketAddress ip) {
+		byte[] arr = (ip.getAddress().getHostAddress() + ":" + ip.getPort()).getBytes(StandardCharsets.UTF_8);
+		return Base64.encodeBase64String(arr);
+	}
+
+	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo) {
+		if (!Authentication.getToken().isEmpty()) {
+			String awimbawe = Cosmetica.apiServerHost + "/get/everythirtysecondsinafricahalfaminutepasses?token=" + Authentication.getToken()
+					+ "&ip=" + Cosmetica.base64Ip(prideRock) + "&timestamp=";
+
+			awimbawe += yourFirstRodeo ? 0 : Cosmetica.toto.getAsLong();
+
+			Debug.checkedInfo(awimbawe, "always_print_urls");
+
+			try (Response theLionSleepsTonight = Response.request(awimbawe)) {
+				JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
+
+				if (theMightyJungle.has("error")) {
+					Cosmetica.LOGGER.error("Server responded with error while checking for cosmetic updates : {}", theMightyJungle.get("error"));
+				}
+
+				// the speech from the lion king
+				if (theMightyJungle.has("notifications")) {
+					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(elem.getAsString())));
+				}
+
+				JsonObject updates = theMightyJungle.getAsJsonObject("updates");
+				Cosmetica.toto = OptionalLong.of(updates.get("timestamp").getAsLong());
+
+				if (!yourFirstRodeo) {
+					Debug.info("Processing updates found on the safari.");
+
+					if (updates.has("list")) {
+						for (JsonElement element : updates.getAsJsonArray("list")) {
+							JsonObject individual = element.getAsJsonObject();
+
+							UUID uuid = UUID.fromString(dashifyUUID(individual.get("uuid").getAsString()));
+							Debug.info("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
+
+							if (playerDataCache.containsKey(uuid)) {
+								clearPlayerData(uuid);
+
+								// if ourselves, refresh asap
+								if (uuid.equals(Minecraft.getInstance().player.getUUID())) {
+									getPlayerData(Minecraft.getInstance().player);
+								}
+							} else {
+								// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
+								Debug.info("Lol cringe they went scampering into a bush or something!");
+
+								// use username to clear the info - might be in offline mode or something
+								String username = individual.get("username").getAsString();
+								PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(username);
+
+								if (info != null) {
+									UUID serverUuid = info.getProfile().getId();
+
+									if (serverUuid != uuid && playerDataCache.containsKey(serverUuid)) {
+										Debug.info("Found them :). They were hiding at uuid {}", serverUuid);
+										clearPlayerData(serverUuid);
+
+										// if ourselves, refresh asap
+										if (username.equals(Minecraft.getInstance().player.getName())) {
+											getPlayerData(Minecraft.getInstance().player);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			} catch (IOException e) {
+				Cosmetica.LOGGER.error("Error checking for cosmetic updates on the remote server", e);
+			}
+		}
+	}
+
+	// End Africa
+
 	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
-		MAIN_POOL.execute(runnable);
+		if (Thread.currentThread().getName().startsWith("Cosmetica")) {
+			runnable.run();
+		} else {
+			MAIN_POOL.execute(runnable);
+		}
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
 		return getPlayerData(player).upsideDown();
 	}
 
-	public static PlayerData getPlayerData(Player player) { // TODO always get yourself first
+	public static PlayerData getPlayerData(Player player) {
 		return getPlayerData(player.getUUID(), player.getName().getString());
 	}
 

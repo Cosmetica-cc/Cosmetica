@@ -20,38 +20,12 @@ import java.util.UUID;
 
 @Mixin(ClientPacketListener.class)
 public abstract class MixinClientPacketListener {
-	@Shadow
-	@Final
-	private Minecraft minecraft;
-
-	@Shadow @Nullable public abstract PlayerInfo getPlayerInfo(UUID uniqueId);
-
-	@Inject(at = @At("HEAD"), method = "handlePlayerInfo")
-	private void onHandlePlayerInfo(ClientboundPlayerInfoPacket packet, CallbackInfo ci) {
-		if (this.minecraft.isSameThread()) {
-			if (packet.getAction() == ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER) {
-				for (var spain : packet.getEntries()) {
-					UUID uuid = spain.getProfile().getId();
-					if (Cosmetica.isProbablyNPC(uuid)) return;
-
-					String name = "missingno";
-
-					try {
-						name = this.getPlayerInfo(uuid).getProfile().getName();
-					} catch (Exception e) {
-					}
-
-					Debug.info("Clearing player data of {} (UUID {})", name, uuid);
-					Cosmetica.clearPlayerData(spain.getProfile().getId());
-				}
-			}
-		}
-	}
+	@Shadow @Final private Minecraft minecraft;
 
 	@Inject(at = @At("RETURN"), method = "handleLogin")
 	private void onHandleLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
-		Debug.info("Clearing player data due to login.");
+		Debug.info("Clearing own player data due to login.");
 		Cosmetica.clearPlayerData(this.minecraft.player.getUUID());
-		CosmeticaSkinManager.clearCaches();
+		Cosmetica.getPlayerData(this.minecraft.player);
 	}
 }
