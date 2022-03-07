@@ -25,7 +25,8 @@ public abstract class MixinClientPacketListener {
 	@Inject(at = @At("RETURN"), method = "handleLogin")
 	private void onHandleLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
 		Debug.info("Clearing own player data due to login.");
-		Cosmetica.clearPlayerData(this.minecraft.player.getUUID());
+		//Cosmetica.clearPlayerData(this.minecraft.player.getUUID());
+		Cosmetica.clearAllCaches();
 		Cosmetica.getPlayerData(this.minecraft.player);
 	}
 }

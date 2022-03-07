@@ -38,6 +38,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.apache.commons.codec.binary.Base64;
@@ -493,7 +494,7 @@ public class Cosmetica implements ClientModInitializer {
 				if (!(d > 4096.0D)) {
 					BakableModel hatModelData = Hat.overridden.get(() -> Cosmetica.getPlayerData(player).hat());
 
-					if (hatModelData != null) {
+					if (hatModelData != null && !((Cosmetica.getPlayerData(player).hat().extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))) {
 						float hatTopY = hatModelData.bounds().get(1).getAsJsonArray().get(1).getAsFloat();
 
 						float normalizedAngleMultiplier = (float) -(Math.abs(playerModel.head.xRot) / 1.57 - 1);
