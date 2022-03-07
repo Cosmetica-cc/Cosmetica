@@ -338,7 +338,7 @@ public class Cosmetica implements ClientModInitializer {
 
 				// the speech from the lion king
 				if (theMightyJungle.has("notifications")) {
-					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(elem.getAsString())));
+					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("§6§lCosmetica§f §l>§7 " + elem.getAsString())));
 				}
 
 				JsonObject updates = theMightyJungle.getAsJsonObject("updates");
