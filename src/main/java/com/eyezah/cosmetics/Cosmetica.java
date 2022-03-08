@@ -326,7 +326,7 @@ public class Cosmetica implements ClientModInitializer {
 			String awimbawe = Cosmetica.apiServerHost + "/get/everythirtysecondsinafricahalfaminutepasses?token=" + Authentication.getToken()
 					+ "&ip=" + Cosmetica.base64Ip(prideRock) + "&timestamp=";
 
-			awimbawe += yourFirstRodeo ? 0 : Cosmetica.toto.getAsLong();
+			awimbawe += yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong();
 
 			Debug.checkedInfo(awimbawe, "always_print_urls");
 
