@@ -87,6 +87,7 @@ public class Cosmetica implements ClientModInitializer {
 	public static String insecureApiServerHost;
 	public static String displayNext;
 	public static String websiteHost;
+	public static String currentServerAddressCache = "";
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();
@@ -328,10 +329,12 @@ public class Cosmetica implements ClientModInitializer {
 
 			awimbawe += yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong();
 
+
 			Debug.checkedInfo(awimbawe, "always_print_urls");
 
 			try (Response theLionSleepsTonight = Response.request(awimbawe)) {
 				JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
+
 
 				if (theMightyJungle.has("error")) {
 					Cosmetica.LOGGER.error("Server responded with error while checking for cosmetic updates : {}", theMightyJungle.get("error"));
@@ -366,19 +369,21 @@ public class Cosmetica implements ClientModInitializer {
 								// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
 								Debug.info("Lol cringe they went scampering into a bush or something!");
 
+
 								// use username to clear the info - might be in offline mode or something
 								String username = individual.get("username").getAsString();
+
 								PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(username);
 
 								if (info != null) {
 									UUID serverUuid = info.getProfile().getId();
 
-									if (serverUuid != uuid && playerDataCache.containsKey(serverUuid)) {
+									if (playerDataCache.containsKey(serverUuid)) {
 										Debug.info("Found them :). They were hiding at uuid {}", serverUuid);
 										clearPlayerData(serverUuid);
 
 										// if ourselves, refresh asap
-										if (username.equals(Minecraft.getInstance().player.getName())) {
+										if (username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
 											getPlayerData(Minecraft.getInstance().player);
 										}
 									}
