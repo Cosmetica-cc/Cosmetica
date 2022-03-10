@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.mixin;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.utils.Debug;
+import io.netty.handler.codec.sctp.SctpOutboundByteStreamHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -16,6 +17,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.net.SocketAddress;
+import java.util.Objects;
 import java.util.UUID;
 
 @Mixin(ClientPacketListener.class)
@@ -24,9 +27,13 @@ public abstract class MixinClientPacketListener {
 
 	@Inject(at = @At("RETURN"), method = "handleLogin")
 	private void onHandleLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
-		Debug.info("Clearing own player data due to login.");
-		//Cosmetica.clearPlayerData(this.minecraft.player.getUUID());
-		Cosmetica.clearAllCaches();
-		Cosmetica.getPlayerData(this.minecraft.player);
+		String address = "fake server " + System.currentTimeMillis();
+		if (Minecraft.getInstance().getCurrentServer() != null && !Objects.equals(Minecraft.getInstance().getCurrentServer().ip, Cosmetica.authServerHost + ":" + Cosmetica.authServerPort)) address = Minecraft.getInstance().getCurrentServer().ip;
+		if (!Objects.equals(Cosmetica.currentServerAddressCache, address)) {
+			Cosmetica.currentServerAddressCache = address;
+			Debug.info("Clearing all player data due to login.");
+			Cosmetica.clearAllCaches();
+			Cosmetica.getPlayerData(this.minecraft.player);
+		}
 	}
 }
