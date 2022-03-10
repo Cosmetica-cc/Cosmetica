@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.mixin.screen;
 
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.ThreadPool;
+import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.network.Connection;
@@ -26,12 +27,12 @@ public class MixinConnectionThread {
 		Connection c = ((MixinConnectScreenInvoker)this.field_2416).getConnection();
 
 		// ping africa
-
 		if (Minecraft.getInstance().isLocalServer()) {
 			Cosmetica.runOffthread(() -> Cosmetica.safari(new InetSocketAddress("127.0.0.1", 25565), true), ThreadPool.GENERAL_THREADS);
 		}
 		else if (c.getRemoteAddress() instanceof InetSocketAddress ip) {
 			Cosmetica.runOffthread(() -> Cosmetica.safari(ip, true), ThreadPool.GENERAL_THREADS);
 		}
+		Cosmetica.currentServerAddressCache = "";
 	}
 }
