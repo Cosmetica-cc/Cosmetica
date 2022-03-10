@@ -29,7 +29,7 @@ public abstract class MixinClientPacketListener {
 	private void onHandleLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
 		String address = "fake server " + System.currentTimeMillis();
 		if (Minecraft.getInstance().getCurrentServer() != null && !Objects.equals(Minecraft.getInstance().getCurrentServer().ip, Cosmetica.authServerHost + ":" + Cosmetica.authServerPort)) address = Minecraft.getInstance().getCurrentServer().ip;
-		if (!Objects.equals(Cosmetica.currentServerAddressCache, address)) {
+		if (Cosmetica.currentServerAddressCache.isEmpty() || !Objects.equals(Cosmetica.currentServerAddressCache, address)) {
 			Cosmetica.currentServerAddressCache = address;
 			Debug.info("Clearing all player data due to login.");
 			Cosmetica.clearAllCaches();
