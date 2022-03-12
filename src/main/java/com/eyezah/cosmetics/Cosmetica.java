@@ -5,6 +5,7 @@ import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
+import com.eyezah.cosmetics.utils.FormattedChatEncoder;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonElement;
@@ -58,14 +59,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.OptionalLong;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
@@ -342,7 +336,16 @@ public class Cosmetica implements ClientModInitializer {
 
 				// the speech from the lion king
 				if (theMightyJungle.has("notifications")) {
-					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("§6§lCosmetica§f §l>§7 " + elem.getAsString())));
+					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> {
+						try {
+							Minecraft.getInstance().gui.getChat().addMessage(
+									new TextComponent("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(elem.getAsString()))
+							);
+						}
+						catch (Exception e) {
+							Cosmetica.LOGGER.error("Error sending cosmetica notification.", e);
+						}
+					});
 				}
 
 				JsonObject updates = theMightyJungle.getAsJsonObject("updates");
