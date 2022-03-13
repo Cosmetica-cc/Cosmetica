@@ -6,6 +6,7 @@
     "screen.MixinConnectionThread",
     "screen.MixinConnectScreen",
     "screen.MixinConnectScreenInvoker",
+    "screen.MixinInventoryScreen",
     "screen.MixinOptionsScreen",
     "screen.MixinScreen",
     "screen.MixinTitleScreen",
