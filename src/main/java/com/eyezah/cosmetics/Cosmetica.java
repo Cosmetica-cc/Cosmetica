@@ -502,7 +502,7 @@ public class Cosmetica implements ClientModInitializer {
 				if (!(d > 4096.0D)) {
 					BakableModel hatModelData = Hat.overridden.get(() -> Cosmetica.getPlayerData(player).hat());
 
-					if (hatModelData != null && !((Cosmetica.getPlayerData(player).hat().extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))) {
+					if (hatModelData != null && !((hatModelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))) {
 						float hatTopY = hatModelData.bounds().get(1).getAsJsonArray().get(1).getAsFloat();
 
 						float normalizedAngleMultiplier = (float) -(Math.abs(playerModel.head.xRot) / 1.57 - 1);
