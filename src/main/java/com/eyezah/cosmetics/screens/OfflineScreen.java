@@ -5,12 +5,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
+
+import static com.eyezah.cosmetics.Authentication.currentlyAuthenticating;
+import static com.eyezah.cosmetics.Cosmetica.authServerHost;
+import static com.eyezah.cosmetics.Cosmetica.authServerPort;
 
 public class OfflineScreen extends Screen {
 	private Screen parentScreen;
@@ -34,7 +41,10 @@ public class OfflineScreen extends Screen {
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 
 		this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), button -> this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options))));
-		this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
+		this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.unauthenticated.retry"), (button) -> {
+			minecraft.setScreen(new LoadingScreen(this.parentScreen, minecraft.options));
+		}));
+		this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
 	}
 
 	@Override

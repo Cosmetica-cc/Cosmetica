@@ -8,11 +8,17 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
+
+import static com.eyezah.cosmetics.Authentication.currentlyAuthenticating;
+import static com.eyezah.cosmetics.Cosmetica.authServerHost;
+import static com.eyezah.cosmetics.Cosmetica.authServerPort;
 
 public class UnauthenticatedScreen extends Screen {
 	private Screen parentScreen;
@@ -47,7 +53,10 @@ public class UnauthenticatedScreen extends Screen {
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
 				this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options));
 			}));
-			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("gui.cancel"), button -> this.onClose()));
+			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.unauthenticated.retry"), (button) -> {
+				minecraft.setScreen(new LoadingScreen(this.parentScreen, minecraft.options));
+			}));
+			this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TranslatableComponent("gui.cancel"), button -> this.onClose()));
 		}
 	}
 

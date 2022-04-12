@@ -90,7 +90,7 @@ public class MainScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		});
 
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 4, 150, 20, new TranslatableComponent("cosmetica.doLore"), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 4, 150, 20, generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
 			this.newOptions.lore.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
 		}));
