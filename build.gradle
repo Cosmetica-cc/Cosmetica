@@ -14,41 +14,30 @@ repositories {
 	maven { url = 'https://maven.parchmentmc.org' }
 	maven { url 'https://maven.gegy.dev' }
 	maven { url 'https://jitpack.io' }
-	maven { url "https://maven.gegy.dev/" }
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.layered() {
 		officialMojangMappings()
-		// Not yet updated to 1.18.2
-//		parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
+		parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
 	}
 
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	include(modImplementation(fabricApi.module("fabric-api-base", "${project.fabric_api_version}")))
-	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", "${project.fabric_api_version}")))
-	include(modImplementation(fabricApi.module("fabric-textures-v0", "${project.fabric_api_version}")))
+	include(modImplementation(fabricApi.module("fabric-api-base", "0.46.4+1.18")))
+	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", "0.46.4+1.18")))
+	include(modImplementation(fabricApi.module("fabric-textures-v0", "0.46.4+1.18")))
 
-	include(modImplementation("com.github.BenzeneStudios:Sulphate:${project.sulphate_version}")) {
-		exclude module: "fabric-api"
-		exclude module: "databreaker"
+	include(modImplementation("com.github.BenzeneStudios:Sulphate:${project.sulphate_version}"))
+
+	modRuntimeOnly ("com.github.valoeghese:databreaker:643a426") {
+		exclude module: "fabric-loader"
 	}
-
-	// Currently broken
-//	modRuntimeOnly ("com.github.valoeghese:databreaker:643a426") {
-//		exclude module: "fabric-loader"
-//	}
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
-	// Fixes running in dev with FabriStation which requires all of fabric api
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-
-	modImplementation('com.github.Station-rip:FabriStation:1.18-SNAPSHOT') {
-		exclude module: "fabric-api"
-	}
+	modImplementation 'com.github.Station-rip:FabriStation:1.18-SNAPSHOT'
 }
 
 processResources {
