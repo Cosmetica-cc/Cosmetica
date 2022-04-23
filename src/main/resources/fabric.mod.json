@@ -18,9 +18,6 @@
   "entrypoints": {
     "client": [
       "com.eyezah.cosmetics.Cosmetica"
-    ],
-    "preLaunch": [
-      "com.eyezah.cosmetics.AuthlibMixinEnabler"
     ]
   },
   
