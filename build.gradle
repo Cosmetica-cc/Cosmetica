@@ -21,8 +21,6 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.layered() {
 		officialMojangMappings()
-		// Not yet updated to 1.18.2
-//		parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
 	}
 
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -36,10 +34,6 @@ dependencies {
 		exclude module: "databreaker"
 	}
 
-	// Currently broken
-//	modRuntimeOnly ("com.github.valoeghese:databreaker:643a426") {
-//		exclude module: "fabric-loader"
-//	}
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
