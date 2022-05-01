@@ -67,7 +67,13 @@ public class Response implements Closeable {
 		}
 	}
 
-	public static Response request(String request) throws ParseException, IOException {
+	public static Response request(String request) throws ParseException, IOException, IllegalStateException {
+		Response response = requestLenient(request);
+		if (response.getError().isPresent()) throw new IllegalStateException("Error trying to request " + request + ": " + response.getError().getAsInt());
+		return response;
+	}
+
+	public static Response requestLenient(String request) throws ParseException, IOException {
 		int timeout = 15 * 1000;
 
 		RequestConfig requestConfig = RequestConfig.custom()
