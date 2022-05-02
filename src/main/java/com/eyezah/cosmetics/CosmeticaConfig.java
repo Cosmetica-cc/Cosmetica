@@ -1,7 +1,5 @@
 package com.eyezah.cosmetics;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,10 +32,9 @@ public class CosmeticaConfig {
     }
 
     public void save() throws IOException {
-        Path configDirectory = FabricLoader.getInstance().getConfigDir().resolve("cosmetica");
-        if (!Files.isDirectory(configDirectory)) {
-            new File(String.valueOf(configDirectory)).mkdirs();
-        }
+        File parentDir = propertiesPath.getParent().toFile();
+        if (!parentDir.exists()) parentDir.mkdir();
+
         Properties properties = new Properties();
         properties.setProperty("show-nametag-in-third-person", String.valueOf(showNametagInThirdPerson));
         properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Config");
