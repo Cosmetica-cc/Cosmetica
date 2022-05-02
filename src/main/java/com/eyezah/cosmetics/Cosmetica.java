@@ -93,6 +93,7 @@ public class Cosmetica implements ClientModInitializer {
 			new NamedThreadFactory("Cosmetica Lookup Thread"));
 
 	private static CosmeticaConfig config;
+	private static DefaultSettingsConfig defaultSettingsConfig;
 
 	/**
 	 * The timestamp for the africa endpoint.
@@ -105,12 +106,18 @@ public class Cosmetica implements ClientModInitializer {
 		return config;
 	}
 
+	public static DefaultSettingsConfig getDefaultSettingsConfig() {
+		return defaultSettingsConfig;
+	}
+
 	@Override
 	public void onInitializeClient() {
 		config = new CosmeticaConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("cosmetica.properties"));
+		defaultSettingsConfig = new DefaultSettingsConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("default-settings.properties"));
 
 		try {
 			config.initialize();
+			defaultSettingsConfig.initialize();
 		} catch (IOException e) {
 			LOGGER.warn("Failed to load config, falling back to defaults!");
 			e.printStackTrace();

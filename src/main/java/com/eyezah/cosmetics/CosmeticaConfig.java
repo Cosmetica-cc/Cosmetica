@@ -34,7 +34,7 @@ public class CosmeticaConfig {
     public void save() throws IOException {
         File parentDir = propertiesPath.getParent().toFile();
         if (!parentDir.exists()) parentDir.mkdir();
-        
+
         Properties properties = new Properties();
         properties.setProperty("show-nametag-in-third-person", String.valueOf(showNametagInThirdPerson));
         properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Config");
