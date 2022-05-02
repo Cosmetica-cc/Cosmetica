@@ -66,10 +66,8 @@ public class DefaultSettingsConfig {
 	}
 
 	public void save() throws IOException {
-		Path configDirectory = FabricLoader.getInstance().getConfigDir().resolve("cosmetica");
-		if (!Files.isDirectory(configDirectory)) {
-			new File(String.valueOf(configDirectory)).mkdirs();
-		}
+		File parentDir = propertiesPath.getParent().toFile();
+		if (!parentDir.exists()) parentDir.mkdir();
 		Properties properties = new Properties();
 		properties.setProperty("starter-cape-id", capeId);
 		properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Default Settings Config");
