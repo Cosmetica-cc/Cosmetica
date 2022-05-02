@@ -15,8 +15,7 @@ import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 import java.io.IOException;
 
-import static com.eyezah.cosmetics.Cosmetica.authServerHost;
-import static com.eyezah.cosmetics.Cosmetica.authServerPort;
+import static com.eyezah.cosmetics.Cosmetica.*;
 
 public class Authentication {
 	private static boolean currentlyAuthenticated = false;
@@ -108,6 +107,16 @@ public class Authentication {
 					limitedToken = object.get("limited_token").getAsString();
 					currentlyAuthenticated = true;
 					currentlyAuthenticating = false;
+					if (object.get("is_new_player").getAsBoolean() && !object.get("has_special_cape").getAsBoolean()) {
+						String capeId = getDefaultSettingsConfig().getCapeId();
+						if (!capeId.isEmpty()) {
+							try (Response response2 = Response.request(Cosmetica.apiServerHost + "/client/setcosmetic?requireofficial&token=" + token + "&type=cape&id=" + capeId)) {} catch (IOException e) {}
+						}
+						String capeSettingsString = Cosmetica.getDefaultSettingsConfig().getCapeSettingsString(true);
+						if (!capeSettingsString.isEmpty()) {
+							try (Response response2 = Response.request(Cosmetica.apiServerHost + "/client/capesettings?token=" + token + capeSettingsString)) {} catch (IOException e) {}
+						}
+					}
 					syncSettings();
 				}
 			} catch (IOException e) {
