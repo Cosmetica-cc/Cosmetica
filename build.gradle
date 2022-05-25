@@ -33,6 +33,8 @@ dependencies {
 		exclude module: "databreaker"
 	}
 
+	// Cosmetica.java library
+	include(implementation("com.github.Cosmetica-cc:CosmeticaDotJava:${project.cosmetica_dot_java_version}"))
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
