@@ -1,5 +1,7 @@
 package com.eyezah.cosmetics;
 
+import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
@@ -10,7 +12,6 @@ import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -62,6 +63,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static com.eyezah.cosmetics.Authentication.getLimitedToken;
@@ -72,15 +74,10 @@ public class Cosmetica implements ClientModInitializer {
 	// used for screens
 	public static ConnectScreen connectScreen;
 
-	public static String authServerHost;
-	public static int authServerPort;
-	public static String apiServerHost;
-	/**
-	 * For connections which need to be fast and do not require security.
-	 */
-	public static String insecureApiServerHost;
+	public static String authServer;
+	public static CosmeticaAPI api;
+
 	public static String displayNext;
-	public static String websiteHost;
 	public static String currentServerAddressCache = "";
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
@@ -129,76 +126,32 @@ public class Cosmetica implements ClientModInitializer {
 		// API Url Getter
 		runOffthread(() -> {
 			File minecraftDir = findDefaultInstallDir("minecraft").toFile();
-			File file = new File(minecraftDir, "cosmetica_website_host_cache.txt");
+			File apiGetCache = new File(minecraftDir, "cosmetica_website_host_cache.txt");
+			File apiCache = new File(minecraftDir, "cosmetica_get_api_cache.json");
 
-			String apiGetHost = null;
+			CosmeticaAPI.setAPICaches(apiCache, apiGetCache);
 
-			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json?timestamp=" + System.currentTimeMillis())) {
-				if (response.getError().isEmpty()) {
-					Debug.info("Received response from Github CDN. We do not require a fallback (hopefully)!");
+			try {
+				Cosmetica.authServer = CosmeticaWebAPI.getAuthServerHost(true); // todo make this accessible in API so I don't reference impl
 
-					apiGetHost = response.getAsJson().get("current_host").getAsString();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+				LOGGER.info(CosmeticaAPI.getMessage());
+				Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
 
-			apiGetHost = loadOrCache(file, apiGetHost);
-			if (apiGetHost == null) apiGetHost = "https://cosmetica.cc/getapi"; // fallback
+				Authentication.runAuthentication(new TitleScreen(), 1);
 
-			Debug.info("Finished retrieving GetAPI Url. Conclusion: we can get an API server from " + apiGetHost);
-
-			file = new File(minecraftDir, "cosmetica_get_api_cache.json");
-
-			String apiGetData = null;
-
-			try (Response apiGetResponse = Response.request(apiGetHost)) {
-				apiGetData = apiGetResponse.getAsString();
-
-				Debug.info("Received API Url from Server");
-			} catch (Exception e) {
-				LOGGER.warn("Connection error to API GET. Trying to retrieve from local cache...");
-			}
-
-			apiGetData = loadOrCache(file, apiGetData);
-
-			if (apiGetData == null) {
-				LOGGER.error("Could not receive Cosmetica API host. Mod functionality will be disabled!");
-			} else {
-				try {
-					JsonObject data = new JsonParser().parse(apiGetData).getAsJsonObject();
-					Cosmetica.apiServerHost = data.get("api").getAsString();
-					Cosmetica.insecureApiServerHost = "http" + Cosmetica.apiServerHost.substring(5);
-					Cosmetica.websiteHost = data.get("website").getAsString();
-					JsonObject auth = data.get("auth-server").getAsJsonObject();
-					Cosmetica.authServerHost = auth.get("hostname").getAsString();
-					Cosmetica.authServerPort = auth.get("port").getAsInt();
-
-					LOGGER.info(data.get("message").getAsString());
-					Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + Cosmetica.apiServerHost);
-
-					Authentication.runAuthentication(new TitleScreen(), 1);
-
-					String versionCheck = Cosmetica.apiServerHost + "/get/versioncheck?modversion="
-							+ urlEncode(FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString())
-							+ "&mcversion=" + SharedConstants.getCurrentVersion().getId();
-
-					Debug.checkedInfo(versionCheck, "always_print_urls");
-
-					try (Response response = Response.request(versionCheck)) {
-						String s = response.getAsString();
-
-						if (!s.isEmpty()) {
-							displayNext = s;
-						}
-					} catch (IOException e) {
-						LOGGER.error("Error checking version:");
-						e.printStackTrace();
+				CosmeticaAPI temp = CosmeticaAPI.newUnauthenticatedInstance();
+				temp.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+				temp.versionCheck(
+						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString(),
+						SharedConstants.getCurrentVersion().getId()
+				).ifSuccessfulOrElse(s -> {
+					if (!s.isEmpty()) {
+						displayNext = s;
 					}
-				} catch (Exception e) {
-					LOGGER.error("Error reading JSON data for API Url. Mod functionality will be disabled!");
-					e.printStackTrace();
-				}
+				}, Cosmetica.logerr("Error checking version"));
+			} catch (Exception e) {
+				LOGGER.error("Error reading JSON data for API Url. Mod functionality will be disabled!");
+				e.printStackTrace();
 			}
 		}, ThreadPool.GENERAL_THREADS);
 
@@ -578,5 +531,9 @@ public class Cosmetica implements ClientModInitializer {
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();
 		System.gc(); // force jvm to garbage collect our unused data
+	}
+
+	public static Consumer<Exception> logerr(String message) {
+		return e -> LOGGER.error(message + ": {}", e);
 	}
 }
