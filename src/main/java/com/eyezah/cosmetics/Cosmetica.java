@@ -1,7 +1,6 @@
 package com.eyezah.cosmetics;
 
 import cc.cosmetica.api.CosmeticaAPI;
-import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
@@ -60,13 +59,19 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.OptionalLong;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import static com.eyezah.cosmetics.Authentication.getLimitedToken;
 import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
 @Environment(EnvType.CLIENT)
@@ -132,23 +137,23 @@ public class Cosmetica implements ClientModInitializer {
 			CosmeticaAPI.setAPICaches(apiCache, apiGetCache);
 
 			try {
-				Cosmetica.authServer = CosmeticaWebAPI.getAuthServerHost(true); // todo make this accessible in API so I don't reference impl
+				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
 
 				LOGGER.info(CosmeticaAPI.getMessage());
 				Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
 
 				Authentication.runAuthentication(new TitleScreen(), 1);
 
-				CosmeticaAPI temp = CosmeticaAPI.newUnauthenticatedInstance();
-				temp.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
-				temp.versionCheck(
+				api = CosmeticaAPI.newUnauthenticatedInstance();
+				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+				api.versionCheck(
 						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString(),
 						SharedConstants.getCurrentVersion().getId()
 				).ifSuccessfulOrElse(s -> {
 					if (!s.isEmpty()) {
 						displayNext = s;
 					}
-				}, Cosmetica.logerr("Error checking version"));
+				}, Cosmetica.logErr("Error checking version"));
 			} catch (Exception e) {
 				LOGGER.error("Error reading JSON data for API Url. Mod functionality will be disabled!");
 				e.printStackTrace();
@@ -277,7 +282,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo) {
-		if (!Authentication.getToken().isEmpty()) {
+		if (api.isAuthenticated()) {
 			String awimbawe = Cosmetica.apiServerHost + "/get/everythirtysecondsinafricahalfaminutepasses?token=" + Authentication.getToken()
 					+ "&ip=" + Cosmetica.base64Ip(prideRock) + "&timestamp=";
 
@@ -533,7 +538,7 @@ public class Cosmetica implements ClientModInitializer {
 		System.gc(); // force jvm to garbage collect our unused data
 	}
 
-	public static Consumer<Exception> logerr(String message) {
+	public static Consumer<Exception> logErr(String message) {
 		return e -> LOGGER.error(message + ": {}", e);
 	}
 }

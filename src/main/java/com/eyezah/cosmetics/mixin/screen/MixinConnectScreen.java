@@ -44,7 +44,7 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 
 	@Inject(at = @At("HEAD"), method = "startConnecting", cancellable = true)
 	private static void startConnecting(Screen screen, Minecraft minecraft, ServerAddress serverAddress, @Nullable ServerData serverData, CallbackInfo info) {
-		if (serverAddress.getHost().equals(authServerHost) && serverAddress.getPort() == authServerPort) {
+		if ((serverAddress.getHost() + ":" + serverAddress.getPort()).equals(authServer)) {
 			if (!Authentication.currentlyAuthenticating && (minecraft.screen instanceof JoinMultiplayerScreen || minecraft.screen instanceof DirectJoinServerScreen)) {
 				minecraft.setScreen(new LoadingScreen(minecraft.screen, minecraft.options));
 			} else {
