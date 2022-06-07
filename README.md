@@ -14,6 +14,3 @@ Website:
 
 Backend Server:
 - Eyezah
-
-
-```This is a random edit because I didn't searched where the heck is the texture sending and just wanted to create a cool PR
