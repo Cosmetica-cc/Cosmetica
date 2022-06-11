@@ -142,15 +142,15 @@ public class Cosmetica implements ClientModInitializer {
 			CosmeticaAPI.setAPICaches(apiCache, apiGetCache);
 
 			try {
-				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
-
-				LOGGER.info(CosmeticaAPI.getMessage());
-				Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
-
-				Authentication.runAuthentication(new TitleScreen(), 1);
-
 				api = CosmeticaAPI.newUnauthenticatedInstance();
 				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+
+				Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
+				LOGGER.info(CosmeticaAPI.getMessage());
+
+				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
+				Authentication.runAuthentication(new TitleScreen(), 1);
+
 				api.versionCheck(
 						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString(),
 						SharedConstants.getCurrentVersion().getId()
@@ -160,7 +160,7 @@ public class Cosmetica implements ClientModInitializer {
 					}
 				}, Cosmetica.logErr("Error checking version"));
 			} catch (Exception e) {
-				LOGGER.error("Error reading JSON data for API Url. Mod functionality will be disabled!");
+				LOGGER.error("Error retrieving API Url. Mod functionality will be disabled!");
 				e.printStackTrace();
 			}
 		}, ThreadPool.GENERAL_THREADS);
@@ -287,7 +287,9 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo) {
-		if (api.isAuthenticated()) {
+		if (api != null && api.isAuthenticated()) {
+			Debug.info("Thread for safari {}", Thread.currentThread().getName());
+
 			api.everyThirtySecondsInAfricaHalfAMinutePasses(prideRock, yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong())
 					.ifSuccessfulOrElse(theLionSleepsTonight -> {
 						// the speech from the lion king
@@ -400,7 +402,7 @@ public class Cosmetica implements ClientModInitializer {
 					lookingUp.add(uuid);
 
 					Cosmetica.runOffthread(() -> {
-						if (Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different)!
+						if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
 							lookingUp.remove(uuid);
 							return;
 						}

@@ -1,13 +1,13 @@
 package com.eyezah.cosmetics;
 
-import com.eyezah.cosmetics.utils.CapeServerOption;
-import net.fabricmc.loader.api.FabricLoader;
+import cc.cosmetica.api.CapeDisplay;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -16,7 +16,7 @@ public class DefaultSettingsConfig {
 
 	private String capeId = "";
 
-	private Map<String, CapeServerOption> capeServerSettings = new HashMap<>();
+	private final Map<String, CapeDisplay> capeServerSettings = new HashMap<>();
 
 	public DefaultSettingsConfig(Path propertiesPath) {
 		this.propertiesPath = propertiesPath;
@@ -42,27 +42,18 @@ public class DefaultSettingsConfig {
 		properties.load(Files.newInputStream(propertiesPath));
 		capeId = properties.getProperty("starter-cape-id");
 		capeServerSettings.clear();
+
 		for (String propertyName : properties.stringPropertyNames()) {
 			if (propertyName.startsWith("cape-setting-")) {
 				String service = propertyName.substring(13);
-				CapeServerOption value = CapeServerOption.getEnumCaseInsensitive(properties.getProperty(propertyName));
+				CapeDisplay value = CapeDisplay.valueOf(properties.getProperty(propertyName).toUpperCase(Locale.ROOT));
 				if (value != null) capeServerSettings.put(service, value);
 			}
 		}
 	}
 
-	public String getCapeSettingsString() {
-		return getCapeSettingsString(false);
-	}
-
-	public String getCapeSettingsString(boolean useAmpersand) {
-		StringBuilder out = new StringBuilder();
-		for (String service : capeServerSettings.keySet()) {
-			out.append(useAmpersand ? "&" : "?");
-			out.append(service).append("=").append(capeServerSettings.get(service).getValue());
-			if (!useAmpersand) useAmpersand = true;
-		}
-		return out.toString();
+	public Map<String, CapeDisplay> getCapeServerSettings() {
+		return this.capeServerSettings;
 	}
 
 	public void save() throws IOException {

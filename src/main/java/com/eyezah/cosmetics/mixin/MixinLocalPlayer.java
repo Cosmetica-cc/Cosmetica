@@ -1,5 +1,9 @@
 package com.eyezah.cosmetics.mixin;
 
+import cc.cosmetica.api.Box;
+import cc.cosmetica.api.CosmeticType;
+import cc.cosmetica.api.CustomCosmetic;
+import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.ThreadPool;
@@ -22,12 +26,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(LocalPlayer.class)
 public class MixinLocalPlayer {
 	@Inject(at = @At("HEAD"), method = "chat", cancellable = true)
 	private void sendMessage(String string, CallbackInfo info) {
+		if (Cosmetica.api == null) return; // no debug commands if offline
+
 		if (!string.isEmpty() && string.charAt(0) == '/' && Debug.debugCommands()) {
 			String[] args = string.split(" ");
 
@@ -37,31 +44,29 @@ public class MixinLocalPlayer {
 					Minecraft.getInstance().gui.getChat().addMessage(new TranslatableComponent("cosmetica.debugCosmetica.disable"));
 				} else if (args.length == 3) {
 					// /cosmetica <type> <cosmeticid>
-					String urlEncodedType = Cosmetica.urlEncode(args[1]);
-					String urlEncodedCosmeticId = Cosmetica.urlEncode(args[2]);
+					String cosmeticType = args[1];
+					String cosmeticId = Cosmetica.urlEncode(args[2]);
 
-					if (urlEncodedCosmeticId.charAt(0) == '-' && "shoulderbuddy".equals(urlEncodedType)) {
-						ShoulderBuddy.overridden.setDebugModel(new BakableModel("-sheep", null, null, 0, JsonParser.parseString("[[0, 0, 0], [0, 0, 0]]").getAsJsonArray()));
+					if (cosmeticId.charAt(0) == '-' && "shoulderbuddy".equals(cosmeticType)) {
+						ShoulderBuddy.overridden.setDebugModel(new BakableModel("-sheep", null, null, 0, new Box(0, 0, 0, 0, 0, 0)));
 					} else {
 						Cosmetica.runOffthread(() -> {
-							String url = Cosmetica.apiServerHost + "/get/cosmetic?type=" + urlEncodedType + "&id=" + urlEncodedCosmeticId + "&timestamp=" + System.currentTimeMillis();
-							Debug.checkedInfo(url, "always_print_urls");
+							var type = CosmeticType.fromUrlString(cosmeticType);
 
-							try (Response response = Response.request(url)) {
-								JsonObject json = response.getAsJson();
-
-								if (!json.has("error")) {
-									json.addProperty("id", urlEncodedCosmeticId);
-
-									if (urlEncodedType.equals("hat")) {
-										Hat.overridden.setDebugModel(Models.createBakableModel(json));
-									} else if (urlEncodedType.equals("shoulderbuddy")) {
-										ShoulderBuddy.overridden.setDebugModel(Models.createBakableModel(json));
+							if (type.isPresent()) {
+								Cosmetica.api.getCosmetic(type.get(), cosmeticId).ifSuccessfulOrElse(cosmetic -> {
+									if (cosmetic instanceof Model model) {
+										if (cosmeticType.equals("hat")) {
+											Hat.overridden.setDebugModel(Models.createBakableModel(model));
+										}
+										else if (cosmeticType.equals("shoulderbuddy")) {
+											ShoulderBuddy.overridden.setDebugModel(Models.createBakableModel(model));
+										}
 									}
-								}
-							} catch (IOException e) {
-								Cosmetica.LOGGER.error("Error recieving override cosmetic:");
-								e.printStackTrace();
+									else {
+										Cosmetica.LOGGER.warn("Can't handle non-model cosmetics in /cosmetica <type> <id> currently.");
+									}
+								}, Cosmetica.logErr("Error recieving override cosmetic:"));
 							}
 						}, ThreadPool.GENERAL_THREADS);
 					}

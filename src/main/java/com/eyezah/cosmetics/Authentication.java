@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics;
 
+import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
 import com.eyezah.cosmetics.screens.MainScreen;
@@ -31,6 +32,8 @@ public class Authentication {
 	}
 
 	private static void syncSettings() {
+		if (api == null) return;
+
 		Thread requestThread = new Thread(() -> {
 			if (!api.isAuthenticated()) {
 				runAuthentication(Minecraft.getInstance().screen);
@@ -83,16 +86,16 @@ public class Authentication {
 				currentlyAuthenticated = true;
 				currentlyAuthenticating = false;
 
-				// TODO add a method like "request" to CosmeticaAPI that auto-does everything up to Response.request() for a master-token HTTPS request. lol
-
 				if (info.isNewPlayer() && !info.hasSpecialCape()) {
 					String capeId = getDefaultSettingsConfig().getCapeId();
 					if (!capeId.isEmpty()) {
-						try (Response response2 = Response.request(CosmeticaAPI.getAPIServer() + "/client/setcosmetic?requireofficial&token=" + token + "&type=cape&id=" + capeId)) {} catch (IOException e) {}
+						api.setCosmetic(CosmeticType.CAPE, capeId);
 					}
-					String capeSettingsString = Cosmetica.getDefaultSettingsConfig().getCapeSettingsString(true);
-					if (!capeSettingsString.isEmpty()) {
-						try (Response response2 = Response.request(CosmeticaAPI.getAPIServer() + "/client/capesettings?token=" + token + capeSettingsString)) {} catch (IOException e) {}
+
+					var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
+
+					if (!capeServerSettings.isEmpty()) {
+						api.setCapeSettings(capeServerSettings);
 					}
 				}
 				syncSettings();
