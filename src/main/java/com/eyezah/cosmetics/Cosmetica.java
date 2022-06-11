@@ -153,12 +153,12 @@ public class Cosmetica implements ClientModInitializer {
 				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
 				Authentication.runAuthentication(new TitleScreen(), 1);
 
-				api.versionCheck(
-						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString(),
-						SharedConstants.getCurrentVersion().getId()
+				api.checkVersion(
+						SharedConstants.getCurrentVersion().getId(),
+						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString()
 				).ifSuccessfulOrElse(s -> {
-					if (!s.isEmpty()) {
-						displayNext = s;
+					if (s.isPresent()) {
+						displayNext = s.get();
 					}
 				}, Cosmetica.logErr("Error checking version"));
 			} catch (Exception e) {

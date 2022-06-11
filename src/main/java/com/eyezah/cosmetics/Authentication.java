@@ -95,7 +95,7 @@ public class Authentication {
 					var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
 
 					if (!capeServerSettings.isEmpty()) {
-						api.setCapeSettings(capeServerSettings);
+						api.setCapeServerSettings(capeServerSettings);
 					}
 				}
 				syncSettings();
