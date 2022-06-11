@@ -76,6 +76,7 @@ public class Authentication {
 			try {
 				// the thing that can error
 				api = CosmeticaAPI.fromAuthToken(testToken);
+				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
 				LoginInfo info = api.exchangeTokens(UUID.fromString(Minecraft.getInstance().getUser().getUuid())).get(); // getUuid() better have the dashes...
 
 				// success response

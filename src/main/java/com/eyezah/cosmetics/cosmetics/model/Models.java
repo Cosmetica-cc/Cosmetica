@@ -1,5 +1,7 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
+import cc.cosmetica.api.Box;
+import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
 import com.google.gson.JsonArray;
@@ -98,25 +100,23 @@ public class Models {
 	 * @implNote used when adding the BakableModel to player data
 	 */
 	@Nullable
-	public static BakableModel createBakableModel(@Nullable JsonObject json) {
-		if (json == null) return null;
-
-		String location = json.get("id").getAsString();
+	public static BakableModel createBakableModel(Model model) {
+		String location = model.getId();
 
 		if (location.isEmpty()) return null;
 
-		JsonArray bounds = json.getAsJsonArray("bounds");
+		Box bounds = model.getBoundingBox();
 
-		if (location.charAt(0) == '-') {
+		if (model.isBuiltin()) {
 			return LOADED_MODELS.computeIfAbsent(location, l -> new BakableModel(location, null, null, 0, bounds));
 		}
 
 		return LOADED_MODELS.computeIfAbsent(location, l -> {
-			try (InputStream is = new ByteArrayInputStream(json.get("model").getAsString().getBytes(StandardCharsets.UTF_8))) {
-				BlockModel model = BlockModel.fromStream(new InputStreamReader(is, StandardCharsets.UTF_8));
-				model.name = l;
-				NativeImage image = NativeImage.fromBase64(json.get("texture").getAsString().substring(22)); // trim nonsense at the start
-				return new BakableModel(location, model, image, json.get("extra info").getAsInt(), bounds);
+			try (InputStream is = new ByteArrayInputStream(model.getModel().getBytes(StandardCharsets.UTF_8))) {
+				BlockModel blockModel = BlockModel.fromStream(new InputStreamReader(is, StandardCharsets.UTF_8));
+				blockModel.name = l;
+				NativeImage image = NativeImage.fromBase64(model.getTexture().substring(22)); // trim nonsense at the start
+				return new BakableModel(location, blockModel, image, model.flags(), bounds);
 			} catch (IOException e) {
 				return null;
 			} catch (Exception e) {

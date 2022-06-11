@@ -1,6 +1,9 @@
 package com.eyezah.cosmetics;
 
+import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.Model;
+import cc.cosmetica.api.User;
 import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
@@ -11,6 +14,7 @@ import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -64,6 +68,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
@@ -283,86 +288,63 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo) {
 		if (api.isAuthenticated()) {
-			String awimbawe = Cosmetica.apiServerHost + "/get/everythirtysecondsinafricahalfaminutepasses?token=" + Authentication.getToken()
-					+ "&ip=" + Cosmetica.base64Ip(prideRock) + "&timestamp=";
-
-			awimbawe += yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong();
-
-
-			Debug.checkedInfo(awimbawe, "always_print_urls");
-
-			try (Response theLionSleepsTonight = Response.request(awimbawe)) {
-				JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
-
-
-				if (theMightyJungle.has("error")) {
-					Cosmetica.LOGGER.error("Server responded with error while checking for cosmetic updates : {}", theMightyJungle.get("error"));
-				}
-
-				// the speech from the lion king
-				if (theMightyJungle.has("notifications")) {
-					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> {
-						try {
-							Minecraft.getInstance().gui.getChat().addMessage(
-									new TextComponent("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(elem.getAsString()))
-							);
+			api.everyThirtySecondsInAfricaHalfAMinutePasses(prideRock, yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong())
+					.ifSuccessfulOrElse(theLionSleepsTonight -> {
+						// the speech from the lion king
+						for (String notification : theLionSleepsTonight.notifications()) { // let's hope I made sure this isn't null
+							try {
+								Minecraft.getInstance().gui.getChat().addMessage(
+										new TextComponent("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(notification))
+								);
+							}
+							catch (Exception e) {
+								Cosmetica.LOGGER.error("Error sending cosmetica notification.", e);
+							}
 						}
-						catch (Exception e) {
-							Cosmetica.LOGGER.error("Error sending cosmetica notification.", e);
-						}
-					});
-				}
 
-				JsonObject updates = theMightyJungle.getAsJsonObject("updates");
-				Cosmetica.toto = OptionalLong.of(updates.get("timestamp").getAsLong());
+						Cosmetica.toto = OptionalLong.of(theLionSleepsTonight.timestamp());
 
-				if (!yourFirstRodeo) {
-					Debug.info("Processing updates found on the safari.");
+						if (!yourFirstRodeo) {
+							Debug.info("Processing updates found on the safari.");
 
-					if (updates.has("list")) {
-						for (JsonElement element : updates.getAsJsonArray("list")) {
-							JsonObject individual = element.getAsJsonObject();
+							for (User individual : theLionSleepsTonight.needsUpdating()) {
+								UUID uuid = individual.uuid();
+								Debug.info("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
 
-							UUID uuid = UUID.fromString(dashifyUUID(individual.get("uuid").getAsString()));
-							Debug.info("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
+								if (playerDataCache.containsKey(uuid)) {
+									clearPlayerData(uuid);
 
-							if (playerDataCache.containsKey(uuid)) {
-								clearPlayerData(uuid);
-
-								// if ourselves, refresh asap
-								if (uuid.equals(Minecraft.getInstance().player.getUUID())) {
-									getPlayerData(Minecraft.getInstance().player);
-								}
-							} else {
-								// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
-								Debug.info("Lol cringe they went scampering into a bush or something!");
+									// if ourselves, refresh asap
+									if (uuid.equals(Minecraft.getInstance().player.getUUID())) {
+										getPlayerData(Minecraft.getInstance().player);
+									}
+								} else {
+									// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
+									Debug.info("Lol cringe they went scampering into a bush or something!");
 
 
-								// use username to clear the info - might be in offline mode or something
-								String username = individual.get("username").getAsString();
+									// use username to clear the info - might be in offline mode or something
+									String username = individual.username();
 
-								PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(username);
+									PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(username);
 
-								if (info != null) {
-									UUID serverUuid = info.getProfile().getId();
+									if (info != null) {
+										UUID serverUuid = info.getProfile().getId();
 
-									if (playerDataCache.containsKey(serverUuid)) {
-										Debug.info("Found them :). They were hiding at uuid {}", serverUuid);
-										clearPlayerData(serverUuid);
+										if (playerDataCache.containsKey(serverUuid)) {
+											Debug.info("Found them :). They were hiding at uuid {}", serverUuid);
+											clearPlayerData(serverUuid);
 
-										// if ourselves, refresh asap
-										if (username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
-											getPlayerData(Minecraft.getInstance().player);
+											// if ourselves, refresh asap
+											if (username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
+												getPlayerData(Minecraft.getInstance().player);
+											}
 										}
 									}
 								}
 							}
 						}
-					}
-				}
-			} catch (IOException e) {
-				Cosmetica.LOGGER.error("Error checking for cosmetic updates on the remote server", e);
-			}
+			}, logErr("Error checking for cosmetic updates on the remote server"));
 		}
 	}
 
@@ -423,32 +405,26 @@ public class Cosmetica implements ClientModInitializer {
 							return;
 						}
 
-						String target = Cosmetica.insecureApiServerHost + "/get/info?username=" + urlEncode(username)
-								+ "&uuid=" + uuid + "&token=" + getLimitedToken();
-						Debug.checkedInfo(target, "always_print_urls");
-
-						try (Response response = Response.request(target)) {
-							JsonObject jsonObject = response.getAsJson();
-							JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
-							JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
-							JsonObject cloak = jsonObject.has("cape") ? jsonObject.get("cape").getAsJsonObject() : null;
+						Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
+							Optional<Model> hat = info.hat();
+							Optional<Model> shoulderBuddy = info.shoulderBuddy();
+							Optional<Cape> cloak = info.cape();
 
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, new PlayerData(
-										jsonObject.get("lore").getAsString(),
-										jsonObject.get("upside-down").getAsBoolean(),
-										jsonObject.get("prefix").getAsString(),
-										jsonObject.get("suffix").getAsString(),
-										hat == null ? null : Models.createBakableModel(hat),
-										shoulderBuddy == null ? null : Models.createBakableModel(shoulderBuddy),
-										cloak == null ? null : CosmeticaSkinManager.processCape(cloak)
+										info.lore(),
+										info.upsideDown(),
+										info.prefix(),
+										info.suffix(),
+										hat.isEmpty() ? null : Models.createBakableModel(hat.get()),
+										shoulderBuddy.isEmpty() ? null : Models.createBakableModel(shoulderBuddy.get()),
+										cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get())
 								));
 
 								lookingUp.remove(uuid);
 							}
-						} catch (IOException | ParseException e) {;
-							new RuntimeException("Error connecting to " + target, e).printStackTrace();
-						}
+						}, logErr("Error getting user info for " + uuid + " / " + username));
+
 					}, ThreadPool.GENERAL_THREADS);
 				}
 
@@ -468,7 +444,7 @@ public class Cosmetica implements ClientModInitializer {
 					BakableModel hatModelData = Hat.overridden.get(() -> Cosmetica.getPlayerData(player).hat());
 
 					if (hatModelData != null && !((hatModelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))) {
-						float hatTopY = hatModelData.bounds().get(1).getAsJsonArray().get(1).getAsFloat();
+						float hatTopY = Math.max(0, (float) hatModelData.bounds().y1());
 
 						float normalizedAngleMultiplier = (float) -(Math.abs(playerModel.head.xRot) / 1.57 - 1);
 						float lookAngleMultiplier;

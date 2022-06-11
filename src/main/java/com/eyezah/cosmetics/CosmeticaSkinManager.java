@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics;
 
+import cc.cosmetica.api.Cape;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Base64Texture;
 import com.google.gson.JsonObject;
@@ -50,12 +51,12 @@ public class CosmeticaSkinManager {
 		return result.toString();
 	}
 
-	public static ResourceLocation processCape(JsonObject object) {
-		ResourceLocation id = new ResourceLocation("cosmetica", pathify(object.get("id").getAsString()));
+	public static ResourceLocation processCape(Cape cloak) {
+		ResourceLocation id = new ResourceLocation("cosmetica", pathify(cloak.getId()));
 
 		if (!capeTextures.containsKey(id)) {
 			try {
-				Base64Texture cloakTex = new Base64Texture(id, object.get("image").getAsString().substring(22), true);
+				Base64Texture cloakTex = new Base64Texture(id, cloak.getImage().substring(22), true);
 				RenderSystem.recordRenderCall(() -> {
 					Minecraft.getInstance().getTextureManager().register(id, cloakTex);
 					synchronized(uploaded) { uploaded.add(id); }
