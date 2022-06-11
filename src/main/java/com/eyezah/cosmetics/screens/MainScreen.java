@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
+import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
@@ -115,8 +116,8 @@ public class MainScreen extends SulphateScreen {
 		// bottom of the menu
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
 			try {
-				Minecraft.getInstance().keyboardHandler.setClipboard(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());
-				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());
+				Minecraft.getInstance().keyboardHandler.setClipboard(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
+				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
 			} catch (Exception e) {
 				throw new RuntimeException("bruh", e);
 			}

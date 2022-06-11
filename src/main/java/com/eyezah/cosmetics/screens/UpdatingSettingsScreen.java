@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens;
 
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.eyezah.cosmetics.utils.Response;
@@ -11,10 +12,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-import static com.eyezah.cosmetics.Authentication.getToken;
-import static com.eyezah.cosmetics.Cosmetica.*;
+import static com.eyezah.cosmetics.Cosmetica.clearAllCaches;
 
 public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;
@@ -27,35 +29,29 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		super(new TranslatableComponent("cosmetica.updating"));
 		this.parentScreen = parentScreen;
 
-		StringBuilder endString = new StringBuilder();
+		Map<String, Object> changedSettings = new HashMap<>();
 
-		doReload |= newOptions.regionSpecificEffects.appendToIfChanged(oldOptions.regionSpecificEffects, endString);
-		doReload |= newOptions.shoulderBuddies.appendToIfChanged(oldOptions.shoulderBuddies, endString);
-		doReload |= newOptions.hats.appendToIfChanged(oldOptions.hats, endString);
-		doReload |= newOptions.lore.appendToIfChanged(oldOptions.lore, endString);
+		doReload |= newOptions.regionSpecificEffects.appendToIfChanged(oldOptions.regionSpecificEffects, changedSettings);
+		doReload |= newOptions.shoulderBuddies.appendToIfChanged(oldOptions.shoulderBuddies, changedSettings);
+		doReload |= newOptions.hats.appendToIfChanged(oldOptions.hats, changedSettings);
+		doReload |= newOptions.lore.appendToIfChanged(oldOptions.lore, changedSettings);
 		boolean finalDoReload = doReload;
 
-		if (!endString.isEmpty()) {
-			String finalEndString = endString.toString();
-
+		if (!changedSettings.isEmpty()) {
 			Thread requestThread = new Thread(() -> {
-				String url = apiServerHost + "/client/updatesettings?token=" + getToken() + finalEndString;
-				Debug.checkedInfo(url, "always_print_urls");
-
-				try (Response response = Response.request(url)) {
-					String responseBody = response.getAsString();
-
-					if (responseBody.equals("success")) {
+				Cosmetica.api.updateUserSettings(changedSettings).ifSuccessfulOrElse(response -> {
+					if (response.booleanValue()) {
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 					} else {
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
 					}
-				} catch (IOException e) {
+				},
+				e -> {
 					e.printStackTrace();
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
-				} finally {
-					if (finalDoReload) Minecraft.getInstance().tell(() -> clearAllCaches());
-				}
+				});
+
+				if (finalDoReload) Minecraft.getInstance().tell(() -> clearAllCaches());
 			});
 			requestThread.start();
 		} else {

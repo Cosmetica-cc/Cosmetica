@@ -7,18 +7,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
-import net.minecraft.client.gui.screens.*;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
-
-import static com.eyezah.cosmetics.Authentication.currentlyAuthenticating;
-import static com.eyezah.cosmetics.Cosmetica.authServerHost;
-import static com.eyezah.cosmetics.Cosmetica.authServerPort;
 
 public class UnauthenticatedScreen extends Screen {
 	private Screen parentScreen;
@@ -37,9 +32,8 @@ public class UnauthenticatedScreen extends Screen {
 	@Override
 	protected void init() {
 		this.message = MultiLineLabel.create(this.font, this.reason, this.width - 50);
-		int var10001 = this.message.getLineCount();
 		Objects.requireNonNull(this.font);
-		this.textHeight = var10001 * 9;
+		this.textHeight = this.message.getLineCount() * 9;
 		int buttonX = this.width / 2 - 100;
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 

@@ -85,6 +85,7 @@ public class Cosmetica implements ClientModInitializer {
 	public static ConnectScreen connectScreen;
 
 	public static String authServer;
+	public static String websiteHost;
 	public static CosmeticaAPI api;
 
 	public static String displayNext;
@@ -149,6 +150,7 @@ public class Cosmetica implements ClientModInitializer {
 				LOGGER.info(CosmeticaAPI.getMessage());
 
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
+				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
 				Authentication.runAuthentication(new TitleScreen(), 1);
 
 				api.versionCheck(
