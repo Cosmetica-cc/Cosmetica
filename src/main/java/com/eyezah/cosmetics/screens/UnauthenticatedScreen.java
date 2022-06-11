@@ -41,7 +41,7 @@ public class UnauthenticatedScreen extends Screen {
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
 		} else {
 			if (Debug.DEBUG_MODE) { // because I'm not authenticated in dev and can't use the normal button
-				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TextComponent("Immediately Clear Caches"), btn -> Cosmetica.clearAllCaches()));
+				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 100, 20, new TextComponent("Clear Caches"), btn -> Cosmetica.clearAllCaches()));
 			}
 
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
@@ -50,7 +50,7 @@ public class UnauthenticatedScreen extends Screen {
 			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.unauthenticated.retry"), (button) -> {
 				minecraft.setScreen(new LoadingScreen(this.parentScreen, minecraft.options));
 			}));
-			this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TranslatableComponent("gui.cancel"), button -> this.onClose()));
+			this.addRenderableWidget(new Button(Debug.DEBUG_MODE ? buttonX + 100 : buttonX, buttonStartY + 48, Debug.DEBUG_MODE ? 100 : 200, 20, new TranslatableComponent("gui.cancel"), button -> this.onClose()));
 		}
 	}
 
