@@ -88,6 +88,7 @@ public class Authentication {
 
 				if (info.isNewPlayer() && !info.hasSpecialCape()) {
 					String capeId = getDefaultSettingsConfig().getCapeId();
+
 					if (!capeId.isEmpty()) {
 						api.setCosmetic(CosmeticType.CAPE, capeId);
 					}
