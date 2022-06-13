@@ -28,8 +28,12 @@ public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
 		if (modelData == null) return; // if it has a model
 		if ((modelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) return; // disable hat flag
 
-		ModelPart modelPart = this.getParentModel().getHead();
-		doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0.75f, 0);
+		if ((modelData.extraInfo() & 0x2) == 0) {
+			doCoolRenderThings(modelData, this.getParentModel().getHead(), stack, multiBufferSource, packedLightProbably, 0, 0.75f, 0);
+		}
+		else {
+			doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, 0.77f, 0);
+		}
 	}
 
 	public static final OverriddenModel overridden = new OverriddenModel();
