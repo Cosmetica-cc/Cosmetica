@@ -41,7 +41,10 @@ public class UnauthenticatedScreen extends Screen {
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
 		} else {
 			if (Debug.DEBUG_MODE) { // because I'm not authenticated in dev and can't use the normal button
-				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 100, 20, new TextComponent("Clear Caches"), btn -> Cosmetica.clearAllCaches()));
+				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 100, 20, new TextComponent("Clear Caches"), btn -> {
+					Cosmetica.clearAllCaches();
+					if (Debug.TEST_MODE) Debug.reloadTestModels();
+				}));
 			}
 
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {

@@ -150,6 +150,13 @@ public class Debug {
 		return false;
 	}
 
+	public static void reloadTestModels() {
+		loadTestProperties();
+		loadTestModel(LocalModelType.HAT);
+		loadTestModel(LocalModelType.SHOULDERBUDDY);
+		loadTestModel(LocalModelType.BACK_BLING);
+	}
+
 	public static boolean loadTestModel(LocalModelType type) {
 		String model = type.localIdProvider.get();
 
