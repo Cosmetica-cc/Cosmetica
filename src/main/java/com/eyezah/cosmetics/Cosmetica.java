@@ -400,8 +400,8 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static boolean isPlayerCached(UUID uuid) {
-		return synchronized (playerDataCache) {
-			playerDataCache.containsKey(uuid);
+		synchronized (playerDataCache) {
+			return playerDataCache.containsKey(uuid);
 		}
 	}
 
