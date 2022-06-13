@@ -11,10 +11,6 @@ import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.FormattedChatEncoder;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
-import com.eyezah.cosmetics.utils.Response;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -47,7 +43,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -355,22 +350,13 @@ public class Cosmetica implements ClientModInitializer {
 
 	// End Africa
 
-	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
-		runOffthread(runnable, pool, false);
-	}
-
 	@Nullable
-	public static Runnable runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool, boolean handletiming) {
+	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
 		if (Thread.currentThread().getName().startsWith("Cosmetica")) {
-			// note code-readers: early return!
-			if (handletiming) return runnable;
-
 			runnable.run();
 		} else {
 			MAIN_POOL.execute(runnable);
 		}
-
-		return null;
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
@@ -417,7 +403,7 @@ public class Cosmetica implements ClientModInitializer {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
 		Level level = Minecraft.getInstance().level;
 
-		AtomicReference<Runnable> runnable = null;
+		AtomicReference<Runnable> lookup = new AtomicReference<>(() -> {});
 		PlayerData data;
 
 		synchronized (playerDataCache) { // TODO if the network connection fails, queue it to try again later
@@ -425,7 +411,7 @@ public class Cosmetica implements ClientModInitializer {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
-					runnable.set(Cosmetica.runOffthread(() -> {
+					lookup.set(() -> Cosmetica.runOffthread(() -> {
 						if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
 							lookingUp.remove(uuid);
 							return;
@@ -451,7 +437,7 @@ public class Cosmetica implements ClientModInitializer {
 							}
 						}, logErr("Error getting user info for " + uuid + " / " + username));
 
-					}, ThreadPool.GENERAL_THREADS, true));
+					}, ThreadPool.GENERAL_THREADS));
 				}
 
 				return PlayerData.NONE; // temporary name: blank.
@@ -459,9 +445,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 
 		// to ensure web requests are not run in a synchronised block on the data cache, holding up the main thread
-		@Nullable
-		Runnable unpacked = runnable.get();
-		if (unpacked != null) unpacked.run();
+		lookup.get().run();
 
 		// return the actual data
 		return data;
