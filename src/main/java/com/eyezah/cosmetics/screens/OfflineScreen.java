@@ -2,22 +2,14 @@ package com.eyezah.cosmetics.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
-import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
-
-import static com.eyezah.cosmetics.Authentication.currentlyAuthenticating;
-import static com.eyezah.cosmetics.Cosmetica.authServerHost;
-import static com.eyezah.cosmetics.Cosmetica.authServerPort;
 
 public class OfflineScreen extends Screen {
 	private Screen parentScreen;

@@ -1,11 +1,15 @@
 package com.eyezah.cosmetics;
 
+import cc.cosmetica.api.CosmeticType;
+import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.LoginInfo;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.eyezah.cosmetics.utils.Response;
+import com.google.common.net.HostAndPort;
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
@@ -14,13 +18,12 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static com.eyezah.cosmetics.Cosmetica.*;
 
 public class Authentication {
 	private static boolean currentlyAuthenticated = false;
-	private static String token = "";
-	private static String limitedToken = "";
 	public static boolean currentlyAuthenticating = false;
 	private static int bits; // to mark the two required things that must have happened to start cosmetics auth: fetching API url (may fail), and finishing loading.
 
@@ -28,99 +31,77 @@ public class Authentication {
 		return currentlyAuthenticated;
 	}
 
-	public static String getToken() {
-		return token;
-	}
-
-	/**
-	 * Retrieves a token which only has GET power, for use on faster, less secure 'HTTP' connections.
-	 * @return the limited token.
-	 */
-	public static String getLimitedToken() {
-		return limitedToken;
-	}
-
 	private static void syncSettings() {
+		if (api == null) return;
+
 		Thread requestThread = new Thread(() -> {
-			if (token.equals("")) {
+			if (!api.isAuthenticated()) {
 				runAuthentication(Minecraft.getInstance().screen);
 				return;
 			}
 
-			try (Response response = Response.request(Cosmetica.apiServerHost + "/get/settings?token=" + token)) {
+			Cosmetica.api.getUserSettings().ifSuccessfulOrElse(settings -> {
 				Debug.info("Handling successful cosmetics settings response.");
 
-				JsonObject jsonObject = response.getAsJson();
-				if (jsonObject.has("error")) {
-					Debug.info("error: " + jsonObject.get("error").getAsString());
-					showUnauthenticatedIfLoading();
-					return;
-				}
+				// regional effects checking
+				boolean regionSpecificEffects = settings.perRegionEffects();
+				RSEWarningScreen.appearNextScreenChange = !settings.perRegionEffectsSet();
 
-				boolean regionSpecificEffects;
-
-				// regional effects checking. the absence of this field indicates the user has not set it yet, and the presence of it allows us to cache the current setting on the client
-				if (jsonObject.has("per-region effects")) {
-					regionSpecificEffects = jsonObject.get("per-region effects").getAsBoolean();
-				} else {
-					regionSpecificEffects = false;
-					RSEWarningScreen.appearNextScreenChange = true;
-				}
-
-				boolean doShoulderBuddies = jsonObject.get("do shoulder buddies").getAsBoolean();
-				boolean doHats = jsonObject.get("do hats").getAsBoolean();
-				boolean doLore = jsonObject.get("do lore").getAsBoolean();
+				boolean doShoulderBuddies = settings.doShoulderBuddies();
+				boolean doHats = settings.doHats();
+				boolean doLore = settings.doLore();
 
 				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), doShoulderBuddies, doHats, regionSpecificEffects, doLore)));
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				token = "";
+			},
+			error -> {
+				LOGGER.error("Error during settings get: {}", error);
+
 				showUnauthenticatedIfLoading();
 				runAuthentication(Minecraft.getInstance().screen);
-			}
+			});
 		});
 		requestThread.start();
 	}
 
 	public static void showUnauthenticatedIfLoading() {
 		Minecraft minecraft = Minecraft.getInstance();
-		Screen previous = minecraft.screen;
+		Screen current = minecraft.screen;
 
-		if (previous instanceof LoadingTypeScreen lts) {
+		if (current instanceof LoadingTypeScreen lts) {
 			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), false)));
 		} // TODO if in-game some small, unintrusive text on bottom right
 	}
 
 	public static void requestTokens(String testToken) {
 		Thread requestThread = new Thread(() -> {
-			try (Response response = Response.request(Cosmetica.apiServerHost + "/client/verifyforauthtokens?token=" + testToken + "&uuid=" + Minecraft.getInstance().getUser().getUuid() + "&access-token=" + Minecraft.getInstance().getUser().getAccessToken())) {
-				JsonObject object = response.getAsJson();
+			try {
+				// the thing that can error
+				api = CosmeticaAPI.fromAuthToken(testToken);
+				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+				LoginInfo info = api.exchangeTokens(UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()))).get(); // getUuid() better have the dashes... edit: it did not have the dashes
 
-				if (object.has("error")) {
-					Cosmetica.LOGGER.warn("Error on authentication. Will be offline. {}", object.get("error"));
-					currentlyAuthenticating = false;
-					showUnauthenticatedIfLoading();
-				} else {
-					token = object.get("master_token").getAsString();
-					limitedToken = object.get("limited_token").getAsString();
-					currentlyAuthenticated = true;
-					currentlyAuthenticating = false;
-					if (object.get("is_new_player").getAsBoolean() && !object.get("has_special_cape").getAsBoolean()) {
-						String capeId = getDefaultSettingsConfig().getCapeId();
-						if (!capeId.isEmpty()) {
-							try (Response response2 = Response.request(Cosmetica.apiServerHost + "/client/setcosmetic?requireofficial&token=" + token + "&type=cape&id=" + capeId)) {} catch (IOException e) {}
-						}
-						String capeSettingsString = Cosmetica.getDefaultSettingsConfig().getCapeSettingsString(true);
-						if (!capeSettingsString.isEmpty()) {
-							try (Response response2 = Response.request(Cosmetica.apiServerHost + "/client/capesettings?token=" + token + capeSettingsString)) {} catch (IOException e) {}
-						}
+				// success response
+				currentlyAuthenticated = true;
+				currentlyAuthenticating = false;
+
+				if (info.isNewPlayer() && !info.hasSpecialCape()) {
+					String capeId = getDefaultSettingsConfig().getCapeId();
+
+					if (!capeId.isEmpty()) {
+						api.setCosmetic(CosmeticType.CAPE, capeId);
 					}
-					syncSettings();
+
+					var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
+
+					if (!capeServerSettings.isEmpty()) {
+						api.setCapeServerSettings(capeServerSettings);
+					}
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+				syncSettings();
+			} catch (IllegalStateException | NullPointerException e) {
+				Cosmetica.LOGGER.warn("Error on authentication. Will be offline. {}", e);
 				currentlyAuthenticating = false;
 				showUnauthenticatedIfLoading();
 			}
@@ -141,12 +122,17 @@ public class Authentication {
 	}
 
 	private static void runAuthentication(Screen screen) {
-		if (token.equals("")) {
-			if (!currentlyAuthenticating) {
+		if (!api.isAuthenticated()) {
+			if (currentlyAuthenticating) {
+				Debug.info("Api is not authenticated but authentication is already in progress.");
+			}
+			else {
+				Debug.info("Api is not authenticated: starting authentication!");
 				currentlyAuthenticating = true;
-				ConnectScreen.startConnecting(screen, Minecraft.getInstance(), new ServerAddress(authServerHost, authServerPort), new ServerData("Authentication Server", authServerHost + ":" + authServerPort, false));
+				ConnectScreen.startConnecting(screen, Minecraft.getInstance(), ServerAddress.parseString(CosmeticaAPI.getAuthServer()), new ServerData("Authentication Server", CosmeticaAPI.getAuthServer(), false));
 			}
 		} else {
+			Debug.info("Api is authenticated: syncing settings!");
 			syncSettings();
 		}
 	}

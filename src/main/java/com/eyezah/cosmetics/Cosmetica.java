@@ -1,5 +1,9 @@
 package com.eyezah.cosmetics;
 
+import cc.cosmetica.api.Cape;
+import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.Model;
+import cc.cosmetica.api.User;
 import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
@@ -7,10 +11,6 @@ import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.FormattedChatEncoder;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
-import com.eyezah.cosmetics.utils.Response;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -43,7 +43,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,12 +58,21 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import static com.eyezah.cosmetics.Authentication.getLimitedToken;
 import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
 @Environment(EnvType.CLIENT)
@@ -72,15 +80,11 @@ public class Cosmetica implements ClientModInitializer {
 	// used for screens
 	public static ConnectScreen connectScreen;
 
-	public static String authServerHost;
-	public static int authServerPort;
-	public static String apiServerHost;
-	/**
-	 * For connections which need to be fast and do not require security.
-	 */
-	public static String insecureApiServerHost;
-	public static String displayNext;
+	public static String authServer;
 	public static String websiteHost;
+	public static CosmeticaAPI api;
+
+	public static String displayNext;
 	public static String currentServerAddressCache = "";
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
@@ -129,76 +133,33 @@ public class Cosmetica implements ClientModInitializer {
 		// API Url Getter
 		runOffthread(() -> {
 			File minecraftDir = findDefaultInstallDir("minecraft").toFile();
-			File file = new File(minecraftDir, "cosmetica_website_host_cache.txt");
+			File apiGetCache = new File(minecraftDir, "cosmetica_website_host_cache.txt");
+			File apiCache = new File(minecraftDir, "cosmetica_get_api_cache.json");
 
-			String apiGetHost = null;
+			CosmeticaAPI.setAPICaches(apiCache, apiGetCache);
 
-			try (Response response = Response.request("https://raw.githubusercontent.com/EyezahMC/Cosmetica/master/api_provider_host.json?timestamp=" + System.currentTimeMillis())) {
-				if (response.getError().isEmpty()) {
-					Debug.info("Received response from Github CDN. We do not require a fallback (hopefully)!");
+			try {
+				api = CosmeticaAPI.newUnauthenticatedInstance();
+				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
 
-					apiGetHost = response.getAsJson().get("current_host").getAsString();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+				Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
+				LOGGER.info(CosmeticaAPI.getMessage());
 
-			apiGetHost = loadOrCache(file, apiGetHost);
-			if (apiGetHost == null) apiGetHost = "https://cosmetica.cc/getapi"; // fallback
+				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
+				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
+				Authentication.runAuthentication(new TitleScreen(), 1);
 
-			Debug.info("Finished retrieving GetAPI Url. Conclusion: we can get an API server from " + apiGetHost);
-
-			file = new File(minecraftDir, "cosmetica_get_api_cache.json");
-
-			String apiGetData = null;
-
-			try (Response apiGetResponse = Response.request(apiGetHost)) {
-				apiGetData = apiGetResponse.getAsString();
-
-				Debug.info("Received API Url from Server");
-			} catch (Exception e) {
-				LOGGER.warn("Connection error to API GET. Trying to retrieve from local cache...");
-			}
-
-			apiGetData = loadOrCache(file, apiGetData);
-
-			if (apiGetData == null) {
-				LOGGER.error("Could not receive Cosmetica API host. Mod functionality will be disabled!");
-			} else {
-				try {
-					JsonObject data = new JsonParser().parse(apiGetData).getAsJsonObject();
-					Cosmetica.apiServerHost = data.get("api").getAsString();
-					Cosmetica.insecureApiServerHost = "http" + Cosmetica.apiServerHost.substring(5);
-					Cosmetica.websiteHost = data.get("website").getAsString();
-					JsonObject auth = data.get("auth-server").getAsJsonObject();
-					Cosmetica.authServerHost = auth.get("hostname").getAsString();
-					Cosmetica.authServerPort = auth.get("port").getAsInt();
-
-					LOGGER.info(data.get("message").getAsString());
-					Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + Cosmetica.apiServerHost);
-
-					Authentication.runAuthentication(new TitleScreen(), 1);
-
-					String versionCheck = Cosmetica.apiServerHost + "/get/versioncheck?modversion="
-							+ urlEncode(FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString())
-							+ "&mcversion=" + SharedConstants.getCurrentVersion().getId();
-
-					Debug.checkedInfo(versionCheck, "always_print_urls");
-
-					try (Response response = Response.request(versionCheck)) {
-						String s = response.getAsString();
-
-						if (!s.isEmpty()) {
-							displayNext = s;
-						}
-					} catch (IOException e) {
-						LOGGER.error("Error checking version:");
-						e.printStackTrace();
+				api.checkVersion(
+						SharedConstants.getCurrentVersion().getId(),
+						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString()
+				).ifSuccessfulOrElse(s -> {
+					if (s.isPresent()) {
+						displayNext = s.get();
 					}
-				} catch (Exception e) {
-					LOGGER.error("Error reading JSON data for API Url. Mod functionality will be disabled!");
-					e.printStackTrace();
-				}
+				}, Cosmetica.logErr("Error checking version"));
+			} catch (Exception e) {
+				LOGGER.error("Error retrieving API Url. Mod functionality will be disabled!");
+				e.printStackTrace();
 			}
 		}, ThreadPool.GENERAL_THREADS);
 
@@ -324,92 +285,72 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo) {
-		if (!Authentication.getToken().isEmpty()) {
-			String awimbawe = Cosmetica.apiServerHost + "/get/everythirtysecondsinafricahalfaminutepasses?token=" + Authentication.getToken()
-					+ "&ip=" + Cosmetica.base64Ip(prideRock) + "&timestamp=";
+		if (api != null && api.isAuthenticated()) {
+			Debug.info("Thread for safari {}", Thread.currentThread().getName());
 
-			awimbawe += yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong();
-
-
-			Debug.checkedInfo(awimbawe, "always_print_urls");
-
-			try (Response theLionSleepsTonight = Response.request(awimbawe)) {
-				JsonObject theMightyJungle = theLionSleepsTonight.getAsJson();
-
-
-				if (theMightyJungle.has("error")) {
-					Cosmetica.LOGGER.error("Server responded with error while checking for cosmetic updates : {}", theMightyJungle.get("error"));
-				}
-
-				// the speech from the lion king
-				if (theMightyJungle.has("notifications")) {
-					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> {
-						try {
-							Minecraft.getInstance().gui.getChat().addMessage(
-									new TextComponent("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(elem.getAsString()))
-							);
+			api.everyThirtySecondsInAfricaHalfAMinutePasses(prideRock, yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong())
+					.ifSuccessfulOrElse(theLionSleepsTonight -> {
+						// the speech from the lion king
+						for (String notification : theLionSleepsTonight.notifications()) { // let's hope I made sure this isn't null
+							try {
+								Minecraft.getInstance().gui.getChat().addMessage(
+										new TextComponent("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(notification))
+								);
+							}
+							catch (Exception e) {
+								Cosmetica.LOGGER.error("Error sending cosmetica notification.", e);
+							}
 						}
-						catch (Exception e) {
-							Cosmetica.LOGGER.error("Error sending cosmetica notification.", e);
-						}
-					});
-				}
 
-				JsonObject updates = theMightyJungle.getAsJsonObject("updates");
-				Cosmetica.toto = OptionalLong.of(updates.get("timestamp").getAsLong());
+						Cosmetica.toto = OptionalLong.of(theLionSleepsTonight.timestamp());
 
-				if (!yourFirstRodeo) {
-					Debug.info("Processing updates found on the safari.");
+						if (!yourFirstRodeo) {
+							Debug.info("Processing updates found on the safari.");
 
-					if (updates.has("list")) {
-						for (JsonElement element : updates.getAsJsonArray("list")) {
-							JsonObject individual = element.getAsJsonObject();
+							for (User individual : theLionSleepsTonight.needsUpdating()) {
+								UUID uuid = individual.uuid();
+								Debug.info("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
 
-							UUID uuid = UUID.fromString(dashifyUUID(individual.get("uuid").getAsString()));
-							Debug.info("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
+								if (playerDataCache.containsKey(uuid)) {
+									clearPlayerData(uuid);
 
-							if (playerDataCache.containsKey(uuid)) {
-								clearPlayerData(uuid);
-
-								// if ourselves, refresh asap
-								if (uuid.equals(Minecraft.getInstance().player.getUUID())) {
-									getPlayerData(Minecraft.getInstance().player);
-								}
-							} else {
-								// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
-								Debug.info("Lol cringe they went scampering into a bush or something!");
+									// if ourselves, refresh asap
+									if (uuid.equals(Minecraft.getInstance().player.getUUID())) {
+										getPlayerData(Minecraft.getInstance().player);
+									}
+								} else {
+									// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
+									Debug.info("Lol cringe they went scampering into a bush or something!");
 
 
-								// use username to clear the info - might be in offline mode or something
-								String username = individual.get("username").getAsString();
+									// use username to clear the info - might be in offline mode or something
+									String username = individual.username();
 
-								PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(username);
+									PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(username);
 
-								if (info != null) {
-									UUID serverUuid = info.getProfile().getId();
+									if (info != null) {
+										UUID serverUuid = info.getProfile().getId();
 
-									if (playerDataCache.containsKey(serverUuid)) {
-										Debug.info("Found them :). They were hiding at uuid {}", serverUuid);
-										clearPlayerData(serverUuid);
+										if (playerDataCache.containsKey(serverUuid)) {
+											Debug.info("Found them :). They were hiding at uuid {}", serverUuid);
+											clearPlayerData(serverUuid);
 
-										// if ourselves, refresh asap
-										if (username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
-											getPlayerData(Minecraft.getInstance().player);
+											// if ourselves, refresh asap
+											if (username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
+												getPlayerData(Minecraft.getInstance().player);
+											}
 										}
 									}
 								}
 							}
 						}
-					}
-				}
-			} catch (IOException e) {
-				Cosmetica.LOGGER.error("Error checking for cosmetic updates on the remote server", e);
-			}
+			}, logErr("Error checking for cosmetic updates on the remote server"));
 		}
 	}
 
 	// End Africa
 
+	@Nullable
 	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
 		if (Thread.currentThread().getName().startsWith("Cosmetica")) {
 			runnable.run();
@@ -427,19 +368,27 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void clearPlayerData(UUID uuid) {
-		playerDataCache.remove(uuid);
+		synchronized (playerDataCache) {
+			playerDataCache.remove(uuid);
+		}
 	}
 
 	public static int getCacheSize() {
-		return playerDataCache.size();
+		synchronized (playerDataCache) {
+			return playerDataCache.size();
+		}
 	}
 
 	public static Collection<UUID> getCachedPlayers() {
-		return playerDataCache.keySet();
+		synchronized (playerDataCache) {
+			return playerDataCache.keySet();
+		}
 	}
 
 	public static boolean isPlayerCached(UUID uuid) {
-		return playerDataCache.containsKey(uuid);
+		synchronized (playerDataCache) {
+			return playerDataCache.containsKey(uuid);
+		}
 	}
 
 	public static String urlEncode(String value) {
@@ -454,49 +403,52 @@ public class Cosmetica implements ClientModInitializer {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
 		Level level = Minecraft.getInstance().level;
 
+		AtomicReference<Runnable> lookup = new AtomicReference<>(() -> {});
+		PlayerData data;
+
 		synchronized (playerDataCache) { // TODO if the network connection fails, queue it to try again later
-			return playerDataCache.computeIfAbsent(uuid, uid -> {
+			 data = playerDataCache.computeIfAbsent(uuid, uid -> {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
-					Cosmetica.runOffthread(() -> {
-						if (Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different)!
+					lookup.set(() -> Cosmetica.runOffthread(() -> {
+						if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
 							lookingUp.remove(uuid);
 							return;
 						}
 
-						String target = Cosmetica.insecureApiServerHost + "/get/info?username=" + urlEncode(username)
-								+ "&uuid=" + uuid + "&token=" + getLimitedToken();
-						Debug.checkedInfo(target, "always_print_urls");
-
-						try (Response response = Response.request(target)) {
-							JsonObject jsonObject = response.getAsJson();
-							JsonObject hat = jsonObject.has("hat") ? jsonObject.get("hat").getAsJsonObject() : null;
-							JsonObject shoulderBuddy = jsonObject.has("shoulder-buddy") ? jsonObject.get("shoulder-buddy").getAsJsonObject() : null;
-							JsonObject cloak = jsonObject.has("cape") ? jsonObject.get("cape").getAsJsonObject() : null;
+						Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
+							Optional<Model> hat = info.hat();
+							Optional<Model> shoulderBuddy = info.shoulderBuddy();
+							Optional<Cape> cloak = info.cape();
 
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, new PlayerData(
-										jsonObject.get("lore").getAsString(),
-										jsonObject.get("upside-down").getAsBoolean(),
-										jsonObject.get("prefix").getAsString(),
-										jsonObject.get("suffix").getAsString(),
-										hat == null ? null : Models.createBakableModel(hat),
-										shoulderBuddy == null ? null : Models.createBakableModel(shoulderBuddy),
-										cloak == null ? null : CosmeticaSkinManager.processCape(cloak)
+										info.lore(),
+										info.upsideDown(),
+										info.prefix(),
+										info.suffix(),
+										hat.isEmpty() ? null : Models.createBakableModel(hat.get()),
+										shoulderBuddy.isEmpty() ? null : Models.createBakableModel(shoulderBuddy.get()),
+										cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get())
 								));
 
 								lookingUp.remove(uuid);
 							}
-						} catch (IOException | ParseException e) {;
-							new RuntimeException("Error connecting to " + target, e).printStackTrace();
-						}
-					}, ThreadPool.GENERAL_THREADS);
+						}, logErr("Error getting user info for " + uuid + " / " + username));
+
+					}, ThreadPool.GENERAL_THREADS));
 				}
 
 				return PlayerData.NONE; // temporary name: blank.
 			});
 		}
+
+		// to ensure web requests are not run in a synchronised block on the data cache, holding up the main thread
+		lookup.get().run();
+
+		// return the actual data
+		return data;
 	}
 
 	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
@@ -510,7 +462,7 @@ public class Cosmetica implements ClientModInitializer {
 					BakableModel hatModelData = Hat.overridden.get(() -> Cosmetica.getPlayerData(player).hat());
 
 					if (hatModelData != null && !((hatModelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))) {
-						float hatTopY = hatModelData.bounds().get(1).getAsJsonArray().get(1).getAsFloat();
+						float hatTopY = Math.max(0, (float) hatModelData.bounds().y1());
 
 						float normalizedAngleMultiplier = (float) -(Math.abs(playerModel.head.xRot) / 1.57 - 1);
 						float lookAngleMultiplier;
@@ -578,5 +530,9 @@ public class Cosmetica implements ClientModInitializer {
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();
 		System.gc(); // force jvm to garbage collect our unused data
+	}
+
+	public static Consumer<Exception> logErr(String message) {
+		return e -> LOGGER.error(message + ": {}", e);
 	}
 }

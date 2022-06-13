@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.utils;
 
+import cc.cosmetica.api.Box;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddy;
@@ -137,7 +138,7 @@ public class Debug {
 						"test-" + modelLoc,
 						blockModel,
 						image,
-						extraInfo, JsonParser.parseString("[[0, 0, 0], [0, 0, 0]]").getAsJsonArray()));
+						extraInfo, new Box(0, 0, 0, 0, 0 , 0)));
 
 				return true;
 			} else {

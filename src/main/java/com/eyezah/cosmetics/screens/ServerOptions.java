@@ -1,5 +1,7 @@
 package com.eyezah.cosmetics.screens;
 
+import java.util.Map;
+
 /**
  * Options handled by the server, modifiable on the client.
  */
@@ -41,9 +43,9 @@ class Option implements Cloneable {
 		this.value = !this.value;
 	}
 
-	boolean appendToIfChanged(Option old, StringBuilder sb) {
+	boolean appendToIfChanged(Option old, Map<String, Object> diff) {
 		if (old.value != this.value) {
-			sb.append('&').append(this.urlKey).append('=').append(this.value);
+			diff.put(this.urlKey, this.value);
 			return true;
 		}
 
