@@ -74,6 +74,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -355,11 +356,21 @@ public class Cosmetica implements ClientModInitializer {
 	// End Africa
 
 	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
+		runOffthread(runnable, pool, false);
+	}
+
+	@Nullable
+	public static Runnable runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool, boolean handletiming) {
 		if (Thread.currentThread().getName().startsWith("Cosmetica")) {
+			// note code-readers: early return!
+			if (handletiming) return runnable;
+
 			runnable.run();
 		} else {
 			MAIN_POOL.execute(runnable);
 		}
+
+		return null;
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
@@ -371,19 +382,27 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void clearPlayerData(UUID uuid) {
-		playerDataCache.remove(uuid);
+		synchronized (playerDataCache) {
+			playerDataCache.remove(uuid);
+		}
 	}
 
 	public static int getCacheSize() {
-		return playerDataCache.size();
+		synchronized (playerDataCache) {
+			return playerDataCache.size();
+		}
 	}
 
 	public static Collection<UUID> getCachedPlayers() {
-		return playerDataCache.keySet();
+		synchronized (playerDataCache) {
+			return playerDataCache.keySet();
+		}
 	}
 
 	public static boolean isPlayerCached(UUID uuid) {
-		return playerDataCache.containsKey(uuid);
+		return synchronized (playerDataCache) {
+			playerDataCache.containsKey(uuid);
+		}
 	}
 
 	public static String urlEncode(String value) {
@@ -398,12 +417,15 @@ public class Cosmetica implements ClientModInitializer {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
 		Level level = Minecraft.getInstance().level;
 
+		AtomicReference<Runnable> runnable = null;
+		PlayerData data;
+
 		synchronized (playerDataCache) { // TODO if the network connection fails, queue it to try again later
-			return playerDataCache.computeIfAbsent(uuid, uid -> {
+			 data = playerDataCache.computeIfAbsent(uuid, uid -> {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
-					Cosmetica.runOffthread(() -> {
+					runnable.set(Cosmetica.runOffthread(() -> {
 						if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
 							lookingUp.remove(uuid);
 							return;
@@ -429,12 +451,20 @@ public class Cosmetica implements ClientModInitializer {
 							}
 						}, logErr("Error getting user info for " + uuid + " / " + username));
 
-					}, ThreadPool.GENERAL_THREADS);
+					}, ThreadPool.GENERAL_THREADS, true));
 				}
 
 				return PlayerData.NONE; // temporary name: blank.
 			});
 		}
+
+		// to ensure web requests are not run in a synchronised block on the data cache, holding up the main thread
+		@Nullable
+		Runnable unpacked = runnable.get();
+		if (unpacked != null) unpacked.run();
+
+		// return the actual data
+		return data;
 	}
 
 	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
