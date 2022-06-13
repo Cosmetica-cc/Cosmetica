@@ -123,11 +123,16 @@ public class Authentication {
 
 	private static void runAuthentication(Screen screen) {
 		if (!api.isAuthenticated()) {
-			if (!currentlyAuthenticating) {
+			if (currentlyAuthenticating) {
+				Debug.info("Api is not authenticated but authentication is already in progress.");
+			}
+			else {
+				Debug.info("Api is not authenticated: starting authentication!");
 				currentlyAuthenticating = true;
 				ConnectScreen.startConnecting(screen, Minecraft.getInstance(), ServerAddress.parseString(CosmeticaAPI.getAuthServer()), new ServerData("Authentication Server", CosmeticaAPI.getAuthServer(), false));
 			}
 		} else {
+			Debug.info("Api is authenticated: syncing settings!");
 			syncSettings();
 		}
 	}
