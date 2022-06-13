@@ -3,7 +3,7 @@ package com.eyezah.cosmetics.utils;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class FormattedChatEncoder {
 		if (!literalTxt.isEmpty()) tokens.add(literalTxt.toString());
 
 		// parser
-		MutableComponent result = new TextComponent("");
+		MutableComponent result = Component.literal("");
 
 		for (int i = 0; i < tokens.size(); i++) {
 			Object currentToken = tokens.get(i);
@@ -76,7 +76,7 @@ public class FormattedChatEncoder {
 	}
 
 	private static int parseURL(MutableComponent result, List<Object> tokens, int i) throws IllegalArgumentException {
-		MutableComponent link = new TextComponent("");
+		MutableComponent link = Component.literal("");
 
 		// In reality, there should really be only one plaintext token between LINK_START, LINK_MID, LINK_END
 		// however it has been designed like this in case other token types get added in the future, in which case there could be multiple types in a link, to make it easy to adapt the code

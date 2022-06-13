@@ -7,8 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 
@@ -18,7 +17,7 @@ import static com.eyezah.cosmetics.Authentication.getToken;
 
 public class RSEWarningScreen extends Screen {
 	public RSEWarningScreen(@Nullable Screen parent) {
-		super(new TextComponent("Region-Specific Effects Warning"));
+		super(Component.literal("Region-Specific Effects Warning"));
 		this.parent = parent;
 	}
 
@@ -29,9 +28,9 @@ public class RSEWarningScreen extends Screen {
 	protected void init() {
 		int y = 2 * this.height / 3;
 
-		this.addRenderableWidget(new Button(this.width / 2 + 20, y, 120, 20, new TranslatableComponent("cosmetica.options.yes"), bn -> setRSEAndClose(true)));
+		this.addRenderableWidget(new Button(this.width / 2 + 20, y, 120, 20, Component.translatable("cosmetica.options.yes"), bn -> setRSEAndClose(true)));
 
-		this.addRenderableWidget(new Button(this.width / 2 - 140, y, 120, 20, new TranslatableComponent("cosmetica.options.no"), bn -> setRSEAndClose(false)));
+		this.addRenderableWidget(new Button(this.width / 2 - 140, y, 120, 20, Component.translatable("cosmetica.options.no"), bn -> setRSEAndClose(false)));
 	}
 
 	private void setRSEAndClose(boolean enabled) {
@@ -62,11 +61,11 @@ public class RSEWarningScreen extends Screen {
 
 		stack.pushPose();
 		stack.scale(1.5f, 1.5f, 0);
-		drawCenteredString(stack, this.font, new TranslatableComponent("cosmetica.rsewarning.title"), this.width / 3, this.height / 3 - 30, 0xDADADA);
+		drawCenteredString(stack, this.font, Component.translatable("cosmetica.rsewarning.title"), this.width / 3, this.height / 3 - 30, 0xDADADA);
 		stack.popPose();
-		drawCenteredString(stack, this.font, new TranslatableComponent("cosmetica.rsewarning.description1"), this.width / 2, this.height / 2 - 10, 0xDADADA);
-		drawCenteredString(stack, this.font, new TranslatableComponent("cosmetica.rsewarning.description2"), this.width / 2, this.height / 2, 0xDADADA);
-		drawCenteredString(stack, this.font, new TranslatableComponent("cosmetica.rsewarning.description3"), this.width / 2, this.height / 2 + 10, 0xDADADA);
+		drawCenteredString(stack, this.font, Component.translatable("cosmetica.rsewarning.description1"), this.width / 2, this.height / 2 - 10, 0xDADADA);
+		drawCenteredString(stack, this.font, Component.translatable("cosmetica.rsewarning.description2"), this.width / 2, this.height / 2, 0xDADADA);
+		drawCenteredString(stack, this.font, Component.translatable("cosmetica.rsewarning.description3"), this.width / 2, this.height / 2 + 10, 0xDADADA);
 	}
 
 	public static boolean appearNextScreenChange = false;

@@ -9,7 +9,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,7 +31,7 @@ public abstract class MixinOptionsScreen extends Screen {
 	private void onInit(CallbackInfo info) {
 		for (GuiEventListener eventListener: ((ExtendedScreen) this).getChildren()) {
 			if (eventListener instanceof AbstractWidget widget) {
-				if (widget.getMessage() instanceof TranslatableComponent whyIsJavaLikeThis) {
+				if (widget.getMessage().getContents() instanceof TranslatableContents whyIsJavaLikeThis) {
 					if (whyIsJavaLikeThis.getKey().equals("options.skinCustomisation")) {
 						this.removeWidget(eventListener);
 						break;
@@ -39,7 +39,7 @@ public abstract class MixinOptionsScreen extends Screen {
 				}
 			}
 		}
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, new TranslatableComponent("cosmetica.cosmetics"),
+		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, Component.translatable("cosmetica.cosmetics"),
 				button -> this.minecraft.setScreen(new LoadingScreen(this, this.options))));
 	}
 }

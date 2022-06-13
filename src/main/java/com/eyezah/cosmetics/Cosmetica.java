@@ -34,7 +34,6 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -346,7 +345,7 @@ public class Cosmetica implements ClientModInitializer {
 					theMightyJungle.get("notifications").getAsJsonArray().forEach(elem -> {
 						try {
 							Minecraft.getInstance().gui.getChat().addMessage(
-									new TextComponent("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(elem.getAsString()))
+									Component.literal("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(elem.getAsString()))
 							);
 						}
 						catch (Exception e) {
@@ -525,7 +524,7 @@ public class Cosmetica implements ClientModInitializer {
 					String lore = getPlayerData(lookupId, player.getName().getString()).lore();
 
 					if (!lore.equals("")) {
-						Component component = new TextComponent(lore);
+						Component component = Component.literal(lore);
 
 						boolean bl = !entity.isDiscrete();
 

@@ -11,8 +11,7 @@ import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Objects;
 
@@ -24,12 +23,12 @@ public class UnauthenticatedScreen extends Screen {
 	private Screen parentScreen;
 	private boolean fromSave;
 
-	private Component reason = new TranslatableComponent("cosmetica.unauthenticated.message");
+	private Component reason = Component.translatable("cosmetica.unauthenticated.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
 	public UnauthenticatedScreen(Screen parentScreen, boolean fromSave) {
-		super(new TranslatableComponent("cosmetica.unauthenticated"));
+		super(Component.translatable("cosmetica.unauthenticated"));
 		this.parentScreen = parentScreen;
 		this.fromSave = fromSave;
 	}
@@ -44,19 +43,19 @@ public class UnauthenticatedScreen extends Screen {
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 
 		if (fromSave) {
-			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
+			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, Component.translatable("cosmetica.okay"), button -> this.onClose()));
 		} else {
 			if (Debug.DEBUG_MODE) { // because I'm not authenticated in dev and can't use the normal button
-				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TextComponent("Immediately Clear Caches"), btn -> Cosmetica.clearAllCaches()));
+				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, Component.literal("Immediately Clear Caches"), btn -> Cosmetica.clearAllCaches()));
 			}
 
-			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
+			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, Component.translatable("options.skinCustomisation"), (button) -> {
 				this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options));
 			}));
-			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.unauthenticated.retry"), (button) -> {
+			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, Component.translatable("cosmetica.unauthenticated.retry"), (button) -> {
 				minecraft.setScreen(new LoadingScreen(this.parentScreen, minecraft.options));
 			}));
-			this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TranslatableComponent("gui.cancel"), button -> this.onClose()));
+			this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, Component.translatable("gui.cancel"), button -> this.onClose()));
 		}
 	}
 

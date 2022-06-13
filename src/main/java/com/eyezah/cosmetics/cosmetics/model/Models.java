@@ -22,12 +22,15 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Supplier;
 
 public class Models {
 	private static Map<String, BakedModel> BAKED_MODELS = new HashMap<>();
@@ -165,19 +168,19 @@ public class Models {
 	// vanilla code that I don't want to rewrite:
 
 	private static void renderModelLists(BakedModel bakedModel, int packedLight, int overlayType, PoseStack poseStack, VertexConsumer vertexConsumer) {
-		Random random = new Random();
+		RandomSource randomSource = RandomSource.create();
 		final long seed = 42L;
 		Direction[] var10 = Direction.values();
 		int var11 = var10.length;
 
 		for(int var12 = 0; var12 < var11; ++var12) {
 			Direction direction = var10[var12];
-			random.setSeed(seed);
-			renderQuadList(poseStack, vertexConsumer, bakedModel.getQuads(null, direction, random), packedLight, overlayType);
+			randomSource.setSeed(seed);
+			renderQuadList(poseStack, vertexConsumer, bakedModel.getQuads(null, direction, randomSource), packedLight, overlayType);
 		}
 
-		random.setSeed(seed);
-		renderQuadList(poseStack, vertexConsumer, bakedModel.getQuads(null, null, random), packedLight, overlayType);
+		randomSource.setSeed(seed);
+		renderQuadList(poseStack, vertexConsumer, bakedModel.getQuads(null, null, randomSource), packedLight, overlayType);
 	}
 
 	private static void renderQuadList(PoseStack poseStack, VertexConsumer vertexConsumer, List<BakedQuad> list, int i, int j) {

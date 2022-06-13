@@ -11,14 +11,14 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.io.IOException;
 
 public class MainScreen extends SulphateScreen {
 	public MainScreen(Screen parentScreen, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects, boolean doLore) {
-		super(new TranslatableComponent("cosmetica.cosmeticsMenu"), parentScreen);
+		super(Component.translatable("cosmetica.cosmeticsMenu"), parentScreen);
 		this.parentScreen = parentScreen;
 
 		this.oldOptions = new ServerOptions(doShoulderBuddies, doHats, doRegionSpecificEffects, doLore);
@@ -36,14 +36,14 @@ public class MainScreen extends SulphateScreen {
 	private boolean doTestReload;
 
 
-	private TextComponent generateButtonToggleText(String translatable, boolean toggle) {
-		TextComponent component = new TextComponent("");
-		component.append(new TranslatableComponent(translatable));
+	private Component generateButtonToggleText(String translatable, boolean toggle) {
+		MutableComponent component = Component.literal("");
+		component.append(Component.translatable(translatable));
 		component.append(": ");
 		if (toggle) {
-			component.append(new TranslatableComponent("cosmetica.enabled"));
+			component.append(Component.translatable("cosmetica.enabled"));
 		} else {
-			component.append(new TranslatableComponent("cosmetica.disabled"));
+			component.append(Component.translatable("cosmetica.disabled"));
 		}
 		return component;
 	}
@@ -52,7 +52,7 @@ public class MainScreen extends SulphateScreen {
 	protected void addWidgets() {
 		// top row
 
-		this.addButton(new TranslatableComponent("options.skinCustomisation"), (button) -> {
+		this.addButton(Component.translatable("options.skinCustomisation"), (button) -> {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options));
 		});
 
@@ -63,13 +63,13 @@ public class MainScreen extends SulphateScreen {
 
 		// second row, etc...
 
-		this.addButton(new TranslatableComponent("cosmetica.reloadCosmetics"), (button) -> {
+		this.addButton(Component.translatable("cosmetica.reloadCosmetics"), (button) -> {
 			doReload = !doReload;
 			if (Debug.TEST_MODE) doTestReload = doReload;
 			if (doReload) {
-				button.setMessage(new TranslatableComponent("cosmetica.willReload"));
+				button.setMessage(Component.translatable("cosmetica.willReload"));
 			} else {
-				button.setMessage(new TranslatableComponent("cosmetica.reloadCosmetics"));
+				button.setMessage(Component.translatable("cosmetica.reloadCosmetics"));
 			}
 		});
 
@@ -101,19 +101,19 @@ public class MainScreen extends SulphateScreen {
 		});*/ // MOVE TO RIGHT (dont have the time to see how sulphate lol)
 
 		/*if (Debug.TEST_MODE) {
-			this.addButton(200, 20, new TranslatableComponent("cosmetica.reloadTestCosmetics"), (button) -> {
+			this.addButton(200, 20, Component.translatable("cosmetica.reloadTestCosmetics"), (button) -> {
 				doTestReload = !doTestReload;
 
 				if (doTestReload) {
-					button.setMessage(new TranslatableComponent("cosmetica.willReload"));
+					button.setMessage(Component.translatable("cosmetica.willReload"));
 				} else {
-					button.setMessage(new TranslatableComponent("cosmetica.reloadTestCosmetics"));
+					button.setMessage(Component.translatable("cosmetica.reloadTestCosmetics"));
 				}
 			});
 		}*/
 
 		// bottom of the menu
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, Component.translatable("cosmetica.customizeCosmetics"), (button) -> {
 			try {
 				Minecraft.getInstance().keyboardHandler.setClipboard(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());
 				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + Authentication.getToken());

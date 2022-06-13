@@ -10,7 +10,6 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
 
@@ -20,12 +19,12 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;
 	private Options parentOptions;
 
-	private Component reason = new TranslatableComponent("cosmetica.loading.message");
+	private Component reason = Component.translatable("cosmetica.loading.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
 	public LoadingScreen(Screen parentScreen, Options parentOptions) {
-		super(new TranslatableComponent("cosmetica.loading"));
+		super(Component.translatable("cosmetica.loading"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
 
@@ -46,10 +45,10 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		this.message = MultiLineLabel.create(this.font, this.reason, this.width - 50);
 		this.textHeight = this.message.getLineCount() * 9;
 
-		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30), 200, 20, new TranslatableComponent("options.skinCustomisation"), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30), 200, 20, Component.translatable("options.skinCustomisation"), (button) -> {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, this.parentOptions));
 		}));
-		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30) + 24, 200, 20, new TranslatableComponent("gui.cancel"), (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30) + 24, 200, 20, Component.translatable("gui.cancel"), (button) -> {
 			this.minecraft.setScreen(this.parentScreen);
 		}));
 	}

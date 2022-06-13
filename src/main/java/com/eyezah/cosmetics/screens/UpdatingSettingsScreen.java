@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -19,12 +18,12 @@ import static com.eyezah.cosmetics.Cosmetica.*;
 public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;
 
-	private Component reason = new TranslatableComponent("cosmetica.updating.message");
+	private Component reason = Component.translatable("cosmetica.updating.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
 	public UpdatingSettingsScreen(Screen parentScreen, ServerOptions oldOptions, ServerOptions newOptions, boolean doReload) throws IOException, InterruptedException {
-		super(new TranslatableComponent("cosmetica.updating"));
+		super(Component.translatable("cosmetica.updating"));
 		this.parentScreen = parentScreen;
 
 		StringBuilder endString = new StringBuilder();

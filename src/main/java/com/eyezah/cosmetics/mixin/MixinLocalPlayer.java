@@ -1,7 +1,6 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.ThreadPool;
 import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddy;
@@ -14,15 +13,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Mixin(LocalPlayer.class)
 public class MixinLocalPlayer {
@@ -34,7 +31,7 @@ public class MixinLocalPlayer {
 			if (args[0].equals("/cosmetica")) {
 				if (args.length == 1) {
 					OverriddenModel.disableDebugModels();
-					Minecraft.getInstance().gui.getChat().addMessage(new TranslatableComponent("cosmetica.debugCosmetica.disable"));
+					Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("cosmetica.debugCosmetica.disable"));
 				} else if (args.length == 3) {
 					// /cosmetica <type> <cosmeticid>
 					String urlEncodedType = Cosmetica.urlEncode(args[1]);
@@ -68,13 +65,13 @@ public class MixinLocalPlayer {
 				} else if (args.length == 2) { // cache commands
 					switch (args[1]) {
 					case "texcache":
-						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.TEXTURE_MANAGER.toString()));
+						Minecraft.getInstance().gui.getChat().addMessage(Component.literal(Models.TEXTURE_MANAGER.toString()));
 						break;
 					case "infocache":
-						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Cosmetica.getCachedPlayers().toString()));
+						Minecraft.getInstance().gui.getChat().addMessage(Component.literal(Cosmetica.getCachedPlayers().toString()));
 						break;
 					case "modelcache":
-						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.getCachedModels().toString()));
+						Minecraft.getInstance().gui.getChat().addMessage(Component.literal(Models.getCachedModels().toString()));
 						break;
 					default:
 						break;

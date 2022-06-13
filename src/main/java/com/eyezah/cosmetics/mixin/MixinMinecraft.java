@@ -1,14 +1,13 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,7 +48,7 @@ public abstract class MixinMinecraft {
 
 		// also do the check thing
 		if (Cosmetica.displayNext != null) {
-			this.gui.getChat().addMessage(new TextComponent(Cosmetica.displayNext));
+			this.gui.getChat().addMessage(Component.literal(Cosmetica.displayNext));
 			Cosmetica.displayNext = null;
 		}
 	}

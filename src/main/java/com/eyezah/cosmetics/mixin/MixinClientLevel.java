@@ -27,8 +27,8 @@ import java.util.function.Supplier;
 public abstract class MixinClientLevel extends Level {
 	@Shadow @Final private Minecraft minecraft;
 
-	protected MixinClientLevel(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> dimensionType, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l) {
-		super(writableLevelData, resourceKey, dimensionType, supplier, bl, bl2, l);
+	protected MixinClientLevel(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l, int i) {
+		super(writableLevelData, resourceKey, holder, supplier, bl, bl2, l, i);
 	}
 
 	@Inject(at = @At("RETURN"), method = "tick")

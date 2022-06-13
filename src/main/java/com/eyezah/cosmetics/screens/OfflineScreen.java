@@ -11,7 +11,6 @@ import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
 
@@ -22,12 +21,12 @@ import static com.eyezah.cosmetics.Cosmetica.authServerPort;
 public class OfflineScreen extends Screen {
 	private Screen parentScreen;
 
-	private Component reason = new TranslatableComponent("cosmetica.offline.message");
+	private Component reason = Component.translatable("cosmetica.offline.message");
 	private MultiLineLabel message;
 	private int textHeight;
 
 	public OfflineScreen(Screen parentScreen) {
-		super(new TranslatableComponent("cosmetica.offline"));
+		super(Component.translatable("cosmetica.offline"));
 		this.parentScreen = parentScreen;
 	}
 
@@ -40,11 +39,11 @@ public class OfflineScreen extends Screen {
 		int buttonX = this.width / 2 - 100;
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 
-		this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), button -> this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options))));
-		this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.unauthenticated.retry"), (button) -> {
+		this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, Component.translatable("options.skinCustomisation"), button -> this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options))));
+		this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, Component.translatable("cosmetica.unauthenticated.retry"), (button) -> {
 			minecraft.setScreen(new LoadingScreen(this.parentScreen, minecraft.options));
 		}));
-		this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
+		this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, Component.translatable("cosmetica.okay"), button -> this.onClose()));
 	}
 
 	@Override
