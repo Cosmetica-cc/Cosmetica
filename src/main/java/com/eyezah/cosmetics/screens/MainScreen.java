@@ -129,6 +129,7 @@ public class MainScreen extends SulphateScreen {
 				Debug.loadTestProperties();
 				Debug.loadTestModel(Debug.LocalModelType.HAT);
 				Debug.loadTestModel(Debug.LocalModelType.SHOULDERBUDDY);
+				Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
 			}
 
 			try {

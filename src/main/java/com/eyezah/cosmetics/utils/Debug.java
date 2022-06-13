@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.utils;
 
 import cc.cosmetica.api.Box;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.cosmetics.BackBling;
 import com.eyezah.cosmetics.cosmetics.Hat;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddy;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
@@ -190,9 +191,11 @@ public class Debug {
 
 		TEST_PROPERTIES = new Properties();
 		TEST_PROPERTIES.setProperty("hat_location", "hat");
+		TEST_PROPERTIES.setProperty("lock_hat_orientation", "false");
 		TEST_PROPERTIES.setProperty("show_hat_under_helmet", "false");
 		TEST_PROPERTIES.setProperty("shoulderbuddy_location", "shoulderbuddy");
 		TEST_PROPERTIES.setProperty("lock_shoulderbuddy_orientation", "false");
+		TEST_PROPERTIES.setProperty("back_bling_location", "back_bling");
 
 		boolean foundPropertiesFile = TEST_PROPERTIES_FILE.isFile();
 
@@ -205,6 +208,7 @@ public class Debug {
 
 		testModelExists |= loadTestModel(LocalModelType.HAT);
 		testModelExists |= loadTestModel(LocalModelType.SHOULDERBUDDY);
+		testModelExists |= loadTestModel(LocalModelType.BACK_BLING);
 
 		if (testModelExists || foundPropertiesFile) {
 			Cosmetica.LOGGER.info("Test mode enabled! Special test settings available in the cosmetica menu.");
@@ -267,7 +271,7 @@ public class Debug {
 								data.get("logging").getAsBoolean(),
 								imageDumpingSettings,
 								useDebugCommands,
-								key -> cache.computeBooleanIfAbsent(key, predicate));
+								key -> cache.computeIfAbsent(key, predicate));
 
 						if (debugSettings.imageDumping().either()) {
 							DUMP_FOLDER.mkdir();
@@ -299,12 +303,17 @@ public class Debug {
 		public static final LocalModelType HAT = new LocalModelType(
 				Hat.overridden,
 				() -> TEST_PROPERTIES.getProperty("hat_location"),
-				() -> Boolean.parseBoolean(TEST_PROPERTIES.getProperty("show_hat_under_helmet")) ? 1 : 0
+				() -> (Boolean.parseBoolean(TEST_PROPERTIES.getProperty("show_hat_under_helmet")) ? 1 : 0) | (Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_hat_orientation")) ? 2 : 0)
 		);
 		public static final LocalModelType SHOULDERBUDDY = new LocalModelType(
 				ShoulderBuddy.overridden,
 				() -> TEST_PROPERTIES.getProperty("shoulderbuddy_location"),
 				() -> Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_shoulderbuddy_orientation")) ? 1 : 0
+		);
+		public static final LocalModelType BACK_BLING = new LocalModelType(
+				BackBling.overridden,
+				() -> TEST_PROPERTIES.getProperty("back_bling_location"),
+				() -> 0
 		);
 	}
 }
