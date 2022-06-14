@@ -37,7 +37,7 @@ public class BackBling<T extends Player> extends CustomLayer<T, PlayerModel<T>> 
 		if (modelData == null) return; // if it has a model
 
 		stack.pushPose();
-		doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, -0.0f, 0.1f);
+		doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, -0.1f - (0.15f/6.0f), 0.1f);
 		stack.popPose();
 	}
 
