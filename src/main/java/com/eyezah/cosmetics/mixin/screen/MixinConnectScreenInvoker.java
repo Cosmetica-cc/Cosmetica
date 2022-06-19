@@ -15,14 +15,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ConnectScreen.class)
 public interface MixinConnectScreenInvoker {
-	@Invoker("<init>")
-	static ConnectScreen getConnectScreen(Screen screen) {
-		return null;
-	}
-
-	@Invoker("updateStatus")
-	void doUpdateStatus(Component component);
-
 	@Nullable
 	@Accessor("connection")
 	Connection getConnection();

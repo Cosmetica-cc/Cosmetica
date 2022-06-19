@@ -3,6 +3,7 @@ package com.eyezah.cosmetics;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
+import com.eyezah.cosmetics.mixin.screen.MixinConnectScreenInvoker;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
@@ -11,20 +12,32 @@ import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.eyezah.cosmetics.utils.Response;
 import com.google.common.net.HostAndPort;
 import com.google.gson.JsonObject;
+import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.User;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ResolvedServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.client.multiplayer.resolver.ServerNameResolver;
+import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
+import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.eyezah.cosmetics.Cosmetica.*;
 
 public class Authentication {
-	private static boolean currentlyAuthenticated = false;
-	public static boolean currentlyAuthenticating = false;
+	private static volatile boolean currentlyAuthenticated = false;
+	public static volatile boolean currentlyAuthenticating = false;
 	private static int bits; // to mark the two required things that must have happened to start cosmetics auth: fetching API url (may fail), and finishing loading.
 
 	public static boolean isCurrentlyAuthenticated() {
@@ -36,7 +49,7 @@ public class Authentication {
 
 		Thread requestThread = new Thread(() -> {
 			if (!api.isAuthenticated()) {
-				runAuthentication(Minecraft.getInstance().screen);
+				runAuthentication();
 				return;
 			}
 
@@ -59,7 +72,7 @@ public class Authentication {
 				LOGGER.error("Error during settings get: {}", error);
 
 				showUnauthenticatedIfLoading();
-				runAuthentication(Minecraft.getInstance().screen);
+				runAuthentication();
 			});
 		});
 		requestThread.start();
@@ -74,55 +87,21 @@ public class Authentication {
 		} // TODO if in-game some small, unintrusive text on bottom right
 	}
 
-	public static void requestTokens(String testToken) {
-		Thread requestThread = new Thread(() -> {
-			try {
-				// TODO new auth
-				// the thing that can error
-				api = CosmeticaAPI.fromAuthToken(testToken);
-				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
-				LoginInfo info = api.exchangeTokens(UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()))).get(); // getUuid() better have the dashes... edit: it did not have the dashes
-
-				// success response
-				currentlyAuthenticated = true;
-				currentlyAuthenticating = false;
-
-				if (info.isNewPlayer() && !info.hasSpecialCape()) {
-					String capeId = getDefaultSettingsConfig().getCapeId();
-
-					if (!capeId.isEmpty()) {
-						api.setCosmetic(CosmeticType.CAPE, capeId);
-					}
-
-					var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
-
-					if (!capeServerSettings.isEmpty()) {
-						api.setCapeServerSettings(capeServerSettings);
-					}
-				}
-				syncSettings();
-			} catch (IllegalStateException | NullPointerException e) {
-				Cosmetica.LOGGER.warn("Error on authentication. Will be offline. {}", e);
-				currentlyAuthenticating = false;
-				showUnauthenticatedIfLoading();
-			}
-		});
-		requestThread.start();
-	}
-
-	public static boolean runAuthentication(Screen screen, int flag) {
+	public static boolean runAuthentication(int flag) {
 		// 0x1 = API_URL_FETCH || 0x2 = LOAD_FINISH
 		bits |= flag;
 
 		if (bits >= 3) {
-			runAuthentication(screen);
+			runAuthentication();
 			return true;
 		}
 
 		return false;
 	}
 
-	private static void runAuthentication(Screen screen) {
+	private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
+
+	private static void runAuthentication() {
 		if (!api.isAuthenticated()) {
 			if (currentlyAuthenticating) {
 				Debug.info("Api is not authenticated but authentication is already in progress.");
@@ -130,7 +109,41 @@ public class Authentication {
 			else {
 				Debug.info("Api is not authenticated: starting authentication!");
 				currentlyAuthenticating = true;
-				ConnectScreen.startConnecting(screen, Minecraft.getInstance(), ServerAddress.parseString(CosmeticaAPI.getAuthServer()), new ServerData("Authentication Server", CosmeticaAPI.getAuthServer(), false));
+
+				new Thread("Cosmetica Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
+					public void run() {
+						try {
+							User user = Minecraft.getInstance().getUser();
+							api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()))); // getUuid() better have the dashes... edit: it did not have the dashes.
+							api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+
+							LoginInfo info = api.getLoginInfo().get();
+
+							// success response
+							currentlyAuthenticated = true;
+							currentlyAuthenticating = false;
+
+							if (info.isNewPlayer() && !info.hasSpecialCape()) {
+								String capeId = getDefaultSettingsConfig().getCapeId();
+
+								if (!capeId.isEmpty()) {
+									api.setCosmetic(CosmeticType.CAPE, capeId);
+								}
+
+								var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
+
+								if (!capeServerSettings.isEmpty()) {
+									api.setCapeServerSettings(capeServerSettings);
+								}
+							}
+							syncSettings();
+						} catch (Exception e) {
+							LOGGER.error("Couldn't connect to cosmetica auth server", e);
+
+							Authentication.showUnauthenticatedIfLoading();
+						}
+					}
+				}.start();
 			}
 		} else {
 			Debug.info("Api is authenticated: syncing settings!");

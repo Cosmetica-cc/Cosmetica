@@ -141,7 +141,7 @@ public class Cosmetica implements ClientModInitializer {
 
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
 				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
-				Authentication.runAuthentication(new TitleScreen(), 1);
+				Authentication.runAuthentication(1);
 
 				api.checkVersion(
 						SharedConstants.getCurrentVersion().getId(),

@@ -12,6 +12,6 @@ import static com.eyezah.cosmetics.Authentication.runAuthentication;
 public class MixinTitleScreen {
 	@Inject(at = @At("HEAD"), method = "init")
 	private void titleScreenInject(CallbackInfo ci) {
-		runAuthentication(new TitleScreen(), 2);
+		runAuthentication(2);
 	}
 }
