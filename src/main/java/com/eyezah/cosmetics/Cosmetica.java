@@ -3,9 +3,10 @@ package com.eyezah.cosmetics;
 import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.Model;
+import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
-import com.eyezah.cosmetics.api.PlayerData;
 import com.eyezah.cosmetics.cosmetics.Hat;
+import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
@@ -58,20 +59,13 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalLong;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
@@ -152,9 +146,11 @@ public class Cosmetica implements ClientModInitializer {
 				api.checkVersion(
 						SharedConstants.getCurrentVersion().getId(),
 						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString()
-				).ifSuccessfulOrElse(s -> {
-					if (s.isPresent()) {
-						displayNext = s.get();
+				).ifSuccessfulOrElse(versionInfo -> {
+					String s = versionInfo.minecraftMessage();
+
+					if (!s.isEmpty()) {
+						displayNext = s;
 					}
 				}, Cosmetica.logErr("Error checking version"));
 			} catch (Exception e) {
@@ -291,7 +287,7 @@ public class Cosmetica implements ClientModInitializer {
 			api.everyThirtySecondsInAfricaHalfAMinutePasses(prideRock, yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong())
 					.ifSuccessfulOrElse(theLionSleepsTonight -> {
 						// the speech from the lion king
-						for (String notification : theLionSleepsTonight.notifications()) { // let's hope I made sure this isn't null
+						for (String notification : theLionSleepsTonight.getNotifications()) { // let's hope I made sure this isn't null
 							try {
 								Minecraft.getInstance().gui.getChat().addMessage(
 										new TextComponent("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(notification))
@@ -302,13 +298,13 @@ public class Cosmetica implements ClientModInitializer {
 							}
 						}
 
-						Cosmetica.toto = OptionalLong.of(theLionSleepsTonight.timestamp());
+						Cosmetica.toto = OptionalLong.of(theLionSleepsTonight.getTimestamp());
 
 						if (!yourFirstRodeo) {
 							Debug.info("Processing updates found on the safari.");
 
-							for (User individual : theLionSleepsTonight.needsUpdating()) {
-								UUID uuid = individual.uuid();
+							for (User individual : theLionSleepsTonight.getNeedsUpdating()) {
+								UUID uuid = individual.getUUID();
 								Debug.info("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
 
 								if (playerDataCache.containsKey(uuid)) {
@@ -324,7 +320,7 @@ public class Cosmetica implements ClientModInitializer {
 
 
 									// use username to clear the info - might be in offline mode or something
-									String username = individual.username();
+									String username = individual.getUsername();
 
 									PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(username);
 
@@ -418,19 +414,24 @@ public class Cosmetica implements ClientModInitializer {
 						}
 
 						Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
-							Optional<Model> hat = info.hat();
-							Optional<Model> shoulderBuddy = info.shoulderBuddy();
-							Optional<Cape> cloak = info.cape();
+							List<Model> hats = info.getHats();
+							Optional<ShoulderBuddies> shoulderBuddy = info.getShoulderBuddies();
+							Optional<Model> backBling = info.getBackBling();
+							Optional<Cape> cloak = info.getCape();
+
+							Optional<Model> leftShoulderBuddy = shoulderBuddy.isEmpty() ? Optional.empty() : shoulderBuddy.get().getLeft();
+							Optional<Model> rightShoulderBuddy = shoulderBuddy.isEmpty() ? Optional.empty() : shoulderBuddy.get().getRight();
 
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, new PlayerData(
-										info.lore(),
-										info.upsideDown(),
-										info.prefix(),
-										info.suffix(),
-										hat.isEmpty() ? null : Models.createBakableModel(hat.get()),
-										shoulderBuddy.isEmpty() ? null : Models.createBakableModel(shoulderBuddy.get()),
-										null, // TODO back bling
+										info.getLore(),
+										info.isUpsideDown(),
+										info.getPrefix(),
+										info.getSuffix(),
+										hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
+										leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
+										rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
+										backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
 										cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get())
 								));
 
@@ -457,14 +458,21 @@ public class Cosmetica implements ClientModInitializer {
 			UUID lookupId = player.getUUID();
 
 			if (lookupId != null) {
-				double d = entityRenderDispatcher.distanceToSqr(entity);
+				double squaredDistance = entityRenderDispatcher.distanceToSqr(entity);
 
-				if (!(d > 4096.0D)) {
-					BakableModel hatModelData = Hat.overridden.get(() -> Cosmetica.getPlayerData(player).hat());
+				if (squaredDistance <= 4096.0D) {
+					// how much do we need to shift up nametags?
+					List<BakableModel> hats = Hat.overridden.getList(() -> Cosmetica.getPlayerData(player).hats());
 
-					if (hatModelData != null && !((hatModelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))) {
-						float hatTopY = Math.max(0, (float) hatModelData.bounds().y1());
+					float hatTopY = 0;
 
+					for (BakableModel hat : hats) {
+						if (!((hat.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))) {
+							hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+						}
+					}
+
+					if (hatTopY > 0) {
 						float normalizedAngleMultiplier = (float) -(Math.abs(playerModel.head.xRot) / 1.57 - 1);
 						float lookAngleMultiplier;
 						if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
@@ -475,6 +483,7 @@ public class Cosmetica implements ClientModInitializer {
 						stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
 					}
 
+					// render lore
 					String lore = getPlayerData(lookupId, player.getName().getString()).lore();
 
 					if (!lore.equals("")) {
@@ -533,7 +542,7 @@ public class Cosmetica implements ClientModInitializer {
 		System.gc(); // force jvm to garbage collect our unused data
 	}
 
-	public static Consumer<Exception> logErr(String message) {
+	public static Consumer<RuntimeException> logErr(String message) {
 		return e -> LOGGER.error(message + ": {}", e);
 	}
 }

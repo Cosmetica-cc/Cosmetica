@@ -44,8 +44,8 @@ public class Authentication {
 				Debug.info("Handling successful cosmetics settings response.");
 
 				// regional effects checking
-				boolean regionSpecificEffects = settings.perRegionEffects();
-				RSEWarningScreen.appearNextScreenChange = !settings.perRegionEffectsSet();
+				boolean regionSpecificEffects = settings.hasPerRegionEffects();
+				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet();
 
 				boolean doShoulderBuddies = settings.doShoulderBuddies();
 				boolean doHats = settings.doHats();
@@ -77,6 +77,7 @@ public class Authentication {
 	public static void requestTokens(String testToken) {
 		Thread requestThread = new Thread(() -> {
 			try {
+				// TODO new auth
 				// the thing that can error
 				api = CosmeticaAPI.fromAuthToken(testToken);
 				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));

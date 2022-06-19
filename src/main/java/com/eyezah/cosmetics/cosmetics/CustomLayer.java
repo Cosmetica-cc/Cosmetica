@@ -28,7 +28,7 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
         BakedModel model = Models.getBakedModel(bakableModel);
         if (model == null) return; // if it has errors with the baked model or cannot render it for another reason will return null
         stack.pushPose();
-        float o = 1.001f; // 0.5 has z fighting
+        float o = 1.001f; // prevent z fighting
         modelPart.translateAndRotate(stack);
         stack.scale(o, -o, -o);
         stack.mulPose(new Quaternion(Vector3f.YP, (float)Math.PI, false)); // pi radians on y axis

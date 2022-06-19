@@ -6,12 +6,13 @@ import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.List;
 
 public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
 	private ModelManager modelManager;
@@ -24,15 +25,17 @@ public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		BakableModel modelData = overridden.get(() -> Cosmetica.getPlayerData(player).hat());
-		if (modelData == null) return; // if it has a model
-		if ((modelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) return; // disable hat flag
+		List<BakableModel> hats = overridden.getList(() -> Cosmetica.getPlayerData(player).hats());
 
-		if ((modelData.extraInfo() & 0x2) == 0) {
-			doCoolRenderThings(modelData, this.getParentModel().getHead(), stack, multiBufferSource, packedLightProbably, 0, 0.75f, 0);
-		}
-		else {
-			doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, 0.77f, 0);
+		for (BakableModel modelData : hats) {
+			if ((modelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))
+				return; // disable hat flag
+
+			if ((modelData.extraInfo() & 0x2) == 0) {
+				doCoolRenderThings(modelData, this.getParentModel().getHead(), stack, multiBufferSource, packedLightProbably, 0, 0.75f, 0);
+			} else {
+				doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, 0.77f, 0);
+			}
 		}
 	}
 

@@ -41,6 +41,17 @@ public final class OverriddenModel {
 		}
 	}
 
+	@Nullable
+	public List<BakableModel> getList(Supplier<List<BakableModel>> orElse) {
+		if (this.debugModel != null) {
+			return List.of(this.debugModel);
+		} else if (currentOverride != null) {
+			return null;
+		} else {
+			return this.testModel == null ? orElse.get() : List.of(this.testModel);
+		}
+	}
+
 	public void removeTestModel() {
 		this.testModel = null;
 	}

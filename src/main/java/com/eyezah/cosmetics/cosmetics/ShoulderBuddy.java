@@ -33,30 +33,15 @@ public class ShoulderBuddy<T extends Player> extends CustomLayer<T, PlayerModel<
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		Boolean left = null;
+		BakableModel left = overridden.get(() -> Cosmetica.getPlayerData(player).leftShoulderBuddy());
+		BakableModel right = overridden.get(() -> Cosmetica.getPlayerData(player).rightShoulderBuddy());
 
-		if (player.getMainArm() == HumanoidArm.RIGHT) {
-			if (player.getShoulderEntityLeft().isEmpty()) {
-				left = true;
-			} else if (player.getShoulderEntityRight().isEmpty()) {
-				left = false;
-			}
-		} else {
-			if (player.getShoulderEntityRight().isEmpty()) {
-				left = false;
-			} else if (player.getShoulderEntityLeft().isEmpty()) {
-				left = true;
-			}
-		}
-
-		if (left != null) render(stack, multiBufferSource, packedLightProbably, player, left);
+		// TODO are we still doing shoulder swapping?
+		if (left != null && player.getShoulderEntityLeft().isEmpty()) render(left, stack, multiBufferSource, packedLightProbably, player, true);
+		if (right != null && player.getShoulderEntityLeft().isEmpty()) render(right, stack, multiBufferSource, packedLightProbably, player, false);
 	}
 
-	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, boolean left) {
-		BakableModel modelData = overridden.get(() -> Cosmetica.getPlayerData(player).shoulderBuddy());
-
-		if (modelData == null) return; // if it has a model
-
+	public void render(BakableModel modelData, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, boolean left) {
 		stack.pushPose();
 
 		if (modelData.id().equals("-sheep")) { // builtin live sheep
