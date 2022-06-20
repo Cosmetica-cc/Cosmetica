@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.cosmetics;
 
+import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
@@ -27,16 +28,22 @@ public class Hat<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
 		if (player.isInvisible()) return;
 		List<BakableModel> hats = overridden.getList(() -> Cosmetica.getPlayerData(player).hats());
 
+		stack.pushPose();
+
 		for (BakableModel modelData : hats) {
-			if ((modelData.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))
+			if ((modelData.extraInfo() & Model.HIDE_HAT_UNDER_HELMET) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))
 				return; // disable hat flag
 
-			if ((modelData.extraInfo() & 0x2) == 0) {
+			if ((modelData.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
 				doCoolRenderThings(modelData, this.getParentModel().getHead(), stack, multiBufferSource, packedLightProbably, 0, 0.75f, 0);
 			} else {
 				doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, 0.77f, 0);
 			}
+
+			stack.scale(1.001f, 1.001f, 1.001f); // stop multiple hats conflicting
 		}
+
+		stack.popPose();
 	}
 
 	public static final OverriddenModel overridden = new OverriddenModel();

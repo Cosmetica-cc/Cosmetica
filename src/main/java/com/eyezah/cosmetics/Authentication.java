@@ -103,47 +103,54 @@ public class Authentication {
 
 	private static void runAuthentication() {
 		if (!api.isAuthenticated()) {
-			if (currentlyAuthenticating) {
-				Debug.info("Api is not authenticated but authentication is already in progress.");
-			}
-			else {
-				Debug.info("Api is not authenticated: starting authentication!");
-				currentlyAuthenticating = true;
+			String devToken = System.getProperty("cosmetica.token");
 
-				new Thread("Cosmetica Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
-					public void run() {
-						try {
-							User user = Minecraft.getInstance().getUser();
-							api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()))); // getUuid() better have the dashes... edit: it did not have the dashes.
-							api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+			if (devToken != null) {
+				Debug.info("Authenticating API from provided token.");
+				api = CosmeticaAPI.fromToken(devToken);
+				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+			} else {
+				if (currentlyAuthenticating) {
+					Debug.info("API is not authenticated but authentication is already in progress.");
+				} else {
+					Debug.info("API is not authenticated: starting authentication!");
+					currentlyAuthenticating = true;
 
-							LoginInfo info = api.getLoginInfo().get();
+					new Thread("Cosmetica Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
+						public void run() {
+							try {
+								User user = Minecraft.getInstance().getUser();
+								api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()))); // getUuid() better have the dashes... edit: it did not have the dashes.
+								api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
 
-							// success response
-							currentlyAuthenticated = true;
-							currentlyAuthenticating = false;
+								LoginInfo info = api.getLoginInfo().get();
 
-							if (info.isNewPlayer() && !info.hasSpecialCape()) {
-								String capeId = getDefaultSettingsConfig().getCapeId();
+								// success response
+								currentlyAuthenticated = true;
+								currentlyAuthenticating = false;
 
-								if (!capeId.isEmpty()) {
-									api.setCosmetic(CosmeticType.CAPE, capeId);
+								if (info.isNewPlayer() && !info.hasSpecialCape()) {
+									String capeId = getDefaultSettingsConfig().getCapeId();
+
+									if (!capeId.isEmpty()) {
+										api.setCosmetic(CosmeticType.CAPE, capeId);
+									}
+
+									var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
+
+									if (!capeServerSettings.isEmpty()) {
+										api.setCapeServerSettings(capeServerSettings);
+									}
 								}
+								syncSettings();
+							} catch (Exception e) {
+								LOGGER.error("Couldn't connect to cosmetica auth server", e);
 
-								var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
-
-								if (!capeServerSettings.isEmpty()) {
-									api.setCapeServerSettings(capeServerSettings);
-								}
+								Authentication.showUnauthenticatedIfLoading();
 							}
-							syncSettings();
-						} catch (Exception e) {
-							LOGGER.error("Couldn't connect to cosmetica auth server", e);
-
-							Authentication.showUnauthenticatedIfLoading();
 						}
-					}
-				}.start();
+					}.start();
+				}
 			}
 		} else {
 			Debug.info("Api is authenticated: syncing settings!");
