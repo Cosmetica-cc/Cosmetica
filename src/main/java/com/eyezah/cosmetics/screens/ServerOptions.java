@@ -6,9 +6,10 @@ import java.util.Map;
  * Options handled by the server, modifiable on the client.
  */
 class ServerOptions {
-	ServerOptions(boolean shoulderBuddies, boolean hats, boolean regionSpecificEffects, boolean lore) {
+	ServerOptions(boolean shoulderBuddies, boolean hats, boolean regionSpecificEffects, boolean doBackBlings, boolean lore) {
 		this.shoulderBuddies = new Option("doshoulderbuddies", shoulderBuddies);
 		this.hats = new Option("dohats", hats);
+		this.backBlings = new Option("dobackblings", doBackBlings);
 		this.regionSpecificEffects = new Option("doregioneffects", regionSpecificEffects);
 		this.lore = new Option("dolore", lore);
 	}
@@ -16,12 +17,14 @@ class ServerOptions {
 	ServerOptions(ServerOptions other) {
 		this.shoulderBuddies = other.shoulderBuddies.clone();
 		this.hats = other.hats.clone();
+		this.backBlings = other.backBlings.clone();
 		this.regionSpecificEffects = other.regionSpecificEffects.clone();
 		this.lore = other.lore.clone();
 	}
 
 	final Option shoulderBuddies;
 	final Option hats;
+	final Option backBlings;
 	final Option regionSpecificEffects;
 	final Option lore;
 }

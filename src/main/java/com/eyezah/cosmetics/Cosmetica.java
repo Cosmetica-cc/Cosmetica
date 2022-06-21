@@ -10,7 +10,7 @@ import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
-import com.eyezah.cosmetics.utils.FormattedChatEncoder;
+import com.eyezah.cosmetics.utils.TextComponents;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
@@ -26,7 +26,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ConnectScreen;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -100,6 +99,16 @@ public class Cosmetica implements ClientModInitializer {
 	private static final Pattern UNDASHED_UUID_GAPS = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
 	private static final String UUID_DASHIFIER_REPLACEMENT = "$1-$2-$3-$4-$5";
 
+	private static final List<String> splashes = new LinkedList<>();
+
+	private static void addSplash(String splash) {
+		splashes.add(splash);
+	}
+
+	public static Collection<String> getSplashes() {
+		return splashes;
+	}
+
 	public static CosmeticaConfig getConfig() {
 		return config;
 	}
@@ -138,6 +147,7 @@ public class Cosmetica implements ClientModInitializer {
 
 				Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
 				LOGGER.info(CosmeticaAPI.getMessage());
+				splashes.add(CosmeticaAPI.getMessage());
 
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
 				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
@@ -290,7 +300,7 @@ public class Cosmetica implements ClientModInitializer {
 						for (String notification : theLionSleepsTonight.getNotifications()) { // let's hope I made sure this isn't null
 							try {
 								Minecraft.getInstance().gui.getChat().addMessage(
-										new TextComponent("§6§lCosmetica§f §l>§7 ").append(FormattedChatEncoder.chatEncode(notification))
+										new TextComponent("§6§lCosmetica§f §l>§7 ").append(TextComponents.chatEncode(notification))
 								);
 							}
 							catch (Exception e) {

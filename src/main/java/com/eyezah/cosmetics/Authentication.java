@@ -3,33 +3,15 @@ package com.eyezah.cosmetics;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
-import com.eyezah.cosmetics.mixin.screen.MixinConnectScreenInvoker;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
-import com.eyezah.cosmetics.utils.Response;
-import com.google.common.net.HostAndPort;
-import com.google.gson.JsonObject;
-import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
-import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.multiplayer.resolver.ResolvedServerAddress;
-import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import net.minecraft.client.multiplayer.resolver.ServerNameResolver;
-import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
-import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
-import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,15 +39,10 @@ public class Authentication {
 				Debug.info("Handling successful cosmetics settings response.");
 
 				// regional effects checking
-				boolean regionSpecificEffects = settings.hasPerRegionEffects();
 				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet();
 
-				boolean doShoulderBuddies = settings.doShoulderBuddies();
-				boolean doHats = settings.doHats();
-				boolean doLore = settings.doLore();
-
 				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), doShoulderBuddies, doHats, regionSpecificEffects, doLore)));
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), settings)));
 				}
 			},
 			error -> {

@@ -25,7 +25,8 @@
     "MixinMinecraft",
     "MixinModelManager",
     "MixinPlayerEntityRenderer",
-    "MixinPlayerRenderer"
+    "MixinPlayerRenderer",
+    "MixinSplashManager"
   ],
   "injectors": {
     "defaultRequire": 1

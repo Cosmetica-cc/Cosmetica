@@ -2,158 +2,69 @@ package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
+import cc.cosmetica.api.CapeServer;
+import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.impl.CosmeticaWebAPI;
-import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.utils.Debug;
+import com.eyezah.cosmetics.utils.TextComponents;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 
-import java.io.IOException;
+import java.util.Map;
 
 public class MainScreen extends SulphateScreen {
-	public MainScreen(Screen parentScreen, boolean doShoulderBuddies, boolean doHats, boolean doRegionSpecificEffects, boolean doLore) {
-		super(new TranslatableComponent("cosmetica.cosmeticsMenu"), parentScreen);
-		this.parentScreen = parentScreen;
+	public MainScreen(Screen parentScreen, UserSettings settings) {
+		super(TextComponents.translatable("cosmetica.cosmeticaMainMenu"), parentScreen);
 
-		this.oldOptions = new ServerOptions(doShoulderBuddies, doHats, doRegionSpecificEffects, doLore);
-		this.newOptions = new ServerOptions(this.oldOptions);
-
-		this.setAnchorY(Anchor.TOP, () -> this.height / 6 + 12);
-		this.setRows(2);
+		this.cosmeticaOptions = new ServerOptions(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore());
+		this.capeServerSettings = settings.getCapeServerSettings();
+		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
 	}
 
-	private final Screen parentScreen;
-	private final ServerOptions oldOptions;
-	private final ServerOptions newOptions;
-
-	private boolean doReload;
-	private boolean doTestReload;
-
-
-	private TextComponent generateButtonToggleText(String translatable, boolean toggle) {
-		TextComponent component = new TextComponent("");
-		component.append(new TranslatableComponent(translatable));
-		component.append(": ");
-		if (toggle) {
-			component.append(new TranslatableComponent("cosmetica.enabled"));
-		} else {
-			component.append(new TranslatableComponent("cosmetica.disabled"));
-		}
-		return component;
-	}
+	private final ServerOptions cosmeticaOptions;
+	private final Map<String, CapeServer> capeServerSettings;
 
 	@Override
 	protected void addWidgets() {
-		// top row
+		this.addButton(150, 20, TextComponents.translatable("cosmetica.customizeCosmetics"), button ->
+			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this))
+		);
 
-		this.addButton(new TranslatableComponent("options.skinCustomisation"), (button) -> {
-			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options));
-		});
+		this.addButton(150, 20, TextComponents.translatable("cosmetica.capeServerSettings"), button ->
+			this.minecraft.setScreen(new CapeServerSettingsScreen(this, this.capeServerSettings))
+		);
 
-		this.addButton(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()), button -> {
-			this.newOptions.regionSpecificEffects.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()));
-		});
+		this.addButton(150, 20, TextComponents.translatable("cosmetica.cosmeticaSettings"), button ->
+			this.minecraft.setScreen(new CosmeticaSettingsScreen(this, this.cosmeticaOptions))
+		);
 
-		// second row, etc...
-
-		this.addButton(new TranslatableComponent("cosmetica.reloadCosmetics"), (button) -> {
-			doReload = !doReload;
-			if (Debug.TEST_MODE) doTestReload = doReload;
-			if (doReload) {
-				button.setMessage(new TranslatableComponent("cosmetica.willReload"));
-			} else {
-				button.setMessage(new TranslatableComponent("cosmetica.reloadCosmetics"));
-			}
-		});
-
-		this.addButton(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()), button -> {
-			this.newOptions.hats.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()));
-		});
-
-		//
-
-		this.addButton(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()), (button) -> {
-			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldShowNametagInThirdPerson());
-			button.setMessage(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()));
-		});
-
-		this.addButton(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()), (button) -> {
-			this.newOptions.shoulderBuddies.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
-		});
-
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 4, 150, 20, generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
-			this.newOptions.lore.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
-		}));
-
-		/*this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
-			this.newOptions.lore.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
-		});*/ // MOVE TO RIGHT (dont have the time to see how sulphate lol)
-
-		/*if (Debug.TEST_MODE) {
-			this.addButton(200, 20, new TranslatableComponent("cosmetica.reloadTestCosmetics"), (button) -> {
-				doTestReload = !doTestReload;
-
-				if (doTestReload) {
-					button.setMessage(new TranslatableComponent("cosmetica.willReload"));
-				} else {
-					button.setMessage(new TranslatableComponent("cosmetica.reloadTestCosmetics"));
-				}
-			});
-		}*/
-
-		// bottom of the menu
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 6, 200, 20, new TranslatableComponent("cosmetica.customizeCosmetics"), (button) -> {
+		this.addButton(150, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> {
 			try {
 				Minecraft.getInstance().keyboardHandler.setClipboard(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
 				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
 			} catch (Exception e) {
 				throw new RuntimeException("bruh", e);
 			}
-		}));
+		});
 
-		// when done, update settings
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 7, 200, 20, CommonComponents.GUI_DONE, (button) -> {
-			if (this.doTestReload) {
-				Debug.loadTestProperties();
-				Debug.loadTestModel(Debug.LocalModelType.HAT);
-				Debug.loadTestModel(Debug.LocalModelType.SHOULDERBUDDY);
-				Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
-			}
-
-			try {
-				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.oldOptions, this.newOptions, this.doReload));
-			} catch (IOException e) {
-				e.printStackTrace();
-				this.minecraft.setScreen(this.parentScreen);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				this.minecraft.setScreen(this.parentScreen);
-			}
-
-			try {
-				Cosmetica.getConfig().save();
-			} catch (IOException e) {
-				Cosmetica.LOGGER.warn("Failed to save cosmetica config!");
-				e.printStackTrace();
-			}
-		}));
+		this.addDone();
 	}
 
-	// on close is like cancel
 	@Override
-	public void onClose() {
-		this.minecraft.setScreen(this.parentScreen);
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+		super.render(matrices, mouseX, mouseY, delta);
+
+		if (this.minecraft.player != null) {
+			final int left = this.width / 2 - 5 * this.width / 16;
+			final int top = this.height / 2 - this.height / 4 + 10;
+			RenderSystem.getModelViewStack().pushPose();
+			RenderSystem.getModelViewStack().scale(2.0f, 2.0f, 2.0f);
+			InventoryScreen.renderEntityInInventory(left, top, 30, (float)(left)*2 - mouseX, (float)(top - 50)*2 - mouseY, this.minecraft.player);
+			RenderSystem.getModelViewStack().popPose();
+		}
 	}
 }

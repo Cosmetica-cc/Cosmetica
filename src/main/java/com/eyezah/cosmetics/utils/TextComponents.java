@@ -4,11 +4,20 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FormattedChatEncoder {
+public class TextComponents {
+	public static MutableComponent translatable(String translationKey) {
+		return new TranslatableComponent(translationKey);
+	}
+
+	public static MutableComponent literal(String text) {
+		return new TextComponent(text);
+	}
+
 	public static Component chatEncode(String remoteText) throws IllegalArgumentException, IndexOutOfBoundsException {
 		StringBuilder literalTxt = new StringBuilder();
 		List<Object> tokens = new ArrayList<>(4);
