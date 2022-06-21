@@ -2,14 +2,12 @@ package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.CapeServer;
-import com.eyezah.cosmetics.utils.CapeServerOption;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.client.gui.screens.Screen;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +23,7 @@ public class CapeServerSettingsScreen extends SulphateScreen {
 
 	@Override
 	protected void addWidgets() {
-		ButtonList list = new ButtonList(this.minecraft, this);
+		ButtonList list = new ButtonList(this.minecraft, this, 30);
 
 		this.settings.forEach(entry ->
 			list.addButton(200, TextComponents.literal(entry.getValue().getName() + ": ").append(TextComponents.translatable("cosmetica.capeDisplay." + entry.getValue().getDisplay().toString().toLowerCase(Locale.ROOT))), b -> {})
@@ -33,6 +31,6 @@ public class CapeServerSettingsScreen extends SulphateScreen {
 
 		this.addRenderableWidget(list);
 
-		this.addDone();
+		this.addDone(this.height - 25);
 	}
 }
