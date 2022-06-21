@@ -23,6 +23,7 @@ public class MainScreen extends SulphateScreen {
 		this.cosmeticaOptions = new ServerOptions(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore());
 		this.capeServerSettings = settings.getCapeServerSettings();
 		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
+		this.setAnchorY(Anchor.CENTRE, () -> this.width / 2 - 50);
 	}
 
 	private final ServerOptions cosmeticaOptions;

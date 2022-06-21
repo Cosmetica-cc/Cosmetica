@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens;
 
+import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.client.gui.screens.Screen;

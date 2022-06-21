@@ -95,10 +95,10 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doBackBlings", this.newOptions.backBlings.get()));
 		});
 
-		this.addRenderableWidget(new Button(this.width / 2 + 5, this.height / 6 - 12 + 24 * 4, 150, 20, generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
+		this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
 			this.newOptions.lore.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
-		}));
+		});
 
 		// when done, update settings
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 7, 200, 20, CommonComponents.GUI_DONE, (button) -> {

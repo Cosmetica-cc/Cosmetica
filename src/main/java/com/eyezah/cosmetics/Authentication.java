@@ -123,6 +123,7 @@ public class Authentication {
 							} catch (Exception e) {
 								LOGGER.error("Couldn't connect to cosmetica auth server", e);
 
+								currentlyAuthenticating = false;
 								Authentication.showUnauthenticatedIfLoading();
 							}
 						}

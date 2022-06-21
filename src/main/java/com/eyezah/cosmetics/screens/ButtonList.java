@@ -18,7 +18,7 @@ public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 	}
 
 	public ButtonList(Minecraft minecraft, Screen parent) {
-		super(minecraft, parent.width + 45, parent.height, 20, parent.height - 32, 20);
+		super(minecraft, parent.width, parent.height, 20, parent.height - 32, 20);
 	}
 
 	public void addButton(int width, Component text, Button.OnPress callback) {
