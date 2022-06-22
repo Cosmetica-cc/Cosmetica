@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.screens;
 
 import cc.cosmetica.api.CapeDisplay;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.eyezah.cosmetics.Cosmetica.clearAllCaches;
 
@@ -44,6 +46,11 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 			Thread requestThread = new Thread(() -> {
 				Cosmetica.api.updateUserSettings(changedSettings).ifSuccessfulOrElse(response -> {
 					if (response.booleanValue()) {
+						if (this.parentScreen instanceof MainScreen) {
+							UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+							Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true);
+						}
+
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 					} else {
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
@@ -74,10 +81,14 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		boolean updateCapeServerSettings = oldOptions.entrySet().stream().anyMatch(entry -> entry.getValue().id != newOptions.get(entry.getKey()).id);
 
 		if (updateCapeServerSettings) {
+			Debug.info("Updating cape server settings.");
 			Thread requestThread = new Thread(() -> {
 				Cosmetica.api.setCapeServerSettings(newOptions).ifSuccessfulOrElse(response -> {
 					if (this.parentScreen instanceof MainScreen main) {
 						main.setCapeServerSettings(response);
+
+						UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+						Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true);
 					}
 
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));

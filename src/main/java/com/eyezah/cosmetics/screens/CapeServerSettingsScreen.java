@@ -34,7 +34,7 @@ public class CapeServerSettingsScreen extends SulphateScreen {
 		ButtonList list = new ButtonList(this.minecraft, this, 25);
 
 		this.settingsForButtons.forEach(entry ->
-			list.addButton(200, TextComponents.literal(entry.getValue().getName() + ": ").append(TextComponents.translatable("cosmetica.capeDisplay." + entry.getValue().getDisplay().toString().toLowerCase(Locale.ROOT))), b -> {
+			list.addButton(200, TextComponents.literal(entry.getValue().getName() + ": ").append(TextComponents.translatable("cosmetica.capeDisplay." + this.settings.get(entry.getKey()).toString().toLowerCase(Locale.ROOT))), b -> {
 				int newValue = this.settings.get(entry.getKey()).id + 1;
 				if (newValue > 2) newValue = 0;
 				this.settings.put(entry.getKey(), CapeDisplay.byId(newValue));
