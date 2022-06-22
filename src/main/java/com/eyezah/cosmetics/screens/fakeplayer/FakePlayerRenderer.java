@@ -1,14 +1,18 @@
 package com.eyezah.cosmetics.screens.fakeplayer;
 
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.mixin.fakeplayer.HumanoidModelAccessor;
 import com.eyezah.cosmetics.mixin.fakeplayer.PlayerModelAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -16,10 +20,8 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
@@ -28,6 +30,9 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
 
 public class FakePlayerRenderer {
+	public static Quaternion cameraOrientation = Quaternion.ONE;
+	public static int tickTime = 0;
+
 	// EntityRenderDispatcher#render
 	public static void render(PoseStack stack, FakePlayer player, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
 		try {
@@ -137,46 +142,37 @@ public class FakePlayerRenderer {
 			n = 1.0F;
 		}
 
-		//model.prepareMobModel(player, o, n, delta); only does swim amount stuff
+		//model.prepareMobModel(player, o, n, delta); only does swim stuff, not necessary
 		modelSetupAnim(model, player, o, n, bob, yRotDiff, xRot);
-		boolean isVisible = true;
-		boolean isNotInvisibleToPlayer = !isVisible && true;
-		boolean isGlowing = false;
 
-		RenderType renderType = getRenderType(player, isVisible, isNotInvisibleToPlayer, isGlowing);
+		RenderType renderType = getRenderType(player, true, false, false);
 
 		if (renderType != null) {
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
 			int p = getOverlayCoords(0.0f);
-			model.renderToBuffer(stack, vertexConsumer, light, p, 1.0F, 1.0F, 1.0F, isNotInvisibleToPlayer ? 0.15F : 1.0F);
+			model.renderToBuffer(stack, vertexConsumer, light, p, 1.0F, 1.0F, 1.0F, 1.0F);
 		}
 
-		// todo layers
-//		Iterator var23 = this.layers.iterator();
-//
-//		while(var23.hasNext()) {
-//			var renderLayer = (RenderLayer)var23.next();
-//			renderLayer.render(stack, bufferSource, light, player, o, n, delta, bob, yRotDiff, xRot);
-//		}
+		// render layers
+
+		for (MenuRenderLayer layer : player.getLayers()) {
+			layer.render(stack, bufferSource, light, player, o, n, delta, bob, yRotDiff, xRot);
+		}
 
 		stack.popPose();
 
-		/*
-		 * if (this.shouldShowName(entity)) {
-		 * 			this.renderNameTag(entity, entity.getDisplayName(), poseStack, multiBufferSource, i);
-		 *                }
-		 */
+		renderNameTag(player, stack, bufferSource, light);
 	}
 
-	private static RenderType getRenderType(FakePlayer player, boolean bl, boolean bl2, boolean bl3) {
-		ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().getTexture(player.getData().skin(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ? DefaultPlayerSkin.getDefaultSkin(player.getUUID()) : player.getData().skin();
+	private static RenderType getRenderType(FakePlayer player, boolean isVisible, boolean isNotInvisibleToPlayer, boolean isGlowing) {
+		ResourceLocation resourceLocation = player.getSkin();
 
-		if (bl2) {
+		if (isNotInvisibleToPlayer) {
 			return RenderType.itemEntityTranslucentCull(resourceLocation);
-		} else if (bl) {
+		} else if (isVisible) {
 			return player.getModel().renderType(resourceLocation);
 		} else {
-			return bl3 ? RenderType.outline(resourceLocation) : null;
+			return isGlowing ? RenderType.outline(resourceLocation) : null;
 		}
 	}
 
@@ -372,5 +368,44 @@ public class FakePlayerRenderer {
 
 	private static int getOverlayCoords(float f) {
 		return OverlayTexture.pack(OverlayTexture.u(f), OverlayTexture.v(false));
+	}
+
+	private static void renderNameTag(FakePlayer player, PoseStack stack, MultiBufferSource bufferSource, int light) {
+		Component name = player.getDisplayName();
+
+		boolean fullyRender = !player.isCrouching();
+		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
+		int j = "deadmau5".equals(name.getString()) ? -10 : 0;
+
+		stack.pushPose();
+
+		Cosmetica.renderLore(
+				stack,
+				cameraOrientation,
+				Minecraft.getInstance().font,
+				bufferSource,
+				player.getData().lore(),
+				player.getData().hats(),
+				false,
+				player.isCrouching(),
+				EntityType.PLAYER.getDimensions().height,
+				player.getModel().getHead().xRot,
+				light);
+
+		stack.translate(0.0D, yPosition, 0.0D);
+		stack.mulPose(cameraOrientation);
+		stack.scale(-0.025F, -0.025F, 0.025F);
+		Matrix4f pose = stack.last().pose();
+		float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+		int k = (int)(backgroundOpacity * 255.0F) << 24;
+		Font font = Minecraft.getInstance().font;
+		float h = (float)(-font.width(name) / 2);
+		font.drawInBatch(name, h, (float)j, 553648127, false, pose, bufferSource, fullyRender, k, light);
+
+		if (fullyRender) {
+			font.drawInBatch(name, h, (float)j, -1, false, pose, bufferSource, false, 0, light);
+		}
+
+		stack.popPose();
 	}
 }

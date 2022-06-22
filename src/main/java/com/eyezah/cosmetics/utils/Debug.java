@@ -3,8 +3,8 @@ package com.eyezah.cosmetics.utils;
 import cc.cosmetica.api.Box;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.BackBling;
-import com.eyezah.cosmetics.cosmetics.Hat;
-import com.eyezah.cosmetics.cosmetics.ShoulderBuddy;
+import com.eyezah.cosmetics.cosmetics.Hats;
+import com.eyezah.cosmetics.cosmetics.ShoulderBuddies;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
 import com.google.gson.JsonElement;
@@ -308,12 +308,12 @@ public class Debug {
 
 	public record LocalModelType(OverriddenModel modelOverride, Supplier<String> localIdProvider, IntSupplier extraInfoLoader) {
 		public static final LocalModelType HAT = new LocalModelType(
-				Hat.overridden,
+				Hats.overridden,
 				() -> TEST_PROPERTIES.getProperty("hat_location"),
 				() -> (Boolean.parseBoolean(TEST_PROPERTIES.getProperty("show_hat_under_helmet")) ? 1 : 0) | (Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_hat_orientation")) ? 2 : 0)
 		);
 		public static final LocalModelType SHOULDERBUDDY = new LocalModelType(
-				ShoulderBuddy.overridden,
+				ShoulderBuddies.overridden,
 				() -> TEST_PROPERTIES.getProperty("shoulderbuddy_location"),
 				() -> Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_shoulderbuddy_orientation")) ? 1 : 0
 		);

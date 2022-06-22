@@ -20,9 +20,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,6 +49,10 @@ public class MainScreen extends SulphateScreen {
 	private Map<String, CapeDisplay> capeServerSettings;
 	private List<Map.Entry<String, CapeServer>> capeServerSettingsForButtons;
 	private final FakePlayer fakePlayer;
+
+	private float lastMouseX = 0;
+	private boolean wasMouseDown = false;
+	private float yaw = 0;
 
 	@Override
 	protected void addWidgets() {
@@ -86,69 +89,67 @@ public class MainScreen extends SulphateScreen {
 	}
 
 	@Override
+	public void tick() {
+		this.fakePlayer.tickCount++;
+	}
+
+	@Override
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 
-		if (this.minecraft.player != null) {
-			final int left = this.width / 2 - 5 * this.width / 16;
-			final int top = this.height / 2 - this.height / 4 + 10;
-			RenderSystem.getModelViewStack().pushPose();
-			RenderSystem.getModelViewStack().scale(2.0f, 2.0f, 2.0f);
-			InventoryScreen.renderEntityInInventory(left, top, 30, (float)(left)*2 - mouseX, (float)(top - 50)*2 - mouseY, this.minecraft.player);
-			RenderSystem.getModelViewStack().popPose();
+		if (GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS) {
+			if (mouseX < this.width / 2 || this.wasMouseDown) {
+				if (this.wasMouseDown) {
+					this.yaw += (mouseX - this.lastMouseX);
+				}
+
+				this.wasMouseDown = true;
+				this.lastMouseX = mouseX;
+			}
 		}
 		else {
-			final int left = this.width / 2 - 5 * this.width / 16;
-			final int top = this.height / 2 - this.height / 4 + 10;
-			RenderSystem.getModelViewStack().pushPose();
-			RenderSystem.getModelViewStack().scale(2.0f, 2.0f, 2.0f);
-			renderFakePlayerInInventory(left, top, 30, (float)(left)*2 - mouseX, (float)(top - 50)*2 - mouseY, this.fakePlayer);
-			RenderSystem.getModelViewStack().popPose();
+			this.wasMouseDown = false;
 		}
+
+		final int left = this.width / 3 + 10;
+		final int top = this.height / 2 + 55;
+		renderFakePlayerInMenu(left, top, 30, (float)(left) - mouseX, (float)(top - 100) - mouseY, this.yaw, this.fakePlayer);
 	}
 
-	public static void renderFakePlayerInInventory(int i, int j, int k, float f, float g, FakePlayer fakePlayer) {
-		float h = (float)Math.atan(f / 40.0F);
-		float l = (float)Math.atan(g / 40.0F);
-		PoseStack poseStack = RenderSystem.getModelViewStack();
-		poseStack.pushPose();
-		poseStack.translate(i, j, 1050.0D);
-		poseStack.scale(1.0F, 1.0F, -1.0F);
+	public static void renderFakePlayerInMenu(int left, int top, int k, float lookX, float lookY, float yaw, FakePlayer fakePlayer) {
+		float h = (float)Math.atan(lookX / 40.0F);
+		float l = (float)Math.atan(lookY / 40.0F);
+		PoseStack stack = RenderSystem.getModelViewStack();
+		stack.pushPose();
+		stack.translate(left, top, 1050.0D);
+		stack.scale(2.0F, 2.0F, -2.0F);
 		RenderSystem.applyModelViewMatrix();
-		PoseStack poseStack2 = new PoseStack();
-		poseStack2.translate(0.0D, 0.0D, 1000.0D);
-		poseStack2.scale((float)k, (float)k, (float)k);
-		Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
-		Quaternion quaternion2 = Vector3f.XP.rotationDegrees(l * 20.0F);
-		quaternion.mul(quaternion2);
-		poseStack2.mulPose(quaternion);
-		float m = fakePlayer.getYRotBody(0);
-		float n = fakePlayer.getYRot(0);
-		float o = fakePlayer.getXRot(0);
-		float p = fakePlayer.getYRotHead(0);
+
+		// view
+		PoseStack viewStack = new PoseStack();
+		viewStack.translate(0.0D, 0.0D, 1000.0D);
+		viewStack.scale((float)k, (float)k, (float)k);
+		Quaternion zRotation = Vector3f.ZP.rotationDegrees(180.0F);
+		Quaternion xRotation = Vector3f.XP.rotationDegrees(l * 20.0F);
+		zRotation.mul(xRotation);
+		viewStack.mulPose(zRotation);
 
 		fakePlayer.yRotBody = 180.0F + h * 20.0F;
 		fakePlayer.yRot = (180.0F + h * 40.0F);
-		fakePlayer.xRot = (-l * 20.0F);
+		fakePlayer.xRot = (-l * 20.0F) + yaw;
 		fakePlayer.yRotHead = fakePlayer.getYRot(0);
 		fakePlayer.yRotHead = fakePlayer.getYRot(0);
 		Lighting.setupForEntityInInventory();
-		EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-		quaternion2.conj();
-		entityRenderDispatcher.overrideCameraOrientation(quaternion2);
-		entityRenderDispatcher.setRenderShadow(false);
+
+		xRotation.conj();
+		FakePlayerRenderer.cameraOrientation = xRotation;
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 		RenderSystem.runAsFancy(() -> {
-			FakePlayerRenderer.render(poseStack2, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+			FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
 		});
 		bufferSource.endBatch();
-		entityRenderDispatcher.setRenderShadow(true);
-		fakePlayer.yRotBody = m;
-		fakePlayer.yRot = (n);
-		fakePlayer.xRot = (o);
-		fakePlayer.yRotHead = p;
 
-		poseStack.popPose();
+		stack.popPose();
 		RenderSystem.applyModelViewMatrix();
 		Lighting.setupFor3DItems();
 	}

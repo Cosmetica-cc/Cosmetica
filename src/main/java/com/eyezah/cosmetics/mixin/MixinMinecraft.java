@@ -1,8 +1,8 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
+import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -24,6 +24,8 @@ public abstract class MixinMinecraft {
 	@Shadow @Nullable public Screen screen;
 
 	@Shadow @Final public Gui gui;
+
+	@Shadow @Nullable public ClientLevel level;
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;shutdownExecutors()V"), method = "close")
 	private void onClose(CallbackInfo info) {
@@ -52,5 +54,10 @@ public abstract class MixinMinecraft {
 			this.gui.getChat().addMessage(new TextComponent(Cosmetica.displayNext));
 			Cosmetica.displayNext = null;
 		}
+	}
+
+	@Inject(at = @At("RETURN"), method = "tick")
+	public void afterTick(CallbackInfo ci) {
+		if (this.level == null) FakePlayerRenderer.tickTime++;
 	}
 }

@@ -5,7 +5,7 @@ import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
-import com.eyezah.cosmetics.cosmetics.Hat;
+import com.eyezah.cosmetics.cosmetics.Hats;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
@@ -14,6 +14,7 @@ import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -490,71 +491,85 @@ public class Cosmetica implements ClientModInitializer {
 		return lookup.get().get();
 	}
 
-	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
+	public static void renderLore(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
 		if (entity instanceof Player player) {
 			UUID lookupId = player.getUUID();
 
 			if (lookupId != null) {
 				double squaredDistance = entityRenderDispatcher.distanceToSqr(entity);
+				PlayerData data = getPlayerData(player);
 
 				if (squaredDistance <= 4096.0D) {
-					// how much do we need to shift up nametags?
-					List<BakableModel> hats = Hat.overridden.getList(() -> Cosmetica.getPlayerData(player).hats());
-
-					float hatTopY = 0;
-
-					for (BakableModel hat : hats) {
-						if (!((hat.extraInfo() & 0x1) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))) {
-							hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
-						}
-					}
-
-					if (hatTopY > 0) {
-						float normalizedAngleMultiplier = (float) -(Math.abs(playerModel.head.xRot) / 1.57 - 1);
-						float lookAngleMultiplier;
-						if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
-							lookAngleMultiplier = 0;
-						} else {
-							lookAngleMultiplier = normalizedAngleMultiplier;
-						}
-						stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
-					}
-
-					// render lore
-					String lore = getPlayerData(lookupId, player.getName().getString(), false).lore();
-
-					if (!lore.equals("")) {
-						Component component = new TextComponent(lore);
-
-						boolean bl = !entity.isDiscrete();
-
-						float height = entity.getBbHeight() + 0.25F;
-
-						stack.translate(0, 0.1, 0);
-
-						stack.pushPose();
-						stack.translate(0.0D, height, 0.0D);
-						stack.mulPose(entityRenderDispatcher.cameraOrientation());
-						stack.scale(-0.025F, -0.025F, 0.025F);
-						stack.scale(0.75F, 0.75F, 0.75F);
-						Matrix4f textModel = stack.last().pose();
-
-						@SuppressWarnings("resource")
-						float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
-						int alphaARGB = (int)(backgroundOpacity * 255.0F) << 24;
-
-						float xOffset = (float)(-font.width(component) / 2);
-
-						font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, bl, alphaARGB, packedLight);
-
-						if (bl) {
-							font.drawInBatch(component, xOffset, 0, -1, false, textModel, multiBufferSource, false, 0, packedLight);
-						}
-
-						stack.popPose();
-					}
+					renderLore(
+							stack,
+							entityRenderDispatcher.cameraOrientation(),
+							font,
+							multiBufferSource,
+							data.lore(),
+							Hats.overridden.getList(() -> data.hats()),
+							player.hasItemInSlot(EquipmentSlot.HEAD),
+							entity.isDiscrete(),
+							entity.getBbHeight(),
+							playerModel.head.xRot,
+							packedLight);
 				}
 			}
+		}
+	}
+
+	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean sneaking, float playerHeight, float xRotHead, int packedLight) {
+		if (!lore.equals("")) {
+			// how much do we need to shift up nametags?
+
+			float hatTopY = 0;
+
+			for (BakableModel hat : hats) {
+				if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
+					hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+				}
+			}
+
+			if (hatTopY > 0) {
+				float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
+				float lookAngleMultiplier;
+				if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
+					lookAngleMultiplier = 0;
+				} else {
+					lookAngleMultiplier = normalizedAngleMultiplier;
+				}
+				stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
+			}
+
+			// render lore
+
+			Component component = new TextComponent(lore);
+
+			boolean bl = !sneaking;
+
+			float height = playerHeight + 0.25F;
+
+			stack.translate(0, 0.1, 0);
+
+			stack.pushPose();
+			stack.translate(0.0D, height, 0.0D);
+			stack.mulPose(cameraOrientation);
+			stack.scale(-0.025F, -0.025F, 0.025F);
+			stack.scale(0.75F, 0.75F, 0.75F);
+			Matrix4f textModel = stack.last().pose();
+
+			@SuppressWarnings("resource")
+			float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+			int alphaARGB = (int) (backgroundOpacity * 255.0F) << 24;
+
+			float xOffset = (float) (-font.width(component) / 2);
+
+			font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, bl, alphaARGB, packedLight);
+
+			if (bl) {
+				font.drawInBatch(component, xOffset, 0, -1, false, textModel, multiBufferSource, false, 0, packedLight);
+			}
+
+			stack.popPose();
 		}
 	}
 

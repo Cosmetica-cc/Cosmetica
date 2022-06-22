@@ -1,8 +1,8 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.cosmetics.BackBling;
-import com.eyezah.cosmetics.cosmetics.Hat;
-import com.eyezah.cosmetics.cosmetics.ShoulderBuddy;
+import com.eyezah.cosmetics.cosmetics.Hats;
+import com.eyezah.cosmetics.cosmetics.ShoulderBuddies;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -21,8 +21,8 @@ public abstract class MixinPlayerEntityRenderer extends LivingEntityRenderer<Abs
 
 	@Inject(at=@At("TAIL"), method="<init>", allow=1)
 	private void init(EntityRendererProvider.Context context, boolean bl, CallbackInfo ci) {
-		this.addLayer(new Hat<>(this));
-		this.addLayer(new ShoulderBuddy<>(this, context.getModelSet()));
-		this.addLayer(new BackBling<>(this, context.getModelSet()));
+		this.addLayer(new Hats<>(this));
+		this.addLayer(new ShoulderBuddies<>(this, context.getModelSet()));
+		this.addLayer(new BackBling<>(this));
 	}
 }

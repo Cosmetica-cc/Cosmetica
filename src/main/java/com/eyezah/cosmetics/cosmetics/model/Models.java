@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.cosmetics.model;
 import cc.cosmetica.api.Box;
 import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.eyezah.cosmetics.utils.Debug;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -63,7 +64,7 @@ public class Models {
 		if (compute) {
 			Debug.info("Computing Baked Model: " + unbaked.id());
 			BAKED_MODELS.put(unbaked.id(), null); // searching
-			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, Minecraft.getInstance().level.getGameTime(), sprite -> {
+			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, Minecraft.getInstance().level == null ? FakePlayerRenderer.tickTime : Minecraft.getInstance().level.getGameTime(), sprite -> {
 				BakedModel model = unbaked.model().bake(
 						thePieShopDownTheRoad,
 						l -> Models.getAppropriateTexture(l, sprite, unbaked.id()),
