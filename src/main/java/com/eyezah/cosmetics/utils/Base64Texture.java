@@ -1,7 +1,7 @@
 package com.eyezah.cosmetics.utils;
 
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.mixin.textures.MixinNativeImageAccessor;
+import com.eyezah.cosmetics.mixin.textures.NativeImageAccessorMixin;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -32,7 +32,7 @@ public class Base64Texture extends AbstractTexture {
 
 	@Override
 	public void load(ResourceManager resourceManager) {
-		if (((MixinNativeImageAccessor) (Object) this.image).getPixels() == 0) {
+		if (((NativeImageAccessorMixin) (Object) this.image).getPixels() == 0) {
 			if (RenderSystem.isOnRenderThreadOrInit()) {
 				this.reload();
 			} else {
@@ -148,8 +148,8 @@ public class Base64Texture extends AbstractTexture {
 			int m = l * src.getWidth() * bytesPerPixel;
 			int n = l * dest.getWidth() * bytesPerPixel;
 			MemoryUtil.memCopy(
-					((MixinNativeImageAccessor) (Object) src).getPixels() + (long)m,
-					((MixinNativeImageAccessor) (Object) dest).getPixels() + (long)n,
+					((NativeImageAccessorMixin) (Object) src).getPixels() + (long)m,
+					((NativeImageAccessorMixin) (Object) dest).getPixels() + (long)n,
 					width * bytesPerPixel);
 		}
 	}

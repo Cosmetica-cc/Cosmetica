@@ -2,7 +2,6 @@ package com.eyezah.cosmetics.mixin.screen;
 
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.ThreadPool;
-import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.network.Connection;
@@ -16,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.net.InetSocketAddress;
 
 @Mixin(targets = "net/minecraft/client/gui/screens/ConnectScreen$1")
-public class MixinConnectionThread {
+public class ConnectionThreadMixin {
 	@Shadow @Final private ConnectScreen field_2416;
 
 	@Inject(
@@ -24,7 +23,7 @@ public class MixinConnectionThread {
 			at = @At(value = "NEW", target = "net/minecraft/network/protocol/login/ServerboundHelloPacket")
 	)
 	private void onHello(CallbackInfo ci) {
-		Connection c = ((MixinConnectScreenInvoker)this.field_2416).getConnection();
+		Connection c = ((ConnectScreenInvoker)this.field_2416).getConnection();
 
 		// ping africa
 		if (Minecraft.getInstance().isLocalServer()) {

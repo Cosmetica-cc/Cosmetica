@@ -14,7 +14,7 @@ import java.util.Set;
  * For memory management.
  */
 @Mixin(TextureManager.class)
-public interface MixinTextureManagerAccessor {
+public interface TextureManagerAccessorMixin {
 	@Accessor
 	Map<ResourceLocation, AbstractTexture> getByPath();
 	@Accessor

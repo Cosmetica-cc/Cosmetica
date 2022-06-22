@@ -91,6 +91,12 @@ public class MainScreen extends SulphateScreen {
 	@Override
 	public void tick() {
 		this.fakePlayer.tickCount++;
+
+		if (this.minecraft.level == null) {
+			this.minecraft.getProfiler().push("textures");
+			this.minecraft.getTextureManager().tick();
+			this.minecraft.getProfiler().pop();
+		}
 	}
 
 	@Override
@@ -101,6 +107,9 @@ public class MainScreen extends SulphateScreen {
 			if (mouseX < this.width / 2 || this.wasMouseDown) {
 				if (this.wasMouseDown) {
 					this.yaw += (mouseX - this.lastMouseX);
+
+					if (this.yaw > 180.0f) this.yaw = -180.0f;
+					if (this.yaw < -180.0f) this.yaw = 180.0f;
 				}
 
 				this.wasMouseDown = true;
@@ -134,9 +143,9 @@ public class MainScreen extends SulphateScreen {
 		zRotation.mul(xRotation);
 		viewStack.mulPose(zRotation);
 
-		fakePlayer.yRotBody = 180.0F + h * 20.0F;
-		fakePlayer.yRot = (180.0F + h * 40.0F);
-		fakePlayer.xRot = (-l * 20.0F) + yaw;
+		fakePlayer.yRotBody = 180.0F + h * 20.0F - yaw;
+		fakePlayer.yRot = 180.0F + h * 40.0F - yaw;
+		fakePlayer.xRot = -l * 20.0F;
 		fakePlayer.yRotHead = fakePlayer.getYRot(0);
 		fakePlayer.yRotHead = fakePlayer.getYRot(0);
 		Lighting.setupForEntityInInventory();

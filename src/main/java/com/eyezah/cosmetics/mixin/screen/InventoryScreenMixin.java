@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InventoryScreen.class)
-public class MixinInventoryScreen {
+public class InventoryScreenMixin {
 	@Unique
 	private static boolean cosmetica_showNametagInThirdPerson;
 

@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
-public class MixinLocalPlayer {
+public class LocalPlayerMixin {
 	@Inject(at = @At("HEAD"), method = "chat", cancellable = true)
 	private void sendMessage(String string, CallbackInfo info) {
 		if (Cosmetica.api == null) return; // no debug commands if offline

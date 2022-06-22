@@ -1,14 +1,13 @@
 package com.eyezah.cosmetics.cosmetics.model;
 
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.mixin.textures.MixinTextureAtlasSpriteInvoker;
+import com.eyezah.cosmetics.mixin.textures.TextureAtlasSpriteInvokerMixin;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Scheduler;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import org.w3c.dom.Text;
 
 import java.util.function.Consumer;
 
@@ -100,14 +99,14 @@ public class RuntimeTextureManager {
 
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
 				// generate mipmap
-				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage().length - 1);
+				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((TextureAtlasSpriteInvokerMixin) sprite).getMainImage().length - 1);
 				Debug.info("Allocating Sprite: " + sprite.getName());
-				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", false, ((MixinTextureAtlasSpriteInvoker) sprite).getMainImage());
+				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", false, ((TextureAtlasSpriteInvokerMixin) sprite).getMainImage());
 				Debug.dumpImages(sprite.getName().toDebugFileName(), false, mipmap);
 				// bind the texture
-				GlStateManager._bindTexture(((MixinTextureAtlasSpriteInvoker) sprite).getAtlas().getId());
+				GlStateManager._bindTexture(((TextureAtlasSpriteInvokerMixin) sprite).getAtlas().getId());
 				// upload to the texture
-				((MixinTextureAtlasSpriteInvoker) sprite).callUpload(0, 0, mipmap);
+				((TextureAtlasSpriteInvokerMixin) sprite).callUpload(0, 0, mipmap);
 				//sprite.uploadFirstFrame();
 				this.used[index_] = 2;
 				callback.accept(sprite);

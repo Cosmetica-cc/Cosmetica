@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = Minecraft.class, priority = 69) // i must be the first
-public abstract class MixinMinecraft {
+public abstract class MinecraftMixin {
 	@Shadow public abstract void setScreen(@Nullable Screen screen);
 
 	@Shadow @Nullable public Screen screen;

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(TextureAtlasSprite.class)
-public interface MixinTextureAtlasSpriteInvoker {
+public interface TextureAtlasSpriteInvokerMixin {
 	@Accessor
 	NativeImage[] getMainImage();
 

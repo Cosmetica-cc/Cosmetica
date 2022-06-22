@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(TextureAtlas.class)
-public abstract class MixinTextureAtlas {
+public abstract class ConnectionThreadMixin {
 	@Inject(at = @At("RETURN"), method = "load(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite$Info;IIIII)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;")
 	private void onAtlasSprite(ResourceManager resourceManager, TextureAtlasSprite.Info tasinfo, int i, int j, int k, int l, int m, CallbackInfoReturnable<TextureAtlasSprite> info) {
 		TextureAtlasSprite result = info.getReturnValue();

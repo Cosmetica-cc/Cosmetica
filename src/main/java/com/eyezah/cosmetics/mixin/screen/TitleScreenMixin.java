@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static com.eyezah.cosmetics.Authentication.runAuthentication;
 
 @Mixin(TitleScreen.class)
-public class MixinTitleScreen {
+public class TitleScreenMixin {
 	@Inject(at = @At("HEAD"), method = "init")
 	private void titleScreenInject(CallbackInfo ci) {
 		runAuthentication(2);

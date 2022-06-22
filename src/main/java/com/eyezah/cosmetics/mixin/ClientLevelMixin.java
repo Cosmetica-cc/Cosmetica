@@ -2,7 +2,6 @@ package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.ThreadPool;
-import com.eyezah.cosmetics.utils.Response;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
@@ -18,16 +17,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @Mixin(ClientLevel.class)
-public abstract class MixinClientLevel extends Level {
+public abstract class ClientLevelMixin extends Level {
 	@Shadow @Final private Minecraft minecraft;
 
-	protected MixinClientLevel(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> dimensionType, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l) {
+	protected ClientLevelMixin(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> dimensionType, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l) {
 		super(writableLevelData, resourceKey, dimensionType, supplier, bl, bl2, l);
 	}
 

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntityRenderer.class)
-public class MixinLivingEntityRenderer {
+public class LivingEntityRendererMixin {
 	@Inject(at = @At("HEAD"), method = "isEntityUpsideDown", cancellable = true)
 	private static void alsoAustralians(LivingEntity entity, CallbackInfoReturnable<Boolean> info) {
 		if (entity instanceof Player player && Cosmetica.shouldRenderUpsideDown(player)) {

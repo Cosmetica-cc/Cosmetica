@@ -2,7 +2,6 @@ package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.resources.SplashManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -16,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(SplashManager.class)
-public class MixinSplashManager {
+public class SplashManagerMixin {
 	@Shadow
 	@Final
 	private List<String> splashes;
