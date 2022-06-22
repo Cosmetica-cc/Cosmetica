@@ -37,7 +37,7 @@ public class MenuCapeLayer implements MenuRenderLayer {
 			stack.mulPose(Vector3f.XP.rotationDegrees(6.0F + r / 2.0F + q));
 			stack.mulPose(Vector3f.ZP.rotationDegrees(s / 2.0F));
 			stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - s / 2.0F));
-			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entitySolid(player.getCape()));
+			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(player.getCape()));
 			player.getModel().renderCloak(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.popPose();
 		}
