@@ -424,10 +424,11 @@ public class Cosmetica implements ClientModInitializer {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
 		Level level = Minecraft.getInstance().level;
 
-		AtomicReference<Supplier<PlayerData>> lookup = new AtomicReference<>(() -> PlayerData.NONE);
+		AtomicReference<PlayerData> theDefaultValue = new AtomicReference<>(PlayerData.NONE);
+		AtomicReference<Supplier<PlayerData>> lookup = new AtomicReference<>(() -> theDefaultValue.get());
 
 		synchronized (playerDataCache) { // TODO if the network connection fails, queue it to try again later
-			 playerDataCache.computeIfAbsent(uuid, uid -> {
+			theDefaultValue.set(playerDataCache.computeIfAbsent(uuid, uid -> {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
@@ -481,7 +482,7 @@ public class Cosmetica implements ClientModInitializer {
 				}
 
 				return PlayerData.NONE; // temporary name: blank.
-			});
+			}));
 		}
 
 		// to ensure web requests are not run in a synchronised block on the data cache, holding up the main thread
