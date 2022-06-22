@@ -3,6 +3,8 @@
   "package": "com.eyezah.cosmetics.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "fakeplayer.PlayerModelAccessor",
+    "fakeplayer.HumanoidModelAccessor",
     "screen.MixinConnectionThread",
     "screen.MixinConnectScreenInvoker",
     "screen.MixinInventoryScreen",
