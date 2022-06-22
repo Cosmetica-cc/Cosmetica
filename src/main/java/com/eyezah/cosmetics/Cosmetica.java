@@ -370,7 +370,13 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static PlayerData getPlayerData(Player player) {
-		return getPlayerData(player.getUUID(), player.getName().getString());
+		return getPlayerData(player.getUUID(), player.getName().getString(), false);
+	}
+
+	public static PlayerData getCachedPlayerData(UUID player) {
+		synchronized (playerDataCache) {
+			return playerDataCache.get(player);
+		}
 	}
 
 	public static void clearPlayerData(UUID uuid) {
@@ -405,7 +411,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static PlayerData getPlayerData(UUID uuid, String username) {
+	public static PlayerData getPlayerData(UUID uuid, String username, boolean sync) {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
 		Level level = Minecraft.getInstance().level;
 
@@ -417,7 +423,7 @@ public class Cosmetica implements ClientModInitializer {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
-					lookup.set(() -> Cosmetica.runOffthread(() -> {
+					Runnable request = () -> {
 						if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
 							lookingUp.remove(uuid);
 							return;
@@ -442,14 +448,18 @@ public class Cosmetica implements ClientModInitializer {
 										leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
 										rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
 										backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
-										cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get())
+										cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
+										CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
+										info.isSlim()
 								));
 
 								lookingUp.remove(uuid);
 							}
 						}, logErr("Error getting user info for " + uuid + " / " + username));
+					};
 
-					}, ThreadPool.GENERAL_THREADS));
+					if (sync) lookup.set(request);
+					else lookup.set(() -> Cosmetica.runOffthread(request, ThreadPool.GENERAL_THREADS));
 				}
 
 				return PlayerData.NONE; // temporary name: blank.
@@ -494,7 +504,7 @@ public class Cosmetica implements ClientModInitializer {
 					}
 
 					// render lore
-					String lore = getPlayerData(lookupId, player.getName().getString()).lore();
+					String lore = getPlayerData(lookupId, player.getName().getString(), false).lore();
 
 					if (!lore.equals("")) {
 						Component component = new TextComponent(lore);

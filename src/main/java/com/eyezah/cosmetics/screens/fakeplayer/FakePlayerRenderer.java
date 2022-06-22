@@ -8,6 +8,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -15,7 +16,9 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -166,7 +169,7 @@ public class FakePlayerRenderer {
 	}
 
 	private static RenderType getRenderType(FakePlayer player, boolean bl, boolean bl2, boolean bl3) {
-		ResourceLocation resourceLocation = DefaultPlayerSkin.getDefaultSkin(player.getUUID());
+		ResourceLocation resourceLocation = Minecraft.getInstance().getTextureManager().getTexture(player.getData().skin(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ? DefaultPlayerSkin.getDefaultSkin(player.getUUID()) : player.getData().skin();
 
 		if (bl2) {
 			return RenderType.itemEntityTranslucentCull(resourceLocation);

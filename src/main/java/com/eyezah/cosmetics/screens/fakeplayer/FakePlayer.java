@@ -19,6 +19,7 @@ public class FakePlayer {
 		this.model = new PlayerModel<>(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
 		this.data = data;
 		this.uuid = uuid;
+		this.name = name;
 	}
 
 	private final PlayerModel<AbstractClientPlayer> model;
@@ -51,7 +52,11 @@ public class FakePlayer {
 	}
 
 	public UUID getUUID() {
-		return uuid;
+		return this.uuid;
+	}
+
+	public String getName() {
+		return this.name;
 	}
 
 	public boolean isMainArmRaised() {

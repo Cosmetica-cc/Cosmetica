@@ -18,6 +18,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -27,15 +28,15 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MainScreen extends SulphateScreen {
-	public MainScreen(Screen parentScreen, UserSettings settings) {
+	public MainScreen(Screen parentScreen, UserSettings settings, PlayerData data) {
 		super(TextComponents.translatable("cosmetica.cosmeticaMainMenu"), parentScreen);
 
 		this.cosmeticaOptions = new ServerOptions(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore());
 		this.capeServerSettings = settings.getCapeServerSettings();
 		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
-		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2 - 40);
+		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2 - 20);
 
-		this.fakePlayer = new FakePlayer(this.minecraft, UUID.fromString(Cosmetica.dashifyUUID(this.minecraft.getUser().getUuid())), this.minecraft.getUser().getName(), PlayerData.NONE, true);
+		this.fakePlayer = new FakePlayer(Minecraft.getInstance(), UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid())), Minecraft.getInstance().getUser().getName(), data, true);
 	}
 
 	private final ServerOptions cosmeticaOptions;
@@ -64,6 +65,10 @@ public class MainScreen extends SulphateScreen {
 				throw new RuntimeException("bruh", e);
 			}
 		});
+
+		this.addButton(150, 20, TextComponents.translatable("options.skinCustomisation"), button ->
+			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options))
+		);
 
 		this.addDone();
 	}

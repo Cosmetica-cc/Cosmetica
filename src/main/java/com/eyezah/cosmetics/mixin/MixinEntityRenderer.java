@@ -27,8 +27,8 @@ public class MixinEntityRenderer {
 	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getDisplayName()Lnet/minecraft/network/chat/Component;"), method = "render")
 	private Component getDisplayName(Entity entity) {
 		if (entity instanceof Player) {
-			String prefix = getPlayerData(entity.getUUID(), entity.getName().getString()).prefix();
-			String suffix = getPlayerData(entity.getUUID(), entity.getName().getString()).suffix();
+			String prefix = getPlayerData(entity.getUUID(), entity.getName().getString(), false).prefix();
+			String suffix = getPlayerData(entity.getUUID(), entity.getName().getString(), false).suffix();
 
 			return new TextComponent(prefix).append(entity.getDisplayName()).append(suffix);
 		} else {

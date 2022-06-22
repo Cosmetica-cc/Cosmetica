@@ -3,7 +3,6 @@ package com.eyezah.cosmetics;
 import cc.cosmetica.api.Cape;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Base64Texture;
-import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -11,11 +10,13 @@ import net.minecraft.resources.ResourceLocation;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class CosmeticaSkinManager {
-	private static Map<ResourceLocation, Base64Texture> capeTextures = new HashMap<>();
+	private static Map<ResourceLocation, Base64Texture> textures = new HashMap<>();
 	/**
 	 * Stores capes that have been both loaded and uploaded.
 	 */
@@ -23,7 +24,7 @@ public class CosmeticaSkinManager {
 
 	public static void clearCaches() {
 		Debug.info("Clearing cosmetica skin caches");
-		capeTextures = new HashMap<>();
+		textures = new HashMap<>();
 		uploaded = new HashSet<>();
 	}
 
@@ -52,17 +53,23 @@ public class CosmeticaSkinManager {
 	}
 
 	public static ResourceLocation processCape(Cape cloak) {
-		ResourceLocation id = new ResourceLocation("cosmetica", pathify(cloak.getId()));
+		return saveTexture(new ResourceLocation("cosmetica", "cape/" + pathify(cloak.getId())), cloak.getImage());
+	}
 
-		if (!capeTextures.containsKey(id)) {
+	public static ResourceLocation processSkin(String base64Skin, UUID uuid) {
+		return saveTexture(new ResourceLocation("cosmetica", "skin/" + uuid.toString().toLowerCase(Locale.ROOT)), base64Skin);
+	}
+
+	private static ResourceLocation saveTexture(ResourceLocation id, String texture) {
+		if (!textures.containsKey(id)) {
 			try {
-				Base64Texture cloakTex = new Base64Texture(id, cloak.getImage().substring(22), true);
+				Base64Texture cloakTex = new Base64Texture(id, texture.substring(22), true);
 				RenderSystem.recordRenderCall(() -> {
 					Minecraft.getInstance().getTextureManager().register(id, cloakTex);
 					synchronized(uploaded) { uploaded.add(id); }
 				});
 				Debug.info("Registering cape texture for {}", id);
-				capeTextures.put(id, cloakTex);
+				textures.put(id, cloakTex);
 			} catch (IOException e) {
 				Cosmetica.LOGGER.error("Error loading cape texture", e);
 				return null;

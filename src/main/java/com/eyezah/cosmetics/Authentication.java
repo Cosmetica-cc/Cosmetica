@@ -3,6 +3,7 @@ package com.eyezah.cosmetics;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
+import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
@@ -42,7 +43,11 @@ public class Authentication {
 				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet();
 
 				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), settings)));
+					// load player info
+					UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+
+					PlayerData info = Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true);
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), settings, info)));
 				}
 			},
 			error -> {
