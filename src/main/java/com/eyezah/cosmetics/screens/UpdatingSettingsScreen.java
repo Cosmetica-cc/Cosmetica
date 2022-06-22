@@ -40,6 +40,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		doReload |= newOptions.shoulderBuddies.appendToIfChanged(oldOptions.shoulderBuddies, changedSettings);
 		doReload |= newOptions.hats.appendToIfChanged(oldOptions.hats, changedSettings);
 		doReload |= newOptions.lore.appendToIfChanged(oldOptions.lore, changedSettings);
+		doReload |= newOptions.backBlings.appendToIfChanged(oldOptions.backBlings, changedSettings);
 		boolean finalDoReload = doReload;
 
 		if (!changedSettings.isEmpty()) {

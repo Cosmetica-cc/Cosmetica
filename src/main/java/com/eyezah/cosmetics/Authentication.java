@@ -47,7 +47,7 @@ public class Authentication {
 					UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
 
 					PlayerData info = Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true);
-					System.out.println(info.skin());
+					Debug.info("Loading skin " + info.skin());
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), settings, info)));
 				}
 			},

@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.screens.fakeplayer;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.mixin.fakeplayer.HumanoidModelAccessor;
 import com.eyezah.cosmetics.mixin.fakeplayer.PlayerModelAccessor;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
@@ -66,7 +67,7 @@ public class FakePlayerRenderer {
 			stack.popPose();
 		} catch (Throwable var24) {
 			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering entity in world");
-			CrashReportCategory crashReportCategory = crashReport.addCategory("Fake Player being rendered");
+			crashReport.addCategory("Fake Player being rendered");
 
 			CrashReportCategory crashReportCategory2 = crashReport.addCategory("Renderer details");
 			crashReportCategory2.setDetail("Location", xOffset + "," + yOffset + "," + zOffset);
@@ -164,10 +165,10 @@ public class FakePlayerRenderer {
 		renderNameTag(player, stack, bufferSource, light);
 	}
 
-	private static RenderType getRenderType(FakePlayer player, boolean isVisible, boolean isNotInvisibleToPlayer, boolean isGlowing) {
+	private static RenderType getRenderType(FakePlayer player, boolean isVisible, boolean isInvisibleToPlayer, boolean isGlowing) {
 		ResourceLocation resourceLocation = player.getSkin();
 
-		if (isNotInvisibleToPlayer) {
+		if (isInvisibleToPlayer) {
 			return RenderType.itemEntityTranslucentCull(resourceLocation);
 		} else if (isVisible) {
 			return player.getModel().renderType(resourceLocation);
@@ -375,7 +376,7 @@ public class FakePlayerRenderer {
 
 		boolean fullyRender = !player.isCrouching();
 		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
-		int j = "deadmau5".equals(name.getString()) ? -10 : 0;
+		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
 
 		stack.pushPose();
 
@@ -400,10 +401,10 @@ public class FakePlayerRenderer {
 		int k = (int)(backgroundOpacity * 255.0F) << 24;
 		Font font = Minecraft.getInstance().font;
 		float h = (float)(-font.width(name) / 2);
-		font.drawInBatch(name, h, (float)j, 553648127, false, pose, bufferSource, fullyRender, k, light);
+		font.drawInBatch(name, h, (float)offsetForDeadmau5, 553648127, false, pose, bufferSource, fullyRender, k, light);
 
 		if (fullyRender) {
-			font.drawInBatch(name, h, (float)j, -1, false, pose, bufferSource, false, 0, light);
+			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, light);
 		}
 
 		stack.popPose();

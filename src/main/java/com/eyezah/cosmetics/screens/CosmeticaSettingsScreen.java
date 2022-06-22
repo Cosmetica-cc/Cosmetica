@@ -35,7 +35,6 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 	private boolean doReload;
 	private boolean doTestReload;
 
-
 	private TextComponent generateButtonToggleText(String translatable, boolean toggle) {
 		TextComponent component = new TextComponent("");
 		component.append(new TranslatableComponent(translatable));

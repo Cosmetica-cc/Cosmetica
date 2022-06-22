@@ -1,16 +1,16 @@
 package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
-import benzenestudios.sulphate.SulphateScreen;
+import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 
-public class CustomiseCosmeticsScreen extends SulphateScreen {
-	protected CustomiseCosmeticsScreen(Screen parentScreen) {
-		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen);
+public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
+	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player) {
+		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player);
 
 		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2 - 40);
