@@ -1,9 +1,9 @@
 package com.eyezah.cosmetics.screens;
 
+import cc.cosmetica.api.CapeDisplay;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
-import com.eyezah.cosmetics.utils.Response;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -25,6 +25,9 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 	private MultiLineLabel message;
 	private int textHeight;
 
+	/**
+	 * For regular settings.
+	 */
 	public UpdatingSettingsScreen(Screen parentScreen, ServerOptions oldOptions, ServerOptions newOptions, boolean doReload) throws IOException, InterruptedException {
 		super(new TranslatableComponent("cosmetica.updating"));
 		this.parentScreen = parentScreen;
@@ -57,6 +60,38 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		} else {
 			Debug.info("No settings changed.");
 			if (doReload) clearAllCaches();
+			Minecraft.getInstance().tell(this::onClose);
+		}
+	}
+
+	/**
+	 * For Cape Server Settings
+	 */
+	public UpdatingSettingsScreen(Screen parentScreen, Map<String, CapeDisplay> oldOptions, Map<String, CapeDisplay> newOptions) throws IOException, InterruptedException {
+		super(new TranslatableComponent("cosmetica.updating"));
+		this.parentScreen = parentScreen;
+
+		boolean updateCapeServerSettings = oldOptions.entrySet().stream().anyMatch(entry -> entry.getValue().id != newOptions.get(entry.getKey()).id);
+
+		if (updateCapeServerSettings) {
+			Thread requestThread = new Thread(() -> {
+				Cosmetica.api.setCapeServerSettings(newOptions).ifSuccessfulOrElse(response -> {
+					if (response.booleanValue()) {
+						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
+					} else {
+						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
+					}
+				},
+				e -> {
+					e.printStackTrace();
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
+				});
+
+				Minecraft.getInstance().tell(() -> clearAllCaches());
+			});
+			requestThread.start();
+		} else {
+			Debug.info("No cape server settings changed.");
 			Minecraft.getInstance().tell(this::onClose);
 		}
 	}

@@ -63,12 +63,13 @@ public class CosmeticaSkinManager {
 	private static ResourceLocation saveTexture(ResourceLocation id, String texture) {
 		if (!textures.containsKey(id)) {
 			try {
-				Base64Texture cloakTex = new Base64Texture(id, texture.substring(22), true);
+				String type = id.getPath().split("\\/")[0];
+				Base64Texture cloakTex = new Base64Texture(id, texture.substring(22), type.equals("cape"));
 				RenderSystem.recordRenderCall(() -> {
 					Minecraft.getInstance().getTextureManager().register(id, cloakTex);
 					synchronized(uploaded) { uploaded.add(id); }
 				});
-				Debug.info("Registering cape texture for {}", id);
+				Debug.info("Registering " + type + " texture for {}", id);
 				textures.put(id, cloakTex);
 			} catch (IOException e) {
 				Cosmetica.LOGGER.error("Error loading cape texture", e);

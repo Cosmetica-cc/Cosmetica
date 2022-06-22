@@ -18,7 +18,7 @@ public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 	}
 
 	public ButtonList(Minecraft minecraft, Screen parent, int spacing) {
-		super(minecraft, parent.width, parent.height, 20, parent.height - 32, spacing);
+		super(minecraft, parent.width, parent.height, 32, parent.height - 32, spacing);
 	}
 
 	public ButtonList(Minecraft minecraft, Screen parent) {
@@ -31,7 +31,7 @@ public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 
 	class Entry extends ContainerObjectSelectionList.Entry<ButtonList.Entry> {
 		Entry(int width, Component text, Button.OnPress callback) {
-			this.button = new Button(0, 0, width, ButtonList.this.itemHeight, text, callback);
+			this.button = new Button(0, 0, width, 20, text, callback);
 		}
 
 		private final Button button;

@@ -10,8 +10,8 @@ import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
-import com.eyezah.cosmetics.utils.TextComponents;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
+import com.eyezah.cosmetics.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -63,6 +63,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -411,23 +413,31 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
+	public static <K, V, V2> Map<K, V2> map(Map<K, V> original, Function<V, V2> mapper) {
+		HashMap<K, V2> result = new HashMap<>();
+		original.forEach((k, v) -> result.put(k, mapper.apply(v)));
+		return result;
+	}
+
+	// TODO this code is cursed from editing and editing and editing. Please uncurse this.
 	public static PlayerData getPlayerData(UUID uuid, String username, boolean sync) {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
 		Level level = Minecraft.getInstance().level;
 
-		AtomicReference<Runnable> lookup = new AtomicReference<>(() -> {});
-		PlayerData data;
+		AtomicReference<Supplier<PlayerData>> lookup = new AtomicReference<>(() -> PlayerData.NONE);
 
 		synchronized (playerDataCache) { // TODO if the network connection fails, queue it to try again later
-			 data = playerDataCache.computeIfAbsent(uuid, uid -> {
+			 playerDataCache.computeIfAbsent(uuid, uid -> {
 				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
 					lookingUp.add(uuid);
 
-					Runnable request = () -> {
+					Supplier<PlayerData> request = () -> {
 						if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
 							lookingUp.remove(uuid);
-							return;
+							return PlayerData.NONE;
 						}
+
+						AtomicReference<PlayerData> newDataHolder = new AtomicReference<>(PlayerData.NONE);
 
 						Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
 							List<Model> hats = info.getHats();
@@ -438,28 +448,36 @@ public class Cosmetica implements ClientModInitializer {
 							Optional<Model> leftShoulderBuddy = shoulderBuddy.isEmpty() ? Optional.empty() : shoulderBuddy.get().getLeft();
 							Optional<Model> rightShoulderBuddy = shoulderBuddy.isEmpty() ? Optional.empty() : shoulderBuddy.get().getRight();
 
-							synchronized (playerDataCache) { // update the information with what we have gotten.
-								playerDataCache.put(uuid, new PlayerData(
-										info.getLore(),
-										info.isUpsideDown(),
-										info.getPrefix(),
-										info.getSuffix(),
-										hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
-										leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
-										rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
-										backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
-										cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
-										CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
-										info.isSlim()
-								));
+							PlayerData newData = new PlayerData(
+									info.getLore(),
+									info.isUpsideDown(),
+									info.getPrefix(),
+									info.getSuffix(),
+									hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
+									leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
+									rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
+									backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
+									cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
+									CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
+									info.isSlim()
+							);
 
+							synchronized (playerDataCache) { // update the information with what we have gotten.
+								playerDataCache.put(uuid, newData);
 								lookingUp.remove(uuid);
 							}
+
+							newDataHolder.set(newData);
 						}, logErr("Error getting user info for " + uuid + " / " + username));
+
+						return newDataHolder.get();
 					};
 
 					if (sync) lookup.set(request);
-					else lookup.set(() -> Cosmetica.runOffthread(request, ThreadPool.GENERAL_THREADS));
+					else lookup.set(() -> {
+						Cosmetica.runOffthread(() -> request.get(), ThreadPool.GENERAL_THREADS);
+						return PlayerData.NONE;
+					});
 				}
 
 				return PlayerData.NONE; // temporary name: blank.
@@ -467,10 +485,8 @@ public class Cosmetica implements ClientModInitializer {
 		}
 
 		// to ensure web requests are not run in a synchronised block on the data cache, holding up the main thread
-		lookup.get().run();
-
-		// return the actual data
-		return data;
+		// also return the actual data
+		return lookup.get().get();
 	}
 
 	public static void onRenderNameTag(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {

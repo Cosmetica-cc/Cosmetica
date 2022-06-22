@@ -22,7 +22,6 @@ import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Map;
 import java.util.UUID;
@@ -96,11 +95,11 @@ public class MainScreen extends SulphateScreen {
 	}
 
 	public static void renderFakePlayerInInventory(int i, int j, int k, float f, float g, FakePlayer fakePlayer) {
-		float h = (float)Math.atan((double)(f / 40.0F));
-		float l = (float)Math.atan((double)(g / 40.0F));
+		float h = (float)Math.atan(f / 40.0F);
+		float l = (float)Math.atan(g / 40.0F);
 		PoseStack poseStack = RenderSystem.getModelViewStack();
 		poseStack.pushPose();
-		poseStack.translate((double)i, (double)j, 1050.0D);
+		poseStack.translate(i, j, 1050.0D);
 		poseStack.scale(1.0F, 1.0F, -1.0F);
 		RenderSystem.applyModelViewMatrix();
 		PoseStack poseStack2 = new PoseStack();
@@ -114,7 +113,6 @@ public class MainScreen extends SulphateScreen {
 		float n = fakePlayer.getYRot(0);
 		float o = fakePlayer.getXRot(0);
 		float p = fakePlayer.getYRotHead(0);
-		float q = fakePlayer.getYRotHead(0);
 
 		fakePlayer.yRotBody = 180.0F + h * 20.0F;
 		fakePlayer.yRot = (180.0F + h * 40.0F);

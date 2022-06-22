@@ -1,6 +1,8 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.utils.Debug;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.resources.SplashManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -21,6 +23,7 @@ public class MixinSplashManager {
 
 	@Inject(at = @At("RETURN"), method = "apply(Ljava/util/List;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V")
 	private void afterApply(List<String> list, ResourceManager resourceManager, ProfilerFiller profilerFiller, CallbackInfo ci) {
+		if (Debug.DEBUG_MODE) this.splashes.clear(); // in debug mode only have the custom one :)
 		this.splashes.addAll(Cosmetica.getSplashes());
 	}
 }
