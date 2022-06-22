@@ -76,11 +76,11 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		if (updateCapeServerSettings) {
 			Thread requestThread = new Thread(() -> {
 				Cosmetica.api.setCapeServerSettings(newOptions).ifSuccessfulOrElse(response -> {
-					if (response.booleanValue()) {
-						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
-					} else {
-						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
+					if (this.parentScreen instanceof MainScreen main) {
+						main.setCapeServerSettings(response);
 					}
+
+					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 				},
 				e -> {
 					e.printStackTrace();

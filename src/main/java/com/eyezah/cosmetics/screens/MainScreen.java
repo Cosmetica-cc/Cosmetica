@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
+import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CapeServer;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.impl.CosmeticaWebAPI;
@@ -23,6 +24,10 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,7 +36,10 @@ public class MainScreen extends SulphateScreen {
 		super(TextComponents.translatable("cosmetica.cosmeticaMainMenu"), parentScreen);
 
 		this.cosmeticaOptions = new ServerOptions(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore());
-		this.capeServerSettings = settings.getCapeServerSettings();
+		this.capeServerSettings = Cosmetica.map(settings.getCapeServerSettings(), CapeServer::getDisplay);
+		this.capeServerSettingsForButtons = new ArrayList<>(settings.getCapeServerSettings().entrySet());
+		Collections.sort(this.capeServerSettingsForButtons, Comparator.comparingInt(a -> a.getValue().getCheckOrder()));;
+
 		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2 - 20);
 
@@ -39,7 +47,8 @@ public class MainScreen extends SulphateScreen {
 	}
 
 	private final ServerOptions cosmeticaOptions;
-	private final Map<String, CapeServer> capeServerSettings;
+	private Map<String, CapeDisplay> capeServerSettings;
+	private List<Map.Entry<String, CapeServer>> capeServerSettingsForButtons;
 	private final FakePlayer fakePlayer;
 
 	@Override
@@ -49,7 +58,7 @@ public class MainScreen extends SulphateScreen {
 		);
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.capeServerSettings"), button ->
-			this.minecraft.setScreen(new CapeServerSettingsScreen(this, this.capeServerSettings))
+			this.minecraft.setScreen(new CapeServerSettingsScreen(this, this.capeServerSettings, this.capeServerSettingsForButtons))
 		);
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.cosmeticaSettings"), button ->
@@ -70,6 +79,10 @@ public class MainScreen extends SulphateScreen {
 		);
 
 		this.addDone();
+	}
+
+	void setCapeServerSettings(Map<String, CapeDisplay> settings) {
+		this.capeServerSettings = settings;
 	}
 
 	@Override

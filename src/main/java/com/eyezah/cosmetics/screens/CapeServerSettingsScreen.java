@@ -11,22 +11,18 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public class CapeServerSettingsScreen extends SulphateScreen {
-	protected CapeServerSettingsScreen(Screen parent, Map<String, CapeServer> settings) {
+	protected CapeServerSettingsScreen(Screen parent, Map<String, CapeDisplay> settings, List<Map.Entry<String, CapeServer>> settingsForButtons) {
 		super(TextComponents.translatable("cosmetica.capeServerSettings"), parent);
-		this.settings = Cosmetica.map(settings, CapeServer::getDisplay);
-		this.originalSettings = new HashMap<>(this.settings);
 
-		this.settingsForButtons = new ArrayList<>(settings.entrySet());
-		Collections.sort(this.settingsForButtons, Comparator.comparingInt(a -> a.getValue().getCheckOrder()));
+		this.originalSettings = settings;
+		this.settings = new HashMap<>(settings);
+		this.settingsForButtons = settingsForButtons;
 	}
 
 	private final List<Map.Entry<String, CapeServer>> settingsForButtons;
