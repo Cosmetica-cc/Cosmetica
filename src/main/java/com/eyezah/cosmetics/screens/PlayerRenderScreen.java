@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.screens;
 import benzenestudios.sulphate.SulphateScreen;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
+import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -11,6 +12,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -70,9 +72,10 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
 		PoseStack stack = RenderSystem.getModelViewStack();
+
 		stack.pushPose();
 		stack.translate(left, top, 1050.0D);
-		stack.scale(2.0F, 2.0F, -2.0F);
+		stack.scale(2.0F, 2.0F, -1.0F);
 		RenderSystem.applyModelViewMatrix();
 
 		// view
@@ -94,6 +97,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		xRotation.conj();
 		FakePlayerRenderer.cameraOrientation = xRotation;
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+
 		RenderSystem.runAsFancy(() -> {
 			FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
 		});

@@ -136,28 +136,28 @@ public class FakePlayerRenderer {
 		stack.scale(0.9375F, 0.9375F, 0.9375F); // PlayerRenderer#scale
 		stack.translate(0.0D, -1.5010000467300415D, 0.0D);
 
-		float n = 0.0f;//Mth.lerp(delta, player.animationSpeedOld, player.animationSpeed);
-		float o = 0.0f;//player.animationPosition - player.animationSpeed * (1.0F - delta);
+		float animationSpeed = 0.0f;//Mth.lerp(delta, player.animationSpeedOld, player.animationSpeed);
+		float animationPosition = 0.0f;//player.animationPosition - player.animationSpeed * (1.0F - delta);
 
-		if (n > 1.0F) {
-			n = 1.0F;
+		if (animationSpeed > 1.0F) {
+			animationSpeed = 1.0F;
 		}
 
 		//model.prepareMobModel(player, o, n, delta); only does swim stuff, not necessary
-		modelSetupAnim(model, player, o, n, bob, yRotDiff, xRot);
+		modelSetupAnim(model, player, animationPosition, animationSpeed, bob, yRotDiff, xRot);
 
 		RenderType renderType = getRenderType(player, true, false, false);
 
 		if (renderType != null) {
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
-			int p = getOverlayCoords(0.0f);
-			model.renderToBuffer(stack, vertexConsumer, light, p, 1.0F, 1.0F, 1.0F, 1.0F);
+			int packedOverlayCoords = getOverlayCoords(0.0f);
+			model.renderToBuffer(stack, vertexConsumer, light, packedOverlayCoords, 1.0F, 1.0F, 1.0F, 1.0F);
 		}
 
 		// render layers
 
 		for (MenuRenderLayer layer : player.getLayers()) {
-			layer.render(stack, bufferSource, light, player, o, n, delta, bob, yRotDiff, xRot);
+			layer.render(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
 		}
 
 		stack.popPose();
@@ -207,13 +207,13 @@ public class FakePlayerRenderer {
 		model.leftLeg.yRot = 0.0F;
 		model.rightLeg.zRot = 0.0F;
 		model.leftLeg.zRot = 0.0F;
-		ModelPart var10000;
+		ModelPart currentModel;
 
 		if (model.riding) {
-			var10000 = model.rightArm;
-			var10000.xRot += -0.62831855F;
-			var10000 = model.leftArm;
-			var10000.xRot += -0.62831855F;
+			currentModel = model.rightArm;
+			currentModel.xRot += -0.62831855F;
+			currentModel = model.leftArm;
+			currentModel.xRot += -0.62831855F;
 			model.rightLeg.xRot = -1.4137167F;
 			model.rightLeg.yRot = 0.31415927F;
 			model.rightLeg.zRot = 0.07853982F;
@@ -239,10 +239,10 @@ public class FakePlayerRenderer {
 		
 		if (model.crouching) {
 			model.body.xRot = 0.5F;
-			var10000 = model.rightArm;
-			var10000.xRot += 0.4F;
-			var10000 = model.leftArm;
-			var10000.xRot += 0.4F;
+			currentModel = model.rightArm;
+			currentModel.xRot += 0.4F;
+			currentModel = model.leftArm;
+			currentModel.xRot += 0.4F;
 			model.rightLeg.z = 4.0F;
 			model.leftLeg.z = 4.0F;
 			model.rightLeg.y = 12.2F;
@@ -367,8 +367,8 @@ public class FakePlayerRenderer {
 		}
 	}
 
-	private static int getOverlayCoords(float f) {
-		return OverlayTexture.pack(OverlayTexture.u(f), OverlayTexture.v(false));
+	private static int getOverlayCoords(float u) {
+		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(false));
 	}
 
 	private static void renderNameTag(FakePlayer player, PoseStack stack, MultiBufferSource bufferSource, int light) {

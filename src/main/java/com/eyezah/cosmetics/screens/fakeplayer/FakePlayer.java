@@ -4,6 +4,7 @@ import com.eyezah.cosmetics.cosmetics.BackBling;
 import com.eyezah.cosmetics.cosmetics.Hats;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddies;
+import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -29,6 +30,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	public FakePlayer(Minecraft minecraft, UUID uuid, String name, PlayerData data, boolean slim) {
 		var context = new EntityRendererProvider.Context(minecraft.getEntityRenderDispatcher(), minecraft.getItemRenderer(), minecraft.getResourceManager(), minecraft.getEntityModels(), minecraft.font);
 		this.model = new PlayerModel<>(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
+
 		this.data = data;
 		this.uuid = uuid;
 		this.name = name;
@@ -41,6 +43,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	private final PlayerModel<AbstractClientPlayer> model;
+	private static PlayerModel<AbstractClientPlayer> models;
 	private final PlayerData data;
 	private final List<MenuRenderLayer> layers = new LinkedList<>();
 

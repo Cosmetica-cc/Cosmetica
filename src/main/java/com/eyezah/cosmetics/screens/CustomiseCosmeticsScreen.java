@@ -24,14 +24,5 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	@Override
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
-
-		if (this.minecraft.player != null) {
-			final int left = this.width / 2 - 5 * this.width / 16;
-			final int top = this.height / 2 - this.height / 4 + 10;
-			RenderSystem.getModelViewStack().pushPose();
-			RenderSystem.getModelViewStack().scale(2.0f, 2.0f, 2.0f);
-			InventoryScreen.renderEntityInInventory(left, top, 30, (float)(left)*2 - mouseX, (float)(top - 50)*2 - mouseY, this.minecraft.player);
-			RenderSystem.getModelViewStack().popPose();
-		}
 	}
 }
