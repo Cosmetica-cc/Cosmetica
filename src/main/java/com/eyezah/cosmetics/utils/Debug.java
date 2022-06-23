@@ -137,6 +137,7 @@ public class Debug {
 
 				model.setTestModel(new BakableModel(
 						"test-" + modelLoc,
+						modelLoc,
 						blockModel,
 						image,
 						extraInfo, new Box(0, 0, 0, 0, 0 , 0)));

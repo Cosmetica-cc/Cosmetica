@@ -22,75 +22,115 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
-	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player) {
+	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options) {
 		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player);
 
 		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
-		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2 - 40);
-		this.setYSeparation(20 * 3 + 10);
+		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
+
+		this.options = options;
+	}
+
+	private final ServerOptions options;
+
+	private void createDisabledSection(String title) {
+		Span section = this.addWidget(Span::new, TextComponents.literal(title + " Section"));
+
+		this.addText(section, TextComponents.literal(title), 100, false);
+		this.addText(section, TextComponents.literal("Disabled"), 100, false).active = false;
+
+		section.calculateDimensions();
 	}
 
 	@Override
 	protected void addWidgets() {
 		PlayerData data = this.fakePlayer.getData();
 
-		// hats
+		// cape
+		Div cloakSection = this.addWidget(Div::new, TextComponents.literal("Cape Section"));
 
-		Div hatsSection = this.addWidget(Div::new, TextComponents.literal("Hats Section"));
+		Span capeHeader = cloakSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Cloak Header")));
 
-		Span hatsHeader = hatsSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Hats Header")));
+		this.addText(capeHeader, TextComponents.literal(data.capeName().isEmpty() ? "No Cape" : "Cape"), 100, false);
+		capeHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
-		this.addText(hatsHeader, TextComponents.literal("Hats"), 100, false);
-		hatsHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+		if (data.cape() != null) this.addText(cloakSection, TextComponents.literal(data.capeName()), 200, false).active = false;
 
-		for (BakableModel hat : data.hats()) {
-			hat.id();
-		}
-
-		this.addText(hatsSection, TextComponents.literal("Bowler Hat"), 200, false).active = false;
-		this.addText(hatsSection, TextComponents.literal("Rain Hat"), 200, false).active = false;
-
-		hatsSection.calculateDimensions();
-
-		// sbs
-
-		Div shoulderBuddiesSection = this.addWidget(Div::new, TextComponents.literal("Shoulder Buddies Section"));
-
-		Span shoulderBuddyHeader = shoulderBuddiesSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Shoulder Buddies Header")));
-
-		this.addText(shoulderBuddyHeader, TextComponents.literal("Shoulder Buddies"), 100, false);
-		shoulderBuddyHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
-
-		this.addText(shoulderBuddiesSection, TextComponents.literal("Some OP Dragon by Lysanderoth"), 200, false).active = false;
-		this.addText(shoulderBuddiesSection, TextComponents.literal("Slim Bald Eagle"), 200, false).active = false;
-
-		shoulderBuddiesSection.calculateDimensions();
-
-		// back bling
-
-		Div backBlingSection = this.addWidget(Div::new, TextComponents.literal("Back Bling Section"));
-
-		Span backBlingHeader = backBlingSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Back Bling Header")));
-
-		this.addText(backBlingHeader, TextComponents.literal("Back Bling"), 100, false);
-		backBlingHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
-
-		this.addText(backBlingSection, TextComponents.literal("Wings"), 200, false).active = false;
-
-		backBlingSection.calculateDimensions();
+		cloakSection.calculateDimensions();
 
 		// lore
+		if (this.options.lore.get()) {
+			Div loreSection = this.addWidget(Div::new, TextComponents.literal("Lore Section"));
 
-		Div loreSection = this.addWidget(Div::new, TextComponents.literal("Lore Section"));
+			Span loreHeader = loreSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Lore Header")));
 
-		Span loreHeader = loreSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Lore Header")));
+			this.addText(loreHeader, TextComponents.literal(data.lore().isEmpty() ? "No Lore" : "Lore"), 100, false);
+			loreHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
-		this.addText(loreHeader, TextComponents.literal("Lore"), 100, false);
-		loreHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+			if (!data.lore().isEmpty()) this.addText(loreSection, TextComponents.literal(data.lore()), 200, false);
 
-		this.addText(loreSection, TextComponents.literal("New to Cosmetica"), 200, false);
+			loreSection.calculateDimensions();
+		}
+		else {
+			createDisabledSection("Lore");
+		}
 
-		loreSection.calculateDimensions();
+		// hats
+		if (this.options.hats.get()) {
+			Div hatsSection = this.addWidget(Div::new, TextComponents.literal("Hats Section"));
+
+			Span hatsHeader = hatsSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Hats Header")));
+
+			this.addText(hatsHeader, TextComponents.literal(data.hats().isEmpty() ? "No Hats" : "Hats"), 100, false);
+			hatsHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+
+			for (BakableModel hat : data.hats()) {
+				this.addText(hatsSection, TextComponents.literal(hat.name()), 200, false).active = false;
+				this.addText(hatsSection, TextComponents.literal(hat.name()), 200, false).active = false;
+			}
+
+			hatsSection.calculateDimensions();
+		}
+		else {
+			createDisabledSection("Hats");
+		}
+
+		// sbs
+		if (this.options.shoulderBuddies.get()) {
+			Div shoulderBuddiesSection = this.addWidget(Div::new, TextComponents.literal("Shoulder Buddies Section"));
+
+			Span shoulderBuddyHeader = shoulderBuddiesSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Shoulder Buddies Header")));
+
+			this.addText(shoulderBuddyHeader, TextComponents.literal("Shoulder Buddies"), 100, false);
+			shoulderBuddyHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+
+			this.addText(shoulderBuddiesSection, TextComponents.literal("Left: " + (data.leftShoulderBuddy() == null ? "None" : data.leftShoulderBuddy().name())), 200, false).active = false;
+			this.addText(shoulderBuddiesSection, TextComponents.literal("Right: " + (data.rightShoulderBuddy() == null ? "None" : data.rightShoulderBuddy().name())), 200, false).active = false;
+
+			shoulderBuddiesSection.calculateDimensions();
+		}
+		else {
+			createDisabledSection("Shoulder Buddies");
+		}
+
+		// back bling
+		if (this.options.backBlings.get()) {
+			Div backBlingSection = this.addWidget(Div::new, TextComponents.literal("Back Bling Section"));
+
+			Span backBlingHeader = backBlingSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Back Bling Header")));
+
+			this.addText(backBlingHeader, TextComponents.literal(data.backBling() == null ? "No Back Bling" : "Back Bling"), 100, false);
+			backBlingHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+
+			if (data.backBling() != null) {
+				this.addText(backBlingSection, TextComponents.literal(data.backBling().name()), 200, false).active = false;
+			}
+
+			backBlingSection.calculateDimensions();
+		}
+		else {
+			createDisabledSection("Back Bling");
+		}
 
 		this.addDone(this.height - 40);
 	}
@@ -221,15 +261,41 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		}
 
 		@Override
-		public void onClick(double x, double y) {
+		public boolean mouseClicked(double x, double y, int i) {
 			for (AbstractWidget child : this.children) {
 				if (child.x <= x && x < child.x + child.getWidth()) {
 					if (child.y <= y && y < child.y + child.getHeight()) {
-						child.onClick(x, y);
+						return child.mouseClicked(x, y, i);
+					}
+				}
+			}
+
+			return false;
+		}
+
+		@Override
+		public void onRelease(double x, double y) {
+			for (AbstractWidget child : this.children) {
+				if (child.x <= x && x < child.x + child.getWidth()) {
+					if (child.y <= y && y < child.y + child.getHeight()) {
+						child.onRelease(x, y);
 						return;
 					}
 				}
 			}
+		}
+
+		@Override
+		public boolean mouseDragged(double x, double y, int button, double prevX, double prevY) {
+			for (AbstractWidget child : this.children) {
+				if (child.x <= x && x < child.x + child.getWidth()) {
+					if (child.y <= y && y < child.y + child.getHeight()) {
+						return child.mouseDragged(x, y, button, prevX, prevY);
+					}
+				}
+			}
+
+			return false;
 		}
 
 		@Override

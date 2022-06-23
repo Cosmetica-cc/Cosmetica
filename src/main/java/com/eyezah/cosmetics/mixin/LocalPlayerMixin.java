@@ -39,7 +39,7 @@ public class LocalPlayerMixin {
 					String cosmeticId = Cosmetica.urlEncode(args[2]);
 
 					if (cosmeticId.charAt(0) == '-' && "shoulderbuddy".equals(cosmeticType)) {
-						ShoulderBuddies.overridden.setDebugModel(new BakableModel("-sheep", null, null, 0, new Box(0, 0, 0, 0, 0, 0)));
+						ShoulderBuddies.overridden.setDebugModel(new BakableModel("-sheep", "Jeb_ Sheep", null, null, 0, new Box(0, 0, 0, 0, 0, 0)));
 					} else {
 						Cosmetica.runOffthread(() -> {
 							var type = CosmeticType.fromUrlString(cosmeticType);
