@@ -46,7 +46,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	protected void addWidgets() {
 		PlayerData data = this.fakePlayer.getData();
 
-		this.addRenderableWidget(new
+		//this.addRenderableWidget(new
 		// cape
 		Div cloakSection = this.addWidget(Div::new, TextComponents.literal("Cape Section"));
 
