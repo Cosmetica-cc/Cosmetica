@@ -86,7 +86,6 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 			for (BakableModel hat : data.hats()) {
 				this.addText(hatsSection, TextComponents.literal(hat.name()), 200, false).active = false;
-				this.addText(hatsSection, TextComponents.literal(hat.name()), 200, false).active = false;
 			}
 
 			hatsSection.calculateDimensions();
