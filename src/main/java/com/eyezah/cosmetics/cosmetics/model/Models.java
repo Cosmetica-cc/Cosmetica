@@ -109,7 +109,7 @@ public class Models {
 		Box bounds = model.getBoundingBox();
 
 		if (model.isBuiltin()) {
-			return LOADED_MODELS.computeIfAbsent(location, l -> new BakableModel(location, null, null, 0, bounds));
+			return LOADED_MODELS.computeIfAbsent(location, l -> new BakableModel(location, model.getName(), null, null, 0, bounds));
 		}
 
 		return LOADED_MODELS.computeIfAbsent(location, l -> {
@@ -117,7 +117,7 @@ public class Models {
 				BlockModel blockModel = BlockModel.fromStream(new InputStreamReader(is, StandardCharsets.UTF_8));
 				blockModel.name = l;
 				NativeImage image = NativeImage.fromBase64(model.getTexture().substring(22)); // trim nonsense at the start
-				return new BakableModel(location, blockModel, image, model.flags(), bounds);
+				return new BakableModel(location, model.getName(), blockModel, image, model.flags(), bounds);
 			} catch (IOException e) {
 				return null;
 			} catch (Exception e) {

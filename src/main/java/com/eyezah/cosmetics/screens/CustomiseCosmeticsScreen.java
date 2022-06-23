@@ -1,6 +1,8 @@
 package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
+import com.eyezah.cosmetics.cosmetics.PlayerData;
+import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,6 +16,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,55 +27,79 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2 - 40);
+		this.setYSeparation(20 * 3 + 10);
 	}
 
 	@Override
 	protected void addWidgets() {
-		repositionedSectionChildren = false;
+		PlayerData data = this.fakePlayer.getData();
 
 		// hats
 
-		Div hats = this.addWidget(Div::new, TextComponents.literal("Hats Section"));
+		Div hatsSection = this.addWidget(Div::new, TextComponents.literal("Hats Section"));
 
-		Span hatsHeader = hats.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Hats Header")));
+		Span hatsHeader = hatsSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Hats Header")));
 
 		this.addText(hatsHeader, TextComponents.literal("Hats"), 100, false);
 		hatsHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
-		this.addText(hats, TextComponents.literal("Bowler Hat"), 200, false).active = false;
-		this.addText(hats, TextComponents.literal("Rain Hat"), 200, false).active = false;
+		for (BakableModel hat : data.hats()) {
+			hat.id();
+		}
 
-		hats.calculateDimensions();
+		this.addText(hatsSection, TextComponents.literal("Bowler Hat"), 200, false).active = false;
+		this.addText(hatsSection, TextComponents.literal("Rain Hat"), 200, false).active = false;
+
+		hatsSection.calculateDimensions();
 
 		// sbs
 
-		Div shoulderBuddies = this.addWidget(Div::new, TextComponents.literal("Shoulder Buddies Section"));
+		Div shoulderBuddiesSection = this.addWidget(Div::new, TextComponents.literal("Shoulder Buddies Section"));
 
-		Span shoulderBuddyHeader = this.addWidget(Span::new, TextComponents.literal("Shoulder Buddies Header"));
+		Span shoulderBuddyHeader = shoulderBuddiesSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Shoulder Buddies Header")));
 
 		this.addText(shoulderBuddyHeader, TextComponents.literal("Shoulder Buddies"), 100, false);
 		shoulderBuddyHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
-		this.addText(shoulderBuddies, TextComponents.literal("Some OP Dragon by Lysanderoth"), 200, false).active = false;
-		this.addText(shoulderBuddies, TextComponents.literal("Slim Bald Eagle"), 200, false).active = false;
+		this.addText(shoulderBuddiesSection, TextComponents.literal("Some OP Dragon by Lysanderoth"), 200, false).active = false;
+		this.addText(shoulderBuddiesSection, TextComponents.literal("Slim Bald Eagle"), 200, false).active = false;
 
-		shoulderBuddies.calculateDimensions();
+		shoulderBuddiesSection.calculateDimensions();
 
-		this.addDone();
+		// back bling
+
+		Div backBlingSection = this.addWidget(Div::new, TextComponents.literal("Back Bling Section"));
+
+		Span backBlingHeader = backBlingSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Back Bling Header")));
+
+		this.addText(backBlingHeader, TextComponents.literal("Back Bling"), 100, false);
+		backBlingHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+
+		this.addText(backBlingSection, TextComponents.literal("Wings"), 200, false).active = false;
+
+		backBlingSection.calculateDimensions();
+
+		// lore
+
+		Div loreSection = this.addWidget(Div::new, TextComponents.literal("Lore Section"));
+
+		Span loreHeader = loreSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Lore Header")));
+
+		this.addText(loreHeader, TextComponents.literal("Lore"), 100, false);
+		loreHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+
+		this.addText(loreSection, TextComponents.literal("New to Cosmetica"), 200, false);
+
+		loreSection.calculateDimensions();
+
+		this.addDone(this.height - 40);
 	}
 
-	private static boolean repositionedSectionChildren;
-
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		if (!repositionedSectionChildren) {
-			repositionedSectionChildren = true;
-
-			for (GuiEventListener widget : this.children()) {
-				if (widget instanceof Section section) section.repositionChildren();
-			}
+	public void afterInit() {
+		for (GuiEventListener widget : this.children()) {
+			if (widget instanceof Section section) section.repositionChildren();
 		}
-		super.render(matrices, mouseX, mouseY, delta);
 	}
 
 	private TextWidget addText(Component text, int width, boolean centered) {
@@ -81,28 +108,6 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 	private TextWidget addText(Section section, Component text, int width, boolean centered) {
 		return section.addWidget(new TextWidget(0, 0, width, 20, centered, text));
-	}
-
-	private void addSpacer(int height) { // note: repositioning seems to ignore spacer height
-		this.addWidget(Spacer::new, TextComponents.literal("Blank Spacer."), 200, height);
-	}
-
-	private static class Spacer extends AbstractWidget {
-		public Spacer(int x, int y, int width, int height, Component component) {
-			super(x, y, width, height, component);
-		}
-
-		@Override
-		public void updateNarration(NarrationElementOutput narration) {
-		}
-
-		public boolean mouseClicked(double d, double e, int i) {
-			return false;
-		}
-
-		@Override
-		public void render(PoseStack poseStack, int i, int j, float f) {
-		}
 	}
 
 	private static class TextWidget extends AbstractWidget {
@@ -151,16 +156,16 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 		@Override
 		public void repositionChildren() {
-			super.repositionChildren();
-
 			int y0 = this.y;
 
 			for (AbstractWidget child : this.children) {
-				child.y += y0;
 				child.x += this.x;
+				child.y += y0;
 
 				y0 += child.getHeight();
 			}
+
+			super.repositionChildren();
 		}
 	}
 
@@ -173,11 +178,11 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		public void calculateDimensions() {
 			super.calculateDimensions();
 			this.setWidth(this.children.stream().map(w -> w.getWidth()).collect(Collectors.summingInt(i -> i)));
+			this.height = this.children.stream().map(w -> w.getHeight()).collect(Collectors.maxBy(Comparator.comparingInt(a -> a))).orElse(0);
 		}
 
+		@Override
 		public void repositionChildren() {
-			super.repositionChildren();
-
 			int x0 = this.x;
 
 			for (AbstractWidget child : this.children) {
@@ -186,6 +191,8 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 				x0 += child.getWidth();
 			}
+
+			super.repositionChildren();
 		}
 	}
 

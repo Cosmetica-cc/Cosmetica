@@ -459,6 +459,7 @@ public class Cosmetica implements ClientModInitializer {
 									leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
 									rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
 									backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
+									cloak.isEmpty() ? "" : cloak.get().getName(),
 									cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
 									CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
 									info.isSlim()

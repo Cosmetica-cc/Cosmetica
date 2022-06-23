@@ -24,7 +24,7 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 		this.oldOptions = oldOptions;
 		this.newOptions = new ServerOptions(this.oldOptions);
 
-		this.setAnchorY(Anchor.TOP, () -> this.height / 6 + 12);
+		this.setAnchorY(Anchor.TOP, () -> this.height / 6);
 		this.setRows(2);
 	}
 
@@ -100,7 +100,7 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 		});
 
 		// when done, update settings
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 - 12 + 24 * 7, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 + 24 * 4, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			if (this.doTestReload) {
 				Debug.loadTestProperties();
 				Debug.loadTestModel(Debug.LocalModelType.HAT);

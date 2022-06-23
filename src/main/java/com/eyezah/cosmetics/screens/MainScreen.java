@@ -11,6 +11,7 @@ import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 
@@ -31,7 +32,7 @@ public class MainScreen extends PlayerRenderScreen {
 		Collections.sort(this.capeServerSettingsForButtons, Comparator.comparingInt(a -> a.getValue().getCheckOrder()));;
 
 		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
-		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2 - 20);
+		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
 	}
 
 	private final ServerOptions cosmeticaOptions;
@@ -65,7 +66,7 @@ public class MainScreen extends PlayerRenderScreen {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options))
 		);
 
-		this.addDone();
+		this.addDoneWithOffset(12);
 	}
 
 	void setCapeServerSettings(Map<String, CapeDisplay> settings) {
