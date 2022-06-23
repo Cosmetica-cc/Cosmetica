@@ -65,7 +65,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 		final int left = this.width / 3 + 10;
 		final int top = this.height / 2 + 55;
-		renderFakePlayerInMenu(left, top, 30, (float)(left) - mouseX, (float)(top - 100) - mouseY, this.yaw, this.fakePlayer);
+		renderFakePlayerInMenu(left, top, 30, (float)(left) - mouseX, (float)(top - 90) - mouseY, this.yaw, this.fakePlayer);
 	}
 
 	public static void renderFakePlayerInMenu(int left, int top, int extraScale, float lookX, float lookY, float yaw, FakePlayer fakePlayer) {
