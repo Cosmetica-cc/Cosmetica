@@ -76,7 +76,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		this.playerLeft = this.initialPlayerLeft + (int) (Mth.lerp(delta, this.transitionProgress, this.nextTransitionProgress) * this.deltaPlayerLeft);
 
 		if (GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS) {
-			if (mouseX < this.width / 2 || this.wasMouseDown) {
+			if (mouseX < this.playerLeft + 40 && (!(this instanceof CustomiseCosmeticsScreen) || mouseX > this.playerLeft - 40) || this.wasMouseDown) {
 				if (this.wasMouseDown) {
 					this.yaw += (mouseX - this.lastMouseX);
 
