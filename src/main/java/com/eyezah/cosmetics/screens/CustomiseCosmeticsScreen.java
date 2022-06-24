@@ -19,18 +19,26 @@ import net.minecraft.util.Mth;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
-	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options) {
+	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options, boolean inlineChangeButton, boolean animation) {
 		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player);
 
 		this.setAnchorX(Anchor.RIGHT, () -> this.width / 2 - 50);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
 
 		this.options = options;
+		this.inlineChangeButton = inlineChangeButton;
+
+		if (!animation) {
+			this.setTransitionProgress(1.0f);
+		}
 	}
 
 	private final ServerOptions options;
+	private final boolean inlineChangeButton;
+
 	private Section cloakSection;
 	private Section loreSection;
 	private Section hatsSection;
@@ -38,10 +46,6 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	private Section backBlingSection;
 
 	private Section selected;
-	private float fade = 0;
-	private float nextFade = 0;
-	private int initialPlayerLeft;
-	private int deltaPlayerLeft;
 
 	private Section createDisabledSection(String title) {
 		Span section = this.addWidget(Span::new, TextComponents.literal(title + " Section"));
@@ -53,99 +57,61 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		return section;
 	}
 
+	private Section createActiveSection(String title, List<String> items, Button.OnPress onChange) {
+		Div section = Div.create(title);
+		String headerText = items.isEmpty() ? "No " + title : title;
+
+		if (!this.inlineChangeButton) {
+			Span header = section.addChild(new Span(0, 0, 200, 20, TextComponents.literal(title + "Header")));
+
+			this.addTextTo(header, TextComponents.literal(headerText), this.font.width(headerText) + 8, false);
+			header.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), onChange));
+		}
+		else {
+			this.addTextTo(section, TextComponents.literal(headerText), 200, false);
+		}
+
+		for (String item : items) {
+			this.addTextTo(section, TextComponents.literal(item), 200, false).active = false;
+		}
+
+		if (this.inlineChangeButton) {
+			section.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), onChange));
+		}
+
+		section.calculateDimensions();
+		return section;
+	}
+
+	private List<String> immutableListOf(String str) {
+		return str.isEmpty() ? ImmutableList.of() : ImmutableList.of(str);
+	}
+
 	@Override
 	protected void addWidgets() {
 		PlayerData data = this.fakePlayer.getData();
 
 		// cape
-		this.cloakSection = Div.create("Cape");
-
-		Span capeHeader = this.cloakSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Cloak Header")));
-
-		String cloakText = data.capeName().isEmpty() ? "No Cape" : "Cape";
-		this.addTextTo(capeHeader, TextComponents.literal(cloakText), this.font.width(cloakText) + 8, false);
-		capeHeader.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
-
-		if (data.cape() != null) this.addTextTo(this.cloakSection, TextComponents.literal(data.capeName()), 200, false).active = false;
-
-		this.cloakSection.calculateDimensions();
+		this.cloakSection = this.createActiveSection("Cape", immutableListOf(data.capeName()), b -> System.out.println("would change"));
 
 		// lore
-		if (this.options.lore.get()) {
-			this.loreSection = Div.create("Lore");
-
-			Span loreHeader = loreSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Lore Header")));
-
-			String loreText = data.lore().isEmpty() ? "No Lore" : "Lore";
-			this.addTextTo(loreHeader, TextComponents.literal(loreText), this.font.width(loreText) + 8, false);
-			loreHeader.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
-
-			if (!data.lore().isEmpty()) this.addTextTo(this.loreSection, TextComponents.literal(data.lore()), 200, false);
-
-			this.loreSection.calculateDimensions();
-		}
-		else {
-			this.loreSection = this.createDisabledSection("Lore");
-		}
+		this.loreSection = this.options.lore.get() ? this.createActiveSection("Lore", immutableListOf(data.lore()), b -> System.out.println("would change")) : this.createDisabledSection("Lore");
 
 		// hats
-		if (this.options.hats.get()) {
-			this.hatsSection = Div.create("Hats");
-
-			Span hatsHeader = this.hatsSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Hats Header")));
-
-			String hatText = data.hats().isEmpty() ? "No Hats" : "Hats";
-			this.addTextTo(hatsHeader, TextComponents.literal(hatText), this.font.width(hatText) + 8, false);
-			hatsHeader.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
-
-			for (BakableModel hat : data.hats()) {
-				this.addTextTo(this.hatsSection, TextComponents.literal(hat.name()), 200, false).active = false;
-			}
-
-			this.hatsSection.calculateDimensions();
-		}
-		else {
-			this.hatsSection = this.createDisabledSection("Hats");
-		}
+		this.hatsSection = this.options.hats.get() ? this.createActiveSection("Hats", data.hats().stream().map(BakableModel::name).collect(Collectors.toList()), b -> System.out.println("would change")) : this.createDisabledSection("Hats");
 
 		// sbs
-		if (this.options.shoulderBuddies.get()) {
-			this.shoulderBuddiesSection = Div.create("Shoulder Buddies");
+		List<String> shoulderBuddies = ImmutableList.of(
+				"Left: " + (data.leftShoulderBuddy() == null ? "None" : data.leftShoulderBuddy().name()),
+				"Right: " + (data.rightShoulderBuddy() == null ? "None" : data.rightShoulderBuddy().name())
+		);
 
-			Span shoulderBuddyHeader = this.shoulderBuddiesSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Shoulder Buddies Header")));
-
-			this.addTextTo(shoulderBuddyHeader, TextComponents.literal("Shoulder Buddies"), this.font.width("Shoulder Buddies") + 8, false);
-			shoulderBuddyHeader.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
-
-			this.addTextTo(this.shoulderBuddiesSection, TextComponents.literal("Left: " + (data.leftShoulderBuddy() == null ? "None" : data.leftShoulderBuddy().name())), 200, false).active = false;
-			this.addTextTo(this.shoulderBuddiesSection, TextComponents.literal("Right: " + (data.rightShoulderBuddy() == null ? "None" : data.rightShoulderBuddy().name())), 200, false).active = false;
-
-			this.shoulderBuddiesSection.calculateDimensions();
-		}
-		else {
-			this.shoulderBuddiesSection = this.createDisabledSection("Shoulder Buddies");
-		}
+		this.shoulderBuddiesSection = this.options.shoulderBuddies.get() ? this.createActiveSection("Shoulder Buddies", shoulderBuddies, b -> System.out.println("would change")) : this.createDisabledSection("Shoulder Buddies");
 
 		// back bling
-		if (this.options.backBlings.get()) {
-			this.backBlingSection = Div.create("Back Bling");
+		this.backBlingSection = this.options.backBlings.get() ? this.createActiveSection("Back Bling", data.backBling() == null ? ImmutableList.of() : ImmutableList.of(data.backBling().name()), b -> System.out.println("would change")) : this.createDisabledSection("Back Bling");
 
-			Span backBlingHeader = this.backBlingSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Back Bling Header")));
-
-			String backBlingText = data.backBling() == null ? "No Back Bling" : "Back Bling";
-			this.addTextTo(backBlingHeader, TextComponents.literal(backBlingText), this.font.width(backBlingText) + 8, false);
-			backBlingHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
-
-			if (data.backBling() != null) {
-				this.addTextTo(this.backBlingSection, TextComponents.literal(data.backBling().name()), 200, false).active = false;
-			}
-
-			this.backBlingSection.calculateDimensions();
-		}
-		else {
-			this.backBlingSection = this.createDisabledSection("Back Bling");
-		}
-
+		// the whole gang
 		List<Section> availableDivs = ImmutableList.of(this.cloakSection, this.loreSection, this.hatsSection, this.shoulderBuddiesSection, this.backBlingSection);
 
 		// if first time, initialise selected to capes
@@ -199,28 +165,16 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
-
-		if (this.fade < 1) {
-			this.fade = this.nextFade;
-
-			if (this.nextFade < 1) {
-				this.nextFade += (0.08f - this.fade * 0.05f);
-			}
-			else {
-				this.nextFade = 1;
-			}
+	public void onClose() {
+		if (this.parent instanceof MainScreen main) {
+			main.setTransitionProgress(0.0f);
 		}
-		else {
-			this.fade = 1;
-			this.nextFade = 1;
-		}
+
+		super.onClose();
 	}
 
 	@Override
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		this.playerLeft = this.initialPlayerLeft + (int) (Mth.lerp(delta, this.fade, this.nextFade) * this.deltaPlayerLeft);
 		super.render(matrices, mouseX, mouseY, delta);
 	}
 
