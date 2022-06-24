@@ -5,6 +5,7 @@ import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.TextComponents;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -16,123 +17,167 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options) {
 		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player);
 
-		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
+		this.setAnchorX(Anchor.LEFT, () -> 16);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
 
 		this.options = options;
 	}
 
 	private final ServerOptions options;
+	private Section cloakSection;
+	private Section loreSection;
+	private Section hatsSection;
+	private Section shoulderBuddiesSection;
+	private Section backBlingSection;
 
-	private void createDisabledSection(String title) {
+	private Section selected;
+
+	private Section createDisabledSection(String title) {
 		Span section = this.addWidget(Span::new, TextComponents.literal(title + " Section"));
 
-		this.addText(section, TextComponents.literal(title), 100, false);
-		this.addText(section, TextComponents.literal("Disabled"), 100, false).active = false;
+		this.addTextTo(section, TextComponents.literal(title), 100, false);
+		this.addTextTo(section, TextComponents.literal("Disabled"), 100, false).active = false;
 
 		section.calculateDimensions();
+		return section;
 	}
 
 	@Override
 	protected void addWidgets() {
 		PlayerData data = this.fakePlayer.getData();
 
-		//this.addRenderableWidget(new
 		// cape
-		Div cloakSection = this.addWidget(Div::new, TextComponents.literal("Cape Section"));
+		this.cloakSection = Div.create("Cape");
 
-		Span capeHeader = cloakSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Cloak Header")));
+		Span capeHeader = this.cloakSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Cloak Header")));
 
-		this.addText(capeHeader, TextComponents.literal(data.capeName().isEmpty() ? "No Cape" : "Cape"), 100, false);
-		capeHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+		this.addTextTo(capeHeader, TextComponents.literal(data.capeName().isEmpty() ? "No Cape" : "Cape"), 100, false);
+		capeHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
-		if (data.cape() != null) this.addText(cloakSection, TextComponents.literal(data.capeName()), 200, false).active = false;
+		if (data.cape() != null) this.addTextTo(this.cloakSection, TextComponents.literal(data.capeName()), 200, false).active = false;
 
-		cloakSection.calculateDimensions();
+		this.cloakSection.calculateDimensions();
 
 		// lore
 		if (this.options.lore.get()) {
-			Div loreSection = this.addWidget(Div::new, TextComponents.literal("Lore Section"));
+			this.loreSection = Div.create("Lore");
 
-			Span loreHeader = loreSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Lore Header")));
+			Span loreHeader = loreSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Lore Header")));
 
-			this.addText(loreHeader, TextComponents.literal(data.lore().isEmpty() ? "No Lore" : "Lore"), 100, false);
-			loreHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+			this.addTextTo(loreHeader, TextComponents.literal(data.lore().isEmpty() ? "No Lore" : "Lore"), 100, false);
+			loreHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
-			if (!data.lore().isEmpty()) this.addText(loreSection, TextComponents.literal(data.lore()), 200, false);
+			if (!data.lore().isEmpty()) this.addTextTo(this.loreSection, TextComponents.literal(data.lore()), 200, false);
 
-			loreSection.calculateDimensions();
+			this.loreSection.calculateDimensions();
 		}
 		else {
-			createDisabledSection("Lore");
+			this.loreSection = this.createDisabledSection("Lore");
 		}
 
 		// hats
 		if (this.options.hats.get()) {
-			Div hatsSection = this.addWidget(Div::new, TextComponents.literal("Hats Section"));
+			this.hatsSection = Div.create("Hats");
 
-			Span hatsHeader = hatsSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Hats Header")));
+			Span hatsHeader = this.hatsSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Hats Header")));
 
-			this.addText(hatsHeader, TextComponents.literal(data.hats().isEmpty() ? "No Hats" : "Hats"), 100, false);
-			hatsHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+			this.addTextTo(hatsHeader, TextComponents.literal(data.hats().isEmpty() ? "No Hats" : "Hats"), 100, false);
+			hatsHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
 			for (BakableModel hat : data.hats()) {
-				this.addText(hatsSection, TextComponents.literal(hat.name()), 200, false).active = false;
+				this.addTextTo(this.hatsSection, TextComponents.literal(hat.name()), 200, false).active = false;
 			}
 
-			hatsSection.calculateDimensions();
+			this.hatsSection.calculateDimensions();
 		}
 		else {
-			createDisabledSection("Hats");
+			this.hatsSection = this.createDisabledSection("Hats");
 		}
 
 		// sbs
 		if (this.options.shoulderBuddies.get()) {
-			Div shoulderBuddiesSection = this.addWidget(Div::new, TextComponents.literal("Shoulder Buddies Section"));
+			this.shoulderBuddiesSection = Div.create("Shoulder Buddies");
 
-			Span shoulderBuddyHeader = shoulderBuddiesSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Shoulder Buddies Header")));
+			Span shoulderBuddyHeader = this.shoulderBuddiesSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Shoulder Buddies Header")));
 
-			this.addText(shoulderBuddyHeader, TextComponents.literal("Shoulder Buddies"), 100, false);
-			shoulderBuddyHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+			this.addTextTo(shoulderBuddyHeader, TextComponents.literal("Shoulder Buddies"), 100, false);
+			shoulderBuddyHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
-			this.addText(shoulderBuddiesSection, TextComponents.literal("Left: " + (data.leftShoulderBuddy() == null ? "None" : data.leftShoulderBuddy().name())), 200, false).active = false;
-			this.addText(shoulderBuddiesSection, TextComponents.literal("Right: " + (data.rightShoulderBuddy() == null ? "None" : data.rightShoulderBuddy().name())), 200, false).active = false;
+			this.addTextTo(this.shoulderBuddiesSection, TextComponents.literal("Left: " + (data.leftShoulderBuddy() == null ? "None" : data.leftShoulderBuddy().name())), 200, false).active = false;
+			this.addTextTo(this.shoulderBuddiesSection, TextComponents.literal("Right: " + (data.rightShoulderBuddy() == null ? "None" : data.rightShoulderBuddy().name())), 200, false).active = false;
 
-			shoulderBuddiesSection.calculateDimensions();
+			this.shoulderBuddiesSection.calculateDimensions();
 		}
 		else {
-			createDisabledSection("Shoulder Buddies");
+			this.shoulderBuddiesSection = this.createDisabledSection("Shoulder Buddies");
 		}
 
 		// back bling
 		if (this.options.backBlings.get()) {
-			Div backBlingSection = this.addWidget(Div::new, TextComponents.literal("Back Bling Section"));
+			this.backBlingSection = Div.create("Back Bling");
 
-			Span backBlingHeader = backBlingSection.addWidget(new Span(0, 0, 200, 20, TextComponents.literal("Back Bling Header")));
+			Span backBlingHeader = this.backBlingSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Back Bling Header")));
 
-			this.addText(backBlingHeader, TextComponents.literal(data.backBling() == null ? "No Back Bling" : "Back Bling"), 100, false);
-			backBlingHeader.addWidget(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+			this.addTextTo(backBlingHeader, TextComponents.literal(data.backBling() == null ? "No Back Bling" : "Back Bling"), 100, false);
+			backBlingHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
 			if (data.backBling() != null) {
-				this.addText(backBlingSection, TextComponents.literal(data.backBling().name()), 200, false).active = false;
+				this.addTextTo(this.backBlingSection, TextComponents.literal(data.backBling().name()), 200, false).active = false;
 			}
 
-			backBlingSection.calculateDimensions();
+			this.backBlingSection.calculateDimensions();
 		}
 		else {
-			createDisabledSection("Back Bling");
+			this.backBlingSection = this.createDisabledSection("Back Bling");
 		}
 
+		List<Section> availableDivs = ImmutableList.of(this.cloakSection, this.loreSection, this.hatsSection, this.shoulderBuddiesSection, this.backBlingSection);
+
+		// if first time, initialise selected to capes
+		// otherwise, set selected to the *current* div of the section we want
+		// we need to make sure it can resize correctly so we can't just generate stuff once
+		if (this.selected == null) {
+			this.selected = this.cloakSection;
+		}
+		else {
+			// I did this as a foreach loop instead of a stream b/c I'm hotswapping this in ;)
+			for (Section s : availableDivs) {
+				if (s.getMessage().equals(this.selected.getMessage())) {
+					this.selected = s;
+					break;
+				}
+			}
+		}
+
+		// left selection menu
+
+		for (Section section : availableDivs) {
+			Button button = this.addButton(100, 20, section.getMessage(), b -> this.select(section));
+
+			if (section == this.selected) {
+				button.active = false;
+			}
+		}
+
+		// right selected area
+		this.selected.x = this.width / 2;
+		this.selected.y = this.height / 2 - availableDivs.size() * 12 - 2;
+		this.addRenderableWidget(this.selected);
+
+		// done button
 		this.addDone(this.height - 40);
+	}
+
+	private void select(Section section) {
+		this.selected = section;
+		this.init(this.minecraft, this.width, this.height);
 	}
 
 	@Override
@@ -142,12 +187,14 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		}
 	}
 
+	// helper stuff
+
 	private TextWidget addText(Component text, int width, boolean centered) {
 		return this.addWidget((x, y, w, h, component) -> new TextWidget(x, y, w, h, centered, component), text, width, 20);
 	}
 
-	private TextWidget addText(Section section, Component text, int width, boolean centered) {
-		return section.addWidget(new TextWidget(0, 0, width, 20, centered, text));
+	private TextWidget addTextTo(Section section, Component text, int width, boolean centered) {
+		return section.addChild(new TextWidget(0, 0, width, 20, centered, text));
 	}
 
 	private static class TextWidget extends AbstractWidget {
@@ -191,7 +238,8 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		@Override
 		public void calculateDimensions() {
 			super.calculateDimensions();
-			this.height = this.children.stream().map(w -> w.getHeight()).collect(Collectors.summingInt(i -> i));
+			this.setWidth(this.children.stream().mapToInt(w -> w.getWidth()).max().orElse(0));
+			this.height = this.children.stream().mapToInt(w -> w.getHeight()).sum();
 		}
 
 		@Override
@@ -207,6 +255,10 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 			super.repositionChildren();
 		}
+		
+		private static Div create(String name) {
+			return new Div(0, 0, 0, 0, TextComponents.literal(name));
+		}
 	}
 
 	private static class Span extends Section {
@@ -217,8 +269,8 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		@Override
 		public void calculateDimensions() {
 			super.calculateDimensions();
-			this.setWidth(this.children.stream().map(w -> w.getWidth()).collect(Collectors.summingInt(i -> i)));
-			this.height = this.children.stream().map(w -> w.getHeight()).collect(Collectors.maxBy(Comparator.comparingInt(a -> a))).orElse(0);
+			this.setWidth(this.children.stream().mapToInt(w -> w.getWidth()).sum());
+			this.height = this.children.stream().mapToInt(w -> w.getHeight()).max().orElse(0);
 		}
 
 		@Override
@@ -233,6 +285,10 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 			}
 
 			super.repositionChildren();
+		}
+
+		private static Span create(String name) {
+			return new Span(0, 0, 0, 0, TextComponents.literal(name));
 		}
 	}
 
@@ -255,9 +311,13 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 			}
 		}
 
-		public <T extends AbstractWidget> T addWidget(T widget) {
+		public <T extends AbstractWidget> T addChild(T widget) {
 			this.children.add(widget);
 			return widget;
+		}
+
+		public void removeChildren() {
+			this.children.clear();
 		}
 
 		@Override
