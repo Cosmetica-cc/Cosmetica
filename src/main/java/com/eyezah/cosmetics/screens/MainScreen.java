@@ -67,6 +67,8 @@ public class MainScreen extends PlayerRenderScreen {
 		);
 
 		this.addDoneWithOffset(12);
+
+		this.playerLeft = this.width / 3 + 10;
 	}
 
 	void setCapeServerSettings(Map<String, CapeDisplay> settings) {

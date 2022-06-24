@@ -3,7 +3,6 @@ package com.eyezah.cosmetics.screens;
 import benzenestudios.sulphate.SulphateScreen;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
-import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,7 +11,6 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -30,6 +28,8 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	private float lastMouseX = 0;
 	private boolean wasMouseDown = false;
 	private float yaw = 0;
+
+	protected int playerLeft = 0;
 
 	@Override
 	public void tick() {
@@ -63,9 +63,8 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			this.wasMouseDown = false;
 		}
 
-		final int left = this.width / 3 + 10;
 		final int top = this.height / 2 + 55;
-		renderFakePlayerInMenu(left, top, 30, (float)(left) - mouseX, (float)(top - 90) - mouseY, this.yaw, this.fakePlayer);
+		renderFakePlayerInMenu(this.playerLeft, top, 30, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.yaw, this.fakePlayer);
 	}
 
 	public static void renderFakePlayerInMenu(int left, int top, int extraScale, float lookX, float lookY, float yaw, FakePlayer fakePlayer) {

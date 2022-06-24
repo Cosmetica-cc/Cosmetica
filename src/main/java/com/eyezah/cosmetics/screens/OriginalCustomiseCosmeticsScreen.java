@@ -20,11 +20,11 @@ import net.minecraft.util.Mth;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
-	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options) {
+public class OriginalCustomiseCosmeticsScreen extends PlayerRenderScreen {
+	protected OriginalCustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options) {
 		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player);
 
-		this.setAnchorX(Anchor.RIGHT, () -> this.width / 2 - 50);
+		this.setAnchorX(Anchor.LEFT, () -> 16);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
 
 		this.options = options;
@@ -38,10 +38,6 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	private Section backBlingSection;
 
 	private Section selected;
-	private float fade = 0;
-	private float nextFade = 0;
-	private int initialPlayerLeft;
-	private int deltaPlayerLeft;
 
 	private Section createDisabledSection(String title) {
 		Span section = this.addWidget(Span::new, TextComponents.literal(title + " Section"));
@@ -62,9 +58,8 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 		Span capeHeader = this.cloakSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Cloak Header")));
 
-		String cloakText = data.capeName().isEmpty() ? "No Cape" : "Cape";
-		this.addTextTo(capeHeader, TextComponents.literal(cloakText), this.font.width(cloakText) + 8, false);
-		capeHeader.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+		this.addTextTo(capeHeader, TextComponents.literal(data.capeName().isEmpty() ? "No Cape" : "Cape"), 100, false);
+		capeHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
 		if (data.cape() != null) this.addTextTo(this.cloakSection, TextComponents.literal(data.capeName()), 200, false).active = false;
 
@@ -76,9 +71,8 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 			Span loreHeader = loreSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Lore Header")));
 
-			String loreText = data.lore().isEmpty() ? "No Lore" : "Lore";
-			this.addTextTo(loreHeader, TextComponents.literal(loreText), this.font.width(loreText) + 8, false);
-			loreHeader.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+			this.addTextTo(loreHeader, TextComponents.literal(data.lore().isEmpty() ? "No Lore" : "Lore"), 100, false);
+			loreHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
 			if (!data.lore().isEmpty()) this.addTextTo(this.loreSection, TextComponents.literal(data.lore()), 200, false);
 
@@ -94,9 +88,8 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 			Span hatsHeader = this.hatsSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Hats Header")));
 
-			String hatText = data.hats().isEmpty() ? "No Hats" : "Hats";
-			this.addTextTo(hatsHeader, TextComponents.literal(hatText), this.font.width(hatText) + 8, false);
-			hatsHeader.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+			this.addTextTo(hatsHeader, TextComponents.literal(data.hats().isEmpty() ? "No Hats" : "Hats"), 100, false);
+			hatsHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
 			for (BakableModel hat : data.hats()) {
 				this.addTextTo(this.hatsSection, TextComponents.literal(hat.name()), 200, false).active = false;
@@ -114,8 +107,8 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 			Span shoulderBuddyHeader = this.shoulderBuddiesSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Shoulder Buddies Header")));
 
-			this.addTextTo(shoulderBuddyHeader, TextComponents.literal("Shoulder Buddies"), this.font.width("Shoulder Buddies") + 8, false);
-			shoulderBuddyHeader.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
+			this.addTextTo(shoulderBuddyHeader, TextComponents.literal("Shoulder Buddies"), 100, false);
+			shoulderBuddyHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
 			this.addTextTo(this.shoulderBuddiesSection, TextComponents.literal("Left: " + (data.leftShoulderBuddy() == null ? "None" : data.leftShoulderBuddy().name())), 200, false).active = false;
 			this.addTextTo(this.shoulderBuddiesSection, TextComponents.literal("Right: " + (data.rightShoulderBuddy() == null ? "None" : data.rightShoulderBuddy().name())), 200, false).active = false;
@@ -132,8 +125,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 			Span backBlingHeader = this.backBlingSection.addChild(new Span(0, 0, 200, 20, TextComponents.literal("Back Bling Header")));
 
-			String backBlingText = data.backBling() == null ? "No Back Bling" : "Back Bling";
-			this.addTextTo(backBlingHeader, TextComponents.literal(backBlingText), this.font.width(backBlingText) + 8, false);
+			this.addTextTo(backBlingHeader, TextComponents.literal(data.backBling() == null ? "No Back Bling" : "Back Bling"), 100, false);
 			backBlingHeader.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), b -> System.out.println("would change")));
 
 			if (data.backBling() != null) {
@@ -175,15 +167,12 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		}
 
 		// right selected area
-		this.selected.x = this.width / 2 + 50;
+		this.selected.x = this.width / 2;
 		this.selected.y = this.height / 2 - availableDivs.size() * 12 - 2;
 		this.addRenderableWidget(this.selected);
 
 		// done button
 		this.addDone(this.height - 40);
-
-		this.initialPlayerLeft = this.width / 3 + 10;
-		this.deltaPlayerLeft = this.width / 2 - this.initialPlayerLeft;
 	}
 
 	private void select(Section section) {
@@ -196,32 +185,6 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		for (GuiEventListener widget : this.children()) {
 			if (widget instanceof Section section) section.repositionChildren();
 		}
-	}
-
-	@Override
-	public void tick() {
-		super.tick();
-
-		if (this.fade < 1) {
-			this.fade = this.nextFade;
-
-			if (this.nextFade < 1) {
-				this.nextFade += (0.08f - this.fade * 0.05f);
-			}
-			else {
-				this.nextFade = 1;
-			}
-		}
-		else {
-			this.fade = 1;
-			this.nextFade = 1;
-		}
-	}
-
-	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		this.playerLeft = this.initialPlayerLeft + (int) (Mth.lerp(delta, this.fade, this.nextFade) * this.deltaPlayerLeft);
-		super.render(matrices, mouseX, mouseY, delta);
 	}
 
 	// helper stuff
