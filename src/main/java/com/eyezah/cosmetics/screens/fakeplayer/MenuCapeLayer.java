@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens.fakeplayer;
 
+import com.eyezah.cosmetics.mixin.fakeplayer.PlayerModelAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
@@ -38,7 +39,7 @@ public class MenuCapeLayer implements MenuRenderLayer {
 			stack.mulPose(Vector3f.ZP.rotationDegrees(s / 2.0F));
 			stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - s / 2.0F));
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(player.getCape()));
-			player.getModel().renderCloak(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+			((PlayerModelAccessor) player.getModel()).getCloak().render(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.popPose();
 		}
 	}
