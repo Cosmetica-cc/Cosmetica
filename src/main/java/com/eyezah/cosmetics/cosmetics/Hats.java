@@ -33,8 +33,10 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 		stack.pushPose();
 
 		for (BakableModel modelData : hats) {
-			if ((modelData.extraInfo() & Model.HIDE_HAT_UNDER_HELMET) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD))
+			if ((modelData.extraInfo() & Model.HIDE_HAT_UNDER_HELMET) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) {
+				stack.popPose();
 				return; // disable hat flag
+			}
 
 			if ((modelData.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
 				doCoolRenderThings(modelData, this.getParentModel().getHead(), stack, multiBufferSource, packedLight, 0, 0.75f, 0);
