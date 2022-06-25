@@ -34,8 +34,7 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 
 		for (BakableModel modelData : hats) {
 			if ((modelData.extraInfo() & Model.HIDE_HAT_UNDER_HELMET) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) {
-				stack.popPose();
-				return; // disable hat flag
+				continue; // disable hat flag
 			}
 
 			if ((modelData.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
