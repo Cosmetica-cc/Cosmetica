@@ -7,11 +7,15 @@ import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
+import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,11 +40,13 @@ public class MainScreen extends PlayerRenderScreen {
 	private ServerOptions cosmeticaOptions;
 	private Map<String, CapeDisplay> capeServerSettings;
 	private List<Map.Entry<String, CapeServer>> capeServerSettingsForButtons;
+	private AbstractButton done;
+	private boolean doReload;
 
 	@Override
 	protected void addWidgets() {
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.customizeCosmetics"), button ->
-			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this, this.fakePlayer, this.cosmeticaOptions, Cosmetica.getConfig().shouldInlineChangeButton(), true))
+			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this, this.fakePlayer, this.cosmeticaOptions, Cosmetica.getConfig().shouldInlineChangeButton(), 1.0 - this.getTransitionProgress()))
 		);
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.capeServerSettings"), button ->
@@ -49,6 +55,10 @@ public class MainScreen extends PlayerRenderScreen {
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.cosmeticaSettings"), button ->
 			this.minecraft.setScreen(new CosmeticaSettingsScreen(this, this.cosmeticaOptions))
+		);
+
+		this.addButton(150, 20, TextComponents.translatable("options.skinCustomisation"), button ->
+			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options))
 		);
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> {
@@ -60,14 +70,44 @@ public class MainScreen extends PlayerRenderScreen {
 			}
 		});
 
-		this.addButton(150, 20, TextComponents.translatable("options.skinCustomisation"), button ->
-			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options))
-		);
+		class ReloadingButton extends Button {
+			public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Button.OnTooltip tooltip) {
+				super(i, j, k, l, component, onPress, tooltip);
+			}
 
-		this.addDoneWithOffset(12);
+			public void onPress() {
+				if (doReload) {
+					if (Debug.TEST_MODE) {
+						Debug.loadTestProperties();
+						Debug.loadTestModel(Debug.LocalModelType.HAT);
+						Debug.loadTestModel(Debug.LocalModelType.SHOULDERBUDDY);
+						Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
+					}
+
+					Cosmetica.clearAllCaches();
+				}
+
+				this.onPress.onPress(this);
+			}
+		}
+
+		this.done = this.addDoneWithOffset(ReloadingButton::new, 12 + 24);
 
 		this.initialPlayerLeft = this.width / 2;
 		this.deltaPlayerLeft = this.width / 3 + 10 - this.initialPlayerLeft;
+	}
+
+	@Override
+	public void afterInit() {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.done.y - 24, 200, 20, TextComponents.translatable("cosmetica.reloadCosmetics"), button -> {
+			doReload = !doReload;
+
+			if (doReload) {
+				button.setMessage(TextComponents.translatable("cosmetica.willReload"));
+			} else {
+				button.setMessage(TextComponents.translatable("cosmetica.reloadCosmetics"));
+			}
+		}));
 	}
 
 	void setCapeServerSettings(Map<String, CapeDisplay> settings) {

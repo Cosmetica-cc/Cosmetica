@@ -32,7 +32,7 @@ public class CosmeticaConfig {
 
         properties.load(Files.newInputStream(propertiesPath));
         showNametagInThirdPerson = Boolean.parseBoolean(properties.getProperty("show-nametag-in-third-person"));
-        inlineChangeButton = Boolean.parseBoolean(properties.getProperty("show-nametag-in-third-person"));
+        inlineChangeButton = Boolean.parseBoolean(properties.getProperty("inline-change-button"));
     }
 
     public void save() throws IOException {
@@ -55,9 +55,5 @@ public class CosmeticaConfig {
 
     public boolean shouldInlineChangeButton() {
         return inlineChangeButton;
-    }
-
-    public void setInlineChangeButton(boolean showNametagInThirdPerson) {
-        this.inlineChangeButton = showNametagInThirdPerson;
     }
 }

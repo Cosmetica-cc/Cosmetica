@@ -2,7 +2,6 @@ package com.eyezah.cosmetics.screens;
 
 import cc.cosmetica.api.CapeDisplay;
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -30,13 +29,13 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 	/**
 	 * For regular settings.
 	 */
-	public UpdatingSettingsScreen(Screen parentScreen, ServerOptions oldOptions, ServerOptions newOptions, boolean doReload) throws IOException, InterruptedException {
+	public UpdatingSettingsScreen(Screen parentScreen, ServerOptions oldOptions, ServerOptions newOptions) throws IOException, InterruptedException {
 		super(new TranslatableComponent("cosmetica.updating"));
 		this.parentScreen = parentScreen;
 
 		Map<String, Object> changedSettings = new HashMap<>();
 
-		doReload |= newOptions.regionSpecificEffects.appendToIfChanged(oldOptions.regionSpecificEffects, changedSettings);
+		boolean doReload = newOptions.regionSpecificEffects.appendToIfChanged(oldOptions.regionSpecificEffects, changedSettings);
 		doReload |= newOptions.shoulderBuddies.appendToIfChanged(oldOptions.shoulderBuddies, changedSettings);
 		doReload |= newOptions.hats.appendToIfChanged(oldOptions.hats, changedSettings);
 		doReload |= newOptions.lore.appendToIfChanged(oldOptions.lore, changedSettings);
@@ -46,12 +45,16 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		if (!changedSettings.isEmpty()) {
 			Thread requestThread = new Thread(() -> {
 				Cosmetica.api.updateUserSettings(changedSettings).ifSuccessfulOrElse(response -> {
-					if (response.booleanValue()) {
-						if (this.parentScreen instanceof MainScreen) {
-							UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
-							Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true);
-						}
+					if (finalDoReload) Minecraft.getInstance().tell(() -> {
+						clearAllCaches();
 
+						if (response.booleanValue() && this.parentScreen instanceof PlayerRenderScreen playerRenderScreen) {
+							UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+							playerRenderScreen.setPlayerData(Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true));
+						}
+					});
+
+					if (response.booleanValue()) {
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 					} else {
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
@@ -61,8 +64,6 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 					e.printStackTrace();
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
 				});
-
-				if (finalDoReload) Minecraft.getInstance().tell(() -> clearAllCaches());
 			});
 			requestThread.start();
 		} else {

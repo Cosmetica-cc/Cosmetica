@@ -30,9 +30,6 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 	private final ServerOptions oldOptions;
 	private final ServerOptions newOptions;
 
-	private boolean doReload;
-	private boolean doTestReload;
-
 	private TextComponent generateButtonToggleText(String translatable, boolean toggle) {
 		TextComponent component = new TextComponent("");
 		component.append(new TranslatableComponent(translatable));
@@ -48,25 +45,9 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 	@Override
 	protected void addWidgets() {
 		// top row
-		this.addButton(new TranslatableComponent("cosmetica.reloadCosmetics"), (button) -> {
-			doReload = !doReload;
-			if (Debug.TEST_MODE) doTestReload = doReload;
-			if (doReload) {
-				button.setMessage(new TranslatableComponent("cosmetica.willReload"));
-			} else {
-				button.setMessage(new TranslatableComponent("cosmetica.reloadCosmetics"));
-			}
-		});
-
 		this.addButton(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()), button -> {
 			this.newOptions.regionSpecificEffects.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()));
-		});
-
-		// second row, etc...
-		this.addButton(generateButtonToggleText("cosmetica.inlineChangeButton", Cosmetica.getConfig().shouldInlineChangeButton()), (button) -> {
-			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldInlineChangeButton());
-			button.setMessage(generateButtonToggleText("cosmetica.inlineChangeButton", Cosmetica.getConfig().shouldInlineChangeButton()));
 		});
 
 		this.addButton(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()), button -> {
@@ -74,11 +55,11 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()));
 		});
 
-		//
+		// second row, etc...
 
-		this.addButton(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()), (button) -> {
-			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldShowNametagInThirdPerson());
-			button.setMessage(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()));
+		this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
+			this.newOptions.lore.toggle();
+			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
 		});
 
 		this.addButton(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()), (button) -> {
@@ -86,31 +67,24 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doShoulderBuddies", this.newOptions.shoulderBuddies.get()));
 		});
 
+		this.addButton(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()), (button) -> {
+			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldShowNametagInThirdPerson());
+			button.setMessage(generateButtonToggleText("cosmetica.showNametagInThirdPerson", Cosmetica.getConfig().shouldShowNametagInThirdPerson()));
+		});
+
 		this.addButton(generateButtonToggleText("cosmetica.doBackBlings", this.newOptions.backBlings.get()), (button) -> {
 			this.newOptions.backBlings.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.doBackBlings", this.newOptions.backBlings.get()));
 		});
 
-		this.addButton(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()), (button) -> {
-			this.newOptions.lore.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.doLore", this.newOptions.lore.get()));
-		});
-
 		// when done, update settings
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 + 24 * 4, 200, 20, CommonComponents.GUI_DONE, (button) -> {
-			if (this.doTestReload) {
-				Debug.loadTestProperties();
-				Debug.loadTestModel(Debug.LocalModelType.HAT);
-				Debug.loadTestModel(Debug.LocalModelType.SHOULDERBUDDY);
-				Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
-			}
-
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 + 24 * 3, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
 				if (this.parentScreen instanceof MainScreen main) {
 					main.setCosmeticaOptions(this.newOptions);
 				}
 
-				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.oldOptions, this.newOptions, this.doReload));
+				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.oldOptions, this.newOptions));
 			} catch (IOException e) {
 				e.printStackTrace();
 				this.minecraft.setScreen(this.parentScreen);

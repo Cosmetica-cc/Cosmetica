@@ -1,6 +1,8 @@
 package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.SulphateScreen;
+import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.mojang.blaze3d.platform.Lighting;
@@ -28,11 +30,10 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	// for the rotation
 	private float lastMouseX = 0;
 	private boolean wasMouseDown = false;
-	private float yaw = 0;
 
 	private int playerLeft = 0;
-	private float transitionProgress = 0;
-	private float nextTransitionProgress = 0;
+	private double transitionProgress = 0;
+	private double nextTransitionProgress = 0;
 
 	protected int initialPlayerLeft;
 	protected int deltaPlayerLeft;
@@ -52,7 +53,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			this.transitionProgress = this.nextTransitionProgress;
 
 			if (this.nextTransitionProgress < 1) {
-				this.nextTransitionProgress += (0.08f - this.transitionProgress * 0.05f);
+				this.nextTransitionProgress += (0.08 - this.transitionProgress * 0.05);
 			}
 			else {
 				this.nextTransitionProgress = 1;
@@ -64,7 +65,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		}
 	}
 
-	protected void setTransitionProgress(float progress) {
+	protected void setTransitionProgress(double progress) {
 		this.transitionProgress = progress;
 		this.nextTransitionProgress = progress;
 	}
@@ -78,10 +79,14 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		if (GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS) {
 			if (mouseX < this.playerLeft + 40 && (!(this instanceof CustomiseCosmeticsScreen) || mouseX > this.playerLeft - 40) || this.wasMouseDown) {
 				if (this.wasMouseDown) {
-					this.yaw += (mouseX - this.lastMouseX);
+					this.fakePlayer.yRot -= (mouseX - this.lastMouseX);
+					this.fakePlayer.yRotBody -= (mouseX - this.lastMouseX);
 
-					if (this.yaw > 180.0f) this.yaw = -180.0f;
-					if (this.yaw < -180.0f) this.yaw = 180.0f;
+					if (this.fakePlayer.yRot > 180.0f) this.fakePlayer.yRot = -180.0f;
+					if (this.fakePlayer.yRotBody > 180.0f) this.fakePlayer.yRotBody = -180.0f;
+
+					if (this.fakePlayer.yRot < -180.0f) this.fakePlayer.yRot = 180.0f;
+					if (this.fakePlayer.yRotBody < -180.0f) this.fakePlayer.yRotBody = 180.0f;
 				}
 
 				this.wasMouseDown = true;
@@ -93,10 +98,24 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		}
 
 		final int top = this.height / 2 + 55;
-		renderFakePlayerInMenu(this.playerLeft, top, 30, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.yaw, this.fakePlayer);
+		renderFakePlayerInMenu(this.playerLeft, top, 30, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.fakePlayer);
 	}
 
-	public static void renderFakePlayerInMenu(int left, int top, int extraScale, float lookX, float lookY, float yaw, FakePlayer fakePlayer) {
+	protected double getTransitionProgress() {
+		return this.transitionProgress;
+	}
+
+	void refetchPlayerData() {
+		new Thread(() -> {
+			this.fakePlayer.setData(Cosmetica.getPlayerData(this.fakePlayer.getUUID(), this.fakePlayer.getName(), true));
+		}).start();
+	}
+
+	void setPlayerData(PlayerData data) {
+		this.fakePlayer.setData(data);
+	}
+
+	public static void renderFakePlayerInMenu(int left, int top, int extraScale, float lookX, float lookY, FakePlayer fakePlayer) {
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
 		PoseStack stack = RenderSystem.getModelViewStack();
@@ -115,10 +134,11 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		zRotation.mul(xRotation);
 		viewStack.mulPose(zRotation);
 
-		fakePlayer.yRotBody = 180.0F + h * 20.0F - yaw;
-		fakePlayer.yRot = 180.0F + h * 40.0F - yaw;
+		float rotationBody = 180.0F + h * 20.0F;
+		float rotationMain = 180.0F + h * 40.0F;
+		fakePlayer.yRotBody += rotationBody;
+		fakePlayer.yRot += rotationMain;
 		fakePlayer.xRot = -l * 20.0F;
-		fakePlayer.yRotHead = fakePlayer.getYRot(0);
 		fakePlayer.yRotHead = fakePlayer.getYRot(0);
 		Lighting.setupForEntityInInventory();
 
@@ -130,6 +150,9 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
 		});
 		bufferSource.endBatch();
+
+		fakePlayer.yRotBody -= rotationBody;
+		fakePlayer.yRot -= rotationMain;
 
 		stack.popPose();
 		RenderSystem.applyModelViewMatrix();

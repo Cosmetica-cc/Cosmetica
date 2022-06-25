@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 
 public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, UserSettings settings, boolean inlineChangeButton) {
-		this(parentScreen, player, new ServerOptions(settings), inlineChangeButton, false);
+		this(parentScreen, player, new ServerOptions(settings), inlineChangeButton, 1.0);
 	}
 
-	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options, boolean inlineChangeButton, boolean animation) {
+	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options, boolean inlineChangeButton, double transitionProgress) {
 		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player);
 
 		this.setAnchorX(Anchor.RIGHT, () -> this.width / 2 - 50);
@@ -36,9 +36,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		this.options = options;
 		this.inlineChangeButton = inlineChangeButton;
 
-		if (!animation) {
-			this.setTransitionProgress(1.0f);
-		}
+		this.setTransitionProgress(transitionProgress);
 	}
 
 	private final ServerOptions options;
@@ -116,7 +114,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		this.backBlingSection = this.options.backBlings.get() ? this.createActiveSection("Back Bling", data.backBling() == null ? ImmutableList.of() : ImmutableList.of(data.backBling().name()), b -> System.out.println("would change")) : this.createDisabledSection("Back Bling");
 
 		// the whole gang
-		List<Section> availableDivs = ImmutableList.of(this.cloakSection, this.loreSection, this.hatsSection, this.shoulderBuddiesSection, this.backBlingSection);
+		List<Section> availableSections = ImmutableList.of(this.cloakSection, this.loreSection, this.hatsSection, this.shoulderBuddiesSection, this.backBlingSection);
 
 		// if first time, initialise selected to capes
 		// otherwise, set selected to the *current* div of the section we want
@@ -126,7 +124,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		}
 		else {
 			// I did this as a foreach loop instead of a stream b/c I'm hotswapping this in ;)
-			for (Section s : availableDivs) {
+			for (Section s : availableSections) {
 				if (s.getMessage().equals(this.selected.getMessage())) {
 					this.selected = s;
 					break;
@@ -136,7 +134,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 		// left selection menu
 
-		for (Section section : availableDivs) {
+		for (Section section : availableSections) {
 			Button button = this.addButton(100, 20, section.getMessage(), b -> this.select(section));
 
 			if (section == this.selected) {
@@ -146,7 +144,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 		// right selected area
 		this.selected.x = this.width / 2 + 50;
-		this.selected.y = this.height / 2 - availableDivs.size() * 12 - 2;
+		this.selected.y = this.height / 2 - availableSections.size() * 12 - 2;
 		this.addRenderableWidget(this.selected);
 
 		// done button
@@ -171,15 +169,10 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	@Override
 	public void onClose() {
 		if (this.parent instanceof MainScreen main) {
-			main.setTransitionProgress(0.0f);
+			main.setTransitionProgress(1.0 - this.getTransitionProgress());
 		}
 
 		super.onClose();
-	}
-
-	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, mouseX, mouseY, delta);
 	}
 
 	// helper stuff

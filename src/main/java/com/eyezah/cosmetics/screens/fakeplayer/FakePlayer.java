@@ -44,7 +44,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 
 	private final PlayerModel<AbstractClientPlayer> model;
 	private static PlayerModel<AbstractClientPlayer> models;
-	private final PlayerData data;
+	private PlayerData data;
 	private final List<MenuRenderLayer> layers = new LinkedList<>();
 
 	private final UUID uuid;
@@ -72,6 +72,10 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 
 	public PlayerData getData() {
 		return this.data;
+	}
+
+	public void setData(PlayerData data) {
+		this.data = data;
 	}
 
 	public UUID getUUID() {
