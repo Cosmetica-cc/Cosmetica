@@ -203,7 +203,7 @@ public class Debug {
 		TEST_PROPERTIES.setProperty("show_hat_under_helmet", "false");
 		TEST_PROPERTIES.setProperty("shoulderbuddy_location", "shoulderbuddy");
 		TEST_PROPERTIES.setProperty("lock_shoulderbuddy_orientation", "false");
-		TEST_PROPERTIES.setProperty("back_bling_location", "back_bling");
+		TEST_PROPERTIES.setProperty("back_bling_location", "backbling");
 
 		boolean foundPropertiesFile = TEST_PROPERTIES_FILE.isFile();
 
