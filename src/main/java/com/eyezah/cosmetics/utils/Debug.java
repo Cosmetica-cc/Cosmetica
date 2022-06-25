@@ -17,6 +17,8 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,6 +30,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.IntSupplier;
@@ -47,6 +51,8 @@ public class Debug {
 
 	private static final Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetica Debug");
 	public static final File DUMP_FOLDER;
+
+	public static Optional<AbstractTexture> testCape = Optional.empty();
 
 	// edit this to change debug settings
 	private static Settings debugSettings = new Settings();
@@ -156,6 +162,7 @@ public class Debug {
 		loadTestModel(LocalModelType.HAT);
 		loadTestModel(LocalModelType.SHOULDERBUDDY);
 		loadTestModel(LocalModelType.BACK_BLING);
+		loadTestCape();
 	}
 
 	public static boolean loadTestModel(LocalModelType type) {
@@ -171,6 +178,29 @@ public class Debug {
 					type.extraInfoLoader.getAsInt()
 			);
 		}
+	}
+
+	public static boolean loadTestCape() {
+		String location = TEST_PROPERTIES.getProperty("cape_location");
+		File imageF = new File(CONFIG_DIR, location + ".png");
+
+		if (imageF.isFile()) {
+			testCape = Optional.of(new NativeTexture(new ResourceLocation("cosmetica_test_mode", location.toLowerCase(Locale.ROOT)), () -> {
+				try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
+					return NativeImage.read(stream);
+				} catch (IOException e) {
+					Cosmetica.LOGGER.error("Error reading test cape image for " + location, e);
+					return null;
+				}
+			}));
+
+			return true;
+		} else {
+			Cosmetica.LOGGER.warn("No cape image found at {}. Skipping loading the cape override!", location);
+		}
+
+		testCape = Optional.empty();
+		return false;
 	}
 
 	public static void loadTestProperties() {
@@ -203,7 +233,9 @@ public class Debug {
 		TEST_PROPERTIES.setProperty("show_hat_under_helmet", "false");
 		TEST_PROPERTIES.setProperty("shoulderbuddy_location", "shoulderbuddy");
 		TEST_PROPERTIES.setProperty("lock_shoulderbuddy_orientation", "false");
-		TEST_PROPERTIES.setProperty("back_bling_location", "backbling");
+		TEST_PROPERTIES.setProperty("backbling_location", "backbling");
+		TEST_PROPERTIES.setProperty("cape_location", "cape");
+		TEST_PROPERTIES.setProperty("cape_frame_delay", "100");
 
 		boolean foundPropertiesFile = TEST_PROPERTIES_FILE.isFile();
 
@@ -212,20 +244,21 @@ public class Debug {
 		}
 
 		// test for test models
-		boolean testModelExists = false;
+		boolean testCosmeticExists = false;
 
-		testModelExists |= loadTestModel(LocalModelType.HAT);
-		testModelExists |= loadTestModel(LocalModelType.SHOULDERBUDDY);
-		testModelExists |= loadTestModel(LocalModelType.BACK_BLING);
+		testCosmeticExists |= loadTestModel(LocalModelType.HAT);
+		testCosmeticExists |= loadTestModel(LocalModelType.SHOULDERBUDDY);
+		testCosmeticExists |= loadTestModel(LocalModelType.BACK_BLING);
+		testCosmeticExists |= loadTestCape();
 
-		if (testModelExists || foundPropertiesFile) {
+		if (testCosmeticExists || foundPropertiesFile) {
 			Cosmetica.LOGGER.info("Test mode enabled! Special test settings available in the cosmetica menu.");
 			TEST_MODE = true;
 		} else {
 			TEST_MODE = false;
 		}
 
-		if (testModelExists && !TEST_PROPERTIES_FILE.isFile()) { // configDir definitely exists if a test model exists.
+		if (testCosmeticExists && !TEST_PROPERTIES_FILE.isFile()) { // configDir definitely exists if a test model exists.
 			saveTestProperties();
 		}
 
@@ -320,7 +353,7 @@ public class Debug {
 		);
 		public static final LocalModelType BACK_BLING = new LocalModelType(
 				BackBling.overridden,
-				() -> TEST_PROPERTIES.getProperty("back_bling_location"),
+				() -> TEST_PROPERTIES.getProperty("backbling_location"),
 				() -> 0
 		);
 	}

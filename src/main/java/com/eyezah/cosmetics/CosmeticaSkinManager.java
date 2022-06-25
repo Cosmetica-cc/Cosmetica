@@ -1,10 +1,11 @@
 package com.eyezah.cosmetics;
 
 import cc.cosmetica.api.Cape;
-import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Base64Texture;
+import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -16,7 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class CosmeticaSkinManager {
-	private static Map<ResourceLocation, Base64Texture> textures = new HashMap<>();
+	private static Map<ResourceLocation, AbstractTexture> textures = new HashMap<>();
 	/**
 	 * Stores capes that have been both loaded and uploaded.
 	 */
@@ -64,15 +65,24 @@ public class CosmeticaSkinManager {
 		if (!textures.containsKey(id)) {
 			try {
 				String type = id.getPath().split("\\/")[0];
-				Base64Texture tex = new Base64Texture(id, texture.substring(22), type.equals("cape"));
+				AbstractTexture tex = type.equals("cape") ? Debug.testCape.orElseGet(() -> {
+					try {
+						return new Base64Texture(id, texture.substring(22), true);
+					} catch (IOException e) {
+						Cosmetica.LOGGER.error("Error loading cape texture", e);
+						return null;
+					}
+				}) : new Base64Texture(id, texture.substring(22), false);
+
 				RenderSystem.recordRenderCall(() -> {
 					Minecraft.getInstance().getTextureManager().register(id, tex);
 					synchronized(uploaded) { uploaded.add(id); }
 				});
+
 				Debug.info("Registering " + type + " texture for {}", id);
 				textures.put(id, tex);
 			} catch (IOException e) {
-				Cosmetica.LOGGER.error("Error loading cape texture", e);
+				Cosmetica.LOGGER.error("Error loading texture", e);
 				return null;
 			}
 		}

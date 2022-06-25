@@ -14,6 +14,6 @@ public abstract class ElytraLayerMixin {
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderType;armorCutoutNoCull(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;")
 	)
 	private RenderType allowTransparentWings(ResourceLocation location) {
-		return RenderType.itemEntityTranslucentCull(location);
+		return RenderType.entityTranslucent(location);
 	}
 }

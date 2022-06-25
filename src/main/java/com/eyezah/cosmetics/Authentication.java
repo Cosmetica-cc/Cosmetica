@@ -1,6 +1,6 @@
 package com.eyezah.cosmetics;
 
-import cc.cosmetica.api.CosmeticType;
+import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
@@ -123,7 +123,7 @@ public class Authentication {
 									String capeId = getDefaultSettingsConfig().getCapeId();
 
 									if (!capeId.isEmpty()) {
-										api.setCosmetic(CosmeticType.CAPE, capeId);
+										api.setCosmetic(CosmeticPosition.CAPE, capeId);
 									}
 
 									var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();

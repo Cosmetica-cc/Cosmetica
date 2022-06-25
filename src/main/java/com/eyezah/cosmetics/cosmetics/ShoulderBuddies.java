@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.cosmetics;
 
+import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
@@ -37,8 +38,8 @@ public class ShoulderBuddies<T extends Player> extends CustomLayer<T, PlayerMode
 		BakableModel left = overridden.get(() -> Cosmetica.getPlayerData(player).leftShoulderBuddy());
 		BakableModel right = overridden.get(() -> Cosmetica.getPlayerData(player).rightShoulderBuddy());
 
-		if (left != null && player.getShoulderEntityLeft().isEmpty()) render(left, stack, multiBufferSource, packedLight, player, true);
-		if (right != null && player.getShoulderEntityLeft().isEmpty()) render(right, stack, multiBufferSource, packedLight, player, false);
+		if (left != null && ((left.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityLeft().isEmpty())) render(left, stack, multiBufferSource, packedLight, player, true);
+		if (right != null && ((right.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityRight().isEmpty())) render(right, stack, multiBufferSource, packedLight, player, false);
 	}
 
 	public void render(BakableModel modelData, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, boolean left) {
