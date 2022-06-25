@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens;
 
+import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -25,9 +26,14 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 	private int textHeight;
 
 	public LoadingScreen(Screen parentScreen, Options parentOptions) {
+		this(parentScreen, parentOptions, false);
+	}
+
+	public LoadingScreen(Screen parentScreen, Options parentOptions, boolean customise) {
 		super(new TranslatableComponent("cosmetica.loading"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
+		Authentication.targetIsCustomiseScreen = customise;
 
 		Minecraft.getInstance().tell(() -> {
 			if (!runAuthentication(2)) {

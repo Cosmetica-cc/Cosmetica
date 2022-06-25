@@ -12,6 +12,7 @@ import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.TextComponents;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
@@ -19,14 +20,15 @@ import com.mojang.math.Vector3f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -73,15 +75,13 @@ import static com.eyezah.cosmetics.Authentication.runAuthenticationCheckThread;
 
 @Environment(EnvType.CLIENT)
 public class Cosmetica implements ClientModInitializer {
-	// used for screens
-	public static ConnectScreen connectScreen;
-
 	public static String authServer;
 	public static String websiteHost;
 	public static CosmeticaAPI api;
 
 	public static String displayNext;
 	public static String currentServerAddressCache = "";
+	public static KeyMapping openCustomiseScreen;
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();
@@ -191,6 +191,13 @@ public class Cosmetica implements ClientModInitializer {
 				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
 			}
 		});
+
+		openCustomiseScreen = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+				"key.cosmetica.customise",
+				InputConstants.Type.KEYSYM,
+				InputConstants.UNKNOWN.getValue(), // not bound by default
+				"key.categories.misc"
+		));
 
 		runAuthenticationCheckThread();
 	}

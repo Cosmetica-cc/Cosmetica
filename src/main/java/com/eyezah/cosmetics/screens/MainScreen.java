@@ -6,7 +6,6 @@ import cc.cosmetica.api.CapeServer;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.Util;
@@ -19,13 +18,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class MainScreen extends PlayerRenderScreen {
-	public MainScreen(Screen parentScreen, UserSettings settings, PlayerData data) {
-		super(TextComponents.translatable("cosmetica.cosmeticaMainMenu"), parentScreen, new FakePlayer(Minecraft.getInstance(), UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid())), Minecraft.getInstance().getUser().getName(), data, data.slim()));
+	public MainScreen(Screen parentScreen, UserSettings settings, FakePlayer fakePlayer) {
+		super(TextComponents.translatable("cosmetica.cosmeticaMainMenu"), parentScreen, fakePlayer);
 
-		this.cosmeticaOptions = new ServerOptions(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore());
+		this.cosmeticaOptions = new ServerOptions(settings);
 		this.capeServerSettings = Cosmetica.map(settings.getCapeServerSettings(), CapeServer::getDisplay);
 		this.capeServerSettingsForButtons = new ArrayList<>(settings.getCapeServerSettings().entrySet());
 		Collections.sort(this.capeServerSettingsForButtons, Comparator.comparingInt(a -> a.getValue().getCheckOrder()));;
@@ -35,14 +33,14 @@ public class MainScreen extends PlayerRenderScreen {
 		this.setTransitionProgress(1.0f);
 	}
 
-	private final ServerOptions cosmeticaOptions;
+	private ServerOptions cosmeticaOptions;
 	private Map<String, CapeDisplay> capeServerSettings;
 	private List<Map.Entry<String, CapeServer>> capeServerSettingsForButtons;
 
 	@Override
 	protected void addWidgets() {
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.customizeCosmetics"), button ->
-			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this, this.fakePlayer, this.cosmeticaOptions, true, true))
+			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this, this.fakePlayer, this.cosmeticaOptions, Cosmetica.getConfig().shouldInlineChangeButton(), true))
 		);
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.capeServerSettings"), button ->
@@ -74,5 +72,9 @@ public class MainScreen extends PlayerRenderScreen {
 
 	void setCapeServerSettings(Map<String, CapeDisplay> settings) {
 		this.capeServerSettings = settings;
+	}
+
+	void setCosmeticaOptions(ServerOptions options) {
+		this.cosmeticaOptions = options;
 	}
 }

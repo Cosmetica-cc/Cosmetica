@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.eyezah.cosmetics.utils.Debug;
@@ -59,5 +60,9 @@ public abstract class MinecraftMixin {
 	@Inject(at = @At("RETURN"), method = "tick")
 	public void afterTick(CallbackInfo ci) {
 		if (this.level == null) FakePlayerRenderer.tickTime++;
+
+		if (this.screen == null && Cosmetica.openCustomiseScreen.consumeClick()) {
+			this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, true));
+		}
 	}
 }

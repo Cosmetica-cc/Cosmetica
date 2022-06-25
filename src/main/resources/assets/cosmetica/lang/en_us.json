@@ -13,6 +13,7 @@
   "cosmetica.doShoulderBuddies": "Shoulder Buddies",
   "cosmetica.doLore": "Player Lore",
   "cosmetica.showNametagInThirdPerson": "Show Own Nametag",
+  "cosmetica.inlineChangeButton": "Inline 'Change' Button",
   "cosmetica.customizeCosmetics": "Customize Cosmetics",
   "cosmetica.reloadCosmetics": "Reload Cosmetics",
   "cosmetica.reloadTestCosmetics": "Reload Cosmetica Test Models",
@@ -35,5 +36,6 @@
   "cosmetica.rsewarning.description1": "Region-Spefific Effects applies extra exclusive cosmetics based on what country you're in.",
   "cosmetica.rsewarning.description2": "While this is a lot of fun, it does mean that players can use this to determine your country of origin.",
   "cosmetica.rsewarning.description3": "If you disable Region-Specific effects, you won't be able to see the effects on others either.",
-  "cosmetica.debugCosmetica.disable": "Disabled debug cosmetics."
+  "cosmetica.debugCosmetica.disable": "Disabled debug cosmetics.",
+  "key.cosmetica.customise": "Customise Cosmetics"
 }

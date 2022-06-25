@@ -4,9 +4,11 @@ import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
+import com.eyezah.cosmetics.screens.CustomiseCosmeticsScreen;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
+import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import net.minecraft.client.Minecraft;
@@ -20,7 +22,9 @@ import static com.eyezah.cosmetics.Cosmetica.*;
 
 public class Authentication {
 	private static volatile boolean currentlyAuthenticated = false;
-	public static volatile boolean currentlyAuthenticating = false;
+	private static volatile boolean currentlyAuthenticating = false;
+	public static boolean targetIsCustomiseScreen;
+
 	private static int bits; // to mark the two required things that must have happened to start cosmetics auth: fetching API url (may fail), and finishing loading.
 
 	public static boolean isCurrentlyAuthenticated() {
@@ -48,7 +52,10 @@ public class Authentication {
 
 					PlayerData info = Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true);
 					Debug.info("Loading skin " + info.skin());
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), settings, info)));
+					Minecraft.getInstance().tell(() -> {
+						FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid())), Minecraft.getInstance().getUser().getName(), info, info.slim());
+						Minecraft.getInstance().setScreen(targetIsCustomiseScreen ? new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings, Cosmetica.getConfig().shouldInlineChangeButton()) : new MainScreen(lts.getParent(), settings, fakePlayer));
+					});
 				}
 			},
 			error -> {

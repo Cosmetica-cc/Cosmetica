@@ -2,10 +2,8 @@ package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
-import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.utils.Debug;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -50,18 +48,6 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 	@Override
 	protected void addWidgets() {
 		// top row
-
-		this.addButton(new TranslatableComponent("options.skinCustomisation"), (button) -> {
-			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options));
-		});
-
-		this.addButton(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()), button -> {
-			this.newOptions.regionSpecificEffects.toggle();
-			button.setMessage(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()));
-		});
-
-		// second row, etc...
-
 		this.addButton(new TranslatableComponent("cosmetica.reloadCosmetics"), (button) -> {
 			doReload = !doReload;
 			if (Debug.TEST_MODE) doTestReload = doReload;
@@ -70,6 +56,17 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			} else {
 				button.setMessage(new TranslatableComponent("cosmetica.reloadCosmetics"));
 			}
+		});
+
+		this.addButton(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()), button -> {
+			this.newOptions.regionSpecificEffects.toggle();
+			button.setMessage(generateButtonToggleText("cosmetica.australians", this.newOptions.regionSpecificEffects.get()));
+		});
+
+		// second row, etc...
+		this.addButton(generateButtonToggleText("cosmetica.inlineChangeButton", Cosmetica.getConfig().shouldInlineChangeButton()), (button) -> {
+			Cosmetica.getConfig().setShowNametagInThirdPerson(!Cosmetica.getConfig().shouldInlineChangeButton());
+			button.setMessage(generateButtonToggleText("cosmetica.inlineChangeButton", Cosmetica.getConfig().shouldInlineChangeButton()));
 		});
 
 		this.addButton(generateButtonToggleText("cosmetica.doHats", this.newOptions.hats.get()), button -> {
@@ -109,6 +106,10 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			}
 
 			try {
+				if (this.parentScreen instanceof MainScreen main) {
+					main.setCosmeticaOptions(this.newOptions);
+				}
+
 				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parentScreen, this.oldOptions, this.newOptions, this.doReload));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -125,11 +126,5 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 				e.printStackTrace();
 			}
 		}));
-	}
-
-	// on close is like cancel
-	@Override
-	public void onClose() {
-		this.minecraft.setScreen(this.parentScreen);
 	}
 }

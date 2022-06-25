@@ -1,12 +1,14 @@
 package com.eyezah.cosmetics.screens;
 
+import cc.cosmetica.api.UserSettings;
+
 import java.util.Map;
 
 /**
  * Options handled by the server, modifiable on the client.
  */
 class ServerOptions {
-	ServerOptions(boolean shoulderBuddies, boolean hats, boolean regionSpecificEffects, boolean doBackBlings, boolean lore) {
+	private ServerOptions(boolean shoulderBuddies, boolean hats, boolean doBackBlings, boolean regionSpecificEffects, boolean lore) {
 		this.shoulderBuddies = new Option("doshoulderbuddies", shoulderBuddies);
 		this.hats = new Option("dohats", hats);
 		this.backBlings = new Option("dobackblings", doBackBlings);
@@ -20,6 +22,10 @@ class ServerOptions {
 		this.backBlings = other.backBlings.clone();
 		this.regionSpecificEffects = other.regionSpecificEffects.clone();
 		this.lore = other.lore.clone();
+	}
+
+	ServerOptions(UserSettings settings) {
+		this(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore());
 	}
 
 	final Option shoulderBuddies;

@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
+import cc.cosmetica.api.UserSettings;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
@@ -22,6 +23,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
+	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, UserSettings settings, boolean inlineChangeButton) {
+		this(parentScreen, player, new ServerOptions(settings), inlineChangeButton, false);
+	}
+
 	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options, boolean inlineChangeButton, boolean animation) {
 		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player);
 
@@ -48,10 +53,9 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	private Section selected;
 
 	private Section createDisabledSection(String title) {
-		Span section = this.addWidget(Span::new, TextComponents.literal(title + " Section"));
+		Span section = Span.create(title);
 
-		this.addTextTo(section, TextComponents.literal(title), 100, false);
-		this.addTextTo(section, TextComponents.literal("Disabled"), 100, false).active = false;
+		this.addTextTo(section, TextComponents.literal(title + " Disabled"), 100, false).active = false;
 
 		section.calculateDimensions();
 		return section;
