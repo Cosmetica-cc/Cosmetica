@@ -238,7 +238,7 @@ public class Debug {
 		TEST_PROPERTIES.setProperty("lock_shoulderbuddy_orientation", "false");
 		TEST_PROPERTIES.setProperty("backbling_location", "backbling");
 		TEST_PROPERTIES.setProperty("cape_location", "cape");
-		TEST_PROPERTIES.setProperty("cape_frame_delay", "100");
+		TEST_PROPERTIES.setProperty("cape_frame_delay", "50");
 
 		boolean foundPropertiesFile = TEST_PROPERTIES_FILE.isFile();
 

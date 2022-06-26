@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 
 public abstract class AnimatedTexture extends AbstractTexture {
 	protected NativeImage image;
-	protected int frameCounterTicks = 2;
+	protected int frameCounterTicks = 1;
 
 	private int frames = 1;
 	private int frameHeight;

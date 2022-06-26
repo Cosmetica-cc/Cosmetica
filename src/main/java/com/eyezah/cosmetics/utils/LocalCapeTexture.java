@@ -33,7 +33,7 @@ public class LocalCapeTexture extends AnimatedTexture implements Tickable {
 	@Override
 	protected void setupAnimations() throws IllegalStateException {
 		super.setupAnimations();
-		this.frameCounterTicks = Math.max(0, Debug.frameDelayMs / 50 - 1);
+		this.frameCounterTicks = Math.max(1, Debug.frameDelayMs / 50);
 	}
 
 	@Override

@@ -96,7 +96,7 @@ public class Base64Texture extends AnimatedTexture {
 	private static class TickingCape extends Base64Texture implements Tickable {
 		private TickingCape(ResourceLocation path, String base64, NativeImage initialImage, int frameDelayMs) throws IOException {
 			super(path, base64, initialImage, true);
-			this.frameCounterTicks = Math.max(0, frameDelayMs / 50 - 1);
+			this.frameCounterTicks = Math.max(1, frameDelayMs / 50);
 		}
 
 		@Override
