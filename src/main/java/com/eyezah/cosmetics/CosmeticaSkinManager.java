@@ -54,25 +54,25 @@ public class CosmeticaSkinManager {
 	}
 
 	public static ResourceLocation processCape(Cape cloak) {
-		return saveTexture(new ResourceLocation("cosmetica", "cape/" + pathify(cloak.getId())), cloak.getImage());
+		return saveTexture(new ResourceLocation("cosmetica", "cape/" + pathify(cloak.getId())), cloak.getImage(), cloak.getFrameDelay());
 	}
 
 	public static ResourceLocation processSkin(String base64Skin, UUID uuid) {
-		return saveTexture(new ResourceLocation("cosmetica", "skin/" + uuid.toString().toLowerCase(Locale.ROOT)), base64Skin);
+		return saveTexture(new ResourceLocation("cosmetica", "skin/" + uuid.toString().toLowerCase(Locale.ROOT)), base64Skin, 0);
 	}
 
-	private static ResourceLocation saveTexture(ResourceLocation id, String texture) {
+	private static ResourceLocation saveTexture(ResourceLocation id, String texture, int mspf) {
 		if (!textures.containsKey(id)) {
 			try {
 				String type = id.getPath().split("\\/")[0];
 				AbstractTexture tex = type.equals("cape") ? Debug.testCape.orElseGet(() -> {
 					try {
-						return new Base64Texture(id, texture.substring(22), true);
+						return Base64Texture.cape(id, texture.substring(22), mspf);
 					} catch (IOException e) {
 						Cosmetica.LOGGER.error("Error loading cape texture", e);
 						return null;
 					}
-				}) : new Base64Texture(id, texture.substring(22), false);
+				}) : Base64Texture.skin(id, texture.substring(22));
 
 				RenderSystem.recordRenderCall(() -> {
 					Minecraft.getInstance().getTextureManager().register(id, tex);

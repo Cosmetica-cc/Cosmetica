@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.mixin.textures;
 
+import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.utils.Scheduler;
 import net.minecraft.client.renderer.texture.TextureManager;
 import org.spongepowered.asm.mixin.Mixin;

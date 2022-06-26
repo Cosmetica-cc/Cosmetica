@@ -53,6 +53,7 @@ public class Debug {
 	public static final File DUMP_FOLDER;
 
 	public static Optional<AbstractTexture> testCape = Optional.empty();
+	public static int frameDelayMs = 50;
 
 	// edit this to change debug settings
 	private static Settings debugSettings = new Settings();
@@ -185,7 +186,7 @@ public class Debug {
 		File imageF = new File(CONFIG_DIR, location + ".png");
 
 		if (imageF.isFile()) {
-			testCape = Optional.of(new NativeTexture(new ResourceLocation("cosmetica_test_mode", location.toLowerCase(Locale.ROOT)), () -> {
+			testCape = Optional.of(new LocalCapeTexture(new ResourceLocation("cosmetica_test_mode", location.toLowerCase(Locale.ROOT)), () -> {
 				try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
 					return NativeImage.read(stream);
 				} catch (IOException e) {
@@ -193,6 +194,8 @@ public class Debug {
 					return null;
 				}
 			}));
+
+			frameDelayMs = Integer.parseInt(TEST_PROPERTIES.getProperty("cape_frame_delay"));
 
 			return true;
 		} else {

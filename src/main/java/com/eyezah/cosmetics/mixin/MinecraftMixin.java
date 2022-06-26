@@ -1,10 +1,12 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.eyezah.cosmetics.utils.Debug;
+import com.eyezah.cosmetics.utils.Scheduler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;

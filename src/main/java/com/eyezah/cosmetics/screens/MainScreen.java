@@ -77,14 +77,15 @@ public class MainScreen extends PlayerRenderScreen {
 
 			public void onPress() {
 				if (doReload) {
+					Cosmetica.clearAllCaches();
+
 					if (Debug.TEST_MODE) {
 						Debug.loadTestProperties();
 						Debug.loadTestModel(Debug.LocalModelType.HAT);
 						Debug.loadTestModel(Debug.LocalModelType.SHOULDERBUDDY);
 						Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
+						Debug.loadTestCape();
 					}
-
-					Cosmetica.clearAllCaches();
 				}
 
 				this.onPress.onPress(this);
