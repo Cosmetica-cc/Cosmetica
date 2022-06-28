@@ -89,7 +89,7 @@ public class SelectLoreScreen extends SulphateScreen {
 			}
 
 			if (this.list != null) {
-				list.setSelected(this.list.getSelected());
+				list.matchSelected(this.list);
 			}
 
 			this.list = list; // update
