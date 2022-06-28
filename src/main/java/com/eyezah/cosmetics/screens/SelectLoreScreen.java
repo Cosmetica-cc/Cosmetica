@@ -120,7 +120,7 @@ public class SelectLoreScreen extends SulphateScreen {
 	}
 
 	private void updateTitle() {
-		((ExtendedScreen) this).setTitle(this.lore.isEmpty() ? this.baseTitle : this.baseTitle.copy().append(TextComponents.literal(": " + this.colour + this.lore)));
+		((ExtendedScreen) this).setTitle(this.lore.isEmpty() ? this.baseTitle : this.baseTitle.copy().append(TextComponents.literal(": " + this.lore)));
 	}
 
 	@Override
