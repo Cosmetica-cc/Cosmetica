@@ -50,8 +50,9 @@ public class SelectionList extends ObjectSelectionList<SelectionList.Entry> {
 	}
 
 	public void matchSelected(SelectionList other) {
-		super.setSelected(other.getSelected());
-		this.centerScrollOn(other.getSelected());
+		Entry select = this.entries.get(other.getSelected().item);
+		super.setSelected(select);
+		this.centerScrollOn(select);
 	}
 
 	public void recenter() {
