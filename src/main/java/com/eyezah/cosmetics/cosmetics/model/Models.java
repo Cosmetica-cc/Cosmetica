@@ -148,7 +148,7 @@ public class Models {
 		model.getTransforms().getTransform(transformType).apply(false, stack);
 		stack.translate(-0.5D, -0.5D, -0.5D);
 
-		RenderType renderType = RenderType.cutoutMipped(); // hopefully this is the right one
+		RenderType renderType = RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS); // hopefully this is the right one
 		VertexConsumer vertexConsumer4 = multiBufferSource.getBuffer(renderType);
 		renderModelLists(model, packedLight, overlayTyp, stack, vertexConsumer4);
 

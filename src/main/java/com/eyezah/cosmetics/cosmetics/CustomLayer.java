@@ -25,6 +25,10 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
     }
 
     public void doCoolRenderThings(BakableModel bakableModel, ModelPart modelPart, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, float x, float y, float z) {
+        this.doCoolRenderThings(bakableModel, modelPart, stack, multiBufferSource, packedLightProbably, x, y, z, false);
+    }
+
+    public void doCoolRenderThings(BakableModel bakableModel, ModelPart modelPart, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, float x, float y, float z, boolean mirror) {
         BakedModel model = Models.getBakedModel(bakableModel);
         if (model == null) return; // if it has errors with the baked model or cannot render it for another reason will return null
         stack.pushPose();
@@ -33,6 +37,7 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
         stack.scale(o, -o, -o);
         stack.mulPose(new Quaternion(Vector3f.YP, (float)Math.PI, false)); // pi radians on y axis
         stack.translate(x, y, z); // vanilla: 0.0 second param
+        if (mirror) stack.scale(-1, 1, 1);
         Models.renderModel(
                 model,
                 stack,

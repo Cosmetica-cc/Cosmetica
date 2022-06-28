@@ -4,7 +4,6 @@ import com.eyezah.cosmetics.cosmetics.BackBling;
 import com.eyezah.cosmetics.cosmetics.Hats;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddies;
-import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 // Fake player in a normal pose except for the fact that the main arm can be raised.
-public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>, Playerish {
 	public FakePlayer(Minecraft minecraft, UUID uuid, String name, PlayerData data, boolean slim) {
 		var context = new EntityRendererProvider.Context(minecraft.getEntityRenderDispatcher(), minecraft.getItemRenderer(), minecraft.getResourceManager(), minecraft.getEntityModels(), minecraft.font);
 		this.model = new PlayerModel<>(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
@@ -66,6 +65,21 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 		return this.crouching;
 	}
 
+	@Override
+	public boolean isSneaking() {
+		return this.isCrouching();
+	}
+
+	@Override
+	public int getLifetime() {
+		return this.tickCount;
+	}
+
+	@Override
+	public int getPseudoId() {
+		return (int) this.uuid.getMostSignificantBits();
+	}
+
 	public void setCrouching(boolean crouching) {
 		this.crouching = crouching;
 	}
@@ -95,7 +109,8 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 				DefaultPlayerSkin.getDefaultSkin(this.uuid) : this.data.skin();
 	}
 
-	public ResourceLocation getCape() {
+	public ResourceLocation getRenderableCape() {
+		if (this.data.cape() == null) return MissingTextureAtlasSprite.getLocation();
 		return Minecraft.getInstance().getTextureManager().getTexture(this.data.cape(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ?
 				MissingTextureAtlasSprite.getLocation() : this.data.cape();
 	}

@@ -8,18 +8,16 @@ import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
@@ -53,7 +51,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 	private Section createDisabledSection(String title) {
 		Span section = Span.create(title);
 
-		this.addTextTo(section, TextComponents.literal(title + " Disabled"), 100, false).active = false;
+		this.addTextTo(section, TextComponents.translatable(title.replace(" ", "") + "Disabled"), 100, false).active = false;
 
 		section.calculateDimensions();
 		return section;
@@ -61,16 +59,16 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 	private Section createActiveSection(String title, List<String> items, Button.OnPress onChange) {
 		Div section = Div.create(title);
-		String headerText = items.isEmpty() ? "No " + title : title;
+		Component headerText = TextComponents.translatable("cosmetica.entry." + (items.isEmpty() ? "No" + title.replace(" ", "") : title.replace(" ", "")));
 
 		if (!this.inlineChangeButton) {
 			Span header = section.addChild(new Span(0, 0, 200, 20, TextComponents.literal(title + "Header")));
 
-			this.addTextTo(header, TextComponents.literal(headerText), this.font.width(headerText) + 8, false);
-			header.addChild(new Button(0, 0, 60, 20, TextComponents.literal("Change"), onChange));
+			this.addTextTo(header, headerText, this.font.width(headerText) + 8, false);
+			header.addChild(new Button(0, 0, 60, 20, TextComponents.translatable("cosmetica.change"), onChange));
 		}
 		else {
-			this.addTextTo(section, TextComponents.literal(headerText), 200, false);
+			this.addTextTo(section, headerText, 200, false);
 		}
 
 		for (String item : items) {
@@ -78,7 +76,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		}
 
 		if (this.inlineChangeButton) {
-			section.addChild(new Button(0, 0, 100, 20, TextComponents.literal("Change"), onChange));
+			section.addChild(new Button(0, 0, 100, 20, TextComponents.translatable("cosmetica.change"), onChange));
 		}
 
 		section.calculateDimensions();
@@ -97,7 +95,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		this.cloakSection = this.createActiveSection("Cape", immutableListOf(data.capeName()), b -> System.out.println("would change"));
 
 		// lore
-		this.loreSection = this.options.lore.get() ? this.createActiveSection("Lore", immutableListOf(data.lore()), b -> System.out.println("would change")) : this.createDisabledSection("Lore");
+		this.loreSection = this.options.lore.get() ? this.createActiveSection("Lore", immutableListOf(data.lore()), b -> this.minecraft.setScreen(new SelectLoreScreen(this, data.lore()))) : this.createDisabledSection("Lore");
 
 		// hats
 		this.hatsSection = this.options.hats.get() ? this.createActiveSection("Hats", data.hats().stream().map(BakableModel::name).collect(Collectors.toList()), b -> System.out.println("would change")) : this.createDisabledSection("Hats");
@@ -183,39 +181,6 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 
 	private TextWidget addTextTo(Section section, Component text, int width, boolean centered) {
 		return section.addChild(new TextWidget(0, 0, width, 20, centered, text));
-	}
-
-	private static class TextWidget extends AbstractWidget {
-		public TextWidget(int x, int y, int width, int height, boolean centered, Component component) {
-			super(x, y, width, height, component);
-			this.centered = centered;
-		}
-
-		private boolean centered;
-
-		@Override
-		public void updateNarration(NarrationElementOutput narration) {
-			this.defaultButtonNarrationText(narration);
-		}
-
-		public boolean mouseClicked(double d, double e, int i) {
-			return false;
-		}
-
-		@Override
-		public void render(PoseStack poseStack, int i, int j, float f) {
-			Minecraft minecraft = Minecraft.getInstance();
-			Font font = minecraft.font;
-
-			int colour = this.active ? 16777215 : 10526880;
-
-			if (this.centered) {
-				drawCenteredString(poseStack, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
-			}
-			else {
-				drawString(poseStack, font, this.getMessage(), this.x, this.y + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
-			}
-		}
 	}
 
 	private static class Div extends Section {

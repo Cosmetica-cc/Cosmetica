@@ -139,10 +139,9 @@ public class Cosmetica implements ClientModInitializer {
 		// API Url Getter
 		runOffthread(() -> {
 			File minecraftDir = findDefaultInstallDir("minecraft").toFile();
-			File apiGetCache = new File(minecraftDir, "cosmetica_website_host_cache.txt");
 			File apiCache = new File(minecraftDir, "cosmetica_get_api_cache.json");
 
-			CosmeticaAPI.setAPICaches(apiCache, apiGetCache);
+			CosmeticaAPI.setAPICache(apiCache);
 
 			try {
 				api = CosmeticaAPI.newUnauthenticatedInstance();

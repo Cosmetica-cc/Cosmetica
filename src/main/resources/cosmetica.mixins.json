@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "compat.TitleScreenMixin",
+    "fakeplayer.AbstractClientPlayerMixin",
     "fakeplayer.PlayerModelAccessor",
     "fakeplayer.HumanoidModelAccessor",
     "screen.ConnectionThreadMixin",

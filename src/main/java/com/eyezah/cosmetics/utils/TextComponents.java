@@ -14,6 +14,10 @@ public class TextComponents {
 		return new TranslatableComponent(translationKey);
 	}
 
+	public static Component dummy() {
+		return new TextComponent("lorem ipsum dolor sit amet");
+	}
+
 	public static MutableComponent literal(String text) {
 		return new TextComponent(text);
 	}
