@@ -63,7 +63,7 @@ public class SelectLoreScreen extends SulphateScreen {
 					if (this.showingPronouns) {
 						if (this.pronounsSelected == 0) {
 							this.setPronouns = true;
-							this.lore = this.colour + s;
+							this.lore = s;
 							this.pronounsSelected = 1;
 						}
 						else if (this.pronounsSelected < 4) {
@@ -74,7 +74,7 @@ public class SelectLoreScreen extends SulphateScreen {
 					}
 					else {
 						this.setPronouns = false;
-						this.lore = this.colour + s;
+						this.lore = s;
 					}
 					this.updateTitle();
 				});
@@ -120,7 +120,7 @@ public class SelectLoreScreen extends SulphateScreen {
 	}
 
 	private void updateTitle() {
-		((ExtendedScreen) this).setTitle(this.lore.isEmpty() ? this.baseTitle : this.baseTitle.copy().append(TextComponents.literal(": " + this.lore)));
+		((ExtendedScreen) this).setTitle(this.lore.isEmpty() ? this.baseTitle : this.baseTitle.copy().append(TextComponents.literal(": " + this.colour + this.lore)));
 	}
 
 	@Override
