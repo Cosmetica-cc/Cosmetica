@@ -109,7 +109,7 @@ public class SelectLoreScreen extends SulphateScreen {
 					this.onClose();
 				}
 				else {
-					this.minecraft.setScreen(new UpdatingCosmeticsScreen<>(this.parent, () -> Cosmetica.api.setLore(this.setPronouns ? LoreType.PRONOUNS : LoreType.TITLES, this.colour + this.lore)));
+					this.minecraft.setScreen(new UpdatingCosmeticsScreen<>(this.parent, () -> Cosmetica.api.setLore(this.setPronouns ? LoreType.PRONOUNS : LoreType.TITLES, this.lore)));
 				}
 			}));
 		}
