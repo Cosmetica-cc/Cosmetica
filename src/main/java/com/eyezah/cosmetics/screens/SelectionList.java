@@ -49,6 +49,11 @@ public class SelectionList extends ObjectSelectionList<SelectionList.Entry> {
 		this.onSelect.accept(entry == null ? "" : entry.item);
 	}
 
+	public void matchSelected(SelectionList other) {
+		super.setSelected(other.getSelected());
+		this.centerScrollOn(other.getSelected());
+	}
+
 	public void recenter() {
 		if (this.getSelected() != null) {
 			this.centerScrollOn(this.getSelected());

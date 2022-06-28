@@ -58,37 +58,41 @@ public class SelectLoreScreen extends SulphateScreen {
 			this.addButton(CommonComponents.GUI_CANCEL, b -> this.onClose());
 		}
 		else if (this.auth) {
-			if (this.list == null) {
-				this.list = new SelectionList(this.minecraft, this, this.font, 0, s -> {
-					if (this.showingPronouns) {
-						if (this.pronounsSelected == 0) {
-							this.setPronouns = true;
-							this.lore = s;
-							this.pronounsSelected = 1;
-						}
-						else if (this.pronounsSelected < 4) {
-							this.setPronouns = true;
-							this.lore += "/" + s;
-							this.pronounsSelected++;
-						}
-					}
-					else {
-						this.setPronouns = false;
-						this.lore = s;
-					}
-					this.updateTitle();
-				});
-
+			SelectionList list = new SelectionList(this.minecraft, this, this.font, 0, s -> {
 				if (this.showingPronouns) {
-					this.pronounsSelected = 0;
-					this.pronouns.forEach(this.list::addItem);
+					if (this.pronounsSelected == 0) {
+						this.setPronouns = true;
+						this.lore = s;
+						this.pronounsSelected = 1;
+					}
+					else if (this.pronounsSelected < 4) {
+						this.setPronouns = true;
+						this.lore += "/" + s;
+						this.pronounsSelected++;
+					}
 				}
 				else {
-					this.titles.forEach(this.list::addItem);
-					this.list.selectItem(this.lore);
-					this.list.recenter();
+					this.setPronouns = false;
+					this.lore = s;
 				}
+				this.updateTitle();
+			});
+
+			if (this.showingPronouns) {
+				this.pronounsSelected = 0;
+				this.pronouns.forEach(list::addItem);
 			}
+			else {
+				this.titles.forEach(list::addItem);
+				list.selectItem(this.lore);
+				list.recenter();
+			}
+
+			if (this.list != null) {
+				list.setSelected(this.list.getSelected());
+			}
+
+			this.list = list; // update
 
 			this.updateTitle();
 			this.addRenderableWidget(this.list);
