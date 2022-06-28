@@ -34,9 +34,10 @@ public class UpdatingCosmeticsScreen<T> extends Screen implements LoadingTypeScr
 		Debug.info("Updating cape server settings.");
 		Thread requestThread = new Thread(() -> {
 			contact.get().ifSuccessfulOrElse(response -> {
-				if (this.parentScreen instanceof MainScreen main) {
+				if (this.parentScreen instanceof PlayerRenderScreen prs) {
 					UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
-					main.setPlayerData(Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true));
+					Cosmetica.clearPlayerData(uuid);
+					prs.setPlayerData(Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true));
 				}
 
 				Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
