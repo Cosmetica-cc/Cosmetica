@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.screens;
+package com.eyezah.cosmetics.screens.widget;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;

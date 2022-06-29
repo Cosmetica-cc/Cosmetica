@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.screens;
+package com.eyezah.cosmetics.screens.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
@@ -15,13 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class SelectionList extends ObjectSelectionList<SelectionList.Entry> {
-	public SelectionList(Minecraft minecraft, Screen parent, Font font) {
-		this(minecraft, parent, font, 0, s -> {});
-	}
-
-	public SelectionList(Minecraft minecraft, Screen parent, Font font, int floorOffset, Consumer<String> onSelect) {
-		super(minecraft, parent.width, parent.height, 32, parent.height - 65 + 4 + floorOffset, 18);
+abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionList<T> {
+	Selection(Minecraft minecraft, Screen parent, Font font, int floorOffset, int ceilOffset, int elementHeight, Consumer<String> onSelect) {
+		super(minecraft, parent.width, parent.height, 32 + ceilOffset, parent.height - 65 + 4 + floorOffset, elementHeight);
 
 		this.parent = parent;
 		this.font = font;
@@ -31,28 +27,11 @@ public class SelectionList extends ObjectSelectionList<SelectionList.Entry> {
 	private final Screen parent;
 	private final Font font;
 	private final Consumer<String> onSelect;
-	private final Map<String, Entry> entries = new HashMap<>();
-
-	public void addItem(String item) {
-		Entry entry = new Entry(item);
-		this.addEntry(entry);
-		this.entries.put(item, entry);
-	}
-
-	public void selectItem(String item) {
-		this.setSelected(this.entries.get(item));
-	}
 
 	@Override
-	public void setSelected(@Nullable SelectionList.Entry entry) {
+	public void setSelected(@Nullable T entry) {
 		super.setSelected(entry);
 		this.onSelect.accept(entry == null ? "" : entry.item);
-	}
-
-	public void matchSelected(SelectionList other) {
-		Entry select = this.entries.get(other.getSelected().item);
-		super.setSelected(select);
-		this.centerScrollOn(select);
 	}
 
 	public void recenter() {
@@ -82,17 +61,16 @@ public class SelectionList extends ObjectSelectionList<SelectionList.Entry> {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public class Entry extends ObjectSelectionList.Entry<SelectionList.Entry> {
+	public abstract static class Entry<E extends Selection.Entry<E>> extends ObjectSelectionList.Entry<E> {
 		final String item;
+		protected final Selection selection;
 
-		public Entry(String item) {
+		public Entry(Selection selection, String item) {
+			this.selection = selection;
 			this.item = item;
 		}
 
-		public void render(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
-			SelectionList.this.font.drawShadow(poseStack, this.item, (float) (SelectionList.this.width / 2 - SelectionList.this.font.width(this.item) / 2), (float)(j + 3), 16777215, true);
-		}
-
+		@Override
 		public boolean mouseClicked(double d, double e, int i) {
 			if (i == 0) {
 				this.select();
@@ -103,11 +81,7 @@ public class SelectionList extends ObjectSelectionList<SelectionList.Entry> {
 		}
 
 		private void select() {
-			SelectionList.this.setSelected(this);
-		}
-
-		public Component getNarration() {
-			return new TranslatableComponent("narrator.select", new Object[]{this.item});
+			this.selection.setSelected(this);
 		}
 	}
 }

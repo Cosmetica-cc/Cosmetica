@@ -3,6 +3,9 @@ package com.eyezah.cosmetics.screens;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.LoreType;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.screens.widget.FetchingCosmetics;
+import com.eyezah.cosmetics.screens.widget.StringSelection;
+import com.eyezah.cosmetics.screens.widget.TextWidget;
 import com.eyezah.cosmetics.utils.ExtendedScreen;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
@@ -17,7 +20,7 @@ import java.util.List;
 
 public class SelectLoreScreen extends SulphateScreen {
 	protected SelectLoreScreen(@Nullable Screen parent, String lore) {
-		super(TextComponents.translatable("cosmetica.entry.Lore"), parent);
+		super(TextComponents.translatable("cosmetica.selection.select").append(TextComponents.translatable("cosmetica.entry.Lore")), parent);
 		this.baseTitle = TextComponents.translatable("cosmetica.entry.Lore");
 		if (!lore.isEmpty() && lore.charAt(0) == '\u00A7') this.colour = lore.substring(0, 2);
 		this.lore = this.colour.isEmpty() ? lore : lore.substring(2);
@@ -28,7 +31,7 @@ public class SelectLoreScreen extends SulphateScreen {
 	private List<String> pronouns = ImmutableList.of();
 	private boolean auth;
 	private FetchingCosmetics fetching;
-	private SelectionList list;
+	private StringSelection list;
 	private final MutableComponent baseTitle;
 	private String lore;
 	private String colour = "";
@@ -58,7 +61,7 @@ public class SelectLoreScreen extends SulphateScreen {
 			this.addButton(CommonComponents.GUI_CANCEL, b -> this.onClose());
 		}
 		else if (this.auth) {
-			SelectionList list = new SelectionList(this.minecraft, this, this.font, 0, s -> {
+			StringSelection list = new StringSelection(this.minecraft, this, this.font, s -> {
 				if (this.showingPronouns) {
 					if (this.pronounsSelected == 0) {
 						this.setPronouns = true;
@@ -96,19 +99,21 @@ public class SelectLoreScreen extends SulphateScreen {
 
 			this.updateTitle();
 			this.addRenderableWidget(this.list);
-			this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 50, 100, 20, TextComponents.translatable(this.showingPronouns ? "cosmetica.selection.lore.titles" : "cosmetica.selection.lore.pronouns"), b -> {
+			this.addRenderableWidget(new Button(this.width / 2 - 102, this.height - 50, 100, 20, TextComponents.translatable(this.showingPronouns ? "cosmetica.selection.lore.titles" : "cosmetica.selection.lore.pronouns"), b -> {
 				this.showingPronouns = !this.showingPronouns;
 				this.list = null;
 				this.init(this.minecraft, this.width, this.height);
 			}));
 
-			this.addRenderableWidget(new Button(this.width / 2, this.height - 50, 100, 20, TextComponents.translatable("cosmetica.selection.lore.clear"), b -> {
+			this.addRenderableWidget(new Button(this.width / 2 + 2, this.height - 50, 100, 20, TextComponents.translatable("cosmetica.selection.lore.clear"), b -> {
 				this.lore = "";
 				this.pronounsSelected = 0;
 				this.updateTitle();
 			}));
 
-			this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 30, 200, 20, CommonComponents.GUI_DONE, b -> {
+			this.addRenderableWidget(new Button(this.width / 2 - 102, this.height - 30, 100, 20, CommonComponents.GUI_CANCEL, b -> this.onClose()));
+
+			this.addRenderableWidget(new Button(this.width / 2 + 2, this.height - 30, 100, 20, CommonComponents.GUI_DONE, b -> {
 				if (this.lore.equals(this.originalLore)) {
 					this.onClose();
 				}

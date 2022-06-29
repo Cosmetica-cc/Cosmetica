@@ -37,7 +37,6 @@ public abstract class AnimatedTexture extends AbstractTexture {
 
 	protected void doTick() {
 		if (((NativeImageAccessorMixin) (Object) this.image).getPixels() > 0) {
-			Debug.complainOnce("bruh it truly tickin", "bruh it truly tickin");
 			this.tick = (this.tick + 1) % this.frameCounterTicks;
 
 			if (this.tick == 0) {
@@ -45,9 +44,6 @@ public abstract class AnimatedTexture extends AbstractTexture {
 
 				this.upload();
 			}
-		}
-		else {
-			Debug.complainOnce("nononononono", String.valueOf(((NativeImageAccessorMixin) (Object) this.image).getPixels()));
 		}
 	}
 }

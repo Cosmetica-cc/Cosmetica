@@ -35,7 +35,7 @@ public class CosmeticaSkinManager {
 		}
 	}
 
-	private static String pathify(String id) {
+	public static String pathify(String id) {
 		StringBuilder result = new StringBuilder();
 
 		for (char c : id.toCharArray()) {

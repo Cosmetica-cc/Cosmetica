@@ -4,6 +4,7 @@ import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CapeServer;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.screens.widget.ButtonList;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;

@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.net.InetSocketAddress;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -32,14 +31,7 @@ public abstract class ClientLevelMixin extends Level {
 	@Inject(at = @At("RETURN"), method = "tick")
 	private void onClientTick(BooleanSupplier hasTimeLeft, CallbackInfo info) {
 		if (this.getGameTime() % 600 == 0) { // every 30 seconds in africa
-			Cosmetica.runOffthread(() -> {
-				if (this.minecraft.isLocalServer()) {
-					Cosmetica.safari(new InetSocketAddress("127.0.0.1", 25565), false);
-				}
-				if (this.minecraft.getConnection().getConnection().getRemoteAddress() instanceof InetSocketAddress ip) {
-					Cosmetica.safari(ip, false);
-				}
-			}, ThreadPool.GENERAL_THREADS);
+			Cosmetica.runOffthread(() -> Cosmetica.safari(this.minecraft, false, false), ThreadPool.GENERAL_THREADS);
 		}
 	}
 }

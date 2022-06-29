@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.screens;
+package com.eyezah.cosmetics.screens.widget;
 
 import cc.cosmetica.api.ServerResponse;
 import com.eyezah.cosmetics.utils.TextComponents;
@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public class FetchingCosmetics<T> extends TextWidget {
 	private int number = 1;
 
-	protected FetchingCosmetics(String entry, Supplier<List<ServerResponse<T>>> fetcher, BiConsumer<FetchingCosmetics, List<T>> onLoad) {
+	public FetchingCosmetics(String entry, Supplier<List<ServerResponse<T>>> fetcher, BiConsumer<FetchingCosmetics, List<T>> onLoad) {
 		super(0, 0, 200, 20, true, TextComponents.translatable("cosmetica.selection.fetch").append(TextComponents.translatable("cosmetica.entry." + entry)));
 
 		Thread t = new Thread(() -> {

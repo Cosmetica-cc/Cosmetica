@@ -16,6 +16,7 @@
 
   "cosmetica.change": "Change",
   "cosmetica.selection.fetch": "Fetching ",
+  "cosmetica.selection.select": "Select ",
   "cosmetica.selection.lore.pronouns": "See Pronouns",
   "cosmetica.selection.lore.titles": "See Titles",
   "cosmetica.selection.lore.clear": "Clear Lore",

@@ -34,7 +34,6 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -44,6 +43,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
@@ -94,6 +94,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	private static CosmeticaConfig config;
 	private static DefaultSettingsConfig defaultSettingsConfig;
+	private static Path configDirectory;
 
 	/**
 	 * The timestamp for the africa endpoint.
@@ -116,6 +117,10 @@ public class Cosmetica implements ClientModInitializer {
 		return config;
 	}
 
+	public static Path getConfigDirectory() {
+		return configDirectory;
+	}
+
 	public static DefaultSettingsConfig getDefaultSettingsConfig() {
 		return defaultSettingsConfig;
 	}
@@ -123,6 +128,7 @@ public class Cosmetica implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		config = new CosmeticaConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("cosmetica.properties"));
+		configDirectory = FabricLoader.getInstance().getConfigDir().resolve("cosmetica");
 		defaultSettingsConfig = new DefaultSettingsConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("default-settings.properties"));
 
 		try {
@@ -171,7 +177,7 @@ public class Cosmetica implements ClientModInitializer {
 			}
 		}, ThreadPool.GENERAL_THREADS);
 
-		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
+		ClientSpriteRegistryCallback.event(InventoryMenu.BLOCK_ATLAS).register((atlasTexture, registry) -> {
 			// register all reserved textures
 			for (int i = 0; i < 128; ++i) {
 				registry.register(new ResourceLocation("cosmetica", "generated/reserved_" + i));
@@ -299,7 +305,15 @@ public class Cosmetica implements ClientModInitializer {
 		return Base64.encodeBase64String(arr);
 	}
 
-	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo) {
+	public static void safari(Minecraft minecraft, boolean yourFirstRodeo, boolean ignoreSelf) {
+		InetSocketAddress prideRock = minecraft.isLocalServer() ? new InetSocketAddress("127.0.0.1", 25565) : null;
+		if (prideRock == null && minecraft.getConnection().getConnection().getRemoteAddress() instanceof InetSocketAddress ip)
+			prideRock = ip;
+		if (prideRock != null)
+			safari(prideRock, yourFirstRodeo, ignoreSelf);
+	}
+
+	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo, boolean ignoreSelf) {
 		if (api != null && api.isAuthenticated()) {
 			Debug.info("Thread for safari {}", Thread.currentThread().getName());
 
@@ -330,13 +344,12 @@ public class Cosmetica implements ClientModInitializer {
 									clearPlayerData(uuid);
 
 									// if ourselves, refresh asap
-									if (uuid.equals(Minecraft.getInstance().player.getUUID())) {
+									if (!ignoreSelf && uuid.equals(Minecraft.getInstance().player.getUUID())) {
 										getPlayerData(Minecraft.getInstance().player);
 									}
 								} else {
 									// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
 									Debug.info("Lol cringe they went scampering into a bush or something!");
-
 
 									// use username to clear the info - might be in offline mode or something
 									String username = individual.getUsername();
@@ -351,7 +364,7 @@ public class Cosmetica implements ClientModInitializer {
 											clearPlayerData(serverUuid);
 
 											// if ourselves, refresh asap
-											if (username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
+											if (!ignoreSelf && username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
 												getPlayerData(Minecraft.getInstance().player);
 											}
 										}

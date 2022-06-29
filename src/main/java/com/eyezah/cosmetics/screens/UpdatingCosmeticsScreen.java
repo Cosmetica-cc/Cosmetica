@@ -36,7 +36,12 @@ public class UpdatingCosmeticsScreen<T> extends Screen implements LoadingTypeScr
 			contact.get().ifSuccessfulOrElse(response -> {
 				if (this.parentScreen instanceof PlayerRenderScreen prs) {
 					UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
-					Cosmetica.clearPlayerData(uuid);
+
+					if (this.minecraft.level == null)
+						Cosmetica.clearPlayerData(uuid);
+					else
+						Cosmetica.safari(this.minecraft, false, true);
+
 					prs.setPlayerData(Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true));
 				}
 

@@ -1,10 +1,12 @@
 package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
+import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.UserSettings;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
+import com.eyezah.cosmetics.screens.widget.TextWidget;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,7 +19,6 @@ import net.minecraft.network.chat.Component;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
@@ -92,13 +93,13 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 		PlayerData data = this.fakePlayer.getData();
 
 		// cape
-		this.cloakSection = this.createActiveSection("Cape", immutableListOf(data.capeName()), b -> System.out.println("would change"));
+		this.cloakSection = this.createActiveSection("Cape", immutableListOf(data.capeName()), b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, CosmeticType.CAPE)));
 
 		// lore
 		this.loreSection = this.options.lore.get() ? this.createActiveSection("Lore", immutableListOf(data.lore()), b -> this.minecraft.setScreen(new SelectLoreScreen(this, data.lore()))) : this.createDisabledSection("Lore");
 
 		// hats
-		this.hatsSection = this.options.hats.get() ? this.createActiveSection("Hats", data.hats().stream().map(BakableModel::name).collect(Collectors.toList()), b -> System.out.println("would change")) : this.createDisabledSection("Hats");
+		this.hatsSection = this.options.hats.get() ? this.createActiveSection("Hats", data.hats().stream().map(BakableModel::name).collect(Collectors.toList()), b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, CosmeticType.HAT))) : this.createDisabledSection("Hats");
 
 		// sbs
 		List<String> shoulderBuddies = ImmutableList.of(
@@ -106,10 +107,10 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 				"Right: " + (data.rightShoulderBuddy() == null ? "None" : data.rightShoulderBuddy().name())
 		);
 
-		this.shoulderBuddiesSection = this.options.shoulderBuddies.get() ? this.createActiveSection("Shoulder Buddies", shoulderBuddies, b -> System.out.println("would change")) : this.createDisabledSection("Shoulder Buddies");
+		this.shoulderBuddiesSection = this.options.shoulderBuddies.get() ? this.createActiveSection("Shoulder Buddies", shoulderBuddies, b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, CosmeticType.SHOULDER_BUDDY))) : this.createDisabledSection("Shoulder Buddies");
 
 		// back bling
-		this.backBlingSection = this.options.backBlings.get() ? this.createActiveSection("Back Bling", data.backBling() == null ? ImmutableList.of() : ImmutableList.of(data.backBling().name()), b -> System.out.println("would change")) : this.createDisabledSection("Back Bling");
+		this.backBlingSection = this.options.backBlings.get() ? this.createActiveSection("Back Bling", data.backBling() == null ? ImmutableList.of() : ImmutableList.of(data.backBling().name()), b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, CosmeticType.BACK_BLING))) : this.createDisabledSection("Back Bling");
 
 		// the whole gang
 		List<Section> availableSections = ImmutableList.of(this.cloakSection, this.loreSection, this.hatsSection, this.shoulderBuddiesSection, this.backBlingSection);
