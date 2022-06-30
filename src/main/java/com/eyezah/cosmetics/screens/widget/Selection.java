@@ -7,12 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 
 abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionList<T> {
@@ -25,7 +21,7 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 	}
 
 	private final Screen parent;
-	private final Font font;
+	protected final Font font;
 	private final Consumer<String> onSelect;
 
 	@Override

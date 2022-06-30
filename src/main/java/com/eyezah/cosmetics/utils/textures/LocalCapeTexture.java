@@ -1,7 +1,8 @@
-package com.eyezah.cosmetics.utils;
+package com.eyezah.cosmetics.utils.textures;
 
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.mixin.textures.NativeImageAccessorMixin;
+import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.Tickable;

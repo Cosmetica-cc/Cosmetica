@@ -1,12 +1,12 @@
 package com.eyezah.cosmetics.screens;
 
+import benzenestudios.sulphate.ExtendedScreen;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.LoreType;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.screens.widget.FetchingCosmetics;
 import com.eyezah.cosmetics.screens.widget.StringSelection;
 import com.eyezah.cosmetics.screens.widget.TextWidget;
-import com.eyezah.cosmetics.utils.ExtendedScreen;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -118,7 +118,7 @@ public class SelectLoreScreen extends SulphateScreen {
 					this.onClose();
 				}
 				else {
-					this.minecraft.setScreen(new UpdatingCosmeticsScreen<>(this.parent, () -> Cosmetica.api.setLore(this.setPronouns ? LoreType.PRONOUNS : LoreType.TITLES, this.lore)));
+					this.minecraft.setScreen(new UpdatingCosmeticsScreen<>(this.parent, () -> Cosmetica.api.setLore(this.lore.isEmpty() ? LoreType.NONE : (this.setPronouns ? LoreType.PRONOUNS : LoreType.TITLES), this.lore)));
 				}
 			}));
 		}

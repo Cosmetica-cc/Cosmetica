@@ -1,7 +1,7 @@
 package com.eyezah.cosmetics;
 
 import cc.cosmetica.api.Cape;
-import com.eyezah.cosmetics.utils.Base64Texture;
+import com.eyezah.cosmetics.utils.textures.Base64Texture;
 import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;

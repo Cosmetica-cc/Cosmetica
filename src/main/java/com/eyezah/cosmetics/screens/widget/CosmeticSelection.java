@@ -2,6 +2,7 @@ package com.eyezah.cosmetics.screens.widget;
 
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
+import com.eyezah.cosmetics.utils.textures.CosmeticIconTexture;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -14,8 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.texture.HttpTexture;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -24,25 +23,24 @@ import java.util.function.Consumer;
 
 public class CosmeticSelection extends Selection<CosmeticSelection.Entry> {
 	public CosmeticSelection(Minecraft minecraft, Screen parent, String cosmeticType, Font font, Consumer<String> onSelect) {
-		super(minecraft, parent, font, 0, 15, 30, onSelect);
+		super(minecraft, parent, font, 0, 15, 46, onSelect);
 		this.cosmeticType = cosmeticType;
-		this.addEntry(new Entry(this, "Thing", "SzN1OWVLUXVxZGIramc"));
-		this.addEntry(new Entry(this, "Thing 2", "QVd1TGdDbWtQZ3M3VkE"));
 	}
 
 	private final String cosmeticType;
+
+	public void add(String name, String id) {
+		this.addEntry(new Entry(this, name, id));
+	}
 
 	public static class Entry extends Selection.Entry<CosmeticSelection.Entry> {
 		public Entry(CosmeticSelection selection, String displayName, String cosmeticId) {
 			super(selection, cosmeticId);
 			this.displayName = displayName;
 			this.texture = new ResourceLocation("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
-			Minecraft.getInstance().getTextureManager().register(this.texture, new HttpTexture(
-					Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId + ".png").toFile(),
-					String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId),
-					new ResourceLocation("cosmetica", "textures/gui/loading.png"),
-					false,
-					null
+			Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
+					Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
+					String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
 			));
 		}
 
@@ -51,9 +49,9 @@ public class CosmeticSelection extends Selection<CosmeticSelection.Entry> {
 
 		@Override
 		public void render(PoseStack poseStack, int x, int y, int k, int l, int m, int n, int o, boolean isHovered, float f) {
-			x = Minecraft.getInstance().screen.width / 2 - 30;
-			renderTexture(poseStack.last().pose(), this.texture, x - 15, x + 15, y - 2, y + 28, this.selection.getBlitOffset());
-			Minecraft.getInstance().font.drawShadow(poseStack, this.displayName, (float) (Minecraft.getInstance().screen.width / 2), (float)(y + 8), 16777215, true);
+			x = Minecraft.getInstance().screen.width / 2 - 60;
+			renderTexture(poseStack.last().pose(), this.texture, x - 25, x + 25, y - 4, y + 46, this.selection.getBlitOffset());
+			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(y + 6), 16777215, true);
 		}
 
 		private static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z) {

@@ -7,6 +7,7 @@ import com.eyezah.cosmetics.cosmetics.Hats;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddies;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
+import com.eyezah.cosmetics.utils.textures.LocalCapeTexture;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;

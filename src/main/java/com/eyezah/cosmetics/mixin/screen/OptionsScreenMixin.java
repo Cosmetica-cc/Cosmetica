@@ -1,7 +1,7 @@
 package com.eyezah.cosmetics.mixin.screen;
 
+import benzenestudios.sulphate.ExtendedScreen;
 import com.eyezah.cosmetics.screens.LoadingScreen;
-import com.eyezah.cosmetics.utils.ExtendedScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;

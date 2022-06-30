@@ -47,7 +47,7 @@ public class StringSelection extends Selection<StringSelection.Entry> {
 
 		@Override
 		public void render(PoseStack poseStack, int x, int y, int k, int l, int m, int n, int o, boolean bl, float f) {
-			Minecraft.getInstance().font.drawShadow(poseStack, this.item, (float) (this.width / 2 - Minecraft.getInstance().font.width(this.item) / 2), (float)(y + 3), 16777215, true);
+			this.selection.font.drawShadow(poseStack, this.item, (float) (this.width / 2 - this.selection.font.width(this.item) / 2), (float)(y + 3), 16777215, true);
 		}
 
 		@Override

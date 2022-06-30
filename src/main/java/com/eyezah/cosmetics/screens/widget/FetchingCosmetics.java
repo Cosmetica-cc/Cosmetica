@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.screens.widget;
 import cc.cosmetica.api.ServerResponse;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,5 +36,7 @@ public class FetchingCosmetics<T> extends TextWidget {
 		});
 		t.setName("Fetching Cosmetics Thread #" + (this.number++));
 		t.start();
+
+		this.setWidth(Minecraft.getInstance().font.width(this.getMessage()));
 	}
 }
