@@ -19,18 +19,34 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class CosmeticSelection extends Selection<CosmeticSelection.Entry> {
 	public CosmeticSelection(Minecraft minecraft, Screen parent, String cosmeticType, Font font, Consumer<String> onSelect) {
-		super(minecraft, parent, font, 0, 15, 46, onSelect);
+		super(minecraft, parent, font, 0, 25, 46, onSelect);
 		this.cosmeticType = cosmeticType;
 	}
 
 	private final String cosmeticType;
+	private final Map<String, Entry> byId = new HashMap<>();
 
 	public void add(String name, String id) {
-		this.addEntry(new Entry(this, name, id));
+		Entry entry = new Entry(this, name, id);
+		this.addEntry(entry);
+		this.byId.put(id, entry);
+	}
+
+	public void copy(CosmeticSelection other) {
+		for (Entry entry : other.byId.values()) {
+			this.add(entry.displayName, entry.item);
+		}
+	}
+
+	@Override
+	protected CosmeticSelection.Entry findEntry(CosmeticSelection.Entry key) {
+		return this.byId.get(key.item);
 	}
 
 	public static class Entry extends Selection.Entry<CosmeticSelection.Entry> {

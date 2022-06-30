@@ -22,6 +22,7 @@
   "cosmetica.selection.fetch": "Fetching ",
   "cosmetica.selection.select": "Select ",
   "cosmetica.selection.clear": "Clear ",
+  "cosmetica.selection.search": "Search...",
   "cosmetica.selection.proceed": "Proceed",
   "cosmetica.selection.err": "Failed to get cosmetics. Please try again later.",
   "cosmetica.selection.lore.pronouns": "See Pronouns",

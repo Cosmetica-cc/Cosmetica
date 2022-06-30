@@ -36,6 +36,16 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 		}
 	}
 
+	public void matchSelected(Selection<T> other) {
+		T select = other.getSelected();
+		if (select == null) return;
+		select = this.findEntry(select); // switch to *our* one
+		super.setSelected(select);
+		this.centerScrollOn(select);
+	}
+
+	protected abstract T findEntry(T key);
+
 	@Override
 	protected int getScrollbarPosition() {
 		return super.getScrollbarPosition() + 20;

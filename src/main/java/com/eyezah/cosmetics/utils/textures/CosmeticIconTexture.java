@@ -61,7 +61,7 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 	@Override
 	public void close() {
 		//Debug.info("Closing image on thread {} due to dispose. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
-		this.image.close();
+		if (this.image != null) this.image.close();
 		//Debug.info("Disposed of image.");
 	}
 }

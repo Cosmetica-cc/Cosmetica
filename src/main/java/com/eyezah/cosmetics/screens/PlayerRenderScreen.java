@@ -53,7 +53,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			this.transitionProgress = this.nextTransitionProgress;
 
 			if (this.nextTransitionProgress < 1) {
-				this.nextTransitionProgress += (0.08 - this.transitionProgress * 0.05);
+				this.nextTransitionProgress += (0.09 - this.transitionProgress * 0.05);
 
 				if (this.nextTransitionProgress > 1) this.nextTransitionProgress = 1;
 			}

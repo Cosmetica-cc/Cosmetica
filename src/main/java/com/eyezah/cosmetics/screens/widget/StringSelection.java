@@ -30,10 +30,9 @@ public class StringSelection extends Selection<StringSelection.Entry> {
 		this.setSelected(this.entries.get(item));
 	}
 
-	public void matchSelected(StringSelection other) {
-		StringSelection.Entry select = this.entries.get(other.getSelected().item);
-		super.setSelected(select);
-		this.centerScrollOn(select);
+	@Override
+	protected Entry findEntry(Entry key) {
+		return this.entries.get(key.item);
 	}
 
 	@Environment(EnvType.CLIENT)
