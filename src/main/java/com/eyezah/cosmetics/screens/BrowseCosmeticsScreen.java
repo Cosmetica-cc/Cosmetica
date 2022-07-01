@@ -100,7 +100,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScr
 
 	public void resize(Minecraft minecraft, int i, int j) {
 		if (this.viewSelection != null) this.dataSelection.matchSelected(this.viewSelection);
-		
+
 		if (this.searchBox == null)
 			super.resize(minecraft, i, j);
 		else {
@@ -142,7 +142,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScr
 
 		if (this.page == 1 || loadEdition) pageBack.active = false;
 
-		Button clear = this.addButton(100, 20, TextComponents.translatable("cosmetica.selection.clear").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(this.type))), b -> {});
+		Button clear = this.addButton(100, 20, TextComponents.translatable("cosmetica.selection.clear").append(TextComponents.translatable("cosmetica.entry." + ApplyCosmeticsScreen.getTranslationPart(this.type))), b -> {});
 
 		if (loadEdition) clear.active = false;
 

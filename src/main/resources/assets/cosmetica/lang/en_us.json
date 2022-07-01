@@ -19,6 +19,7 @@
   "cosmetica.change": "Change",
   "cosmetica.selection.pageBack": "Previous Page",
   "cosmetica.selection.pageForward": "Next Page",
+  "cosmetica.selection.apply": "Apply ",
   "cosmetica.selection.fetch": "Fetching ",
   "cosmetica.selection.select": "Select ",
   "cosmetica.selection.clear": "Clear ",
