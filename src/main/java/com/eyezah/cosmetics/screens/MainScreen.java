@@ -82,7 +82,8 @@ public class MainScreen extends PlayerRenderScreen {
 					if (Debug.TEST_MODE) {
 						Debug.loadTestProperties();
 						Debug.loadTestModel(Debug.LocalModelType.HAT);
-						Debug.loadTestModel(Debug.LocalModelType.SHOULDERBUDDY);
+						Debug.loadTestModel(Debug.LocalModelType.LEFT_SHOULDERBUDDY);
+						Debug.loadTestModel(Debug.LocalModelType.RIGHT_SHOULDERBUDDY);
 						Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
 						Debug.loadTestCape();
 					}

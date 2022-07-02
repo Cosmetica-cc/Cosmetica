@@ -7,6 +7,7 @@ import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticsPage;
 import cc.cosmetica.api.CustomCosmetic;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
 import com.eyezah.cosmetics.screens.widget.CosmeticSelection;
 import com.eyezah.cosmetics.screens.widget.FetchingCosmetics;
 import com.eyezah.cosmetics.screens.widget.SearchEditBox;
@@ -27,12 +28,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScreen {
-	protected BrowseCosmeticsScreen(@Nullable Screen parent, CosmeticType<T> type) {
+	protected BrowseCosmeticsScreen(@Nullable Screen parent, CosmeticType<T> type, CosmeticStack<T> overrider) {
 		super(TextComponents.translatable("cosmetica.selection.select").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
 		this.type = type;
+		this.overrider = overrider;
 	}
 
 	private final CosmeticType<T> type;
+	private final CosmeticStack<T> overrider;
 	private String searchQuery = "";
 	private LoadState state = LoadState.LOADING;
 	@Nullable
@@ -42,6 +45,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScr
 	private int page = 1;
 	private boolean nextPage;
 	private SearchEditBox searchBox;
+	private Button proceed;
 
 	private static final Component SEARCH_ELLIPSIS = new TranslatableComponent("cosmetica.selection.search");
 	private static final int SEARCH_Y = 32;
@@ -51,6 +55,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScr
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
 		this.setRows(3);
 		this.searchBox = null; // it doesn't exist unless we want it this screen
+		this.proceed = null;
 
 		switch (this.state) {
 		case RELOADING:
@@ -92,13 +97,14 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScr
 
 	// hack for keeping items on resizing
 	private CosmeticSelection createViewSelection() {
-		this.viewSelection = new CosmeticSelection(this.minecraft, this, this.type.getUrlString(), this.font, s -> {});
+		this.viewSelection = new CosmeticSelection(this.minecraft, this, this.type.getUrlString(), this.font, s -> {if (this.proceed != null) this.proceed.active = true;});
 		this.viewSelection.copy(this.dataSelection);
 		this.viewSelection.matchSelected(this.dataSelection);
 		return this.viewSelection;
 	}
 
 	public void resize(Minecraft minecraft, int i, int j) {
+		@Nullable Button lastProceed = this.proceed;
 		if (this.viewSelection != null) this.dataSelection.matchSelected(this.viewSelection);
 
 		if (this.searchBox == null)
@@ -108,6 +114,8 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScr
 			this.init(minecraft, i, j);
 			if (this.searchBox != null) this.searchBox.setValue(query);
 		}
+
+		if (lastProceed != null && this.proceed != null) this.proceed.active = lastProceed.active;
 	}
 
 	private void addMainGUI(boolean loadEdition) {
@@ -155,10 +163,12 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScr
 		if (!this.nextPage || loadEdition) pageForward.active = false;
 
 		this.addButton(150, 20, CommonComponents.GUI_CANCEL, b -> this.onClose());
-		this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.proceed"), b -> this.onClose());
+		this.proceed = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.proceed"), b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<T>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, this.viewSelection.getSelectedId())));
+		this.proceed.active = false;
 	}
 
 	private void rebuildGUI() {
+		if (this.proceed != null) this.proceed.active = false;
 		this.resize(this.minecraft, this.width, this.height);
 	}
 

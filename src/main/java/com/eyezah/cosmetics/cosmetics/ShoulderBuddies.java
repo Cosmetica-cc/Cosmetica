@@ -3,7 +3,7 @@ package com.eyezah.cosmetics.cosmetics;
 import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
-import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
+import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.screens.fakeplayer.MenuRenderLayer;
 import com.eyezah.cosmetics.screens.fakeplayer.Playerish;
@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Sheep;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 
 public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
@@ -37,8 +36,8 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		BakableModel left = overridden.get(() -> Cosmetica.getPlayerData(player).leftShoulderBuddy());
-		BakableModel right = overridden.get(() -> Cosmetica.getPlayerData(player).rightShoulderBuddy());
+		BakableModel left = LEFT_OVERRIDEN.get(() -> Cosmetica.getPlayerData(player).leftShoulderBuddy());
+		BakableModel right = RIGHT_OVERRIDDEN.get(() -> Cosmetica.getPlayerData(player).rightShoulderBuddy());
 
 		if (left != null && ((left.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityLeft().isEmpty())) render(left, stack, multiBufferSource, packedLight, (Playerish) player, true);
 		if (right != null && ((right.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityRight().isEmpty())) render(right, stack, multiBufferSource, packedLight, (Playerish) player, false);
@@ -46,8 +45,8 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLight, FakePlayer player, float o, float n, float delta, float bob, float yRotDiff, float xRot) {
-		BakableModel left = overridden.get(() -> player.getData().leftShoulderBuddy());
-		BakableModel right = overridden.get(() -> player.getData().rightShoulderBuddy());
+		BakableModel left = LEFT_OVERRIDEN.get(() -> player.getData().leftShoulderBuddy());
+		BakableModel right = RIGHT_OVERRIDDEN.get(() -> player.getData().rightShoulderBuddy());
 
 		if (left != null) render(left, stack, bufferSource, packedLight, player, true);
 		if (right != null) render(right, stack, bufferSource, packedLight, player, false);
@@ -110,5 +109,6 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 		stack.popPose();
 	}
 
-	public static final OverriddenModel overridden = new OverriddenModel();
+	public static final CosmeticStack<BakableModel> LEFT_OVERRIDEN = new CosmeticStack();
+	public static final CosmeticStack<BakableModel> RIGHT_OVERRIDDEN = new CosmeticStack();
 }

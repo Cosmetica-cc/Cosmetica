@@ -49,6 +49,10 @@ public class CosmeticSelection extends Selection<CosmeticSelection.Entry> {
 		return this.byId.get(key.item);
 	}
 
+	public String getSelectedId() {
+		return this.getSelected().item;
+	}
+
 	public static class Entry extends Selection.Entry<CosmeticSelection.Entry> {
 		public Entry(CosmeticSelection selection, String displayName, String cosmeticId) {
 			super(selection, cosmeticId);

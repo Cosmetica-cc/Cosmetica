@@ -526,7 +526,7 @@ public class Cosmetica implements ClientModInitializer {
 							font,
 							multiBufferSource,
 							data.lore(),
-							Hats.overridden.getList(() -> data.hats()),
+							Hats.OVERRIDDEN.getList(() -> data.hats()),
 							player.hasItemInSlot(EquipmentSlot.HEAD),
 							entity.isDiscrete(),
 							entity.getBbHeight(),

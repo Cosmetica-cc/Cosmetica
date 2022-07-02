@@ -3,7 +3,7 @@ package com.eyezah.cosmetics.cosmetics;
 import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
-import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
+import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.screens.fakeplayer.MenuRenderLayer;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -22,7 +22,7 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
-		BakableModel modelData = overridden.get(() -> Cosmetica.getPlayerData(player).backBling());
+		BakableModel modelData = OVERRIDDEN.get(() -> Cosmetica.getPlayerData(player).backBling());
 
 		if (modelData == null) return; // if it has a model
 		if (((player.isCapeLoaded() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null) || player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA))
@@ -36,7 +36,7 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLight, FakePlayer player, float o, float n, float delta, float bob, float yRotDiff, float xRot) {
-		BakableModel modelData = overridden.get(() -> player.getData().backBling());
+		BakableModel modelData = OVERRIDDEN.get(() -> player.getData().backBling());
 
 		if (modelData == null) return; // if it has a model
 		if (player.getData().cape() != null && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CAPE) == 0) return; // if wearing cape and show bb w cape is not set
@@ -46,5 +46,5 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 		stack.popPose();
 	}
 
-	public static final OverriddenModel overridden = new OverriddenModel();
+	public static final CosmeticStack<BakableModel> OVERRIDDEN = new CosmeticStack();
 }

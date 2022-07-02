@@ -93,7 +93,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		}
 
 		final int top = this.height / 2 + 55;
-		renderFakePlayerInMenu(this.playerLeft, top, 30, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.fakePlayer);
+		renderFakePlayerInMenu(this.playerLeft, top, 30.0f, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.fakePlayer);
 	}
 
 	protected double getTransitionProgress() {
@@ -110,7 +110,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		this.fakePlayer.setData(data);
 	}
 
-	public static void renderFakePlayerInMenu(int left, int top, int extraScale, float lookX, float lookY, FakePlayer fakePlayer) {
+	public static void renderFakePlayerInMenu(int left, int top, float extraScale, float lookX, float lookY, FakePlayer fakePlayer) {
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
 		PoseStack stack = RenderSystem.getModelViewStack();
@@ -123,7 +123,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		// view
 		PoseStack viewStack = new PoseStack();
 		viewStack.translate(0.0D, 0.0D, 1000.0D);
-		viewStack.scale((float)extraScale, (float)extraScale, (float)extraScale);
+		viewStack.scale(extraScale, extraScale, extraScale);
 		Quaternion zRotation = Vector3f.ZP.rotationDegrees(180.0F);
 		Quaternion xRotation = Vector3f.XP.rotationDegrees(l * 20.0F);
 		zRotation.mul(xRotation);

@@ -2,11 +2,12 @@ package com.eyezah.cosmetics.utils;
 
 import cc.cosmetica.api.Box;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.cosmetics.BackBling;
 import com.eyezah.cosmetics.cosmetics.Hats;
 import com.eyezah.cosmetics.cosmetics.ShoulderBuddies;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
-import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
+import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
 import com.eyezah.cosmetics.utils.textures.LocalCapeTexture;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -17,8 +18,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.IntSupplier;
@@ -53,7 +53,8 @@ public class Debug {
 	private static final Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetica Debug");
 	public static final File DUMP_FOLDER;
 
-	public static Optional<AbstractTexture> testCape = Optional.empty();
+	public static final CosmeticStack<ResourceLocation> CAPE_OVERRIDER = new CosmeticStack<>();
+	public static final ResourceLocation TEST_CAPE = new ResourceLocation("cosmetica", "test/loaded_cape");
 	public static int frameDelayMs = 50;
 
 	// edit this to change debug settings
@@ -119,7 +120,7 @@ public class Debug {
 		}
 	}
 
-	private static boolean loadTestModel(OverriddenModel model, String modelLoc, int extraInfo) {
+	private static boolean loadTestModel(CosmeticStack<BakableModel> model, String modelLoc, int extraInfo) {
 		File modelJsonF = new File(CONFIG_DIR, modelLoc + ".json");
 
 		if (modelJsonF.isFile()) {
@@ -143,7 +144,7 @@ public class Debug {
 					return false;
 				}
 
-				model.setTestModel(new BakableModel(
+				model.push(new BakableModel(
 						"test-" + modelLoc,
 						modelLoc,
 						blockModel,
@@ -162,7 +163,8 @@ public class Debug {
 	public static void reloadTestModels() {
 		loadTestProperties();
 		loadTestModel(LocalModelType.HAT);
-		loadTestModel(LocalModelType.SHOULDERBUDDY);
+		loadTestModel(LocalModelType.LEFT_SHOULDERBUDDY);
+		loadTestModel(LocalModelType.RIGHT_SHOULDERBUDDY);
 		loadTestModel(LocalModelType.BACK_BLING);
 		loadTestCape();
 	}
@@ -171,7 +173,7 @@ public class Debug {
 		String model = type.localIdProvider.get();
 
 		if (model.isBlank()) {
-			type.modelOverride.removeTestModel();
+			type.modelOverride.clear();
 			return false;
 		} else {
 			return loadTestModel(
@@ -187,7 +189,7 @@ public class Debug {
 		File imageF = new File(CONFIG_DIR, location + ".png");
 
 		if (imageF.isFile()) {
-			testCape = Optional.of(new LocalCapeTexture(new ResourceLocation("cosmetica_test_mode", location.toLowerCase(Locale.ROOT)), () -> {
+			Minecraft.getInstance().getTextureManager().register(TEST_CAPE, new LocalCapeTexture(new ResourceLocation("cosmetica_test_mode", location.toLowerCase(Locale.ROOT)), () -> {
 				try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
 					return NativeImage.read(stream);
 				} catch (IOException e) {
@@ -196,6 +198,9 @@ public class Debug {
 				}
 			}));
 
+			CAPE_OVERRIDER.push(TEST_CAPE);
+			CosmeticaSkinManager.setTestUploaded("loaded_cape");
+
 			frameDelayMs = Integer.parseInt(TEST_PROPERTIES.getProperty("cape_frame_delay"));
 
 			return true;
@@ -203,7 +208,7 @@ public class Debug {
 			Cosmetica.LOGGER.warn("No cape image found at {}. Skipping loading the cape override!", location);
 		}
 
-		testCape = Optional.empty();
+		CAPE_OVERRIDER.clear();
 		return false;
 	}
 
@@ -235,8 +240,10 @@ public class Debug {
 		TEST_PROPERTIES.setProperty("hat_location", "hat");
 		TEST_PROPERTIES.setProperty("lock_hat_orientation", "false");
 		TEST_PROPERTIES.setProperty("show_hat_under_helmet", "false");
-		TEST_PROPERTIES.setProperty("shoulderbuddy_location", "shoulderbuddy");
-		TEST_PROPERTIES.setProperty("lock_shoulderbuddy_orientation", "false");
+		TEST_PROPERTIES.setProperty("left_shoulderbuddy_location", "shoulderbuddy");
+		TEST_PROPERTIES.setProperty("right_shoulderbuddy_location", "shoulderbuddy");
+		TEST_PROPERTIES.setProperty("lock_left_shoulderbuddy_orientation", "false");
+		TEST_PROPERTIES.setProperty("lock_right_shoulderbuddy_orientation", "false");
 		TEST_PROPERTIES.setProperty("backbling_location", "backbling");
 		TEST_PROPERTIES.setProperty("cape_location", "cape");
 		TEST_PROPERTIES.setProperty("cape_frame_delay", "50");
@@ -251,7 +258,8 @@ public class Debug {
 		boolean testCosmeticExists = false;
 
 		testCosmeticExists |= loadTestModel(LocalModelType.HAT);
-		testCosmeticExists |= loadTestModel(LocalModelType.SHOULDERBUDDY);
+		testCosmeticExists |= loadTestModel(LocalModelType.LEFT_SHOULDERBUDDY);
+		testCosmeticExists |= loadTestModel(LocalModelType.RIGHT_SHOULDERBUDDY);
 		testCosmeticExists |= loadTestModel(LocalModelType.BACK_BLING);
 		testCosmeticExists |= loadTestCape();
 
@@ -344,19 +352,24 @@ public class Debug {
 		}
 	}
 
-	public record LocalModelType(OverriddenModel modelOverride, Supplier<String> localIdProvider, IntSupplier extraInfoLoader) {
+	public record LocalModelType(CosmeticStack<BakableModel> modelOverride, Supplier<String> localIdProvider, IntSupplier extraInfoLoader) {
 		public static final LocalModelType HAT = new LocalModelType(
-				Hats.overridden,
+				Hats.OVERRIDDEN,
 				() -> TEST_PROPERTIES.getProperty("hat_location"),
 				() -> (Boolean.parseBoolean(TEST_PROPERTIES.getProperty("show_hat_under_helmet")) ? 1 : 0) | (Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_hat_orientation")) ? 2 : 0)
 		);
-		public static final LocalModelType SHOULDERBUDDY = new LocalModelType(
-				ShoulderBuddies.overridden,
-				() -> TEST_PROPERTIES.getProperty("shoulderbuddy_location"),
-				() -> Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_shoulderbuddy_orientation")) ? 1 : 0
+		public static final LocalModelType LEFT_SHOULDERBUDDY = new LocalModelType(
+				ShoulderBuddies.LEFT_OVERRIDEN,
+				() -> TEST_PROPERTIES.getProperty("left_shoulderbuddy_location"),
+				() -> Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_left_shoulderbuddy_orientation")) ? 1 : 0
+		);
+		public static final LocalModelType RIGHT_SHOULDERBUDDY = new LocalModelType(
+				ShoulderBuddies.RIGHT_OVERRIDDEN,
+				() -> TEST_PROPERTIES.getProperty("right_shoulderbuddy_location"),
+				() -> Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_right_shoulderbuddy_orientation")) ? 1 : 0
 		);
 		public static final LocalModelType BACK_BLING = new LocalModelType(
-				BackBling.overridden,
+				BackBling.OVERRIDDEN,
 				() -> TEST_PROPERTIES.getProperty("backbling_location"),
 				() -> 0
 		);

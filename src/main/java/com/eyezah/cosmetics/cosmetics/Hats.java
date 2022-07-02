@@ -3,7 +3,7 @@ package com.eyezah.cosmetics.cosmetics;
 import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
-import com.eyezah.cosmetics.cosmetics.model.OverriddenModel;
+import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.screens.fakeplayer.MenuRenderLayer;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,7 +28,7 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		List<BakableModel> hats = overridden.getList(() -> Cosmetica.getPlayerData(player).hats());
+		List<BakableModel> hats = OVERRIDDEN.getList(() -> Cosmetica.getPlayerData(player).hats());
 
 		stack.pushPose();
 
@@ -51,7 +51,7 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLight, FakePlayer player, float o, float n, float delta, float bob, float yRotDiff, float xRot) {
-		List<BakableModel> hats = overridden.getList(() -> player.getData().hats());
+		List<BakableModel> hats = OVERRIDDEN.getList(() -> player.getData().hats());
 
 		stack.pushPose();
 
@@ -68,5 +68,5 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 		stack.popPose();
 	}
 
-	public static final OverriddenModel overridden = new OverriddenModel();
+	public static final CosmeticStack<BakableModel> OVERRIDDEN = new CosmeticStack();
 }

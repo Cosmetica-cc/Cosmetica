@@ -12,23 +12,23 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import java.util.function.Supplier;
 
 public class LocalCapeTexture extends AnimatedTexture implements Tickable {
-	public LocalCapeTexture(ResourceLocation path, Supplier<NativeImage> image) {
+	public LocalCapeTexture(ResourceLocation debugPath, Supplier<NativeImage> image) {
 		this.imageSupplier = image;
-		this.path = path;
+		this.debugPath = debugPath;
 
-		Debug.info("Uploading native texture {}", this.path);
+		Debug.info("Uploading native texture {}", this.debugPath);
 
 		this.image = this.imageSupplier.get();
 
 		if (this.image == null) {
-			Cosmetica.LOGGER.warn("Sorry texture machine broke for {}", this.path);
+			Cosmetica.LOGGER.warn("Sorry texture machine broke for {}", this.debugPath);
 		}
 		else {
 			this.setupAnimations();
 		}
 	}
 
-	private final ResourceLocation path;
+	private final ResourceLocation debugPath;
 	private final Supplier<NativeImage> imageSupplier;
 
 	@Override
@@ -57,11 +57,11 @@ public class LocalCapeTexture extends AnimatedTexture implements Tickable {
 	}
 
 	private void reload() {
-		Debug.info("Re-uploading native texture {}", this.path);
+		Debug.info("Re-uploading native texture {}", this.debugPath);
 		this.image = this.imageSupplier.get();
 
 		if (this.image == null) {
-			Cosmetica.LOGGER.warn("Sorry texture machine broke for {}", this.path);
+			Cosmetica.LOGGER.warn("Sorry texture machine broke for {}", this.debugPath);
 		}
 		else {
 			this.setupAnimations();
