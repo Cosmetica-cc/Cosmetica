@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens.widget;
 
+import cc.cosmetica.api.CustomCosmetic;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.utils.textures.CosmeticIconTexture;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class CosmeticSelection extends Selection<CosmeticSelection.Entry> {
+public class CosmeticSelection<T extends CustomCosmetic> extends Selection<CosmeticSelection.Entry<T>> {
 	public CosmeticSelection(Minecraft minecraft, Screen parent, String cosmeticType, Font font, Consumer<String> onSelect) {
 		super(minecraft, parent, font, 0, 25, 46, onSelect);
 		this.cosmeticType = cosmeticType;
@@ -32,15 +33,15 @@ public class CosmeticSelection extends Selection<CosmeticSelection.Entry> {
 	private final String cosmeticType;
 	private final Map<String, Entry> byId = new HashMap<>();
 
-	public void add(String name, String id) {
-		Entry entry = new Entry(this, name, id);
+	public void add(T cosmetic) {
+		Entry<T> entry = new Entry<>(this, cosmetic);
 		this.addEntry(entry);
-		this.byId.put(id, entry);
+		this.byId.put(cosmetic.getId(), entry);
 	}
 
-	public void copy(CosmeticSelection other) {
-		for (Entry entry : other.byId.values()) {
-			this.add(entry.displayName, entry.item);
+	public void copy(CosmeticSelection<T> other) {
+		for (Entry<T> entry : other.byId.values()) {
+			this.add(entry.cosmetic);
 		}
 	}
 
@@ -49,14 +50,17 @@ public class CosmeticSelection extends Selection<CosmeticSelection.Entry> {
 		return this.byId.get(key.item);
 	}
 
-	public String getSelectedId() {
-		return this.getSelected().item;
+	public T getSelectedCosmetic() {
+		return this.getSelected().cosmetic;
 	}
 
-	public static class Entry extends Selection.Entry<CosmeticSelection.Entry> {
-		public Entry(CosmeticSelection selection, String displayName, String cosmeticId) {
-			super(selection, cosmeticId);
-			this.displayName = displayName;
+	public static class Entry<T extends CustomCosmetic> extends Selection.Entry<CosmeticSelection.Entry<T>> {
+		public Entry(CosmeticSelection selection, T cosmetic) {
+			super(selection, cosmetic.getId());
+			String cosmeticId = cosmetic.getId();
+
+			this.displayName = cosmetic.getName();
+			this.cosmetic = cosmetic;
 			this.texture = new ResourceLocation("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
 			Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
 					Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
@@ -65,6 +69,7 @@ public class CosmeticSelection extends Selection<CosmeticSelection.Entry> {
 		}
 
 		private final String displayName;
+		private final T cosmetic;
 		private final ResourceLocation texture;
 
 		@Override

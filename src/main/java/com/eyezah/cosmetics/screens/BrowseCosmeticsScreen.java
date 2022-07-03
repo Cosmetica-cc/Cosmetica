@@ -39,8 +39,8 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 	private String searchQuery = "";
 	private LoadState state = LoadState.LOADING;
 	@Nullable
-	private CosmeticSelection dataSelection; // null on initial load. Created in the fetcher
-	private CosmeticSelection viewSelection; // the display version for funny resize hack
+	private CosmeticSelection<T> dataSelection; // null on initial load. Created in the fetcher
+	private CosmeticSelection<T> viewSelection; // the display version for funny resize hack
 	private FetchingCosmetics<CosmeticsPage<T>> currentFetcher;
 	private int page = 1;
 	private boolean nextPage;
@@ -71,7 +71,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 					CosmeticsPage<T> page = results.get(0);
 
 					for (T result : page.getCosmetics()) {
-						this.dataSelection.add(result.getName(), result.getId());
+						this.dataSelection.add(result);
 					}
 
 					this.nextPage = page.hasNextPage();
@@ -96,8 +96,8 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 	}
 
 	// hack for keeping items on resizing
-	private CosmeticSelection createViewSelection() {
-		this.viewSelection = new CosmeticSelection(this.minecraft, this, this.type.getUrlString(), this.font, s -> {if (this.proceed != null) this.proceed.active = true;});
+	private CosmeticSelection<T> createViewSelection() {
+		this.viewSelection = new CosmeticSelection<T>(this.minecraft, this, this.type.getUrlString(), this.font, s -> {if (this.proceed != null) this.proceed.active = true;});
 		this.viewSelection.copy(this.dataSelection);
 		this.viewSelection.matchSelected(this.dataSelection);
 		return this.viewSelection;
@@ -163,7 +163,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 		if (!this.nextPage || loadEdition) pageForward.active = false;
 
 		this.addButton(150, 20, CommonComponents.GUI_CANCEL, b -> this.onClose());
-		this.proceed = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.proceed"), b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<T, E>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, this.viewSelection.getSelectedId())));
+		this.proceed = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.proceed"), b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<T, E>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, this.viewSelection.getSelectedCosmetic())));
 		this.proceed.active = false;
 	}
 

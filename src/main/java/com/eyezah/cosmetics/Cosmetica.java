@@ -146,6 +146,7 @@ public class Cosmetica implements ClientModInitializer {
 		runOffthread(() -> {
 			File minecraftDir = findDefaultInstallDir("minecraft").toFile();
 			File apiCache = new File(minecraftDir, "cosmetica_get_api_cache.json");
+			//System.out.println(apiCache.getAbsolutePath());
 
 			CosmeticaAPI.setAPICache(apiCache);
 
