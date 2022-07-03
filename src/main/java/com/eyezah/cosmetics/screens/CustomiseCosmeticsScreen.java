@@ -111,7 +111,7 @@ public class CustomiseCosmeticsScreen extends PlayerRenderScreen {
 				"Right: " + (data.rightShoulderBuddy() == null ? "None" : data.rightShoulderBuddy().name())
 		);
 
-		this.shoulderBuddiesSection = this.options.shoulderBuddies.get() ? this.createActiveSection("Shoulder Buddies", shoulderBuddies, b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, CosmeticType.SHOULDER_BUDDY, ShoulderBuddies.LEFT_OVERRIDEN))) : this.createDisabledSection("Shoulder Buddies");
+		this.shoulderBuddiesSection = this.options.shoulderBuddies.get() ? this.createActiveSection("Shoulder Buddies", shoulderBuddies, b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, CosmeticType.SHOULDER_BUDDY, ShoulderBuddies.RIGHT_OVERRIDDEN))) : this.createDisabledSection("Shoulder Buddies");
 
 		// back bling
 		this.backBlingSection = this.options.backBlings.get() ? this.createActiveSection("Back Bling", data.backBling() == null ? ImmutableList.of() : ImmutableList.of(data.backBling().name()), b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, CosmeticType.BACK_BLING, BackBling.OVERRIDDEN))) : this.createDisabledSection("Back Bling");

@@ -1,8 +1,10 @@
 package com.eyezah.cosmetics.screens.widget;
 
+import com.eyezah.cosmetics.cosmetics.ShoulderBuddies;
 import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
 import com.eyezah.cosmetics.screens.PlayerRenderScreen;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
+import com.eyezah.cosmetics.utils.TextComponents;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -10,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -18,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 public class SelectableFakePlayers<T> extends AbstractWidget {
@@ -59,8 +63,26 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 		this.defaultButtonNarrationText(narration);
 	}
 
+	public void createSelectButtons(Consumer<Button> widgetAdder) {
+		int x = this.x - this.width / 2;
+		int j = 0;
+
+		for (var player : this.players) {
+			final int itemNo = j;
+			widgetAdder.accept(new Button(x, this.y + 1, this.width, 20,
+					TextComponents.translatable("cosmetica.selection.apply.select"), b -> {
+						this.selected = itemNo;
+						if (this.onSelect != null) this.onSelect.accept(itemNo);
+					}
+			));
+			x += this.separation;
+			j++;
+		}
+	}
+
 	@Override
 	public boolean mouseClicked(double clickX, double clickY, int i) {
+		if (!this.active) return false;
 		if (this.players.size() < 2) return false;
 
 		if (clickY < this.y && clickY >= (double)(this.y + this.height) && i == 0) {
@@ -70,6 +92,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 			for (var player : this.players) {
 				if (clickX >= x && clickX < x + this.width) {
 					this.selected = j;
+					if (this.onSelect != null) this.onSelect.accept(j);
 					return true;
 				}
 
@@ -84,10 +107,11 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 	@Override
 	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float delta) {
 		int x = this.x;
-		int i = 0;
+		int j = 0;
+		CosmeticStack<T> overrider = this.overrider;
 
 		for (var player : this.players) {
-			if (this.selected == i) {
+			if (this.selected == j) {
 				final int x1 = x + (this.width / 2);
 				final int y0 = this.y + this.height + 8;
 				final int y1 = this.y + 8;
@@ -117,12 +141,17 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 				RenderSystem.enableTexture();
 			}
 
-			this.overrider.push(player.getB());
+			this.overrider.setIndex(j); // to make sure it's all -1 at the end we use this.overrider for index setting but really it doesn't matter because it's only for hats anyway
+			overrider.push(player.getB());
 			PlayerRenderScreen.renderFakePlayerInMenu(x, this.y, this.scale, x - mouseX, (float)(this.y - 90) - mouseY, player.getA());
-			this.overrider.pop();
+			overrider.pop();
 
 			x += this.separation;
-			i++;
+			j++;
+
+			if (overrider == ShoulderBuddies.RIGHT_OVERRIDDEN) overrider = (CosmeticStack<T>) ShoulderBuddies.LEFT_OVERRIDEN;
 		}
+
+		this.overrider.setIndex(-1);
 	}
 }

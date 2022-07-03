@@ -1,5 +1,6 @@
 package com.eyezah.cosmetics.screens.widget;
 
+import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CustomCosmetic;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
@@ -26,7 +27,7 @@ import java.util.function.Consumer;
 
 public class CosmeticSelection<T extends CustomCosmetic> extends Selection<CosmeticSelection.Entry<T>> {
 	public CosmeticSelection(Minecraft minecraft, Screen parent, String cosmeticType, Font font, Consumer<String> onSelect) {
-		super(minecraft, parent, font, 0, 25, 46, onSelect);
+		super(minecraft, parent, font, 0, 25, 50, onSelect);
 		this.cosmeticType = cosmeticType;
 	}
 
@@ -75,8 +76,10 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 		@Override
 		public void render(PoseStack poseStack, int x, int y, int k, int l, int m, int n, int o, boolean isHovered, float f) {
 			x = Minecraft.getInstance().screen.width / 2 - 60;
-			renderTexture(poseStack.last().pose(), this.texture, x - 25, x + 25, y - 4, y + 46, this.selection.getBlitOffset());
-			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(y + 6), 16777215, true);
+			final int textY = y;
+			y += 20;
+			renderTexture(poseStack.last().pose(), this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset());
+			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(textY + 6), 16777215, true);
 		}
 
 		private static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z) {

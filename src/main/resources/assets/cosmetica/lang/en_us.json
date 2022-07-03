@@ -23,6 +23,7 @@
   "cosmetica.selection.applyFailed": "Failed to load cosmetic model data. Cannot preview.",
   "cosmetica.selection.fetch": "Fetching ",
   "cosmetica.selection.select": "Select ",
+  "cosmetica.selection.apply.select": "Select",
   "cosmetica.selection.clear": "Clear ",
   "cosmetica.selection.search": "Search...",
   "cosmetica.selection.proceed": "Proceed",
