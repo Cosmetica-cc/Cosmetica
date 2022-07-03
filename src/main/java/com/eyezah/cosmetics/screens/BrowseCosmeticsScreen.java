@@ -27,15 +27,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScreen {
-	protected BrowseCosmeticsScreen(@Nullable Screen parent, CosmeticType<T> type, CosmeticStack<T> overrider) {
+public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateScreen {
+	protected BrowseCosmeticsScreen(@Nullable Screen parent, CosmeticType<T> type, CosmeticStack<E> overrider) {
 		super(TextComponents.translatable("cosmetica.selection.select").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
 		this.type = type;
 		this.overrider = overrider;
 	}
 
 	private final CosmeticType<T> type;
-	private final CosmeticStack<T> overrider;
+	private final CosmeticStack<E> overrider;
 	private String searchQuery = "";
 	private LoadState state = LoadState.LOADING;
 	@Nullable
@@ -163,7 +163,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic> extends SulphateScr
 		if (!this.nextPage || loadEdition) pageForward.active = false;
 
 		this.addButton(150, 20, CommonComponents.GUI_CANCEL, b -> this.onClose());
-		this.proceed = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.proceed"), b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<T>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, this.viewSelection.getSelectedId())));
+		this.proceed = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.proceed"), b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<T, E>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, this.viewSelection.getSelectedId())));
 		this.proceed.active = false;
 	}
 

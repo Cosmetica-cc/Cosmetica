@@ -22,7 +22,7 @@ import java.util.function.IntConsumer;
 
 public class SelectableFakePlayers<T> extends AbstractWidget {
 	public SelectableFakePlayers(int x, int y, int w, int h, CosmeticStack<T> override, Component component) {
-		super(x, y, w, h, component);
+		super(x, y, w, -1 * h, component);
 		this.separation = w + 4;
 		this.overrider = override;
 	}

@@ -35,9 +35,17 @@ public class CosmeticaSkinManager {
 		}
 	}
 
+	public static ResourceLocation testId(String id) {
+		return new ResourceLocation("cosmetica", "test/" + id);
+	}
+
+	public static ResourceLocation cloakId(String id) {
+		return new ResourceLocation("cosmetica", "cape/" + pathify(id));
+	}
+
 	public static void setTestUploaded(String testId) {
 		synchronized (uploaded) {
-			uploaded.add(new ResourceLocation("cosmetica", "test/" + testId));
+			uploaded.add(testId(testId));
 		}
 	}
 
@@ -60,7 +68,7 @@ public class CosmeticaSkinManager {
 	}
 
 	public static ResourceLocation processCape(Cape cloak) {
-		return saveTexture(new ResourceLocation("cosmetica", "cape/" + pathify(cloak.getId())), cloak.getImage(), cloak.getFrameDelay());
+		return saveTexture(cloakId(cloak.getId()), cloak.getImage(), cloak.getFrameDelay());
 	}
 
 	public static ResourceLocation processSkin(String base64Skin, UUID uuid) {
