@@ -6,14 +6,19 @@ import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CustomCosmetic;
+import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
+import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
+import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.screens.widget.SelectableFakePlayers;
+import com.eyezah.cosmetics.screens.widget.TextWidget;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 
 public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateScreen {
 	protected ApplyCosmeticsScreen(Screen parent, PlayerRenderScreen parentParent, CosmeticType<T> type, CosmeticStack<E> overrider, T cosmetic) {
@@ -26,6 +31,13 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 		if (cosmetic instanceof Cape cape) {
 			this.item = (E) CosmeticaSkinManager.cloakId(this.id);
 			CosmeticaSkinManager.processCape(cape);
+		}
+		else if (cosmetic instanceof Model model) {
+			this.item = (E) Models.createBakableModel(model);
+
+		}
+		else {
+			throw new IllegalStateException("wtf (pls let valoeghese know that your game just said wtf)");
 		}
 
 		this.setAnchorY(Anchor.TOP, () -> this.height - 50);
@@ -41,23 +53,30 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 	private SelectableFakePlayers<E> selectableFakePlayers;
 	private final float lmao;
 	private final float xd;
+	private boolean failed;
 
 	@Override
 	protected void addWidgets() {
-		int width = 100;
-		int separation = width + 30;
-		int selectables = this.type == CosmeticType.HAT || this.type == CosmeticType.SHOULDER_BUDDY ? 2 : 1;
+		if (this.failed) {
+			Component text = TextComponents.translatable("cosmetica.selection.applyFailed");
+			this.addRenderableWidget(new TextWidget(this.width / 2, this.height / 2, this.font.width(text), 20, true, text));
+		}
+		else {
+			int width = 100;
+			int separation = width + 30;
+			int selectables = this.type == CosmeticType.HAT || this.type == CosmeticType.SHOULDER_BUDDY ? 2 : 1;
 
-		this.parentParent.fakePlayer.yRotBody = this.type == CosmeticType.CAPE ? 200.0f : 0.0f;
-		this.parentParent.fakePlayer.yRot = this.parentParent.fakePlayer.yRotBody;
+			this.parentParent.fakePlayer.yRotBody = this.type == CosmeticType.CAPE ? 200.0f : 0.0f;
+			this.parentParent.fakePlayer.yRot = this.parentParent.fakePlayer.yRotBody;
 
-		this.selectableFakePlayers = this.addRenderableWidget(new SelectableFakePlayers(
-				this.width / 2 - (int) (0.5 * separation * (selectables - 1)),
-				this.height / 2 + 30, width, 170, this.overrider, TextComponents.dummy()));
-		this.selectableFakePlayers.setSeparation(separation);
+			this.selectableFakePlayers = this.addRenderableWidget(new SelectableFakePlayers(
+					this.width / 2 - (int) (0.5 * separation * (selectables - 1)),
+					this.height / 2 + 30, width, 170, this.overrider, TextComponents.dummy()));
+			this.selectableFakePlayers.setSeparation(separation);
 
-		for (int i = 0; i < selectables; i++) {
-			this.selectableFakePlayers.addFakePlayer(this.parentParent.fakePlayer, this.item);
+			for (int i = 0; i < selectables; i++) {
+				this.selectableFakePlayers.addFakePlayer(this.parentParent.fakePlayer, this.item);
+			}
 		}
 
 		this.addButton(CommonComponents.GUI_DONE, b -> {

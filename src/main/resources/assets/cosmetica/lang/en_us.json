@@ -20,7 +20,7 @@
   "cosmetica.selection.pageBack": "Previous Page",
   "cosmetica.selection.pageForward": "Next Page",
   "cosmetica.selection.apply": "Apply ",
-  "cosmetica.selection.applyFailed": "Failed to load info from the servers. Cannot preview.",
+  "cosmetica.selection.applyFailed": "Failed to load cosmetic model data. Cannot preview.",
   "cosmetica.selection.fetch": "Fetching ",
   "cosmetica.selection.select": "Select ",
   "cosmetica.selection.clear": "Clear ",

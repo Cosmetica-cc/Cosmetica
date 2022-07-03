@@ -119,6 +119,7 @@ public class Models {
 				NativeImage image = NativeImage.fromBase64(model.getTexture().substring(22)); // trim nonsense at the start
 				return new BakableModel(location, model.getName(), blockModel, image, model.flags(), bounds);
 			} catch (IOException e) {
+				e.printStackTrace();
 				return null;
 			} catch (Exception e) {
 				e.printStackTrace();
