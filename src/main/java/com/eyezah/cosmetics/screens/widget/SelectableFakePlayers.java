@@ -69,7 +69,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 
 		for (var player : this.players) {
 			final int itemNo = j;
-			widgetAdder.accept(new Button(x, this.y + 1, this.width, 20,
+			widgetAdder.accept(new Button(x, this.y + 10, this.width, 20,
 					TextComponents.translatable("cosmetica.selection.apply.select"), b -> {
 						this.selected = itemNo;
 						if (this.onSelect != null) this.onSelect.accept(itemNo);
