@@ -2,6 +2,7 @@ package com.eyezah.cosmetics;
 
 import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
@@ -502,6 +503,8 @@ public class Cosmetica implements ClientModInitializer {
 									rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
 									backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
 									cloak.isEmpty() ? "" : pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape"),
+									cloak.isEmpty() ? "none" : cloak.get().getId(),
+									cloak.isPresent() && !cloak.get().isCosmeticaAlternative() && !(cloak.get() instanceof CustomCape),
 									cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
 									CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
 									info.isSlim()

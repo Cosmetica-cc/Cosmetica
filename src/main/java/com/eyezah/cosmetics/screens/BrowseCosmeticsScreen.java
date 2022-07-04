@@ -25,6 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateScreen {
@@ -176,7 +177,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		this.renderBackground(matrices);
 
-		for (Widget widget : ((ExtendedScreen) this).getWidgets()) { // renderables
+		for (Widget widget : List.copyOf(((ExtendedScreen) this).getWidgets())) { // renderables
 			widget.render(matrices, mouseX, mouseY, delta);
 		}
 

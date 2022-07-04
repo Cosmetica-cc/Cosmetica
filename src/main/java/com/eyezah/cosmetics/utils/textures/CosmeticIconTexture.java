@@ -1,10 +1,9 @@
 package com.eyezah.cosmetics.utils.textures;
 
+import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.mixin.textures.NativeImageAccessorMixin;
-import com.eyezah.cosmetics.utils.Debug;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.Tickable;
 import net.minecraft.resources.ResourceLocation;
@@ -13,8 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 public class CosmeticIconTexture extends HttpTexture implements Tickable {
-	public CosmeticIconTexture(@Nullable File file, String string) {
-		super(file, string, new ResourceLocation("cosmetica", "textures/gui/loading.png"), false, null);
+	public CosmeticIconTexture(@Nullable File file, String url) {
+		super(file, url, new ResourceLocation("cosmetica", "textures/gui/loading.png"), false, null);
+		this.url = url;
 	}
 
 	private int frameHeight;
@@ -22,6 +22,7 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 	private int frame;
 	private int tick;
 	private NativeImage image;
+	private final String url;
 
 	public void firstUpload(NativeImage image, boolean loading) {
 		// memory management
@@ -37,7 +38,12 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 		this.frameHeight = image.getHeight() / this.frames;
 		this.frame = 0;
 
-		this.upload(image, !loading);
+		try {
+			this.upload(image, !loading);
+		} catch (IllegalStateException e) {
+			Cosmetica.LOGGER.error("Error while uploading icon texture (loading: {}, icon url: {})", loading, this.url);
+			e.printStackTrace();
+		}
 	}
 
 	public void upload(NativeImage image, boolean close) {

@@ -3,7 +3,6 @@ package com.eyezah.cosmetics.screens;
 import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.CosmeticPosition;
-import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.ServerResponse;
 import cc.cosmetica.util.SafeURL;
 import com.eyezah.cosmetics.Cosmetica;
@@ -12,8 +11,10 @@ import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.screens.widget.TextWidget;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -42,8 +43,9 @@ public class StealHisLookScreen extends SulphateScreen {
 			List<CompletableFuture<?>> requests = new ArrayList<>(6);
 
 			// minimise requests by not duplicating
-			if (!this.look.legitCape().equals(this.currentLook.legitCape())) {
-				requests.add(CompletableFuture.supplyAsync(() -> setCosmeticNotifyErr(CosmeticPosition.CAPE, this.look.legitCape() instanceof CustomCosmetic cc ? cc.getId() : "none")));
+			// don't set for 3p capes
+			if (!this.look.thirdPartyCape() && !removeNullLikeAChad(this.look.legitCape()).equals(removeNullLikeAChad(this.currentLook.legitCape()))) {
+				requests.add(CompletableFuture.supplyAsync(() -> setCosmeticNotifyErr(CosmeticPosition.CAPE, this.look.capeId())));
 			}
 
 			if (!id(this.look.backBling()).equals(id(this.currentLook.backBling()))) {
@@ -110,6 +112,10 @@ public class StealHisLookScreen extends SulphateScreen {
 			return new ServerResponse<>(new Object(), SafeURL.direct("https://example.com")); // dummy. it ignores it.
 		})));
 		this.addButton(CommonComponents.GUI_NO, b -> this.onClose());
+	}
+
+	public static ResourceLocation removeNullLikeAChad(@Nullable ResourceLocation rl) {
+		return rl == null ? MissingTextureAtlasSprite.getLocation() : rl;
 	}
 
 	private static ServerResponse<Boolean> setCosmeticNotifyErr(CosmeticPosition position, String id) {
