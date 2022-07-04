@@ -1,17 +1,19 @@
 package com.eyezah.cosmetics.mixin;
 
+import cc.cosmetica.api.User;
+import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
-import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.eyezah.cosmetics.utils.Debug;
-import com.eyezah.cosmetics.utils.Scheduler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,6 +31,8 @@ public abstract class MinecraftMixin {
 	@Shadow @Final public Gui gui;
 
 	@Shadow @Nullable public ClientLevel level;
+
+	@Shadow @Nullable public Entity crosshairPickEntity;
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;shutdownExecutors()V"), method = "close")
 	private void onClose(CallbackInfo info) {
@@ -64,7 +68,12 @@ public abstract class MinecraftMixin {
 		if (this.level == null) FakePlayerRenderer.tickTime++;
 
 		if (this.screen == null && Cosmetica.openCustomiseScreen.consumeClick()) {
-			this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, true));
+			this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
+		}
+
+		if (Cosmetica.snipe.consumeClick() && this.screen == null && this.crosshairPickEntity instanceof AbstractClientPlayer player) {
+			Authentication.snipedPlayer = new User(player.getUUID(), player.getName().getString());
+			this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 2));
 		}
 	}
 }

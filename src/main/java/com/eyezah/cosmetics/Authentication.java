@@ -7,13 +7,16 @@ import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.screens.CustomiseCosmeticsScreen;
 import com.eyezah.cosmetics.screens.MainScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
+import com.eyezah.cosmetics.screens.SnipeScreen;
 import com.eyezah.cosmetics.screens.UnauthenticatedScreen;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.LoadingTypeScreen;
+import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +26,9 @@ import static com.eyezah.cosmetics.Cosmetica.*;
 public class Authentication {
 	private static volatile boolean currentlyAuthenticated = false;
 	private static volatile boolean currentlyAuthenticating = false;
-	public static boolean targetIsCustomiseScreen;
+	public static int settingLoadTarget; // 1 = customise cosmetics screen, 2 = snipe (steal his look) screen, other =
+	@Nullable
+	public static cc.cosmetica.api.User snipedPlayer;
 
 	private static int bits; // to mark the two required things that must have happened to start cosmetics auth: fetching API url (may fail), and finishing loading.
 
@@ -48,13 +53,32 @@ public class Authentication {
 
 				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
 					// load player info
-					UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+					final UUID ownUUID = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+					final String ownName = Minecraft.getInstance().getUser().getName();
+					UUID uuid;
+					String playerName;
+					int loadTarget = settingLoadTarget;
 
-					PlayerData info = Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true);
+					// can't wait for a race condition to make snipedPlayer null after the check and before extracting its uuid/name
+					if (loadTarget == 2 && Authentication.snipedPlayer != null) {
+						uuid = Authentication.snipedPlayer.getUUID();
+						playerName = Authentication.snipedPlayer.getUsername();
+					} else {
+						uuid = ownUUID;
+						playerName = ownName;
+					}
+
+					PlayerData info = Cosmetica.getPlayerData(uuid, playerName, true);
 					Debug.info("Loading skin " + info.skin());
+					@Nullable PlayerData ownInfo = loadTarget == 2 ? Cosmetica.getPlayerData(ownUUID, ownName, true) : null;
+
 					Minecraft.getInstance().tell(() -> {
-						FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid())), Minecraft.getInstance().getUser().getName(), info, info.slim());
-						Minecraft.getInstance().setScreen(targetIsCustomiseScreen ? new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings, Cosmetica.getConfig().shouldInlineChangeButton()) : new MainScreen(lts.getParent(), settings, fakePlayer));
+						FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info, info.slim());
+						Minecraft.getInstance().setScreen(switch (loadTarget) {
+							case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo);
+							case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings, Cosmetica.getConfig().shouldInlineChangeButton());
+							default -> new MainScreen(lts.getParent(), settings, fakePlayer);
+						});
 					});
 				}
 			},

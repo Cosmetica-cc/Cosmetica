@@ -17,10 +17,16 @@ public class OfflineScreen extends Screen {
 	private Component reason = new TranslatableComponent("cosmetica.offline.message");
 	private MultiLineLabel message;
 	private int textHeight;
+	private final int reloadTarget;
 
 	public OfflineScreen(Screen parentScreen) {
+		this(parentScreen, 0);
+	}
+
+	public OfflineScreen(Screen parentScreen, int reloadTarget) {
 		super(new TranslatableComponent("cosmetica.offline"));
 		this.parentScreen = parentScreen;
+		this.reloadTarget = reloadTarget;
 	}
 
 	@Override
@@ -34,7 +40,7 @@ public class OfflineScreen extends Screen {
 
 		this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("options.skinCustomisation"), button -> this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options))));
 		this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.unauthenticated.retry"), (button) -> {
-			minecraft.setScreen(new LoadingScreen(this.parentScreen, minecraft.options));
+			minecraft.setScreen(new LoadingScreen(this.parentScreen, this.minecraft.options, this.reloadTarget));
 		}));
 		this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
 	}

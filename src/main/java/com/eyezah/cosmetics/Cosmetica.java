@@ -82,8 +82,10 @@ public class Cosmetica implements ClientModInitializer {
 	public static String displayNext;
 	public static String currentServerAddressCache = "";
 	public static KeyMapping openCustomiseScreen;
+	public static KeyMapping snipe;
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
+	private static Map<UUID, List<Consumer<PlayerData>>> synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
@@ -200,6 +202,13 @@ public class Cosmetica implements ClientModInitializer {
 
 		openCustomiseScreen = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.cosmetica.customise",
+				InputConstants.Type.KEYSYM,
+				InputConstants.UNKNOWN.getValue(), // not bound by default
+				"key.categories.misc"
+		));
+
+		snipe = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+				"key.cosmetica.snipe",
 				InputConstants.Type.KEYSYM,
 				InputConstants.UNKNOWN.getValue(), // not bound by default
 				"key.categories.misc"
@@ -440,7 +449,16 @@ public class Cosmetica implements ClientModInitializer {
 		return result;
 	}
 
-	// TODO this code is cursed from editing and editing and editing. Please uncurse this.
+	public static String pickFirst(String... strings) {
+		for (String s : strings) {
+			if (!s.isEmpty()) return s;
+		}
+
+		return "";
+	}
+
+	// TODO this code is cursed from editing and editing and editing. Despaghettify this.
+	// could split into a system of data listeners/dispatchers to try clean up
 	public static PlayerData getPlayerData(UUID uuid, String username, boolean sync) {
 		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
 		Level level = Minecraft.getInstance().level;
@@ -455,7 +473,11 @@ public class Cosmetica implements ClientModInitializer {
 
 					Supplier<PlayerData> request = () -> {
 						if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
-							lookingUp.remove(uuid);
+							synchronized (playerDataCache) { // make sure temp values are removed
+								playerDataCache.remove(uuid);
+								lookingUp.remove(uuid);
+							}
+
 							return PlayerData.NONE;
 						}
 
@@ -479,7 +501,7 @@ public class Cosmetica implements ClientModInitializer {
 									leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
 									rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
 									backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
-									cloak.isEmpty() ? "" : cloak.get().getName(),
+									cloak.isEmpty() ? "" : pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape"),
 									cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
 									CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
 									info.isSlim()
@@ -488,6 +510,11 @@ public class Cosmetica implements ClientModInitializer {
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, newData);
 								lookingUp.remove(uuid);
+							}
+
+							synchronized (synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData) {
+								@Nullable var waitingRequests = synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData.remove(uuid);
+								if (waitingRequests != null) waitingRequests.forEach(c -> c.accept(newData));
 							}
 
 							newDataHolder.set(newData);
@@ -499,17 +526,48 @@ public class Cosmetica implements ClientModInitializer {
 					if (sync) lookup.set(request);
 					else lookup.set(() -> {
 						Cosmetica.runOffthread(() -> request.get(), ThreadPool.GENERAL_THREADS);
-						return PlayerData.NONE;
+						return PlayerData.TEMPORARY;
 					});
 				}
 
-				return PlayerData.NONE; // temporary name: blank.
+				return PlayerData.TEMPORARY; // temporary name: blank.
 			}));
 		}
 
 		// to ensure web requests are not run in a synchronised block on the data cache, holding up the main thread
 		// also return the actual data
-		return lookup.get().get();
+
+
+		PlayerData result = lookup.get().get();
+
+		if (sync && result == PlayerData.TEMPORARY) {
+			AtomicReference<PlayerData> resultt = new AtomicReference<>(PlayerData.TEMPORARY);
+
+			synchronized (synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData) {
+				synchronized (playerDataCache) {
+					result = playerDataCache.get(uuid);
+				}
+
+				if (result == null) return PlayerData.NONE; // idk if this could really happen (it would have to be removed in a short span of time) but just in case lmao
+				if (result != PlayerData.TEMPORARY) return result;
+
+				Cosmetica.LOGGER.warn("Synchronised player info request is waiting for the request on another thread to respond.");
+
+				// if still pending, wait on the object
+				synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData.computeIfAbsent(uuid, l -> new LinkedList<>()).add(resultt::set);
+			}
+
+			while (resultt.get() == PlayerData.TEMPORARY) {
+				try {
+					Thread.sleep(5L);
+				}
+				catch (InterruptedException e) {
+					Cosmetica.LOGGER.warn("Exception while synchronised thread waits for data", e);
+				}
+			}
+		}
+
+		return result;
 	}
 
 	public static void renderLore(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {

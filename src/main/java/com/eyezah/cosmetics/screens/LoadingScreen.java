@@ -5,15 +5,12 @@ import com.eyezah.cosmetics.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-
-import java.util.Objects;
 
 import static com.eyezah.cosmetics.Authentication.runAuthentication;
 
@@ -26,18 +23,18 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 	private int textHeight;
 
 	public LoadingScreen(Screen parentScreen, Options parentOptions) {
-		this(parentScreen, parentOptions, false);
+		this(parentScreen, parentOptions, 0);
 	}
 
-	public LoadingScreen(Screen parentScreen, Options parentOptions, boolean customise) {
+	public LoadingScreen(Screen parentScreen, Options parentOptions, int target) {
 		super(new TranslatableComponent("cosmetica.loading"));
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
-		Authentication.targetIsCustomiseScreen = customise;
+		Authentication.settingLoadTarget = target;
 
 		Minecraft.getInstance().tell(() -> {
 			if (!runAuthentication(2)) {
-				Minecraft.getInstance().setScreen(new OfflineScreen(parentScreen));
+				Minecraft.getInstance().setScreen(new OfflineScreen(parentScreen, target));
 			}
 		});
 	}
@@ -45,6 +42,12 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 	@Override
 	public Screen getParent() {
 		return this.parentScreen;
+	}
+
+	@Override
+	public void onClose() {
+		Authentication.snipedPlayer = null;
+		super.onClose();
 	}
 
 	@Override

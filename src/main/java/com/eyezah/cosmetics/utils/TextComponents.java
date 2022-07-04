@@ -22,6 +22,10 @@ public class TextComponents {
 		return new TextComponent(text);
 	}
 
+	public static MutableComponent formattedTranslatable(String translationKey, Object... args) {
+		return new TranslatableComponent(translationKey, args);
+	}
+
 	public static Component chatEncode(String remoteText) throws IllegalArgumentException, IndexOutOfBoundsException {
 		StringBuilder literalTxt = new StringBuilder();
 		List<Object> tokens = new ArrayList<>(4);

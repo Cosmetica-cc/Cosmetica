@@ -32,6 +32,9 @@
   "cosmetica.selection.lore.titles": "See Titles",
   "cosmetica.selection.lore.clear": "Clear Lore",
   "cosmetica.selection.lore.err": "Failed to get lore list. Please try again later.",
+  "cosmetica.stealhislook.snipe": "Cosmetics Sniper",
+  "cosmetica.stealhislook.steal": "Steal %s look",
+  "cosmetica.stealhislook.confirm": "Are you sure you want to steal %s look?",
   "cosmetica.cosmeticaSettings": "Cosmetica Settings",
   "cosmetica.capeServerSettings": "Cape Server Settings",
   "cosmetica.openWebPanel": "Open Web Panel",
@@ -70,5 +73,6 @@
   "cosmetica.rsewarning.description2": "While this is a lot of fun, it does mean that players can use this to determine your country of origin.",
   "cosmetica.rsewarning.description3": "If you disable Region-Specific effects, you won't be able to see the effects on others either.",
   "cosmetica.debugCosmetica.disable": "Disabled debug cosmetics.",
-  "key.cosmetica.customise": "Customise Cosmetics"
+  "key.cosmetica.customise": "Customise Cosmetics",
+  "key.cosmetica.snipe": "Cosmetics Sniper"
 }
