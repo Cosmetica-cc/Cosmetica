@@ -19,15 +19,24 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateScreen {
-	protected ApplyCosmeticsScreen(Screen parent, PlayerRenderScreen parentParent, CosmeticType<T> type, CosmeticStack<E> overrider, T cosmetic) {
-		super(TextComponents.translatable("cosmetica.selection.apply").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
+	protected ApplyCosmeticsScreen(Screen parent, PlayerRenderScreen parentParent, CosmeticType<T> type, CosmeticStack<E> overrider, @Nullable T cosmetic) {
+		super(TextComponents.translatable(cosmetic == null ? "cosmetica.selection.clear" : "cosmetica.selection.apply").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
 		this.type = type;
 		this.id = cosmetic.getId();
 		this.parentParent = parentParent;
 		this.overrider = overrider;
 
+		if (cosmetic == null) {
+			if (type == CosmeticType.CAPE) {
+				this.item = (E) CosmeticStack.NO_RESOURCE_LOCATION;
+			}
+			else {
+				this.item = (E) CosmeticStack.NO_BAKABLE_MODEL;
+			}
+		}
 		if (cosmetic instanceof Cape cape) {
 			this.item = (E) CosmeticaSkinManager.cloakId(this.id);
 			CosmeticaSkinManager.processCape(cape);
@@ -58,17 +67,18 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 
 	@Override
 	protected void addWidgets() {
-		int selectables = 0;
-
 		if (this.failed) {
-			// TODO probably make a retry / okay selection instead
 			Component text = TextComponents.translatable("cosmetica.selection.applyFailed");
-			this.addRenderableWidget(new TextWidget(this.width / 2, this.height / 2, this.font.width(text), 20, true, text));
+			int tWidth = this.font.width(text);
+			this.addRenderableWidget(new TextWidget((this.width + tWidth) / 2, this.height / 2, tWidth, 20, true, text));
+
+			// todo "Retry" button?
+			this.addButton(TextComponents.translatable("cosmetica.okay"), b -> this.onClose());
 		}
 		else {
 			int width = 100;
 			int separation = width + 30;
-			selectables = (this.type == CosmeticType.HAT && !this.parentParent.fakePlayer.getData().hats().isEmpty()) || this.type == CosmeticType.SHOULDER_BUDDY ? 2 : 1;
+			int selectables = (this.type == CosmeticType.HAT && this.parentParent.fakePlayer.getData().hats().size() > (this.item == CosmeticStack.NO_BAKABLE_MODEL ? 1 : 0)) || this.type == CosmeticType.SHOULDER_BUDDY ? 2 : 1;
 
 			this.parentParent.fakePlayer.yRotBody = this.type == CosmeticType.CAPE ? 200.0f : 0.0f;
 			this.parentParent.fakePlayer.yRot = this.parentParent.fakePlayer.yRotBody;
@@ -83,20 +93,21 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 				this.selectableFakePlayers.addFakePlayer(this.parentParent.fakePlayer, this.item);
 			}
 
+			this.done = this.addButton(CommonComponents.GUI_DONE, b -> {
+				this.parentParent.fakePlayer.yRotBody = this.lmao;
+				this.parentParent.fakePlayer.yRot = this.xd;
+
+				this.minecraft.setScreen(new UpdatingCosmeticsScreen<>(this.parentParent, () -> Cosmetica.api.setCosmetic(this.positionOf(this.selectableFakePlayers.getSelected()), this.id)));
+			});
+
 			if (selectables > 1) {
 				this.selectableFakePlayers.createSelectButtons(this::addRenderableWidget);
 				this.selectableFakePlayers.setOnSelect(i -> this.done.active = true);
+				this.done.active = false;
 			}
+			
+			this.addButton(CommonComponents.GUI_CANCEL, b -> this.onClose());
 		}
-
-		this.done = this.addButton(CommonComponents.GUI_DONE, b -> {
-			this.parentParent.fakePlayer.yRotBody = this.lmao;
-			this.parentParent.fakePlayer.yRot = this.xd;
-
-			this.minecraft.setScreen(new UpdatingCosmeticsScreen<>(this.parentParent, () -> Cosmetica.api.setCosmetic(this.positionOf(this.selectableFakePlayers.getSelected()), this.id)));
-		});
-		if (selectables > 1) this.done.active = false;
-		this.addButton(CommonComponents.GUI_CANCEL, b -> this.onClose());
 	}
 
 	private CosmeticPosition positionOf(int selected) {

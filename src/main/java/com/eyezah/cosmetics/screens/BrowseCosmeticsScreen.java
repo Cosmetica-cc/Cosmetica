@@ -151,7 +151,8 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 
 		if (this.page == 1 || loadEdition) pageBack.active = false;
 
-		Button clear = this.addButton(100, 20, TextComponents.translatable("cosmetica.selection.clear").append(TextComponents.translatable("cosmetica.entry." + ApplyCosmeticsScreen.getTranslationPart(this.type))), b -> {});
+		Button clear = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.clear").append(TextComponents.translatable("cosmetica.entry." + ApplyCosmeticsScreen.getTranslationPart(this.type))),
+				b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, null)));
 
 		if (loadEdition) clear.active = false;
 
