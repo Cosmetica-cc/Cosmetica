@@ -105,7 +105,7 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 				this.selectableFakePlayers.setOnSelect(i -> this.done.active = true);
 				this.done.active = false;
 			}
-			
+
 			this.addButton(CommonComponents.GUI_CANCEL, b -> this.onClose());
 		}
 	}

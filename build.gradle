@@ -26,7 +26,7 @@ dependencies {
 
 	include(modImplementation(fabricApi.module("fabric-api-base", "${project.fabric_api_version}")))
 	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", "${project.fabric_api_version}")))
-	include(modImplementation(fabricApi.module("fabric-key-binding-api-v1", "${project.fabric_api_version}")))
+	//include(modImplementation(fabricApi.module("fabric-key-binding-api-v1", "${project.fabric_api_version}")))
 	include(modImplementation(fabricApi.module("fabric-textures-v0", "${project.fabric_api_version}")))
 
 	include(modImplementation("com.github.BenzeneStudios:Sulphate:${project.sulphate_version}")) {

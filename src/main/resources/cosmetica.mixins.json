@@ -29,6 +29,7 @@
     "LocalPlayerMixin",
     "MinecraftMixin",
     "ModelManagerMixin",
+    "OptionsMixin",
     "PlayerEntityRendererMixin",
     "PlayerRendererMixin",
     "SplashManagerMixin"

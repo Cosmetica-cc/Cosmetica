@@ -201,21 +201,23 @@ public class Cosmetica implements ClientModInitializer {
 			}
 		});
 
-		openCustomiseScreen = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+		runAuthenticationCheckThread();
+	}
+
+	public static void registerKeyMappings(List<KeyMapping> keymappings) {
+		keymappings.add(openCustomiseScreen = new KeyMapping(
 				"key.cosmetica.customise",
 				InputConstants.Type.KEYSYM,
 				InputConstants.UNKNOWN.getValue(), // not bound by default
 				"key.categories.misc"
 		));
 
-		snipe = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+		KeyBindingHelper.registerKeyBinding(snipe = new KeyMapping(
 				"key.cosmetica.snipe",
 				InputConstants.Type.KEYSYM,
 				InputConstants.UNKNOWN.getValue(), // not bound by default
 				"key.categories.misc"
 		));
-
-		runAuthenticationCheckThread();
 	}
 
 	public static boolean isProbablyNPC(UUID uuid) {
