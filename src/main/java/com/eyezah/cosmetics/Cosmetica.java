@@ -212,7 +212,7 @@ public class Cosmetica implements ClientModInitializer {
 				"key.categories.misc"
 		));
 
-		KeyBindingHelper.registerKeyBinding(snipe = new KeyMapping(
+		keymappings.add(snipe = new KeyMapping(
 				"key.cosmetica.snipe",
 				InputConstants.Type.KEYSYM,
 				InputConstants.UNKNOWN.getValue(), // not bound by default

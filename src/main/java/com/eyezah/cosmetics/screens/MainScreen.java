@@ -9,6 +9,7 @@ import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.TextComponents;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;

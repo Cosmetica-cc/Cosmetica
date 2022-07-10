@@ -185,8 +185,8 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 		drawCenteredString(matrices, this.font, this.title, this.width / 2, 15, 0xFFFFFF); // re-add title
 
 		if (this.searchBox != null) {
-			drawString(matrices, this.font, SEARCH_ELLIPSIS, this.width / 2 - 100, SEARCH_Y, 10526880);
 			this.searchBox.render(matrices, mouseX, mouseY, delta);
+			if (this.searchBox.isEmpty()) drawString(matrices, this.font, SEARCH_ELLIPSIS, this.width / 2 - 96, SEARCH_Y + 6, 10526880);
 		}
 
 		if (this.state == LoadState.RELOADING) {

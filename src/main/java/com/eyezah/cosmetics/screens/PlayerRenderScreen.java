@@ -14,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -33,10 +32,10 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 	private int playerLeft = 0;
 	private double transitionProgress = 0;
-	private double nextTransitionProgress = 0;
 
 	protected int initialPlayerLeft;
 	protected int deltaPlayerLeft;
+	private long lastTimeMillis = System.currentTimeMillis();
 
 	@Override
 	public void tick() {
@@ -47,29 +46,17 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			this.minecraft.getTextureManager().tick();
 			this.minecraft.getProfiler().pop();
 		}
-
-		// transition effect
-		if (this.transitionProgress < 1) {
-			this.transitionProgress = this.nextTransitionProgress;
-
-			if (this.nextTransitionProgress < 1) {
-				this.nextTransitionProgress += (0.09 - this.transitionProgress * 0.05);
-
-				if (this.nextTransitionProgress > 1) this.nextTransitionProgress = 1;
-			}
-		}
 	}
 
 	protected void setTransitionProgress(double progress) {
 		this.transitionProgress = progress;
-		this.nextTransitionProgress = progress;
 	}
 
 	@Override
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 
-		this.playerLeft = this.initialPlayerLeft + (int) (Mth.lerp(delta, this.transitionProgress, this.nextTransitionProgress) * this.deltaPlayerLeft);
+		this.playerLeft = this.initialPlayerLeft + (int) (this.transitionProgress * this.deltaPlayerLeft);
 
 		if (GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS) {
 			if (mouseX < this.playerLeft + 40 && (!(this instanceof CustomiseCosmeticsScreen) || mouseX > this.playerLeft - 40) || this.wasMouseDown) {
@@ -94,10 +81,27 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 		final int top = this.height / 2 + 55;
 		renderFakePlayerInMenu(this.playerLeft, top, 30.0f, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.fakePlayer);
+
+		long currentTimeMillis = System.currentTimeMillis();
+		double tickDelta = 0.02 * (double) (currentTimeMillis - this.lastTimeMillis); // to tick time
+		this.lastTimeMillis = currentTimeMillis;
+
+		// transition effect
+		if (this.transitionProgress < 1) {
+			this.transitionProgress += tickDelta * (0.1 - this.transitionProgress * 0.055); // times tick delta since the value in brackets is how much I want it to change each tick.
+
+			if (this.transitionProgress > 1) {
+				this.transitionProgress = 1;
+			}
+		}
 	}
 
 	protected double getTransitionProgress() {
 		return this.transitionProgress;
+	}
+
+	public void onOpen() {
+		this.lastTimeMillis = System.currentTimeMillis();
 	}
 
 	void refetchPlayerData() {

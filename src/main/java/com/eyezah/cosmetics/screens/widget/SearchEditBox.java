@@ -30,4 +30,8 @@ public class SearchEditBox extends EditBox {
 
 		return super.keyPressed(i, j, k);
 	}
+
+	public boolean isEmpty() {
+		return this.getValue().isEmpty();
+	}
 }

@@ -4,6 +4,7 @@ import cc.cosmetica.api.User;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.screens.LoadingScreen;
+import com.eyezah.cosmetics.screens.PlayerRenderScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.eyezah.cosmetics.utils.Debug;
@@ -46,6 +47,13 @@ public abstract class MinecraftMixin {
 			RSEWarningScreen.appearNextScreenChange = false;
 			this.setScreen(new RSEWarningScreen(screen));
 			info.cancel();
+		}
+	}
+
+	@Inject(at = @At("RETURN"), method = "setScreen", cancellable = true)
+	private void addOnOpen(Screen screen, CallbackInfo info) {
+		if (this.screen instanceof PlayerRenderScreen prs) {
+			prs.onOpen();
 		}
 	}
 
