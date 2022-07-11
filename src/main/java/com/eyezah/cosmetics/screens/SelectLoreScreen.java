@@ -99,21 +99,21 @@ public class SelectLoreScreen extends SulphateScreen {
 
 			this.updateTitle();
 			this.addRenderableWidget(this.list);
-			this.addRenderableWidget(new Button(this.width / 2 - 102, this.height - 50, 100, 20, TextComponents.translatable(this.showingPronouns ? "cosmetica.selection.lore.titles" : "cosmetica.selection.lore.pronouns"), b -> {
+			this.addRenderableWidget(new Button(this.width / 2 - 102, this.height - 52, 100, 20, TextComponents.translatable(this.showingPronouns ? "cosmetica.selection.lore.titles" : "cosmetica.selection.lore.pronouns"), b -> {
 				this.showingPronouns = !this.showingPronouns;
 				this.list = null;
 				this.init(this.minecraft, this.width, this.height);
 			}));
 
-			this.addRenderableWidget(new Button(this.width / 2 + 2, this.height - 50, 100, 20, TextComponents.translatable("cosmetica.selection.lore.clear"), b -> {
+			this.addRenderableWidget(new Button(this.width / 2 + 2, this.height - 52, 100, 20, TextComponents.translatable("cosmetica.selection.lore.clear"), b -> {
 				this.lore = "";
 				this.pronounsSelected = 0;
 				this.updateTitle();
 			}));
 
-			this.addRenderableWidget(new Button(this.width / 2 - 102, this.height - 30, 100, 20, CommonComponents.GUI_CANCEL, b -> this.onClose()));
+			this.addRenderableWidget(new Button(this.width / 2 - 102, this.height - 28, 100, 20, CommonComponents.GUI_CANCEL, b -> this.onClose()));
 
-			this.addRenderableWidget(new Button(this.width / 2 + 2, this.height - 30, 100, 20, CommonComponents.GUI_DONE, b -> {
+			this.addRenderableWidget(new Button(this.width / 2 + 2, this.height - 28, 100, 20, CommonComponents.GUI_DONE, b -> {
 				if (this.lore.equals(this.originalLore)) {
 					this.onClose();
 				}

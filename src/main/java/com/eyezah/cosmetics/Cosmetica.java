@@ -12,6 +12,7 @@ import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
+import com.eyezah.cosmetics.utils.SpecialKeyMapping;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -205,14 +206,14 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void registerKeyMappings(List<KeyMapping> keymappings) {
-		keymappings.add(openCustomiseScreen = new KeyMapping(
+		keymappings.add(openCustomiseScreen = new SpecialKeyMapping(
 				"key.cosmetica.customise",
 				InputConstants.Type.KEYSYM,
 				InputConstants.UNKNOWN.getValue(), // not bound by default
 				"key.categories.misc"
 		));
 
-		keymappings.add(snipe = new KeyMapping(
+		keymappings.add(snipe = new SpecialKeyMapping(
 				"key.cosmetica.snipe",
 				InputConstants.Type.KEYSYM,
 				InputConstants.UNKNOWN.getValue(), // not bound by default

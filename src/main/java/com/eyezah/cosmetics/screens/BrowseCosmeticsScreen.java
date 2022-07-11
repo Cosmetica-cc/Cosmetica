@@ -105,6 +105,8 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 	}
 
 	public void resize(Minecraft minecraft, int i, int j) {
+		boolean wasFocusedOnSearch = this.searchBox != null && this.getFocused() == this.searchBox;
+		System.out.println(wasFocusedOnSearch);
 		@Nullable Button lastProceed = this.proceed;
 		if (this.viewSelection != null) this.dataSelection.matchSelected(this.viewSelection);
 
@@ -117,6 +119,11 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 		}
 
 		if (lastProceed != null && this.proceed != null) this.proceed.active = lastProceed.active;
+
+		if (this.searchBox != null && wasFocusedOnSearch) {
+			this.setFocused(this.searchBox);
+			this.searchBox.setFocus(true);
+		}
 	}
 
 	private void addMainGUI(boolean loadEdition) {
@@ -124,7 +131,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 		this.searchBox = this.addRenderableWidget(new SearchEditBox(this.font, this.width / 2 - 100, SEARCH_Y, 200, 20, new TranslatableComponent("cosmetica.selection.search")));
 		this.searchBox.setMaxLength(128);
 		this.searchBox.setOnEnter(value -> {
-			this.setFocused(null);
+			//this.setFocused(null);
 			this.searchQuery = value;
 			this.page = 1;
 			this.state = LoadState.RELOADING;
@@ -151,7 +158,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 
 		if (this.page == 1 || loadEdition) pageBack.active = false;
 
-		Button clear = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.clear").append(TextComponents.translatable("cosmetica.entry." + ApplyCosmeticsScreen.getTranslationPart(this.type))),
+		Button clear = this.addButton(this.type == CosmeticType.SHOULDER_BUDDY || this.type == CosmeticType.BACK_BLING ? 150 : 100, 20, TextComponents.translatable("cosmetica.selection.clear").append(TextComponents.translatable("cosmetica.entry." + ApplyCosmeticsScreen.getTranslationPart(this.type))),
 				b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, null)));
 
 		if (loadEdition) clear.active = false;
@@ -200,7 +207,11 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 
 	@Override
 	public void tick() {
-		this.minecraft.getTextureManager().tick();
+		if (this.minecraft.level == null) {
+			this.minecraft.getProfiler().push("textures");
+			this.minecraft.getTextureManager().tick();
+			this.minecraft.getProfiler().pop();
+		}
 	}
 
 	private static String getTranslationPart(CosmeticType<?> type) {

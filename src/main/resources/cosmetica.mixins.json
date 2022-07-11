@@ -7,6 +7,9 @@
     "fakeplayer.AbstractClientPlayerMixin",
     "fakeplayer.PlayerModelAccessor",
     "fakeplayer.HumanoidModelAccessor",
+    "keys.KeymappingAccessor",
+    "keys.KeymappingMixin",
+    "keys.OptionsMixin",
     "screen.ConnectionThreadMixin",
     "screen.ConnectScreenInvoker",
     "screen.InventoryScreenMixin",
@@ -29,7 +32,6 @@
     "LocalPlayerMixin",
     "MinecraftMixin",
     "ModelManagerMixin",
-    "OptionsMixin",
     "PlayerEntityRendererMixin",
     "PlayerRendererMixin",
     "SplashManagerMixin"

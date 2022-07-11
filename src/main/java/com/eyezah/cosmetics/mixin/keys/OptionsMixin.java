@@ -1,4 +1,4 @@
-package com.eyezah.cosmetics.mixin;
+package com.eyezah.cosmetics.mixin.keys;
 
 import com.eyezah.cosmetics.Cosmetica;
 import net.minecraft.client.KeyMapping;
