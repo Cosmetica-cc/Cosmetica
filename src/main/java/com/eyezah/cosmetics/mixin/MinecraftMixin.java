@@ -3,6 +3,7 @@ package com.eyezah.cosmetics.mixin;
 import cc.cosmetica.api.User;
 import com.eyezah.cosmetics.Authentication;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.screens.CustomiseCosmeticsScreen;
 import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.PlayerRenderScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
@@ -75,8 +76,13 @@ public abstract class MinecraftMixin {
 	public void afterTick(CallbackInfo ci) {
 		if (this.level == null) FakePlayerRenderer.tickTime++;
 
-		if (this.screen == null && Cosmetica.openCustomiseScreen.consumeClick()) {
-			this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
+		if (Cosmetica.openCustomiseScreen.consumeClick()) {
+			if (this.screen == null) {
+				this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
+			}
+			else if (this.screen instanceof CustomiseCosmeticsScreen ccs && ccs.canCloseWithBn()) {
+				ccs.onClose();
+			}
 		}
 
 		if (Cosmetica.snipe.consumeClick() && this.screen == null && this.crosshairPickEntity instanceof AbstractClientPlayer player) {

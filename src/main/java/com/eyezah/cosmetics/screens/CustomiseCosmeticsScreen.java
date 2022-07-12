@@ -17,6 +17,7 @@ import java.util.List;
 public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, UserSettings settings, boolean inlineChangeButton) {
 		this(parentScreen, player, new ServerOptions(settings), inlineChangeButton, 1.0);
+		this.canCloseWithBn = true;
 	}
 
 	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options, boolean inlineChangeButton, double transitionProgress) {
@@ -25,6 +26,11 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 	}
 
 	private final boolean inlineChangeButton;
+	private boolean canCloseWithBn = false;
+
+	public boolean canCloseWithBn() {
+		return this.canCloseWithBn;
+	}
 
 	@Override
 	protected <T extends CustomCosmetic, E> ViewCosmeticsScreen.Section createActiveSection(String title, List<String> items, @Nullable CosmeticType<T> type, @Nullable CosmeticStack<E> stack) {

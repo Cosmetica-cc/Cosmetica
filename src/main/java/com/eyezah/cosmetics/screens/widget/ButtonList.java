@@ -9,29 +9,43 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
-	public ButtonList(Minecraft minecraft, int width, int height, int y0, int y1) {
-		super(minecraft, width, height, y0, y1, 20); // last param: item height
-	}
-
 	public ButtonList(Minecraft minecraft, Screen parent, int spacing) {
 		super(minecraft, parent.width, parent.height, 32, parent.height - 32, spacing);
+		this.parent = parent;
 	}
 
 	public ButtonList(Minecraft minecraft, Screen parent) {
 		this(minecraft, parent, 20);
 	}
 
-	public void addButton(int width, Component text, Button.OnPress callback) {
-		this.addEntry(new Entry(width, text, callback));
+	private final Screen parent;
+
+	public void addButton(int width, Component text, Button.OnPress callback, @Nullable Component tooltip) {
+		this.addEntry(new Entry(width, text, callback, tooltip));
 	}
 
 	class Entry extends ContainerObjectSelectionList.Entry<ButtonList.Entry> {
-		Entry(int width, Component text, Button.OnPress callback) {
-			this.button = new Button(0, 0, width, 20, text, callback);
+		Entry(int width, Component text, Button.OnPress callback, @Nullable Component tooltip) {
+			this.button = new Button(0, 0, width, 20, text, callback, tooltip == null ? Button.NO_TOOLTIP : new Button.OnTooltip() {
+				@Nonnull // to make intellij shut up about null warnings
+				private final Component text = tooltip;
+
+				public void onTooltip(Button button, PoseStack poseStack, int i, int j) {
+					Screen screen = ButtonList.this.parent;
+					screen.renderTooltip(poseStack, ButtonList.this.minecraft.font.split(this.text, Math.max(screen.width / 2 - 43, 170)), i, j + 18);
+				}
+
+				public void narrateTooltip(Consumer<Component> consumer) {
+					consumer.accept(this.text);
+				}
+			});
 		}
 
 		private final Button button;

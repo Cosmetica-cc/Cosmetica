@@ -41,7 +41,7 @@ public class CapeServerSettingsScreen extends SulphateScreen {
 				this.settings.put(entry.getKey(), CapeDisplay.byId(newValue));
 
 				b.setMessage(TextComponents.literal(entry.getValue().getName() + ": ").append(TextComponents.translatable("cosmetica.capeDisplay." + this.settings.get(entry.getKey()).toString().toLowerCase(Locale.ROOT))));
-			})
+			}, entry.getValue().getWarning().isEmpty() ? null : TextComponents.translatable("cosmetica.capeServerSettings.warning." + entry.getValue().getWarning().replace(' ', '_')))
 		);
 
 		this.addRenderableWidget(list);

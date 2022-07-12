@@ -37,6 +37,8 @@
   "cosmetica.stealhislook.confirm": "Are you sure you want to steal %s look?",
   "cosmetica.cosmeticaSettings": "Cosmetica Settings",
   "cosmetica.capeServerSettings": "Cape Server Settings",
+  "cosmetica.capeServerSettings.warning.eula_violation": "Warning: This third-party cape server is in violation of Minecraft's EULA.",
+  "cosmetica.capeServerSettings.warning.unfiltered_content": "Warning: This third-party cape server may not have filters in place to protect users from NSFW content.",
   "cosmetica.openWebPanel": "Open Web Panel",
   "cosmetica.capeDisplay.show": "Show",
   "cosmetica.capeDisplay.hide": "Hide",
