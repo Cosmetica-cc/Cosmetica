@@ -1,6 +1,5 @@
 package com.eyezah.cosmetics.screens.widget;
 
-import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CustomCosmetic;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
@@ -35,15 +34,25 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 	private final Map<String, Entry> byId = new HashMap<>();
 
 	public void add(T cosmetic) {
-		Entry<T> entry = new Entry<>(this, cosmetic);
-		this.addEntry(entry);
-		this.byId.put(cosmetic.getId(), entry);
+		this._add(cosmetic, true);
+	}
+
+	public void addWithoutRegisteringTexture(T cosmetic) {
+		this._add(cosmetic, false);
 	}
 
 	public void copy(CosmeticSelection<T> other) {
-		for (Entry<T> entry : other.byId.values()) {
-			this.add(entry.cosmetic);
+		synchronized (minecraft.getTextureManager()) {
+			for (Entry<T> entry : other.byId.values()) {
+				this._add(entry.cosmetic, true);
+			}
 		}
+	}
+
+	protected final void _add(T cosmetic, boolean register) {
+		Entry<T> entry = new Entry<>(this, cosmetic, register);
+		this.addEntry(entry);
+		this.byId.put(cosmetic.getId(), entry);
 	}
 
 	@Override
@@ -55,18 +64,22 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 		return this.getSelected().cosmetic;
 	}
 
-	public static class Entry<T extends CustomCosmetic> extends Selection.Entry<CosmeticSelection.Entry<T>> {
-		public Entry(CosmeticSelection selection, T cosmetic) {
+	protected static class Entry<T extends CustomCosmetic> extends Selection.Entry<CosmeticSelection.Entry<T>> {
+		public Entry(CosmeticSelection selection, T cosmetic, boolean register) {
 			super(selection, cosmetic.getId());
 			String cosmeticId = cosmetic.getId();
 
 			this.displayName = cosmetic.getName();
 			this.cosmetic = cosmetic;
 			this.texture = new ResourceLocation("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
-			Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
-					Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
-					String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
-			));
+
+			// so we can add off-thread to the data version then duplicate later on thread when we make the view version
+			if (register) {
+				Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
+						Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
+						String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
+				));
+			}
 		}
 
 		private final String displayName;

@@ -72,7 +72,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 					CosmeticsPage<T> page = results.get(0);
 
 					for (T result : page.getCosmetics()) {
-						this.dataSelection.add(result);
+						this.dataSelection.addWithoutRegisteringTexture(result);
 					}
 
 					this.nextPage = page.hasNextPage();
