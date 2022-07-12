@@ -74,7 +74,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			this.texture = new ResourceLocation("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
 
 			// so we can add off-thread to the data version then duplicate later on thread when we make the view version
-			if (register) {
+			if (register && Minecraft.getInstance().getTextureManager().getTexture(this.texture, null) == null) { // don't load icon twice
 				Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
 						Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
 						String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
