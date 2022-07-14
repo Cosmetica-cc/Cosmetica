@@ -1,6 +1,8 @@
 package com.eyezah.cosmetics.screens.widget;
 
+import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.CustomCosmetic;
+import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.utils.textures.CosmeticIconTexture;
@@ -77,7 +79,9 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			if (register && Minecraft.getInstance().getTextureManager().getTexture(this.texture, null) == null) { // don't load icon twice
 				Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
 						Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
-						String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
+						String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId),
+						cosmetic.getType(),
+						cosmetic instanceof Model model ? model.flags() : ((CustomCape) cosmetic).getFrameDelay()
 				));
 			}
 		}

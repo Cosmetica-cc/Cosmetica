@@ -106,7 +106,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 
 	public void resize(Minecraft minecraft, int i, int j) {
 		boolean wasFocusedOnSearch = this.searchBox != null && this.getFocused() == this.searchBox;
-		System.out.println(wasFocusedOnSearch);
+		//System.out.println(wasFocusedOnSearch);
 		@Nullable Button lastProceed = this.proceed;
 		if (this.viewSelection != null) this.dataSelection.matchSelected(this.viewSelection);
 
