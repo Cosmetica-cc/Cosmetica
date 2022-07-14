@@ -25,7 +25,7 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 	protected ApplyCosmeticsScreen(Screen parent, PlayerRenderScreen parentParent, CosmeticType<T> type, CosmeticStack<E> overrider, @Nullable T cosmetic) {
 		super(TextComponents.translatable(cosmetic == null ? "cosmetica.selection.clear" : "cosmetica.selection.apply").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
 		this.type = type;
-		this.id = cosmetic.getId();
+		this.id = cosmetic == null ? "none" : cosmetic.getId();
 		this.parentParent = parentParent;
 		this.overrider = overrider;
 
