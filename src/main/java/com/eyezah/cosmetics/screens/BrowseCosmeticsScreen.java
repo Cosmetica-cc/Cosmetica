@@ -15,6 +15,7 @@ import com.eyezah.cosmetics.screens.widget.TextWidget;
 import com.eyezah.cosmetics.utils.LoadState;
 import com.eyezah.cosmetics.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -79,7 +80,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 					this.state = LoadState.LOADED;
 				}
 
-				this.rebuildGUI();
+				RenderSystem.recordRenderCall(this::rebuildGUI);
 			}));
 			this.currentFetcher.y = this.height / 2 - 20;
 			this.currentFetcher.x = this.width / 2 - this.currentFetcher.getWidth() / 2;

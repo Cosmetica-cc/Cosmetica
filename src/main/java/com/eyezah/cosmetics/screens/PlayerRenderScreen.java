@@ -5,6 +5,7 @@ import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
+import com.eyezah.cosmetics.screens.fakeplayer.MouseTracker;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,7 +16,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 public abstract class PlayerRenderScreen extends SulphateScreen {
 	protected PlayerRenderScreen(Component title, @Nullable Screen parent, FakePlayer fakePlayer) {
@@ -25,10 +25,9 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	}
 
 	protected final FakePlayer fakePlayer;
-
 	// for the rotation
-	private float lastMouseX = 0;
-	private boolean wasMouseDown = false;
+	private final MouseTracker mouseTracker = new MouseTracker();
+	private boolean spinning = false;
 
 	private int playerLeft = 0;
 	private double transitionProgress = 0;
@@ -36,6 +35,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	protected int initialPlayerLeft;
 	protected int deltaPlayerLeft;
 	private long lastTimeMillis = System.currentTimeMillis();
+
 
 	@Override
 	public void tick() {
@@ -56,13 +56,22 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 
+		this.mouseTracker.update(mouseX, mouseY);
 		this.playerLeft = this.initialPlayerLeft + (int) (this.transitionProgress * this.deltaPlayerLeft);
 
-		if (GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS) {
-			if (mouseX < this.playerLeft + 40 && (!(this instanceof CustomiseCosmeticsScreen) || mouseX > this.playerLeft - 40) || this.wasMouseDown) {
-				if (this.wasMouseDown) {
-					this.fakePlayer.yRot -= (mouseX - this.lastMouseX);
-					this.fakePlayer.yRotBody -= (mouseX - this.lastMouseX);
+		if (this.mouseTracker.hasTrackingPosData()) {
+			// track the mouse x since mouse down
+			if (this.mouseTracker.wasMousePressed()) {
+				this.spinning = mouseX < this.playerLeft + 51 && (!(this instanceof CustomiseCosmeticsScreen) || mouseX > this.playerLeft - 51);
+			}
+			else if (!this.mouseTracker.isMouseDown()) {
+				this.spinning = false;
+			}
+
+			if (this.spinning) {
+				if (this.mouseTracker.wasMouseDown()) {
+					this.fakePlayer.yRot -= this.mouseTracker.deltaMouseX();
+					this.fakePlayer.yRotBody -= this.mouseTracker.deltaMouseX();
 
 					if (this.fakePlayer.yRot > 180.0f) this.fakePlayer.yRot = -180.0f;
 					if (this.fakePlayer.yRotBody > 180.0f) this.fakePlayer.yRotBody = -180.0f;
@@ -70,13 +79,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 					if (this.fakePlayer.yRot < -180.0f) this.fakePlayer.yRot = 180.0f;
 					if (this.fakePlayer.yRotBody < -180.0f) this.fakePlayer.yRotBody = 180.0f;
 				}
-
-				this.wasMouseDown = true;
-				this.lastMouseX = mouseX;
 			}
-		}
-		else {
-			this.wasMouseDown = false;
 		}
 
 		final int top = this.height / 2 + 55;

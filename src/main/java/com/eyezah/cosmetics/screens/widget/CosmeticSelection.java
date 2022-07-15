@@ -76,26 +76,44 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			this.texture = new ResourceLocation("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
 
 			// so we can add off-thread to the data version then duplicate later on thread when we make the view version
-			if (register && Minecraft.getInstance().getTextureManager().getTexture(this.texture, null) == null) { // don't load icon twice
-				Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
-						Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
-						String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId),
-						cosmetic.getType(),
-						cosmetic instanceof Model model ? model.flags() : ((CustomCape) cosmetic).getFrameDelay()
-				));
+			if (register) { // ~~don't~~ yes please do load icon twice
+				if (RenderSystem.isOnRenderThreadOrInit()) {
+					Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
+							Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
+							String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId),
+							cosmetic.getType(),
+							cosmetic instanceof Model model ? model.flags() : ((CustomCape) cosmetic).getFrameDelay()
+					));
+
+					textureRegistered = true;
+				} else {
+					Cosmetica.LOGGER.warn("Tried to register cosmetic icon texture on thread \"{}\". Avoiding crashes by delaying registration!", Thread.currentThread().getName());
+
+					RenderSystem.recordRenderCall(() -> {
+						Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
+								Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
+								String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId),
+								cosmetic.getType(),
+								cosmetic instanceof Model model ? model.flags() : ((CustomCape) cosmetic).getFrameDelay()
+						));
+
+						textureRegistered = true;
+					});
+				}
 			}
 		}
 
 		private final String displayName;
 		private final T cosmetic;
 		private final ResourceLocation texture;
+		private volatile boolean textureRegistered = false; // volatile but I think it's only modified from render thread anyway
 
 		@Override
 		public void render(PoseStack poseStack, int x, int y, int k, int l, int m, int n, int o, boolean isHovered, float f) {
 			x = Minecraft.getInstance().screen.width / 2 - 60;
 			final int textY = y;
 			y += 20;
-			renderTexture(poseStack.last().pose(), this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset());
+			if (textureRegistered) renderTexture(poseStack.last().pose(), this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset());
 			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(textY + 6), 16777215, true);
 		}
 

@@ -11,6 +11,7 @@ import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
 import com.eyezah.cosmetics.cosmetics.model.Models;
+import com.eyezah.cosmetics.screens.fakeplayer.MouseTracker;
 import com.eyezah.cosmetics.screens.widget.SelectableFakePlayers;
 import com.eyezah.cosmetics.screens.widget.TextWidget;
 import com.eyezah.cosmetics.utils.TextComponents;
@@ -64,6 +65,8 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 	private final float xd;
 	private boolean failed = false;
 	private Button done;
+	private MouseTracker mouseTracker = new MouseTracker();
+	private boolean spinning;
 
 	@Override
 	protected void addWidgets() {
@@ -137,8 +140,51 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 	}
 
 	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int bn) {
+		boolean result = super.mouseClicked(mouseX, mouseY, bn);
+
+		this.spinning = false;
+		this.mouseTracker.setMouseDown(true);
+
+		if (!result) {
+			if (mouseY <= this.height - 60 && mouseY >= 20) {
+				this.spinning = true;
+			}
+		}
+
+		return result;
+	}
+
+	@Override
+	public boolean mouseReleased(double d, double e, int i) {
+		this.mouseTracker.setMouseDown(false);
+		return super.mouseReleased(d, e, i);
+	}
+
+	@Override
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, this.type == CosmeticType.CAPE ? this.width - mouseX : mouseX, mouseY, delta);
+		super.render(matrices, mouseX, mouseY, delta);
+
+		this.mouseTracker.updatePosition(mouseX, mouseY);
+
+		if (!this.mouseTracker.isMouseDown() && this.mouseTracker.hasTrackingPosData()) {
+			this.spinning = false;
+		}
+
+		if (this.spinning) {
+			if (this.mouseTracker.wasMouseDown()) {
+				this.parentParent.fakePlayer.yRot -= this.mouseTracker.deltaMouseX();
+				this.parentParent.fakePlayer.yRotBody -= this.mouseTracker.deltaMouseX();
+
+				if (this.parentParent.fakePlayer.yRot > 180.0f) this.parentParent.fakePlayer.yRot = -180.0f;
+				if (this.parentParent.fakePlayer.yRotBody > 180.0f) this.parentParent.fakePlayer.yRotBody = -180.0f;
+
+				if (this.parentParent.fakePlayer.yRot < -180.0f) this.parentParent.fakePlayer.yRot = 180.0f;
+				if (this.parentParent.fakePlayer.yRotBody < -180.0f) this.parentParent.fakePlayer.yRotBody = 180.0f;
+			}
+		}
+
+		this.mouseTracker.pushMouseDown();
 	}
 
 	@Override
