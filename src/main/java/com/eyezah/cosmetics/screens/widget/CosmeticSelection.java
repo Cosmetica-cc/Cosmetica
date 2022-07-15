@@ -116,7 +116,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			if (textureRegistered) renderTexture(poseStack.last().pose(), this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset());
 			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(textY + 6), 16777215, true);
 		}
-
+		
 		private static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z) {
 			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.setShaderTexture(0, texture);
