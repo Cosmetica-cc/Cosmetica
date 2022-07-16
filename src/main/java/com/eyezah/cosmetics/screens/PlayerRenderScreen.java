@@ -36,6 +36,8 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	protected int deltaPlayerLeft;
 	private long lastTimeMillis = System.currentTimeMillis();
 
+	protected int rightMouseGrabBuffer = 51;
+	protected int leftMouseGrabBuffer = 100000; // arbitrary big number
 
 	@Override
 	public void tick() {
@@ -56,13 +58,18 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 
+		this.updateSpin(mouseX, mouseY);
+		this.renderFakePlayer(mouseX, mouseY);
+	}
+
+	protected void updateSpin(int mouseX, int mouseY) {
 		this.mouseTracker.update(mouseX, mouseY);
 		this.playerLeft = this.initialPlayerLeft + (int) (this.transitionProgress * this.deltaPlayerLeft);
 
 		if (this.mouseTracker.hasTrackingPosData()) {
 			// track the mouse x since mouse down
 			if (this.mouseTracker.wasMousePressed()) {
-				this.spinning = mouseX < this.playerLeft + 51 && (!(this instanceof CustomiseCosmeticsScreen) || mouseX > this.playerLeft - 51);
+				this.spinning = mouseX > this.playerLeft - this.leftMouseGrabBuffer && mouseX < this.playerLeft + this.rightMouseGrabBuffer;
 			}
 			else if (!this.mouseTracker.isMouseDown()) {
 				this.spinning = false;
@@ -81,8 +88,11 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 				}
 			}
 		}
+	}
 
+	protected void renderFakePlayer(int mouseX, int mouseY) {
 		final int top = this.height / 2 + 55;
+
 		renderFakePlayerInMenu(this.playerLeft, top, 30.0f, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.fakePlayer);
 
 		long currentTimeMillis = System.currentTimeMillis();

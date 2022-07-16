@@ -16,6 +16,14 @@
   "cosmetica.entry.Capes": "Capes",
   "cosmetica.entry.NoCape": "No Cape",
 
+  "cosmetica.indicators.animated":  "Animated",
+  "cosmetica.indicators.lockToTorso":  "Orientation Locked to Torso",
+  "cosmetica.indicators.mirror":  "Mirrors on Right Shoulder",
+  "cosmetica.indicators.showWithCape":  "Shows with Cape/Elytra",
+  "cosmetica.indicators.showWithChestplate":  "Shows with Chesplate Equipped",
+  "cosmetica.indicators.showWithHelmet":  "Shows with Helmet Equipped",
+  "cosmetica.indicators.showWithParrot":  "Shows with Parrot on Shoulder",
+
   "cosmetica.change": "Change",
   "cosmetica.selection.pageBack": "Previous Page",
   "cosmetica.selection.pageForward": "Next Page",

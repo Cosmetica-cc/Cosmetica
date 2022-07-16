@@ -20,7 +20,7 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 		this.onSelect = onSelect;
 	}
 
-	private final Screen parent;
+	final Screen parent;
 	protected final Font font;
 	private final Consumer<String> onSelect;
 

@@ -15,21 +15,44 @@ public final class CosmeticStack<T> {
 	private int index = -1;
 	private boolean removeModel = false;
 
+	private static CosmeticStack solo;
+	private static final CosmeticStack<ResourceLocation> NO_COSMETICS = new CosmeticStack<>();
+
 	public void setIndex(int index) {
 		this.index = index;
 	}
 
 	@Nullable
 	public T get(Supplier<T> orElse) {
+		if (solo != null && solo != this) return null;
 		return this.testModels.isEmpty() ? orElse.get() : this.peek();
 	}
 
 	public List<T> getList(Supplier<List<T>> orElse) {
+		if (solo != null && solo != this) return new ArrayList<>();
 		if (this.index > -1) return this.getVerySpecialListSpecificallyForHatsOnTheApplyCosmeticsScreen(orElse.get(), this.index);
 		return this.testModels.isEmpty() ? orElse.get() : this.lPeek();
 	}
 
+	public void solo() {
+		solo = this;
+	}
+
+	public boolean isSolo() {
+		return solo == this;
+	}
+
+	public static void normal() {
+		solo = null;
+	}
+
+	public static void strip() {
+		solo = NO_COSMETICS;
+	}
+
 	private List<T> getVerySpecialListSpecificallyForHatsOnTheApplyCosmeticsScreen(List<T> existingHats, int replaceThisOne) {
+		if (solo != null && solo != this) return new ArrayList<>();
+
 		if (this.testModels.isEmpty()) return existingHats;
 
 		List<T> useMeHats = new ArrayList<>(existingHats);

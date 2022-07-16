@@ -23,6 +23,7 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options, boolean inlineChangeButton, double transitionProgress) {
 		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player, options, transitionProgress);
 		this.inlineChangeButton = inlineChangeButton;
+		this.leftMouseGrabBuffer = 51;
 	}
 
 	private final boolean inlineChangeButton;

@@ -2,12 +2,15 @@ package com.eyezah.cosmetics.screens;
 
 import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.ExtendedScreen;
-import benzenestudios.sulphate.SulphateScreen;
+import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CosmeticsPage;
 import cc.cosmetica.api.CustomCosmetic;
+import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.CosmeticaSkinManager;
 import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
+import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.screens.widget.CosmeticSelection;
 import com.eyezah.cosmetics.screens.widget.FetchingCosmetics;
 import com.eyezah.cosmetics.screens.widget.SearchEditBox;
@@ -20,7 +23,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -29,11 +31,20 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateScreen {
-	protected BrowseCosmeticsScreen(@Nullable Screen parent, CosmeticType<T> type, CosmeticStack<E> overrider) {
-		super(TextComponents.translatable("cosmetica.selection.select").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
+public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRenderScreen {
+	protected BrowseCosmeticsScreen(@Nullable PlayerRenderScreen parent, CosmeticType<T> type, CosmeticStack<E> overrider) {
+		super(TextComponents.translatable("cosmetica.selection.select").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent, parent.fakePlayer);
 		this.type = type;
 		this.overrider = overrider;
+
+		this.rightMouseGrabBuffer = 80;
+		this.setTransitionProgress(1.0f);
+
+		this.yRotBodyPrev = parent.fakePlayer.yRotBody;
+		this.yRotPrev = parent.fakePlayer.yRot;
+
+		parent.fakePlayer.yRotBody = this.type == CosmeticType.CAPE ? 200.0f : 0.0f;
+		parent.fakePlayer.yRot = parent.fakePlayer.yRotBody;
 	}
 
 	private final CosmeticType<T> type;
@@ -48,6 +59,12 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 	private boolean nextPage;
 	private SearchEditBox searchBox;
 	private Button proceed;
+
+	private float yRotBodyPrev;
+	private float yRotPrev;
+
+	private T lastSelected;
+	private E lastSelectedButE;
 
 	private static final Component SEARCH_ELLIPSIS = new TranslatableComponent("cosmetica.selection.search");
 	private static final int SEARCH_Y = 32;
@@ -95,6 +112,23 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 			this.addButton(TextComponents.translatable("cosmetica.okay"), b -> this.onClose());
 			break;
 		}
+
+		this.initialPlayerLeft = this.width / 4 - 10;
+		this.deltaPlayerLeft = 0;
+	}
+
+	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		if (this.viewSelection != null) {
+			this.viewSelection.mouseMoved(mouseX, mouseY);
+		}
+	}
+
+	@Override
+	public void onClose() {
+		this.fakePlayer.yRotBody = this.yRotBodyPrev;
+		this.fakePlayer.yRot = this.yRotPrev;
+		super.onClose();
 	}
 
 	// hack for keeping items on resizing
@@ -160,7 +194,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 		if (this.page == 1 || loadEdition) pageBack.active = false;
 
 		Button clear = this.addButton(this.type == CosmeticType.SHOULDER_BUDDY || this.type == CosmeticType.BACK_BLING ? 150 : 100, 20, TextComponents.translatable("cosmetica.selection.clear").append(TextComponents.translatable("cosmetica.entry." + ApplyCosmeticsScreen.getTranslationPart(this.type))),
-				b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, null)));
+				b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, null, this.yRotBodyPrev, this.yRotPrev)));
 
 		if (loadEdition) clear.active = false;
 
@@ -173,7 +207,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 		if (!this.nextPage || loadEdition) pageForward.active = false;
 
 		this.addButton(150, 20, CommonComponents.GUI_CANCEL, b -> this.onClose());
-		this.proceed = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.proceed"), b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<T, E>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, this.viewSelection.getSelectedCosmetic())));
+		this.proceed = this.addButton(150, 20, TextComponents.translatable("cosmetica.selection.proceed"), b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<T, E>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, this.viewSelection.getSelectedCosmetic(), this.yRotBodyPrev, this.yRotPrev)));
 		this.proceed.active = false;
 	}
 
@@ -203,6 +237,62 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends Sulphate
 
 		if (this.state == LoadState.RELOADING || this.state == LoadState.LOADING) {
 			this.currentFetcher.render(matrices, mouseX, mouseY, delta);
+		}
+
+		if (this.state != LoadState.LOADING && this.viewSelection != null) {
+			T cosmetic = this.viewSelection.getSelectedCosmetic();
+
+			if (cosmetic == null) {
+				this.lastSelected = null;
+				this.lastSelectedButE = null;
+				CosmeticStack.strip();
+			}
+			else {
+				if (cosmetic != this.lastSelected) {
+					this.lastSelected = cosmetic;
+					this.lastSelectedButE = getStack(cosmetic);
+				}
+
+				if (this.lastSelectedButE == null) {
+					CosmeticStack.strip();
+				}
+				else {
+					this.overrider.solo();
+					this.overrider.push(this.lastSelectedButE);
+				}
+			}
+
+			this.updateSpin(mouseX, mouseY);
+			this.renderFakePlayer(mouseX, mouseY);
+
+			if (this.overrider.isSolo()) {
+				this.overrider.pop();
+			}
+
+			CosmeticStack.normal();
+		}
+	}
+
+	@Nullable
+	private E getStack(T cosmetic) {
+		if (cosmetic == null) {
+			if (type == CosmeticType.CAPE) {
+				return (E) CosmeticStack.NO_RESOURCE_LOCATION;
+			}
+			else {
+				return (E) CosmeticStack.NO_BAKABLE_MODEL;
+			}
+		}
+		if (cosmetic instanceof Cape cape) {
+			E result = (E) CosmeticaSkinManager.cloakId(cosmetic.getId());
+			CosmeticaSkinManager.processCape(cape);
+			return result;
+		}
+		else if (cosmetic instanceof Model model) {
+			return  (E) Models.createBakableModel(model);
+		}
+		else {
+			throw new IllegalStateException("wtf (pls let valoeghese know that your game just said wtf)");
 		}
 	}
 

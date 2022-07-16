@@ -23,7 +23,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateScreen {
-	protected ApplyCosmeticsScreen(Screen parent, PlayerRenderScreen parentParent, CosmeticType<T> type, CosmeticStack<E> overrider, @Nullable T cosmetic) {
+	protected ApplyCosmeticsScreen(Screen parent, PlayerRenderScreen parentParent, CosmeticType<T> type, CosmeticStack<E> overrider, @Nullable T cosmetic, float yRotBody, float yRot) {
 		super(TextComponents.translatable(cosmetic == null ? "cosmetica.selection.clear" : "cosmetica.selection.apply").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
 		this.type = type;
 		this.id = cosmetic == null ? "none" : cosmetic.getId();
@@ -50,9 +50,9 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 			throw new IllegalStateException("wtf (pls let valoeghese know that your game just said wtf)");
 		}
 
-		this.setAnchorY(Anchor.TOP, () -> this.height - 50);
-		this.lmao = this.parentParent.fakePlayer.yRotBody;
-		this.xd = this.parentParent.fakePlayer.yRot;
+		this.setAnchorY(Anchor.TOP, () -> this.height - 55);
+		this.lmao = yRotBody;
+		this.xd = yRot;
 	}
 
 	private final CosmeticType<T> type;
@@ -82,9 +82,6 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 			int width = 100;
 			int separation = width + 30;
 			int selectables = (this.type == CosmeticType.HAT && this.parentParent.fakePlayer.getData().hats().size() > (this.item == CosmeticStack.NO_BAKABLE_MODEL ? 1 : 0)) || this.type == CosmeticType.SHOULDER_BUDDY ? 2 : 1;
-
-			this.parentParent.fakePlayer.yRotBody = this.type == CosmeticType.CAPE ? 200.0f : 0.0f;
-			this.parentParent.fakePlayer.yRot = this.parentParent.fakePlayer.yRotBody;
 
 			this.selectableFakePlayers = this.addRenderableWidget(new SelectableFakePlayers(
 					this.width / 2 - (int) (0.5 * separation * (selectables - 1)),
@@ -185,13 +182,6 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 		}
 
 		this.mouseTracker.pushMouseDown();
-	}
-
-	@Override
-	public void onClose() {
-		this.parentParent.fakePlayer.yRotBody = this.lmao;
-		this.parentParent.fakePlayer.yRot = this.xd;
-		super.onClose();
 	}
 
 	static String getTranslationPart(CosmeticType<?> type) {

@@ -1,7 +1,5 @@
 package com.eyezah.cosmetics.utils.textures;
 
-import cc.cosmetica.api.CosmeticType;
-import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.mixin.textures.NativeImageAccessorMixin;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -12,54 +10,14 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class CosmeticIconTexture extends HttpTexture implements Tickable {
-	public CosmeticIconTexture(@Nullable File file, String url, CosmeticType<?> type, int flags) {
+	public CosmeticIconTexture(@Nullable File file, String url) {
 		super(file, url, new ResourceLocation("cosmetica", "textures/gui/loading.png"), false, null);
 		this.url = url;
 		this.indicators = new HashSet<>();
-
-		// CosmeticType is a class not an enum so no, I cannot use switch here, Mr. Picky.
-		// Why is it a class? So I can throw generics in it for use in various api methods. I would have totally made it an enum if I didn't need to do that.
-		if (type == CosmeticType.CAPE) {
-			if (flags > 0) {
-				this.indicators.add(InfoIcons.ANIMATED);
-			}
-		}
-		else if (type == CosmeticType.BACK_BLING) {
-			if ((flags & Model.SHOW_BACK_BLING_WITH_CAPE) > 0) {
-				this.indicators.add(InfoIcons.SW_CAPE);
-			}
-
-			if ((flags & Model.SHOW_BACK_BLING_WITH_CHESTPLATE) > 0) {
-				this.indicators.add(InfoIcons.SW_CHESTPLATE);
-			}
-		}
-		else if (type == CosmeticType.SHOULDER_BUDDY) {
-			if ((flags & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) > 0) {
-				this.indicators.add(InfoIcons.SW_PARROT);
-			}
-
-			if ((flags & Model.LOCK_SHOULDER_BUDDY_ORIENTATION) > 0) {
-				this.indicators.add(InfoIcons.LOCK_TO_TORSO);
-			}
-
-			if ((flags & Model.DONT_MIRROR_SHOULDER_BUDDY) == 0) {
-				this.indicators.add(InfoIcons.MIRROR);
-			}
-		}
-		else {
-			if ((flags & Model.SHOW_HAT_WITH_HELMET) > 0) {
-				this.indicators.add(InfoIcons.SW_HELMET);
-			}
-
-			if ((flags & Model.LOCK_HAT_ORIENTATION) > 0) {
-				this.indicators.add(InfoIcons.LOCK_TO_TORSO);
-			}
-		}
 	}
 
 	private int frameHeight;
@@ -85,21 +43,6 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 		this.frame = 0;
 
 		try {
-			if (!loading) {
-				int indicatorOffsetY = 300 - 54;
-
-				for (String indicator : indicators) {
-					try {
-						NativeImage indicator_ = NativeImage.fromBase64(indicator);
-						copyRect(indicator_, 0, 0, this.image, 4, indicatorOffsetY, 50, 50);
-						indicatorOffsetY -= 50 + 4;
-					}
-					catch (IOException e) {
-						Cosmetica.LOGGER.error("Error loading info indicator onto preview icon, {}", e);
-					}
-				}
-			}
-
 			this.upload(image, !loading);
 		} catch (IllegalStateException e) {
 			Cosmetica.LOGGER.error("Error while uploading icon texture (loading: {}, icon url: {})", loading, this.url);
