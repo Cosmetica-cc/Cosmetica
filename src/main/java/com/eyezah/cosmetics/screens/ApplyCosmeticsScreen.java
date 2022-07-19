@@ -38,7 +38,7 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 				this.item = (E) CosmeticStack.NO_BAKABLE_MODEL;
 			}
 		}
-		if (cosmetic instanceof Cape cape) {
+		else if (cosmetic instanceof Cape cape) {
 			this.item = (E) CosmeticaSkinManager.cloakId(this.id);
 			CosmeticaSkinManager.processCape(cape);
 		}
