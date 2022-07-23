@@ -287,7 +287,7 @@ public class Debug {
 					imageDumping.add("cape_modifications", new JsonPrimitive(false));
 
 					JsonObject data = new JsonObject();
-					data.add("logging", new JsonPrimitive(false));
+					data.add("logging", new JsonPrimitive(true));
 					data.add("image_dumping", imageDumping);
 					data.add("always_print_urls", new JsonPrimitive(false));
 					data.add("debug_commands", new JsonPrimitive(false));
