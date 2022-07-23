@@ -38,7 +38,7 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 		Button.OnPress onChange = type == null ? b -> this.minecraft.setScreen(new SelectLoreScreen(this, items.isEmpty() ? "" : items.get(0))) :
 				b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, type, stack));
 		Div section = Div.create(title);
-		Component headerText = TextComponents.translatable("cosmetica.entry." + (items.isEmpty() ? "No" + title.replace(" ", "") : title.replace(" ", "")));
+		Component headerText = TextComponents.translatable("cosmetica.entry." + title.replace(" ", ""));
 
 		if (!this.inlineChangeButton) {
 			Span header = section.addChild(new Span(0, 0, 200, 20, TextComponents.literal(title + "Header")));
@@ -50,8 +50,13 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 			this.addTextTo(section, headerText, 200, false);
 		}
 
-		for (String item : items) {
-			this.addTextTo(section, TextComponents.literal(item), 200, false).active = false;
+		if (items.isEmpty()) {
+			this.addTextTo(section, TextComponents.translatable("cosmetica.entry.none"), 200, false).active = false;
+		}
+		else {
+			for (String item : items) {
+				this.addTextTo(section, TextComponents.literal(item), 200, false).active = false;
+			}
 		}
 
 		if (this.inlineChangeButton) {
