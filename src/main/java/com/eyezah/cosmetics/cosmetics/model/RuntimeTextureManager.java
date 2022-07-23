@@ -41,6 +41,7 @@ public class RuntimeTextureManager {
 	int search = 0; // current search index for an unused space (reset each tick)
 
 	public void addAtlasSprite(TextureAtlasSprite result) {
+		Debug.info("Adding Atlas Sprite {} at index {}", result, this.emptySpriteIndex);
 		this.sprites[this.emptySpriteIndex] = result;
 		this.emptySpriteIndex = (this.emptySpriteIndex + 1) & (this.size - 1);
 	}
