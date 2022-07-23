@@ -32,7 +32,6 @@ import net.minecraft.world.phys.Vec3;
 
 public class FakePlayerRenderer {
 	public static Quaternion cameraOrientation = Quaternion.ONE;
-	public static int tickTime = 0;
 
 	// EntityRenderDispatcher#render
 	public static void render(PoseStack stack, FakePlayer player, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {

@@ -22,6 +22,7 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
+		if (player.isInvisible()) return;
 		BakableModel modelData = OVERRIDDEN.get(() -> Cosmetica.getPlayerData(player).backBling());
 
 		if (modelData == null) return; // if it has a model

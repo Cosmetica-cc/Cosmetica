@@ -7,7 +7,6 @@ import com.eyezah.cosmetics.screens.CustomiseCosmeticsScreen;
 import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.PlayerRenderScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
-import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -74,8 +73,6 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("RETURN"), method = "tick")
 	public void afterTick(CallbackInfo ci) {
-		if (this.level == null) FakePlayerRenderer.tickTime++;
-
 		if (Cosmetica.openCustomiseScreen.consumeClick()) {
 			if (this.screen == null) {
 				this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));

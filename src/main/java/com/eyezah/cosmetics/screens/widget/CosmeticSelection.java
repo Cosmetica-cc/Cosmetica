@@ -32,14 +32,14 @@ import java.util.function.Consumer;
 
 public class CosmeticSelection<T extends CustomCosmetic> extends Selection<CosmeticSelection.Entry<T>> {
 	public CosmeticSelection(Minecraft minecraft, Screen parent, String cosmeticType, Font font, Consumer<String> onSelect) {
-		super(minecraft, parent, font, 0, 25, 65, onSelect);
+		super(minecraft, parent, font, 0, 25, 60, onSelect);
 		this.cosmeticType = cosmeticType;
 	}
 
 	private final String cosmeticType;
 	private final Map<String, Entry> byId = new HashMap<>();
 
-	private static final int OFFSET = 45;
+	private static final int OFFSET_X = 45;
 
 	public void add(T cosmetic) {
 		this._add(cosmetic, true);
@@ -82,24 +82,24 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 	}
 
 	@Override
-	protected void renderList(PoseStack poseStack, int i, int j, int k, int l, float f) {
+	protected void renderList(PoseStack poseStack, int xOffset, int yOffset, int k, int l, float f) {
 		// stolen proudly from vanilla
 		int itemCount = this.getItemCount();
 		Tesselator tesselator = Tesselator.getInstance();
 		BufferBuilder bufferBuilder = tesselator.getBuilder();
 
-		for(int n = 0; n < itemCount; ++n) {
-			int rowTop = this.getRowTop(n);
+		for(int i = 0; i < itemCount; ++i) {
+			int rowTop = this.getRowTop(i);
 			int rowBottom = rowTop + this.itemHeight;
 
 			if (rowBottom >= this.y0 && rowTop <= this.y1) {
-				int q = j + n * this.itemHeight + this.headerHeight;
-				int r = this.itemHeight - 4;
-				Entry entry = this.getEntry(n);
+				int y0 = yOffset + i * this.itemHeight + this.headerHeight;
+				int dy = this.itemHeight - 4;
+				Entry entry = this.getEntry(i);
 				int rowWidth = this.getRowWidth();
 				int x0;
-				if (this.isSelectedItem(n)) {
-					x0 = this.x0 + this.width / 2 - rowWidth / 2 + OFFSET;
+				if (this.isSelectedItem(i)) {
+					x0 = this.x0 + this.width / 2 - rowWidth / 2 + OFFSET_X;
 					int x1 = this.x0 + this.width / 2 + rowWidth / 2;
 
 					RenderSystem.disableTexture();
@@ -109,25 +109,25 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 					// white ""outline"" (square 1)
 					RenderSystem.setShaderColor(g, g, g, 1.0F);
 					bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-					bufferBuilder.vertex(x0, (q + r + 2), 0.0D).endVertex();
-					bufferBuilder.vertex(x1, (q + r + 2), 0.0D).endVertex();
-					bufferBuilder.vertex(x1, (q - 2), 0.0D).endVertex();
-					bufferBuilder.vertex(x0, (q - 2), 0.0D).endVertex();
+					bufferBuilder.vertex(x0, (y0 + dy + 2), 0.0D).endVertex();
+					bufferBuilder.vertex(x1, (y0 + dy + 2), 0.0D).endVertex();
+					bufferBuilder.vertex(x1, (y0 - 2), 0.0D).endVertex();
+					bufferBuilder.vertex(x0, (y0 - 2), 0.0D).endVertex();
 					tesselator.end();
 
 					// blacc
 					RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
 					bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-					bufferBuilder.vertex((x0 + 1), (q + r + 1), 0.0D).endVertex();
-					bufferBuilder.vertex((x1 - 1), (q + r + 1), 0.0D).endVertex();
-					bufferBuilder.vertex((x1 - 1), (q - 1), 0.0D).endVertex();
-					bufferBuilder.vertex((x0 + 1), (q - 1), 0.0D).endVertex();
+					bufferBuilder.vertex((x0 + 1), (y0 + dy + 1), 0.0D).endVertex();
+					bufferBuilder.vertex((x1 - 1), (y0 + dy + 1), 0.0D).endVertex();
+					bufferBuilder.vertex((x1 - 1), (y0 - 1), 0.0D).endVertex();
+					bufferBuilder.vertex((x0 + 1), (y0 - 1), 0.0D).endVertex();
 					tesselator.end();
 					RenderSystem.enableTexture();
 				}
 
 				x0 = this.getRowLeft();
-				entry.render(poseStack, n, rowTop, x0, rowWidth, r, k, l, Objects.equals(this.getHovered(), entry), f);
+				entry.render(poseStack, i, rowTop, x0, rowWidth, dy, k, l, Objects.equals(this.getHovered(), entry), f);
 			}
 		}
 
@@ -150,7 +150,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			if (register) { // yes please do load icon each time (it removes it from memory?)
 				if (RenderSystem.isOnRenderThreadOrInit()) {
 					Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
-							Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
+							Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
 							String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
 					));
 
@@ -160,7 +160,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 					RenderSystem.recordRenderCall(() -> {
 						Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
-								Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + ".png").toFile(),
+								Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
 								String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
 						));
 
@@ -188,10 +188,10 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 		@Override
 		public void render(PoseStack poseStack, int x, int y, int k, int l, int m, int n, int o, boolean isHovered, float f) {
-			this.indicatorStartY = y + 15;
+			this.indicatorStartY = y + 16;
 			x = Minecraft.getInstance().screen.width / 2 - 60;
 			final int textY = y;
-			y += 20;
+			y += 28;
 
 			Matrix4f pose = poseStack.last().pose();
 
@@ -247,7 +247,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int i) {
-			if (mouseX >= this.selection.x0 + this.selection.width / 2 - this.selection.getRowWidth() / 2 + OFFSET) {
+			if (mouseX >= this.selection.x0 + this.selection.width / 2 - this.selection.getRowWidth() / 2 + OFFSET_X) {
 				return super.mouseClicked(mouseX, mouseY, i);
 			} else {
 				return false;

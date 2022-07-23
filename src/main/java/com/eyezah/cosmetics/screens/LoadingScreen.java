@@ -59,7 +59,7 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, this.parentOptions));
 		}));
 		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30) + 24, 200, 20, new TranslatableComponent("gui.cancel"), (button) -> {
-			this.minecraft.setScreen(this.parentScreen);
+			this.onClose();
 		}));
 	}
 

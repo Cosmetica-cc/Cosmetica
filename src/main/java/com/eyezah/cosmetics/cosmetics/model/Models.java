@@ -5,8 +5,6 @@ import cc.cosmetica.api.Model;
 import com.eyezah.cosmetics.Cosmetica;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayerRenderer;
 import com.eyezah.cosmetics.utils.Debug;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -27,10 +25,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
 
 public class Models {
 	private static Map<String, BakedModel> BAKED_MODELS = new HashMap<>();
@@ -64,13 +70,19 @@ public class Models {
 		if (compute) {
 			Debug.info("Computing Baked Model: " + unbaked.id());
 			BAKED_MODELS.put(unbaked.id(), null); // searching
-			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, Minecraft.getInstance().level == null ? FakePlayerRenderer.tickTime : Minecraft.getInstance().level.getGameTime(), sprite -> {
-				BakedModel model = unbaked.model().bake(
-						thePieShopDownTheRoad,
-						l -> Models.getAppropriateTexture(l, sprite, unbaked.id()),
-						BlockModelRotation.X0_Y0,
-						new ResourceLocation(unbaked.id().toLowerCase(Locale.ROOT)) /*this resource location is just for debugging in the case of errors*/);
-				BAKED_MODELS.put(unbaked.id(), model);
+			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, sprite -> {
+				// Pls Fix
+				if (sprite == null) {
+					BAKED_MODELS.remove(unbaked.id());
+				}
+				else {
+					BakedModel model = unbaked.model().bake(
+							thePieShopDownTheRoad,
+							l -> Models.getAppropriateTexture(l, sprite, unbaked.id()),
+							BlockModelRotation.X0_Y0,
+							new ResourceLocation(unbaked.id().toLowerCase(Locale.ROOT)) /*this resource location is just for debugging in the case of errors*/);
+					BAKED_MODELS.put(unbaked.id(), model);
+				}
 			});
 		}
 
@@ -149,7 +161,7 @@ public class Models {
 		model.getTransforms().getTransform(transformType).apply(false, stack);
 		stack.translate(-0.5D, -0.5D, -0.5D);
 
-		RenderType renderType = RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS); // hopefully this is the right one
+		RenderType renderType = RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS); // hopefully this is the right one
 		VertexConsumer vertexConsumer4 = multiBufferSource.getBuffer(renderType);
 		renderModelLists(model, packedLight, overlayTyp, stack, vertexConsumer4);
 

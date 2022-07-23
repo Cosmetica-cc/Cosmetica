@@ -80,7 +80,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 		case RELOADING:
 			this.addMainGUI(true);
 		case LOADING:
-			this.currentFetcher = this.addRenderableWidget(new FetchingCosmetics<>(getTranslationPart(this.type), () -> ImmutableList.of(Cosmetica.api.getRecentCosmetics(this.type, this.page, 8, Optional.ofNullable(this.searchQuery))),
+			this.currentFetcher = this.addWidget(new FetchingCosmetics<>(getTranslationPart(this.type), () -> ImmutableList.of(Cosmetica.api.getRecentCosmetics(this.type, this.page, 8, Optional.ofNullable(this.searchQuery))),
 			(fetcher, results) -> {
 				if (results.isEmpty()) {
 					this.state = LoadState.FAILED;
@@ -94,10 +94,13 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 					}
 
 					this.nextPage = page.hasNextPage();
-					this.state = LoadState.LOADED;
 				}
 
-				RenderSystem.recordRenderCall(this::rebuildGUI);
+				// Change GUI widgets on the main thread to prevent CMEs. Load State LOADED must be set there too so that the GUI display changes all at once rather than one component at a time.
+				RenderSystem.recordRenderCall(() -> {
+					this.state = LoadState.LOADED;
+					this.rebuildGUI();
+				});
 			}));
 			this.currentFetcher.y = this.height / 2 - 20;
 			this.currentFetcher.x = this.width / 2 - this.currentFetcher.getWidth() / 2;
@@ -126,6 +129,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 
 	@Override
 	public void onClose() {
+		// return player to pre-browse rotations: the browse cosmetics screen has a different set of rotations
 		this.fakePlayer.yRotBody = this.yRotBodyPrev;
 		this.fakePlayer.yRot = this.yRotPrev;
 		super.onClose();

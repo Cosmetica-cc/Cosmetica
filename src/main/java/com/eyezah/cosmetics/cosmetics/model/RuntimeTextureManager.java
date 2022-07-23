@@ -8,6 +8,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -23,6 +24,7 @@ public class RuntimeTextureManager {
 		this.ids = new String[size];
 		this.sprites = new TextureAtlasSprite[size];
 		this.used = new int[size];
+		Scheduler.scheduleRepeatable(Scheduler.Location.TEXTURE_TICK, this::tick);
 	}
 
 	private final int size;
@@ -49,18 +51,17 @@ public class RuntimeTextureManager {
 		}
 	}
 
-	// should be called from the render thread because of texture setting probably
-	// andThen may not be called on the same thread -- proceed with caution
-	public void retrieveAllocatedSprite(BakableModel model, long tickTime, Consumer<TextureAtlasSprite> callback) {
-		if (tickTime != this.lastTickTime) {
-			this.lastTickTime = tickTime;
-			this.search = 0;
+	void tick() {
+		this.search = 0;
 
-			for (int i = 0; i < this.size; ++i) {
-				if (this.used[i] > 0) this.used[i]--; // once it reaches zero it's not gonna be overwritten just yet, but it will be marked as able to be overwritten. So if it needs the space it will overwrite it.
-			}
+		for (int i = 0; i < this.size; ++i) {
+			if (this.used[i] > 0) this.used[i]--; // once it reaches zero it's not gonna be overwritten just yet, but it will be marked as able to be overwritten. So if it needs the space it will overwrite it.
 		}
+	}
 
+	// should be called from the render thread because of texture setting probably
+	// callback may not be called on the same thread -- proceed with caution
+	public void retrieveAllocatedSprite(BakableModel model, Consumer<@Nullable TextureAtlasSprite> callback) {
 		int index = this.getIndex(model.id());
 
 		if (index == -1) {
@@ -71,6 +72,7 @@ public class RuntimeTextureManager {
 				// increment. if reached the end, cannot load any new textures
 				if (++index == this.size) { // attention code editors: keep the ++ operator before index! ++index returns the result after incrementing, whereas index++ returns the result before!
 					this.search = this.size;
+					callback.accept(null);
 					return; // return silently. we ran out of space. no major worry.
 				}
 			}
@@ -92,6 +94,7 @@ public class RuntimeTextureManager {
 			if (sprite == null) { // this should not happen, however it does seem to be happening sometimes if Iris is installed, so here's a catch to not destroy the game and give the game some time.
 				Cosmetica.LOGGER.error("The sprite assigned to model {} is null! Will try again in 20 ticks.", model.id());
 				this.used[index] = 20;
+				callback.accept(null);
 				return; // don't run code that requires it
 			}
 
