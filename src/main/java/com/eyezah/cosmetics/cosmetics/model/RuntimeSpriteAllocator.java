@@ -6,21 +6,19 @@ import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.Scheduler;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.MipmapGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
 /**
  * Queue-like texture cache. First-Come, First-Served.
  */
-public class RuntimeTextureManager {
+public class RuntimeSpriteAllocator {
 	/**
 	 * @param size the size of the cache, must be a power of 2 due to bitwise operations utilised (technically could use modulo instead but speed)
 	 */
-	public RuntimeTextureManager(int size) {
+	public RuntimeSpriteAllocator(int size) {
 		this.size = size;
 		this.ids = new String[size];
 		this.sprites = new TextureAtlasSprite[size];
@@ -41,9 +39,12 @@ public class RuntimeTextureManager {
 	int search = 0; // current search index for an unused space (reset each tick)
 
 	public void addAtlasSprite(TextureAtlasSprite result) {
-		Debug.info("Adding Atlas Sprite {} at index {}", result, this.emptySpriteIndex);
-		this.sprites[this.emptySpriteIndex] = result;
-		this.emptySpriteIndex = (this.emptySpriteIndex + 1) & (this.size - 1);
+		// minecraft loads resources in parallel
+		synchronized (this) {
+			Debug.info("Adding Atlas Sprite {} at index {}", result, this.emptySpriteIndex);
+			this.sprites[this.emptySpriteIndex] = result;
+			this.emptySpriteIndex = (this.emptySpriteIndex + 1) & (this.size - 1);
+		}
 	}
 
 	void clear() {

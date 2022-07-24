@@ -15,6 +15,7 @@
     "screen.ConnectScreenInvoker",
     "screen.InventoryScreenMixin",
     "screen.OptionsScreenMixin",
+    "screen.ScreenMixin",
     "screen.TitleScreenMixin",
     "textures.AbstractClientPlayerMixin",
     "textures.CapeLayerMixin",

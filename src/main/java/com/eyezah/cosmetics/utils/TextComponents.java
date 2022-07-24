@@ -136,6 +136,17 @@ public class TextComponents {
 		}
 	}
 
+	public static String stripColour(String lore) {
+		final char sectionSign = '\u00A7';
+
+		if (lore.charAt(0) == sectionSign) {
+			return lore.substring(2);
+		}
+		else {
+			return lore;
+		}
+	}
+
 	private enum Token {
 		LINK_START,
 		LINK_MID,

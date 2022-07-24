@@ -22,7 +22,6 @@ import com.mojang.math.Vector3f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -90,7 +89,9 @@ public class Cosmetica implements ClientModInitializer {
 	public static Player farPickPlayer;
 	public static HitResult farPickHitResult;
 
-	public static String displayNext;
+	// for welcome & vcheck
+	public static Component displayNext;
+
 	public static String currentServerAddressCache = "";
 	public static KeyMapping openCustomiseScreen;
 	public static KeyMapping snipe;
@@ -182,7 +183,7 @@ public class Cosmetica implements ClientModInitializer {
 					String s = versionInfo.minecraftMessage();
 
 					if (!s.isEmpty()) {
-						displayNext = s;
+						//displayNext = TextComponents.literal(s);
 					}
 				}, Cosmetica.logErr("Error checking version"));
 			} catch (Exception e) {

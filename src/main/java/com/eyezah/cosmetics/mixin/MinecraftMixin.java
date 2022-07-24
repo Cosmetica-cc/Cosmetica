@@ -8,10 +8,14 @@ import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.screens.PlayerRenderScreen;
 import com.eyezah.cosmetics.screens.RSEWarningScreen;
 import com.eyezah.cosmetics.utils.Debug;
+import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static com.eyezah.cosmetics.Cosmetica.displayNext;
+
 @Mixin(value = Minecraft.class, priority = 69) // i must be the first
 public abstract class MinecraftMixin {
 	@Shadow public abstract void setScreen(@Nullable Screen screen);
@@ -31,6 +37,8 @@ public abstract class MinecraftMixin {
 	@Shadow @Final public Gui gui;
 
 	@Shadow @Nullable public ClientLevel level;
+
+	@Shadow @Nullable public LocalPlayer player;
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;shutdownExecutors()V"), method = "close")
 	private void onClose(CallbackInfo info) {
@@ -63,7 +71,7 @@ public abstract class MinecraftMixin {
 
 		// also do the check thing
 		if (Cosmetica.displayNext != null) {
-			this.gui.getChat().addMessage(new TextComponent(Cosmetica.displayNext));
+			this.gui.getChat().addMessage(Cosmetica.displayNext);
 			Cosmetica.displayNext = null;
 		}
 	}
