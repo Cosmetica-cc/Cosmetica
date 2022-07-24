@@ -47,7 +47,7 @@ public class MainScreen extends PlayerRenderScreen {
 	@Override
 	protected void addWidgets() {
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.customizeCosmetics"), button ->
-			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this, this.fakePlayer, this.cosmeticaOptions, Cosmetica.getConfig().shouldInlineChangeButton(), 1.0 - this.getTransitionProgress()))
+			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this, this.fakePlayer, this.cosmeticaOptions, 1.0 - this.getTransitionProgress()))
 		);
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.capeServerSettings"), button ->

@@ -9,7 +9,6 @@ import java.util.Properties;
 public class CosmeticaConfig {
     private final Path propertiesPath;
     private boolean showNametagInThirdPerson = true;
-    private boolean inlineChangeButton = true;
 
     public CosmeticaConfig(Path propertiesPath) {
         this.propertiesPath = propertiesPath;
@@ -32,7 +31,6 @@ public class CosmeticaConfig {
 
         properties.load(Files.newInputStream(propertiesPath));
         showNametagInThirdPerson = Boolean.parseBoolean(properties.getProperty("show-nametag-in-third-person"));
-        inlineChangeButton = Boolean.parseBoolean(properties.getProperty("inline-change-button"));
     }
 
     public void save() throws IOException {
@@ -41,7 +39,6 @@ public class CosmeticaConfig {
 
         Properties properties = new Properties();
         properties.setProperty("show-nametag-in-third-person", String.valueOf(showNametagInThirdPerson));
-        properties.setProperty("inline-change-button", String.valueOf(inlineChangeButton));
         properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Config");
     }
 
@@ -51,9 +48,5 @@ public class CosmeticaConfig {
 
     public void setShowNametagInThirdPerson(boolean showNametagInThirdPerson) {
         this.showNametagInThirdPerson = showNametagInThirdPerson;
-    }
-
-    public boolean shouldInlineChangeButton() {
-        return inlineChangeButton;
     }
 }

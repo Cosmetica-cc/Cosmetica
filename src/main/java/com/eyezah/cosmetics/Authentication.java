@@ -76,7 +76,7 @@ public class Authentication {
 						FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info, info.slim());
 						Minecraft.getInstance().setScreen(switch (loadTarget) {
 							case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo);
-							case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings, Cosmetica.getConfig().shouldInlineChangeButton());
+							case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
 							default -> new MainScreen(lts.getParent(), settings, fakePlayer);
 						});
 					});

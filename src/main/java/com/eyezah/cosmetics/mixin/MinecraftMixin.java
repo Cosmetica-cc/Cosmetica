@@ -32,8 +32,6 @@ public abstract class MinecraftMixin {
 
 	@Shadow @Nullable public ClientLevel level;
 
-	@Shadow @Nullable public Entity crosshairPickEntity;
-
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;shutdownExecutors()V"), method = "close")
 	private void onClose(CallbackInfo info) {
 		Cosmetica.onShutdownClient();

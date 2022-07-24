@@ -65,12 +65,17 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 
 	protected  <T extends CustomCosmetic, E> Section createActiveSection(String title, List<String> items, @Nullable CosmeticType<T> type, @Nullable CosmeticStack<E> stack) {
 		Div section = Div.create(title);
-		Component headerText = TextComponents.translatable("cosmetica.entry." + (items.isEmpty() ? "No" + title.replace(" ", "") : title.replace(" ", "")));
+		Component headerText = TextComponents.translatable("cosmetica.entry." + title.replace(" ", ""));
 
 		this.addTextTo(section, headerText, 200, false);
 
-		for (String item : items) {
-			this.addTextTo(section, TextComponents.literal(item), 200, false).active = false;
+		if (items.isEmpty()) {
+			this.addTextTo(section, TextComponents.translatable("cosmetica.entry.none"), 200, false).active = false;
+		}
+		else {
+			for (String item : items) {
+				this.addTextTo(section, TextComponents.literal(item), 200, false).active = false;
+			}
 		}
 
 		section.calculateDimensions();

@@ -5,7 +5,6 @@ import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.UserSettings;
 import com.eyezah.cosmetics.cosmetics.model.CosmeticStack;
 import com.eyezah.cosmetics.screens.fakeplayer.FakePlayer;
-import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.TextComponents;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -15,18 +14,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
-	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, UserSettings settings, boolean inlineChangeButton) {
-		this(parentScreen, player, new ServerOptions(settings), inlineChangeButton, 1.0);
+	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, UserSettings settings) {
+		this(parentScreen, player, new ServerOptions(settings), 1.0);
 		this.canCloseWithBn = true;
 	}
 
-	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options, boolean inlineChangeButton, double transitionProgress) {
+	protected CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options, double transitionProgress) {
 		super(TextComponents.translatable("cosmetica.customizeCosmetics"), parentScreen, player, options, transitionProgress);
-		this.inlineChangeButton = inlineChangeButton;
 		this.leftMouseGrabBuffer = 51;
 	}
 
-	private final boolean inlineChangeButton;
 	private boolean canCloseWithBn = false;
 
 	public boolean canCloseWithBn() {
@@ -40,15 +37,7 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 		Div section = Div.create(title);
 		Component headerText = TextComponents.translatable("cosmetica.entry." + title.replace(" ", ""));
 
-		if (!this.inlineChangeButton) {
-			Span header = section.addChild(new Span(0, 0, 200, 20, TextComponents.literal(title + "Header")));
-
-			this.addTextTo(header, headerText, this.font.width(headerText) + 8, false);
-			header.addChild(new Button(0, 0, 60, 20, TextComponents.translatable("cosmetica.change"), onChange));
-		}
-		else {
-			this.addTextTo(section, headerText, 200, false);
-		}
+		this.addTextTo(section, headerText, 200, false);
 
 		if (items.isEmpty()) {
 			this.addTextTo(section, TextComponents.translatable("cosmetica.entry.none"), 200, false).active = false;
@@ -59,10 +48,7 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 			}
 		}
 
-		if (this.inlineChangeButton) {
-			section.addChild(new Button(0, 0, 100, 20, TextComponents.translatable("cosmetica.change"), onChange));
-		}
-
+		section.addChild(new Button(0, 0, 100, 20, TextComponents.translatable("cosmetica.change"), onChange));
 		section.calculateDimensions();
 		return section;
 	}
