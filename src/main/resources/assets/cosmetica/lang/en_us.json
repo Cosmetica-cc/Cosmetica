@@ -10,7 +10,7 @@
   "cosmetica.entry.BackBlingDisabled": "Back Bling Disabled",
   "cosmetica.entry.Cape": "Cape",
   "cosmetica.entry.Capes": "Capes",
-  "cosmetica.entry.None": "None",
+  "cosmetica.entry.none": "None",
 
   "cosmetica.indicators.animated":  "Animated",
   "cosmetica.indicators.lockToTorso":  "Orientation Locked to Torso",

@@ -344,7 +344,7 @@ public class Cosmetica implements ClientModInitializer {
 				minecraft.getProfiler().push("snipe");
 				Cosmetica.farPickPlayer = null;
 
-				double maxDist = 18.0f;
+				final double maxDist = 64.0f;
 				Cosmetica.farPickHitResult = entity.pick(maxDist, yawProbably, false);
 				Vec3 eyePosition = entity.getEyePosition(yawProbably);
 
