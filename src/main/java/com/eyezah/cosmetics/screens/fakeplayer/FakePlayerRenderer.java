@@ -45,24 +45,6 @@ public class FakePlayerRenderer {
 
 			drawFakePlayer(player, rotation, delta, stack, bufferSource, light);
 
-//			if (entity.displayFireAnimation()) {
-//				this.renderFlame(poseStack, multiBufferSource, entity);
-//			}
-
-			stack.translate(-vec3.x(), -vec3.y(), -vec3.z());
-
-//			if (this.options.entityShadows && this.shouldRenderShadow && entityRenderer.shadowRadius > 0.0F && !entity.isInvisible()) {
-//				double m = this.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
-//				float n = (float)((1.0D - m / 256.0D) * (double)entityRenderer.shadowStrength);
-//				if (n > 0.0F) {
-//					renderShadow(poseStack, multiBufferSource, entity, n, h, this.level, entityRenderer.shadowRadius);
-//				}
-//			}
-//
-//			if (this.renderHitBoxes && !entity.isInvisible() && !Minecraft.getInstance().showOnlyReducedInfo()) {
-//				renderHitbox(poseStack, multiBufferSource.getBuffer(RenderType.lines()), entity, h);
-//			}
-
 			stack.popPose();
 		} catch (Throwable var24) {
 			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering entity in world");
@@ -161,7 +143,9 @@ public class FakePlayerRenderer {
 
 		stack.popPose();
 
-		renderNameTag(player, stack, bufferSource, light);
+		if (player.renderNametag) {
+			renderNameTag(player, stack, bufferSource, light);
+		}
 	}
 
 	private static RenderType getRenderType(FakePlayer player, boolean isVisible, boolean isInvisibleToPlayer, boolean isGlowing) {

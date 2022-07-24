@@ -54,7 +54,8 @@ public class Authentication {
 				// regional effects checking
 				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet();
 
-				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
+				// only bother trying to do the next stage if on a loading screen
+				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen) {
 					// load player info
 					final UUID ownUUID = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
 					final String ownName = Minecraft.getInstance().getUser().getName();
@@ -75,14 +76,17 @@ public class Authentication {
 					Debug.info("Loading skin " + info.skin());
 					@Nullable PlayerData ownInfo = loadTarget == 2 ? Cosmetica.getPlayerData(ownUUID, ownName, true) : null;
 
-					Minecraft.getInstance().tell(() -> {
-						FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info, info.slim());
-						Minecraft.getInstance().setScreen(switch (loadTarget) {
-							case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo);
-							case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
-							default -> new MainScreen(lts.getParent(), settings, fakePlayer);
+					// check *again* in case they've closed it
+					if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
+						Minecraft.getInstance().tell(() -> {
+							FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info, info.slim());
+							Minecraft.getInstance().setScreen(switch (loadTarget) {
+								case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo);
+								case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
+								default -> new MainScreen(lts.getParent(), settings, fakePlayer);
+							});
 						});
-					});
+					}
 				}
 			},
 			error -> {

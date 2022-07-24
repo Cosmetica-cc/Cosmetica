@@ -150,7 +150,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			if (register) { // yes please do load icon each time (it removes it from memory?)
 				if (RenderSystem.isOnRenderThreadOrInit()) {
 					Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
-							Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
+							Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
 							String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
 					));
 
@@ -160,7 +160,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 					RenderSystem.recordRenderCall(() -> {
 						Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
-								Cosmetica.getConfigDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
+								Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
 								String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
 						));
 

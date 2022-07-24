@@ -28,6 +28,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -68,6 +69,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -112,6 +114,7 @@ public class Cosmetica implements ClientModInitializer {
 	private static CosmeticaConfig config;
 	private static DefaultSettingsConfig defaultSettingsConfig;
 	private static Path configDirectory;
+	private static Path cacheDirectory;
 
 	/**
 	 * The timestamp for the africa endpoint.
@@ -138,6 +141,10 @@ public class Cosmetica implements ClientModInitializer {
 		return configDirectory;
 	}
 
+	public static Path getCacheDirectory() {
+		return cacheDirectory;
+	}
+
 	public static DefaultSettingsConfig getDefaultSettingsConfig() {
 		return defaultSettingsConfig;
 	}
@@ -147,6 +154,33 @@ public class Cosmetica implements ClientModInitializer {
 		config = new CosmeticaConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("cosmetica.properties"));
 		configDirectory = FabricLoader.getInstance().getConfigDir().resolve("cosmetica");
 		defaultSettingsConfig = new DefaultSettingsConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("default-settings.properties"));
+
+		Path minecraftDir = findDefaultInstallDir("minecraft");
+
+		if (Files.isDirectory(minecraftDir)) {
+			cacheDirectory = minecraftDir.resolve(".cosmetica");
+		}
+		else {
+			cacheDirectory = FabricLoader.getInstance().getGameDir().resolve(".cosmetica");
+		}
+
+		// create cache directory if it doesn't exist
+		if (!Files.exists(cacheDirectory)) {
+			try {
+				Files.createDirectory(cacheDirectory);
+
+				// stupid windows
+				if (Util.getPlatform() == Util.OS.WINDOWS) {
+					try {
+						Files.setAttribute(cacheDirectory, "dos:hidden", true);
+					} catch (Exception e) {
+						Cosmetica.LOGGER.warn("Failed to set dos:hidden for cache file on windows", e);
+					}
+				}
+			} catch (Exception e) {
+				throw new RuntimeException("Error creating cache directory", e);
+			}
+		}
 
 		try {
 			config.initialize();
@@ -161,8 +195,7 @@ public class Cosmetica implements ClientModInitializer {
 		
 		// API Url Getter
 		runOffthread(() -> {
-			File minecraftDir = findDefaultInstallDir("minecraft").toFile();
-			File apiCache = new File(minecraftDir, "cosmetica_get_api_cache.json");
+			File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
 			//System.out.println(apiCache.getAbsolutePath());
 
 			CosmeticaAPI.setAPICache(apiCache);
@@ -186,7 +219,7 @@ public class Cosmetica implements ClientModInitializer {
 					String s = versionInfo.minecraftMessage();
 
 					if (!s.isEmpty()) {
-						//displayNext = TextComponents.literal(s);
+						displayNext = TextComponents.literal(s);
 					}
 				}, Cosmetica.logErr("Error checking version"));
 			} catch (Exception e) {

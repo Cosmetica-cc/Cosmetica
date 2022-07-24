@@ -49,6 +49,8 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	private final UUID uuid;
 	private String name;
 
+	public boolean renderNametag = true;
+
 	private boolean crouching;
 	private boolean holdingItem;
 	public float xRot;

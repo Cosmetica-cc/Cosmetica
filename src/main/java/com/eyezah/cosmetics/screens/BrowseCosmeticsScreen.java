@@ -266,8 +266,11 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 				}
 			}
 
+			// paper doll on side
 			this.updateSpin(mouseX, mouseY);
+			this.fakePlayer.renderNametag = false;
 			this.renderFakePlayer(mouseX, mouseY);
+			this.fakePlayer.renderNametag = true;
 
 			if (this.overrider.isSolo()) {
 				this.overrider.pop();
