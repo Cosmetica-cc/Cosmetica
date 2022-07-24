@@ -50,8 +50,8 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 	}
 
 	public void copy(CosmeticSelection<T> other) {
-		synchronized (minecraft.getTextureManager()) {
-			for (Entry<T> entry : other.byId.values()) {
+		synchronized (minecraft.getTextureManager()) { // can this be removed now?
+			for (Entry<T> entry : other.children()) {
 				this._add(entry.cosmetic, true);
 			}
 		}

@@ -12,7 +12,7 @@
   "cosmetica.entry.Capes": "Capes",
   "cosmetica.entry.none": "None",
 
-  "cosmetica.welcome": "\u00A77Welcome to Cosmetica! You can equip cosmetics through the skin customisation menu, setting a keybind, or clicking {}",
+  "cosmetica.welcome": "\u00A77Welcome to Cosmetica! You can equip cosmetics through the skin customisation menu, setting a keybind, or clicking %s",
   "cosmetica.linkhere": "\u00A76[here]",
 
   "cosmetica.indicators.animated":  "Animated",

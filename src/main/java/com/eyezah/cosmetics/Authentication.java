@@ -127,7 +127,7 @@ public class Authentication {
 			// welcome new, authenticated players
 			if (displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
-				menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise"));
+				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
 			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));

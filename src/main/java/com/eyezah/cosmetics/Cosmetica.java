@@ -10,6 +10,7 @@ import com.eyezah.cosmetics.cosmetics.Hats;
 import com.eyezah.cosmetics.cosmetics.PlayerData;
 import com.eyezah.cosmetics.cosmetics.model.BakableModel;
 import com.eyezah.cosmetics.cosmetics.model.Models;
+import com.eyezah.cosmetics.screens.LoadingScreen;
 import com.eyezah.cosmetics.utils.Debug;
 import com.eyezah.cosmetics.utils.NamedThreadFactory;
 import com.eyezah.cosmetics.utils.SpecialKeyMapping;
@@ -36,7 +37,9 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -337,51 +340,6 @@ public class Cosmetica implements ClientModInitializer {
 			safari(prideRock, yourFirstRodeo, ignoreSelf);
 	}
 
-	public static void cinder(Minecraft minecraft, float yawProbably) {
-		Entity entity = minecraft.getCameraEntity();
-
-		if (entity != null) {
-			if (minecraft.level != null) {
-				minecraft.getProfiler().push("snipe");
-				Cosmetica.farPickPlayer = null;
-
-				final double maxDist = 64.0f;
-				Cosmetica.farPickHitResult = entity.pick(maxDist, yawProbably, false);
-				Vec3 eyePosition = entity.getEyePosition(yawProbably);
-
-				double maxDistSqr = maxDist;
-				maxDistSqr *= maxDistSqr;
-
-				if (Cosmetica.farPickHitResult != null) {
-					maxDistSqr = Cosmetica.farPickHitResult.getLocation().distanceToSqr(eyePosition);
-				}
-
-				Vec3 view = entity.getViewVector(1.0F);
-				Vec3 castTowards = eyePosition.add(view.x * maxDist, view.y * maxDist, view.z * maxDist);
-
-				final float inflation = 1.0F;
-				AABB selectionBoundingBox = entity.getBoundingBox().expandTowards(view.scale(maxDist)).inflate(inflation, inflation, inflation);
-				EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(entity, eyePosition, castTowards, selectionBoundingBox, e -> !e.isSpectator() && e.isPickable(), maxDistSqr);
-
-				if (entityHitResult != null) {
-					Entity entity2 = entityHitResult.getEntity();
-					Vec3 resultLocation = entityHitResult.getLocation();
-					double distance = eyePosition.distanceToSqr(resultLocation);
-
-					if (distance < maxDistSqr || Cosmetica.farPickHitResult == null) {
-						Cosmetica.farPickHitResult = entityHitResult;
-
-						if (entity2 instanceof Player player) { // vanilla crosshair pick: entity2 instanceof LivingEntity || entity2 instanceof ItemFrame
-							Cosmetica.farPickPlayer = player;
-						}
-					}
-				}
-
-				minecraft.getProfiler().pop();
-			}
-		}
-	}
-
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo, boolean ignoreSelf) {
 		if (api != null && api.isAuthenticated()) {
 			Debug.info("Thread for safari {}", Thread.currentThread().getName());
@@ -446,6 +404,61 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	// End Africa
+
+	public static void cinder(Minecraft minecraft, float yawProbably) {
+		Entity entity = minecraft.getCameraEntity();
+
+		if (entity != null) {
+			if (minecraft.level != null) {
+				minecraft.getProfiler().push("snipe");
+				Cosmetica.farPickPlayer = null;
+
+				final double maxDist = 64.0f;
+				Cosmetica.farPickHitResult = entity.pick(maxDist, yawProbably, false);
+				Vec3 eyePosition = entity.getEyePosition(yawProbably);
+
+				double maxDistSqr = maxDist;
+				maxDistSqr *= maxDistSqr;
+
+				if (Cosmetica.farPickHitResult != null) {
+					maxDistSqr = Cosmetica.farPickHitResult.getLocation().distanceToSqr(eyePosition);
+				}
+
+				Vec3 view = entity.getViewVector(1.0F);
+				Vec3 castTowards = eyePosition.add(view.x * maxDist, view.y * maxDist, view.z * maxDist);
+
+				final float inflation = 1.0F;
+				AABB selectionBoundingBox = entity.getBoundingBox().expandTowards(view.scale(maxDist)).inflate(inflation, inflation, inflation);
+				EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(entity, eyePosition, castTowards, selectionBoundingBox, e -> !e.isSpectator() && e.isPickable(), maxDistSqr);
+
+				if (entityHitResult != null) {
+					Entity entity2 = entityHitResult.getEntity();
+					Vec3 resultLocation = entityHitResult.getLocation();
+					double distance = eyePosition.distanceToSqr(resultLocation);
+
+					if (distance < maxDistSqr || Cosmetica.farPickHitResult == null) {
+						Cosmetica.farPickHitResult = entityHitResult;
+
+						if (entity2 instanceof Player player) { // vanilla crosshair pick: entity2 instanceof LivingEntity || entity2 instanceof ItemFrame
+							Cosmetica.farPickPlayer = player;
+						}
+					}
+				}
+
+				minecraft.getProfiler().pop();
+			}
+		}
+	}
+
+	public static boolean handleComponentClicked(Minecraft minecraft, Style style) {
+		// handle clicking the "here" in the welcome message
+		if (style != null && style.getClickEvent() != null && style.getClickEvent().getAction() == ClickEvent.Action.CHANGE_PAGE && style.getClickEvent().getValue().equals("cosmetica.customise")) {
+			minecraft.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
+			return true;
+		}
+
+		return false;
+	}
 
 	@Nullable
 	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
