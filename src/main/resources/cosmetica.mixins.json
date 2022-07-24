@@ -6,6 +6,7 @@
     "compat.TitleScreenMixin",
     "fakeplayer.AbstractClientPlayerMixin",
     "fakeplayer.PlayerModelAccessor",
+    "fakeplayer.GameRendererMixin",
     "fakeplayer.HumanoidModelAccessor",
     "keys.KeymappingAccessor",
     "keys.KeymappingMixin",

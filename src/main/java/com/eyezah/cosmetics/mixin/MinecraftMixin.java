@@ -12,7 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -82,8 +81,8 @@ public abstract class MinecraftMixin {
 			}
 		}
 
-		if (Cosmetica.snipe.consumeClick() && this.screen == null && this.crosshairPickEntity instanceof AbstractClientPlayer player) {
-			Authentication.snipedPlayer = new User(player.getUUID(), player.getName().getString());
+		if (Cosmetica.snipe.consumeClick() && this.screen == null && Cosmetica.farPickPlayer != null) {
+			Authentication.snipedPlayer = new User(Cosmetica.farPickPlayer.getUUID(), Cosmetica.farPickPlayer.getName().getString());
 			this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 2));
 		}
 	}
