@@ -590,12 +590,12 @@ public class Cosmetica implements ClientModInitializer {
 
 						Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
 							List<Model> hats = info.getHats();
-							Optional<ShoulderBuddies> shoulderBuddy = info.getShoulderBuddies();
+							Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
 							Optional<Model> backBling = info.getBackBling();
 							Optional<Cape> cloak = info.getCape();
 
-							Optional<Model> leftShoulderBuddy = shoulderBuddy.isEmpty() ? Optional.empty() : shoulderBuddy.get().getLeft();
-							Optional<Model> rightShoulderBuddy = shoulderBuddy.isEmpty() ? Optional.empty() : shoulderBuddy.get().getRight();
+							Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
+							Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
 
 							PlayerData newData = new PlayerData(
 									info.getLore(),
