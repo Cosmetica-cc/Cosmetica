@@ -14,10 +14,6 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,8 +21,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import static com.eyezah.cosmetics.Cosmetica.displayNext;
 
 @Mixin(value = Minecraft.class, priority = 69) // i must be the first
 public abstract class MinecraftMixin {
@@ -37,6 +31,8 @@ public abstract class MinecraftMixin {
 	@Shadow @Final public Gui gui;
 
 	@Shadow @Nullable public ClientLevel level;
+
+	private static boolean cosmetica_shownTestModeDeprecationNotice = false;
 
 	@Shadow @Nullable public LocalPlayer player;
 
@@ -73,6 +69,11 @@ public abstract class MinecraftMixin {
 		if (Cosmetica.displayNext != null) {
 			this.gui.getChat().addMessage(Cosmetica.displayNext);
 			Cosmetica.displayNext = null;
+		}
+
+		if (!cosmetica_shownTestModeDeprecationNotice && Debug.TEST_MODE) {
+			cosmetica_shownTestModeDeprecationNotice = true;
+			this.gui.getChat().addMessage(TextComponents.literal("\u00A7cCosmetica Test Mode is deprecated in favour of using the website to preview cosmetics, and will be removed in the near future."));
 		}
 	}
 
