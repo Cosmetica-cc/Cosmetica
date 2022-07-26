@@ -695,6 +695,7 @@ public class Cosmetica implements ClientModInitializer {
 							Hats.OVERRIDDEN.getList(() -> data.hats()),
 							player.hasItemInSlot(EquipmentSlot.HEAD),
 							entity.isDiscrete(),
+							data.upsideDown(),
 							entity.getBbHeight(),
 							playerModel.head.xRot,
 							packedLight);
@@ -703,27 +704,30 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean sneaking, float playerHeight, float xRotHead, int packedLight) {
+	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean sneaking, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
 		if (!lore.equals("")) {
 			// how much do we need to shift up nametags?
 
-			float hatTopY = 0;
+			// upside down players don't need nametags shifted up
+			if (!upsideDown) {
+				float hatTopY = 0;
 
-			for (BakableModel hat : hats) {
-				if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
-					hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+				for (BakableModel hat : hats) {
+					if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
+						hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+					}
 				}
-			}
 
-			if (hatTopY > 0) {
-				float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
-				float lookAngleMultiplier;
-				if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
-					lookAngleMultiplier = 0;
-				} else {
-					lookAngleMultiplier = normalizedAngleMultiplier;
+				if (hatTopY > 0) {
+					float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
+					float lookAngleMultiplier;
+					if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
+						lookAngleMultiplier = 0;
+					} else {
+						lookAngleMultiplier = normalizedAngleMultiplier;
+					}
+					stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
 				}
-				stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
 			}
 
 			// render lore

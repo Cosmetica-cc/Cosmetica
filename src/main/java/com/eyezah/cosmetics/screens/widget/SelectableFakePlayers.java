@@ -149,7 +149,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 			x += this.separation;
 			j++;
 
-			if (overrider == ShoulderBuddies.RIGHT_OVERRIDDEN) overrider = (CosmeticStack<T>) ShoulderBuddies.LEFT_OVERRIDEN;
+			if (overrider == ShoulderBuddies.RIGHT_OVERRIDDEN) overrider = (CosmeticStack<T>) ShoulderBuddies.LEFT_OVERRIDDEN;
 		}
 
 		this.overrider.setIndex(-1);

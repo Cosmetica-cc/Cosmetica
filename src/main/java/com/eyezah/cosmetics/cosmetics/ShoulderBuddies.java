@@ -23,6 +23,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.item.DyeColor;
 
+import java.util.OptionalInt;
+
 public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
 	private ModelManager modelManager;
 	private EntityModelSet entityModelSet;
@@ -36,7 +38,7 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		BakableModel left = LEFT_OVERRIDEN.get(() -> Cosmetica.getPlayerData(player).leftShoulderBuddy());
+		BakableModel left = LEFT_OVERRIDDEN.get(() -> Cosmetica.getPlayerData(player).leftShoulderBuddy());
 		BakableModel right = RIGHT_OVERRIDDEN.get(() -> Cosmetica.getPlayerData(player).rightShoulderBuddy());
 
 		if (left != null && ((left.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityLeft().isEmpty())) render(left, stack, multiBufferSource, packedLight, (Playerish) player, true);
@@ -45,7 +47,7 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLight, FakePlayer player, float o, float n, float delta, float bob, float yRotDiff, float xRot) {
-		BakableModel left = LEFT_OVERRIDEN.get(() -> player.getData().leftShoulderBuddy());
+		BakableModel left = LEFT_OVERRIDDEN.get(() -> player.getData().leftShoulderBuddy());
 		BakableModel right = RIGHT_OVERRIDDEN.get(() -> player.getData().rightShoulderBuddy());
 
 		if (left != null) render(left, stack, bufferSource, packedLight, player, true);
@@ -65,17 +67,19 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 			// calculate colour like a jeb sheep
 			final int rate = 25;
 
-			int n = player.getLifetime() / rate + player.getPseudoId();
-			int o = DyeColor.values().length;
-			int p = n % o;
-			int q = (n + 1) % o;
-			float r = ((float)(player.getLifetime() % rate) + 0) / (float) rate;
-			float[] fs = Sheep.getColorArray(DyeColor.byId(p));
-			float[] gs = Sheep.getColorArray(DyeColor.byId(q));
+			int tick = player.getLifetime() / rate + player.getPseudoId();
+			int numColours = DyeColor.values().length;
 
-			float red = fs[0] * (1.0F - r) + gs[0] * r;
-			float green = fs[1] * (1.0F - r) + gs[1] * r;
-			float blue = fs[2] * (1.0F - r) + gs[2] * r;
+			int prevTick = tick % numColours;
+			int nextTick = (tick + 1) % numColours;
+			float progress = ((float)(player.getLifetime() % rate) + 0) / (float) rate;
+
+			float[] prevColours = Sheep.getColorArray(DyeColor.byId(prevTick));
+			float[] nextColours = Sheep.getColorArray(DyeColor.byId(nextTick));
+
+			float red = prevColours[0] * (1.0F - progress) + nextColours[0] * progress;
+			float green = prevColours[1] * (1.0F - progress) + nextColours[1] * progress;
+			float blue = prevColours[2] * (1.0F - progress) + nextColours[2] * progress;
 
 			// render
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
@@ -95,20 +99,21 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 
 			stack.popPose();
 		} else {
-			boolean staticPosition = (modelData.extraInfo() & 0x1) == 1;
+			boolean staticPosition = staticOverride.orElse(modelData.extraInfo() & Model.LOCK_SHOULDER_BUDDY_ORIENTATION) == Model.LOCK_SHOULDER_BUDDY_ORIENTATION;
 
 			if (staticPosition) {
 				stack.translate(left ? 0.35 : -0.35, -0.2, player.isSneaking() ? -0.16 : 0);
-				doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, 0f, 0, !left && (modelData.extraInfo() & Model.MIRROR_SHOULDER_BUDDY) == 0);
+				doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, 0f, 0, !left && (modelData.extraInfo() & Model.DONT_MIRROR_SHOULDER_BUDDY) == 0);
 			} else {
 				ModelPart modelPart = left ? this.getParentModel().leftArm : this.getParentModel().rightArm;
-				doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0.37f, 0, !left && (modelData.extraInfo() & Model.MIRROR_SHOULDER_BUDDY) == 0);
+				doCoolRenderThings(modelData, modelPart, stack, multiBufferSource, packedLightProbably, 0, 0.37f, 0, !left && (modelData.extraInfo() & Model.DONT_MIRROR_SHOULDER_BUDDY) == 0);
 			}
 		}
 
 		stack.popPose();
 	}
 
-	public static final CosmeticStack<BakableModel> LEFT_OVERRIDEN = new CosmeticStack();
+	public static final CosmeticStack<BakableModel> LEFT_OVERRIDDEN = new CosmeticStack();
 	public static final CosmeticStack<BakableModel> RIGHT_OVERRIDDEN = new CosmeticStack();
+	public static OptionalInt staticOverride = OptionalInt.empty();
 }

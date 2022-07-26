@@ -1,6 +1,7 @@
 package com.eyezah.cosmetics.mixin;
 
 import com.eyezah.cosmetics.Cosmetica;
+import com.eyezah.cosmetics.cosmetics.ShoulderBuddies;
 import com.eyezah.cosmetics.cosmetics.model.Models;
 import com.eyezah.cosmetics.utils.Debug;
 import net.minecraft.client.Minecraft;
@@ -10,6 +11,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.OptionalInt;
 
 @Mixin(LocalPlayer.class)
 public class LocalPlayerMixin {
@@ -34,6 +37,19 @@ public class LocalPlayerMixin {
 						break;
 					default:
 						break;
+					}
+				}
+				else if (args.length == 3) {
+					if (args[1].equals("staticsb")) {
+						if (args[2].equals("true")) {
+							ShoulderBuddies.staticOverride = OptionalInt.of(1);
+						}
+						else if (args[2].equals("false")) {
+							ShoulderBuddies.staticOverride = OptionalInt.of(0);
+						}
+						else {
+							ShoulderBuddies.staticOverride = OptionalInt.empty();
+						}
 					}
 				}
 

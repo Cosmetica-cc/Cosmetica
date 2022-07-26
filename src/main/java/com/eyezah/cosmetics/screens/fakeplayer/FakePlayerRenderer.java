@@ -372,6 +372,7 @@ public class FakePlayerRenderer {
 				player.getData().hats(),
 				false,
 				player.isCrouching(),
+				player.getData().upsideDown(),
 				EntityType.PLAYER.getDimensions().height,
 				player.getModel().getHead().xRot,
 				light);

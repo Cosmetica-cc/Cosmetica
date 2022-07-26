@@ -359,7 +359,7 @@ public class Debug {
 				() -> (Boolean.parseBoolean(TEST_PROPERTIES.getProperty("show_hat_under_helmet")) ? 1 : 0) | (Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_hat_orientation")) ? 2 : 0)
 		);
 		public static final LocalModelType LEFT_SHOULDERBUDDY = new LocalModelType(
-				ShoulderBuddies.LEFT_OVERRIDEN,
+				ShoulderBuddies.LEFT_OVERRIDDEN,
 				() -> TEST_PROPERTIES.getProperty("left_shoulderbuddy_location"),
 				() -> Boolean.parseBoolean(TEST_PROPERTIES.getProperty("lock_left_shoulderbuddy_orientation")) ? 1 : 0
 		);
