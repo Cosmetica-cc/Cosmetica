@@ -53,7 +53,10 @@ public final class CosmeticStack<T> {
 	private List<T> getVerySpecialListSpecificallyForHatsOnTheApplyCosmeticsScreen(List<T> existingHats, int replaceThisOne) {
 		if (solo != null && solo != this) return new ArrayList<>();
 
+		// if no test models just use existing hats
 		if (this.testModels.isEmpty()) return existingHats;
+		// if there are no existing hats, just use the test ones
+		if (existingHats.isEmpty()) return List.of(this.testModels.peek());
 
 		List<T> useMeHats = new ArrayList<>(existingHats);
 
