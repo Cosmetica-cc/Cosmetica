@@ -296,15 +296,17 @@ public class Cosmetica implements ClientModInitializer {
 
 	// example fabristation connection
 	public static String getFabriStationActivity() {
-		System.out.println("running activity check");
-		if (FabricLoader.getInstance().isModLoaded("fabristation")) {
-			System.out.println("Station is loaded");
-			//return "connected";
-			return FabriStationConnector.getFormatted();
-		} else {
-			System.out.println("Station isn't loaded");
-			return "not connected";
-		}
+//		System.out.println("running activity check");
+//		if (FabricLoader.getInstance().isModLoaded("fabristation")) {
+//			System.out.println("Station is loaded");
+//			//return "connected";
+//			return FabriStationConnector.getFormatted();
+//		} else {
+//			System.out.println("Station isn't loaded");
+//			return "not connected";
+//		}
+		// Temporarily disabled as it does not work on 1.19.1
+		return "not connected";
 	}
 
 	// =================

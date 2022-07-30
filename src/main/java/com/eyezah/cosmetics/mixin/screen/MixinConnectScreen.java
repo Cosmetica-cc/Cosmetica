@@ -86,7 +86,7 @@ public class MixinConnectScreen implements AuthenticatingScreen {
 					connection = Connection.connectToServer(inetSocketAddress, minecraft.options.useNativeTransport());
 					connection.setListener(new ClientHandshakePacketListenerImpl(connection, minecraft, parent, ((MixinConnectScreenInvoker) connectScreen)::doUpdateStatus));
 					connection.send(new ClientIntentionPacket(inetSocketAddress.getHostName(), inetSocketAddress.getPort(), ConnectionProtocol.LOGIN));
-					connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), minecraft.getProfileKeyPairManager().profilePublicKeyData()));
+					connection.send(new ServerboundHelloPacket(minecraft.getUser().getName(), minecraft.getProfileKeyPairManager().profilePublicKeyData(), Optional.ofNullable(minecraft.getUser().getProfileId())));
 				} catch (Exception e) {
 					if (aborted) {
 						Cosmetica.LOGGER.warn("aborted");

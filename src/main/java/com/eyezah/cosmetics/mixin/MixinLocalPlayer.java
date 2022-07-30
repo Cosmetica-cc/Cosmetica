@@ -23,12 +23,12 @@ import java.io.IOException;
 
 @Mixin(LocalPlayer.class)
 public class MixinLocalPlayer {
-	@Inject(at = @At("HEAD"), method = "chat", cancellable = true)
-	private void sendMessage(String string, CallbackInfo info) {
-		if (!string.isEmpty() && string.charAt(0) == '/' && Debug.debugCommands()) {
+	@Inject(at = @At("HEAD"), method = "sendCommand", cancellable = true)
+	private void sendMessage(String string, Component component, CallbackInfo info) {
+		if (!string.isEmpty() && Debug.debugCommands()) {
 			String[] args = string.split(" ");
 
-			if (args[0].equals("/cosmetica")) {
+			if (args[0].equals("cosmetica")) {
 				if (args.length == 1) {
 					OverriddenModel.disableDebugModels();
 					Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("cosmetica.debugCosmetica.disable"));

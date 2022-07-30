@@ -39,9 +39,10 @@ dependencies {
 	// Fixes running in dev with FabriStation which requires all of fabric api
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-	modImplementation('com.github.Station-rip:FabriStation:1.18-SNAPSHOT') {
-		exclude module: "fabric-api"
-	}
+	// Temporarily disabled as it does not work on 1.19.1
+//	modImplementation('com.github.Station-rip:FabriStation:1.18-SNAPSHOT') {
+//		exclude module: "fabric-api"
+//	}
 }
 
 processResources {
