@@ -11,9 +11,10 @@ version = "${project.minecraft_version}-${project.mod_version}"
 group = project.maven_group
 
 repositories {
-	maven { url = 'https://maven.parchmentmc.org' }
+	maven { url 'https://maven.parchmentmc.org' }
 	maven { url 'https://maven.gegy.dev' }
 	maven { url 'https://jitpack.io' }
+	maven { url 'https://maven.terraformersmc.com/' }
 }
 
 dependencies {
@@ -42,6 +43,8 @@ dependencies {
 	// Fixes running in dev with FabriStation which requires all of fabric api
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
+	// Load in dev for Compat & Interacting with
+	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 	modImplementation('com.github.Station-rip:FabriStation:1.18-SNAPSHOT') {
 		exclude module: "fabric-api"
 	}
