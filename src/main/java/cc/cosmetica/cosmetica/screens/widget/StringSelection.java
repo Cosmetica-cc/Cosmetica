@@ -22,6 +22,8 @@ public class StringSelection extends Selection<StringSelection.Entry> {
 	private Map<String, StringSelection.Entry> entries = new HashMap<>();
 	private int multiSelect = 1;
 	// if multiselecting, the non-current items in the selection stack
+	// unused. was going to be used for a revamped pronoun selection screen
+	// but no one has had any issues with it so this stays unnecessary and not fully implemented for now
 	private LinkedList<Entry> selectionStack = new LinkedList<>();
 
 	public StringSelection multiSelect(int cap) {
