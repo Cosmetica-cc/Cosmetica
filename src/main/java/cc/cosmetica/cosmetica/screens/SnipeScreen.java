@@ -1,5 +1,6 @@
 package cc.cosmetica.cosmetica.screens;
 
+import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
@@ -10,14 +11,19 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public class SnipeScreen extends ViewCosmeticsScreen {
-	public SnipeScreen(Component title, Screen parentScreen, FakePlayer player, UserSettings settings, PlayerData ownData) {
+	public SnipeScreen(Component title, Screen parentScreen, FakePlayer player, UserSettings settings,
+					   PlayerData ownData, User ownProfile) {
 		super(title, parentScreen, player, settings);
 		this.stealTheirLook = TextComponents.formattedTranslatable("cosmetica.stealhislook.steal", "their");
 		this.ownData = ownData;
+		this.settings = settings;
+		this.ownProfile = ownProfile;
 	}
 
 	private Component stealTheirLook;
 	private final PlayerData ownData;
+	final UserSettings settings;
+	final User ownProfile;
 
 	// funny hack to add both
 	@Override

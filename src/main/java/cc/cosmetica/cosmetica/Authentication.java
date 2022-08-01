@@ -77,9 +77,9 @@ public class Authentication {
 					// check *again* in case they've closed it
 					if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
 						Minecraft.getInstance().tell(() -> {
-							FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info, info.slim());
+							FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info);
 							Minecraft.getInstance().setScreen(switch (loadTarget) {
-								case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo);
+								case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo, new cc.cosmetica.api.User(ownUUID, ownName));
 								case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
 								default -> new MainScreen(lts.getParent(), settings, fakePlayer);
 							});

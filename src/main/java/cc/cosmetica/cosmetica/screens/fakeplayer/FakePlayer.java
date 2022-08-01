@@ -26,7 +26,8 @@ import java.util.UUID;
 
 // Fake player in a normal pose except for the fact that the main arm can be raised.
 public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>, Playerish {
-	public FakePlayer(Minecraft minecraft, UUID uuid, String name, PlayerData data, boolean slim) {
+	public FakePlayer(Minecraft minecraft, UUID uuid, String name, PlayerData data) {
+		final boolean slim = data.slim();
 		var context = new EntityRendererProvider.Context(minecraft.getEntityRenderDispatcher(), minecraft.getItemRenderer(), minecraft.getResourceManager(), minecraft.getEntityModels(), minecraft.font);
 		this.model = new PlayerModel<>(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
 
