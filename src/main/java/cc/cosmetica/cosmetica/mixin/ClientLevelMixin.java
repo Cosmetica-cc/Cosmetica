@@ -4,7 +4,6 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.ThreadPool;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
@@ -24,7 +23,7 @@ import java.util.function.Supplier;
 public abstract class ClientLevelMixin extends Level {
 	@Shadow @Final private Minecraft minecraft;
 
-	protected ClientLevelMixin(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> dimensionType, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l) {
+	protected ClientLevelMixin(WritableLevelData writableLevelData, ResourceKey<Level> resourceKey, DimensionType dimensionType, Supplier<ProfilerFiller> supplier, boolean bl, boolean bl2, long l) {
 		super(writableLevelData, resourceKey, dimensionType, supplier, bl, bl2, l);
 	}
 
