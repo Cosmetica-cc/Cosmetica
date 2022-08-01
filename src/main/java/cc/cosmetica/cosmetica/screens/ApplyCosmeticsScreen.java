@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateScreen {
 	protected ApplyCosmeticsScreen(Screen parent, PlayerRenderScreen parentParent, CosmeticType<T> type, CosmeticStack<E> overrider, @Nullable T cosmetic, float yRotBody, float yRot) {
-		super(TextComponents.translatable(cosmetic == null ? "cosmetica.selection.clear" : "cosmetica.selection.apply").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
+		super(TextComponents.translatable(cosmetic == null ? "cosmetica.selection.remove" : "cosmetica.selection.apply").append(TextComponents.translatable("cosmetica.entry." + getTranslationPart(type))), parent);
 		this.type = type;
 		this.id = cosmetic == null ? "none" : cosmetic.getId();
 		this.parentParent = parentParent;
@@ -187,8 +187,8 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 	static String getTranslationPart(CosmeticType<?> type) {
 		return switch (type.getUrlString()) {
 			case "cape" -> "Cape";
-			case "hat" -> "Hats";
-			case "shoulderbuddy" -> "ShoulderBuddies";
+			case "hat" -> "Hat";
+			case "shoulderbuddy" -> "ShoulderBuddy";
 			default -> "BackBling";
 		};
 	}

@@ -6,6 +6,7 @@ import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MouseTracker;
+import cc.cosmetica.cosmetica.screens.widget.ButtonList;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
 import com.mojang.blaze3d.platform.Lighting;
@@ -14,6 +15,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -21,6 +23,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 public abstract class PlayerRenderScreen extends SulphateScreen {
@@ -94,7 +97,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			Cosmetica.renderTexture(matrices.last().pose(), this.rseNotif, left, left + size, top, top + size, 0);
 
 			if (mouseY >= top && mouseY <= top + size && mouseX >= left && mouseX <= left + size) {
-				this.renderTooltip(matrices, regionEffectsMsg, mouseX, mouseY);
+				this.renderTooltip(matrices, this.font.split(regionEffectsMsg, Math.max(this.width / 2, 170)), mouseX, mouseY);
 			}
 		}
 	}

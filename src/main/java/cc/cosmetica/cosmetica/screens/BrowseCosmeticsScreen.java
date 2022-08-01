@@ -197,7 +197,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 
 		if (this.page == 1 || loadEdition) pageBack.active = false;
 
-		Button clear = this.addButton(this.type == CosmeticType.SHOULDER_BUDDY || this.type == CosmeticType.BACK_BLING ? 150 : 100, 20, TextComponents.translatable("cosmetica.selection.clear").append(TextComponents.translatable("cosmetica.entry." + ApplyCosmeticsScreen.getTranslationPart(this.type))),
+		Button clear = this.addButton(this.type == CosmeticType.SHOULDER_BUDDY || this.type == CosmeticType.BACK_BLING ? 150 : 100, 20, TextComponents.translatable("cosmetica.selection.remove").append(TextComponents.translatable("cosmetica.entry." + ApplyCosmeticsScreen.getTranslationPart(this.type))),
 				b -> this.minecraft.setScreen(new ApplyCosmeticsScreen<>(this, (PlayerRenderScreen) this.parent, this.type, this.overrider, null, this.yRotBodyPrev, this.yRotPrev)));
 
 		if (loadEdition) clear.active = false;
