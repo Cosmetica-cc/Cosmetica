@@ -3,13 +3,12 @@ package cc.cosmetica.cosmetica.screens.widget;
 import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.Model;
-import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.CosmeticaSkinManager;
+import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
 import cc.cosmetica.cosmetica.utils.textures.Indicators;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -195,35 +194,19 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 			Matrix4f pose = poseStack.last().pose();
 
-			if (textureRegistered) renderTexture(pose, this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset());
+			if (textureRegistered) Cosmetica.renderTexture(pose, this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset());
 			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(textY + 6), 16777215, true);
 			
 			int indicatorX = x + 30;
 			
 			for (ResourceLocation location : this.indicators) {
-				renderTexture(pose, location, indicatorX, indicatorX + 10, this.indicatorStartY, this.indicatorStartY + 10, this.selection.getBlitOffset());
-
-				indicatorX += 14;
+				Cosmetica.renderTexture(pose, location, indicatorX, indicatorX + 10, this.indicatorStartY, this.indicatorStartY + 10, this.selection.getBlitOffset());
+				indicatorX += 14; // move x down
 			}
 
 			if (this.hoveredIndicator != null) {
 				this.screen.renderTooltip(poseStack, Indicators.TOOLTIPS.get(this.hoveredIndicator), mouseX, mouseY + 8);
 			}
-		}
-
-		private static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z) {
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
-			RenderSystem.setShaderTexture(0, texture);
-			RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-			BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-			bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-			bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, (float)z).uv(0, 1).endVertex();
-			bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).uv(1, 1).endVertex();
-			bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, (float)z).uv(1, 0).endVertex();
-			bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, (float)z).uv(0, 0).endVertex();
-			bufferBuilder.end();
-			BufferUploader.end(bufferBuilder);
 		}
 
 		@Override

@@ -87,24 +87,28 @@ public class SelectLoreScreen extends SulphateScreen {
 
 				// create the selection which renders the text and handles clicking on options
 				StringSelection list = new StringSelection(this.minecraft, this, this.font, s -> {
-					switch (this.showing) {
-					case PRONOUNS:
-						if (this.pronounsSelected == 0) {
-							this.setPronouns = true;
+					// it runs set with "" on opening
+					if (!"".equals(s)) {
+						switch (this.showing) {
+						case PRONOUNS:
+							if (this.pronounsSelected == 0) {
+								this.setPronouns = true;
+								this.lore = s;
+								this.pronounsSelected = 1;
+							} else if (this.pronounsSelected < 4) {
+								this.setPronouns = true;
+								this.lore += "/" + s;
+								this.pronounsSelected++;
+							}
+							break;
+						case TITLES:
+							this.setPronouns = false;
 							this.lore = s;
-							this.pronounsSelected = 1;
-						} else if (this.pronounsSelected < 4) {
-							this.setPronouns = true;
-							this.lore += "/" + s;
-							this.pronounsSelected++;
+							break;
 						}
-						break;
-					case TITLES:
-						this.setPronouns = false;
-						this.lore = s;
-						break;
+
+						this.updateTitle();
 					}
-					this.updateTitle();
 				});
 
 				// add the available options to select to the lists

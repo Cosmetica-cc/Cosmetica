@@ -6,6 +6,8 @@ import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MouseTracker;
+import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,13 +17,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public abstract class PlayerRenderScreen extends SulphateScreen {
 	protected PlayerRenderScreen(Component title, @Nullable Screen parent, FakePlayer fakePlayer) {
 		super(title, parent);
 
 		this.fakePlayer = fakePlayer;
+		this.rseNotif = new ResourceLocation("cosmetica", "textures/gui/icon/wtf.png");
 	}
 
 	protected final FakePlayer fakePlayer;
@@ -38,6 +45,8 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 	protected int rightMouseGrabBuffer = 51;
 	protected int leftMouseGrabBuffer = 100000; // arbitrary big number
+
+	private final ResourceLocation rseNotif;
 
 	@Override
 	public void tick() {
@@ -60,6 +69,34 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 		this.updateSpin(mouseX, mouseY);
 		this.renderFakePlayer(mouseX, mouseY);
+
+		Component regionEffectsMsg = null;
+		PlayerData data = this.fakePlayer.getData();
+
+		if (data.upsideDown()) {
+			regionEffectsMsg = TextComponents.translatable("cosmetica.rsenotice.australian");
+		}
+		else if (!data.prefix().isEmpty()) {
+			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.prefix", data.prefix());
+		}
+		else if (!data.suffix().isEmpty()) {
+			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.suffix", data.suffix());
+		}
+		else if (Optional.ofNullable(data.rightShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)
+			|| Optional.ofNullable(data.leftShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)) {
+			regionEffectsMsg = TextComponents.translatable("cosmetica.rsenotice.kiwi");
+		}
+
+		if (regionEffectsMsg != null) {
+			final int top = this.height / 2 - 60;
+			final int left = this.playerLeft + 25;
+			final int size = 16;
+			Cosmetica.renderTexture(matrices.last().pose(), this.rseNotif, left, left + size, top, top + size, 0);
+
+			if (mouseY >= top && mouseY <= top + size && mouseX >= left && mouseX <= left + size) {
+				this.renderTooltip(matrices, regionEffectsMsg, mouseX, mouseY);
+			}
+		}
 	}
 
 	protected void updateSpin(int mouseX, int mouseY) {
