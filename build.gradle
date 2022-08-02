@@ -11,9 +11,10 @@ version = "${project.minecraft_version}-${project.mod_version}"
 group = project.maven_group
 
 repositories {
-	maven { url = 'https://maven.parchmentmc.org' }
+	maven { url 'https://maven.parchmentmc.org' }
 	maven { url 'https://maven.gegy.dev' }
 	maven { url 'https://jitpack.io' }
+	maven { url 'https://maven.terraformersmc.com/' }
 }
 
 dependencies {
@@ -26,6 +27,7 @@ dependencies {
 
 	include(modImplementation(fabricApi.module("fabric-api-base", "${project.fabric_api_version}")))
 	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", "${project.fabric_api_version}")))
+	//include(modImplementation(fabricApi.module("fabric-key-binding-api-v1", "${project.fabric_api_version}")))
 	include(modImplementation(fabricApi.module("fabric-textures-v0", "${project.fabric_api_version}")))
 
 	include(modImplementation("com.github.BenzeneStudios:Sulphate:${project.sulphate_version}")) {
@@ -33,12 +35,16 @@ dependencies {
 		exclude module: "databreaker"
 	}
 
+	// Cosmetica.java library
+	include(implementation("com.github.Cosmetica-cc:CosmeticaDotJava:${project.cosmetica_dot_java_version}"))
 
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
 	// Fixes running in dev with FabriStation which requires all of fabric api
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
+	// Load in dev for Compat & Interacting with
+	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 	modImplementation('com.github.Station-rip:FabriStation:1.18-SNAPSHOT') {
 		exclude module: "fabric-api"
 	}
