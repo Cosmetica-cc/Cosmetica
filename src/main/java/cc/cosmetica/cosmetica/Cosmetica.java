@@ -261,14 +261,14 @@ public class Cosmetica implements ClientModInitializer {
 		keymappings.add(openCustomiseScreen = new SpecialKeyMapping(
 				"key.cosmetica.customise",
 				InputConstants.Type.KEYSYM,
-				InputConstants.UNKNOWN.getValue(), // not bound by default
+				InputConstants.KEY_RSHIFT, // not bound by default
 				"key.categories.misc"
 		));
 
 		keymappings.add(snipe = new SpecialKeyMapping(
 				"key.cosmetica.snipe",
-				InputConstants.Type.KEYSYM,
-				InputConstants.UNKNOWN.getValue(), // not bound by default
+				InputConstants.Type.MOUSE,
+				InputConstants.MOUSE_BUTTON_MIDDLE, // not bound by default
 				"key.categories.misc"
 		));
 	}
