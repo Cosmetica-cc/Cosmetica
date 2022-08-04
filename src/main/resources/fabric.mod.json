@@ -28,6 +28,10 @@
     "fabricloader": ">=0.4.0"
   },
   
+  "breaks": {
+	"capes": "*"
+  },
+  
   "mixins": [
     "cosmetica.mixins.json"
   ]
