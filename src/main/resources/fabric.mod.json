@@ -29,7 +29,8 @@
   },
   
   "breaks": {
-	"capes": "*"
+	"capes": "*",
+	"minecraftcapes": "*"
   },
   
   "mixins": [
