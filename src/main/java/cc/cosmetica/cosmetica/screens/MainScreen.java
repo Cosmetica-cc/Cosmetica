@@ -9,6 +9,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.Debug;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -118,5 +119,11 @@ public class MainScreen extends PlayerRenderScreen {
 
 	void setCosmeticaOptions(ServerOptions options) {
 		this.cosmeticaOptions = options;
+	}
+
+	@Override
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+		super.render(matrices, mouseX, mouseY, delta);
+		this.renderRSENotif(matrices, mouseX, mouseY);
 	}
 }
