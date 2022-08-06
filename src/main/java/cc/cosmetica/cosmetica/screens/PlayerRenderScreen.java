@@ -67,7 +67,9 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 		this.updateSpin(mouseX, mouseY);
 		this.renderFakePlayer(mouseX, mouseY);
+	}
 
+	protected void renderRSENotif(PoseStack matrices, int mouseX, int mouseY) {
 		Component regionEffectsMsg = null;
 		PlayerData data = this.fakePlayer.getData();
 
@@ -81,7 +83,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.suffix", data.suffix());
 		}
 		else if (Optional.ofNullable(data.rightShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)
-			|| Optional.ofNullable(data.leftShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)) {
+				|| Optional.ofNullable(data.leftShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)) {
 			regionEffectsMsg = TextComponents.translatable("cosmetica.rsenotice.kiwi");
 		}
 

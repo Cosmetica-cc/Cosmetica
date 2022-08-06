@@ -6,6 +6,7 @@ import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -51,5 +52,11 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 		section.addChild(new Button(0, 0, 100, 20, TextComponents.translatable("cosmetica.change"), onChange));
 		section.calculateDimensions();
 		return section;
+	}
+
+	@Override
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+		super.render(matrices, mouseX, mouseY, delta);
+		this.renderRSENotif(matrices, mouseX, mouseY);
 	}
 }
