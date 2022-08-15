@@ -227,7 +227,7 @@ public class Cosmetica implements ClientModInitializer {
 
 					if (!s.isEmpty()) {
 						// log every time
-						Cosmetica.LOGGER.warn(s);
+						Cosmetica.LOGGER.warn(versionInfo.plainMessage());
 
 						// always show in game if vital, otherwise the user can choose whether to show
 						if (versionInfo.isVital() || Cosmetica.getConfig().shouldShowNonVitalUpdateMessages()) {
