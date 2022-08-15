@@ -18,9 +18,8 @@ public class CosmeticaConfig {
 
     public void initialize() throws IOException {
         load();
-        if (!Files.exists(propertiesPath)) {
-            save();
-        }
+        // in case there are new settings
+        save();
     }
 
     public void load() throws IOException {
