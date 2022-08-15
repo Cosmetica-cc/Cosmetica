@@ -127,7 +127,7 @@ public class Authentication {
 		// do a separate request for some reason because I'm cringe
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
 			// welcome new, authenticated players
-			if (Cosmetica.displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
+			if (Cosmetica.getConfig().shouldShowWelcomeMessage() && Cosmetica.displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
 				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				Cosmetica.displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
