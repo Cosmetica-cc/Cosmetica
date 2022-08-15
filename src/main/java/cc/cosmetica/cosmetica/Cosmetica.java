@@ -226,7 +226,13 @@ public class Cosmetica implements ClientModInitializer {
 					String s = versionInfo.minecraftMessage();
 
 					if (!s.isEmpty()) {
-						displayNext = TextComponents.literal(s);
+						// log every time
+						Cosmetica.LOGGER.warn(s);
+
+						// always show in game if vital, otherwise the user can choose whether to show
+						if (versionInfo.isVital() || Cosmetica.getConfig().shouldShowNonVitalUpdateMessages()) {
+							displayNext = TextComponents.literal(s);
+						}
 					}
 				}, Cosmetica.logErr("Error checking version"));
 			} catch (Exception e) {
