@@ -1,49 +1,53 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '0.11-SNAPSHOT'
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
 version = "${project.minecraft_version}-${project.mod_version}"
 group = project.maven_group
 
 repositories {
-	maven { url "https://server.bbkr.space/artifactory/libs-release" } // Cotton maven - home of Cotton projects
-	maven { url "https://maven.modmuss50.me" }
-	maven { url "https://maven.abusedmaster.xyz" } // NerdHub maven
-	maven {
-		name = "Onyx Studios"
-		url = "https://maven.onyxstudios.dev"
-	}
+	maven { url 'https://maven.parchmentmc.org' }
 	maven { url 'https://maven.gegy.dev' }
 	maven { url 'https://jitpack.io' }
+	maven { url 'https://maven.terraformersmc.com/' }
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.layered() {
 		officialMojangMappings()
-		"net.fabricmc:yarn:${project.minecraft_version}+build.${project.yarn_build}:v2"
 	}
 
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	include(modImplementation(fabricApi.module("fabric-api-base", "0.46.1+1.17")))
-	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", "0.46.1+1.17")))
-	include(modImplementation(fabricApi.module("fabric-textures-v0", "0.46.1+1.17")))
+	include(modImplementation(fabricApi.module("fabric-api-base", "${project.fabric_api_version}")))
+	include(modImplementation(fabricApi.module("fabric-resource-loader-v0", "${project.fabric_api_version}")))
+	//include(modImplementation(fabricApi.module("fabric-key-binding-api-v1", "${project.fabric_api_version}")))
+	include(modImplementation(fabricApi.module("fabric-textures-v0", "${project.fabric_api_version}")))
 
-	include(modImplementation("com.github.BenzeneStudios:Sulphate:${project.sulphate_version}"))
-
-	modRuntimeOnly ("com.github.valoeghese:databreaker:-SNAPSHOT") {
-		exclude module: "fabric-loader"
+	include(modImplementation("com.github.BenzeneStudios:Sulphate:${project.sulphate_version}")) {
+		exclude module: "fabric-api"
+		exclude module: "databreaker"
 	}
 
+	// Cosmetica.java library
+	include(implementation("com.github.Cosmetica-cc:CosmeticaDotJava:${project.cosmetica_dot_java_version}"))
+
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
-	
-	modImplementation 'com.github.Station-rip:FabriStation:1.17-SNAPSHOT'
+
+	// Fixes running in dev with FabriStation which requires all of fabric api
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Load in dev for Compat & Interacting with
+	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+	modImplementation('com.github.Station-rip:FabriStation:1.18-SNAPSHOT') {
+		exclude module: "fabric-api"
+	}
 }
 
 processResources {
@@ -61,8 +65,7 @@ tasks.withType(JavaCompile).configureEach {
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
 
-	// Minecraft 1.17 (21w19a) upwards uses Java 16.
-	it.options.release = 16
+	it.options.release = 17
 }
 
 java {
