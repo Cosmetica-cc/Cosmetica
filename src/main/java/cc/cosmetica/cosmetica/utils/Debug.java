@@ -324,7 +324,7 @@ public class Debug {
 								data.get("logging").getAsBoolean(),
 								imageDumpingSettings,
 								useDebugCommands,
-								key -> cache.computeIfAbsent(key, predicate));
+								key -> cache.computeIfAbsent(key, predicate::test));
 
 						if (debugSettings.imageDumping().either()) {
 							DUMP_FOLDER.mkdir();
