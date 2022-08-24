@@ -29,7 +29,8 @@ public class ConnectionThreadMixin {
 		if (Minecraft.getInstance().isLocalServer()) {
 			Cosmetica.runOffthread(() -> Cosmetica.safari(new InetSocketAddress("127.0.0.1", 25565), true, false), ThreadPool.GENERAL_THREADS);
 		}
-		else if (c.getRemoteAddress() instanceof InetSocketAddress ip) {
+		else if (c.getRemoteAddress() instanceof InetSocketAddress) {
+			InetSocketAddress ip = (InetSocketAddress) c.getRemoteAddress();
 			Cosmetica.runOffthread(() -> Cosmetica.safari(ip, true, false), ThreadPool.GENERAL_THREADS);
 		}
 		Cosmetica.currentServerAddressCache = "";

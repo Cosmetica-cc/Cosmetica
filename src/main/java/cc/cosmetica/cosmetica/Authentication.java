@@ -1,5 +1,6 @@
 package cc.cosmetica.cosmetica;
 
+import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
@@ -21,6 +22,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -75,14 +77,26 @@ public class Authentication {
 					@Nullable PlayerData ownInfo = loadTarget == 2 ? Cosmetica.getPlayerData(ownUUID, ownName, true) : null;
 
 					// check *again* in case they've closed it
-					if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
+					if (Minecraft.getInstance().screen instanceof LoadingTypeScreen) {
+						LoadingTypeScreen lts = (LoadingTypeScreen) Minecraft.getInstance().screen;
+
 						Minecraft.getInstance().tell(() -> {
 							FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info);
-							Minecraft.getInstance().setScreen(switch (loadTarget) {
-								case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo, new cc.cosmetica.api.User(ownUUID, ownName));
-								case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
-								default -> new MainScreen(lts.getParent(), settings, fakePlayer);
-							});
+							Screen screen;
+
+							switch (loadTarget) {
+							case 2:
+								screen = new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo, new cc.cosmetica.api.User(ownUUID, ownName));
+								break;
+							case 1:
+								screen = new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
+								break;
+							default:
+								screen = new MainScreen(lts.getParent(), settings, fakePlayer);
+								break;
+							}
+
+							Minecraft.getInstance().setScreen(screen);
 						});
 					}
 				}
@@ -101,7 +115,8 @@ public class Authentication {
 		Minecraft minecraft = Minecraft.getInstance();
 		Screen current = minecraft.screen;
 
-		if (current instanceof LoadingTypeScreen lts) {
+		if (current instanceof LoadingTypeScreen) {
+			LoadingTypeScreen lts = (LoadingTypeScreen) current;
 			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), false)));
 		} // TODO if in-game some small, unintrusive text on bottom right
 	}
@@ -179,7 +194,7 @@ public class Authentication {
 										Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
 									}
 
-									var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
+									Map<String, CapeDisplay> capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
 
 									if (!capeServerSettings.isEmpty()) {
 										Cosmetica.api.setCapeServerSettings(capeServerSettings);

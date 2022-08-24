@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class HttpTextureMixin {
 	@Inject(at = @At("HEAD"), method = "upload", cancellable = true)
 	private void onUpload(NativeImage nativeImage, CallbackInfo ci) {
-		if ((Object) this instanceof CosmeticIconTexture t) {
+		if ((Object) this instanceof CosmeticIconTexture) {
+			CosmeticIconTexture t = (CosmeticIconTexture) (Object) this;
 			t.firstUpload(nativeImage, false);
 			ci.cancel();
 		}

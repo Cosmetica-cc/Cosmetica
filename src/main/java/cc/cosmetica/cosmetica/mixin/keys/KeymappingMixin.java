@@ -30,6 +30,6 @@ public class KeymappingMixin {
 
 	@Redirect(at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"), method = "resetMapping")
 	private static Object set(Map map, Object key, Object keyMapping) {
-		return (key instanceof InputConstants.Key k && keyMapping instanceof SpecialKeyMapping spkm) ? SpecialKeyMapping.putMapping(k, spkm) : map.put(key, keyMapping);
+		return (key instanceof InputConstants.Key && keyMapping instanceof SpecialKeyMapping) ? SpecialKeyMapping.putMapping((InputConstants.Key) key, (SpecialKeyMapping) keyMapping) : map.put(key, keyMapping);
 	}
 }

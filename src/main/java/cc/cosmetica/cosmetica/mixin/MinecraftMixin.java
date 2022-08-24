@@ -53,7 +53,8 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("RETURN"), method = "setScreen", cancellable = true)
 	private void addOnOpen(Screen screen, CallbackInfo info) {
-		if (this.screen instanceof PlayerRenderScreen prs) {
+		if (this.screen instanceof PlayerRenderScreen) {
+			PlayerRenderScreen prs = (PlayerRenderScreen) this.screen;
 			prs.onOpen();
 		}
 	}
@@ -83,8 +84,12 @@ public abstract class MinecraftMixin {
 			if (this.screen == null) {
 				this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
 			}
-			else if (this.screen instanceof CustomiseCosmeticsScreen ccs && ccs.canCloseWithBn()) {
-				ccs.onClose();
+			else if (this.screen instanceof CustomiseCosmeticsScreen) {
+				CustomiseCosmeticsScreen ccs = (CustomiseCosmeticsScreen) this.screen;
+
+				if (ccs.canCloseWithBn()) {
+					ccs.onClose();
+				}
 			}
 		}
 

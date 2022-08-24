@@ -380,8 +380,10 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void safari(Minecraft minecraft, boolean yourFirstRodeo, boolean ignoreSelf) {
 		InetSocketAddress prideRock = minecraft.isLocalServer() ? new InetSocketAddress("127.0.0.1", 25565) : null;
-		if (prideRock == null && minecraft.getConnection().getConnection().getRemoteAddress() instanceof InetSocketAddress ip)
+		if (prideRock == null && minecraft.getConnection().getConnection().getRemoteAddress() instanceof InetSocketAddress) {
+			InetSocketAddress ip = (InetSocketAddress) minecraft.getConnection().getConnection().getRemoteAddress();
 			prideRock = ip;
+		}
 		if (prideRock != null)
 			safari(prideRock, yourFirstRodeo, ignoreSelf);
 	}
@@ -485,8 +487,8 @@ public class Cosmetica implements ClientModInitializer {
 					if (distance < maxDistSqr || Cosmetica.farPickHitResult == null) {
 						Cosmetica.farPickHitResult = entityHitResult;
 
-						if (entity2 instanceof Player player) { // vanilla crosshair pick: entity2 instanceof LivingEntity || entity2 instanceof ItemFrame
-							Cosmetica.farPickPlayer = player;
+						if (entity2 instanceof Player) { // vanilla crosshair pick: entity2 instanceof LivingEntity || entity2 instanceof ItemFrame
+							Cosmetica.farPickPlayer = (Player) entity2;
 						}
 					}
 				}
@@ -633,7 +635,7 @@ public class Cosmetica implements ClientModInitializer {
 							}
 
 							synchronized (synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData) {
-								@Nullable var waitingRequests = synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData.remove(uuid);
+								@Nullable List<Consumer<PlayerData>> waitingRequests = synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData.remove(uuid);
 								if (waitingRequests != null) waitingRequests.forEach(c -> c.accept(newData));
 							}
 
@@ -691,7 +693,8 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void renderLore(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
-		if (entity instanceof Player player) {
+		if (entity instanceof Player) {
+			Player player = (Player) entity;
 			UUID lookupId = player.getUUID();
 
 			if (lookupId != null) {

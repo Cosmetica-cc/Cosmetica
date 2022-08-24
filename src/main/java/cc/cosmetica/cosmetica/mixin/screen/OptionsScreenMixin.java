@@ -30,8 +30,12 @@ public abstract class OptionsScreenMixin extends Screen {
 	@Inject(at=@At("RETURN"), method="init")
 	private void onInit(CallbackInfo info) {
 		for (GuiEventListener eventListener: ((ExtendedScreen) this).getChildren()) {
-			if (eventListener instanceof AbstractWidget widget) {
-				if (widget.getMessage() instanceof TranslatableComponent whyIsJavaLikeThis) {
+			if (eventListener instanceof AbstractWidget) {
+				AbstractWidget widget = (AbstractWidget) eventListener;
+
+				if (widget.getMessage() instanceof TranslatableComponent) {
+					TranslatableComponent whyIsJavaLikeThis = (TranslatableComponent) widget.getMessage();
+
 					if (whyIsJavaLikeThis.getKey().equals("options.skinCustomisation")) {
 						this.removeWidget(eventListener);
 						break;
