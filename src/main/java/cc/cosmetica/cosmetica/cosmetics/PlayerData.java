@@ -29,7 +29,7 @@ public final class PlayerData {
 	private final ResourceLocation skin;
 	private final boolean slim;
 
-	PlayerData(String lore, boolean upsideDown, String prefix, String suffix, List<BakableModel> hats, BakableModel leftShoulderBuddy, BakableModel rightShoulderBuddy, BakableModel backBling, String capeName, String capeId, boolean thirdPartyCape, ResourceLocation cape, ResourceLocation skin, boolean slim) {
+	public PlayerData(String lore, boolean upsideDown, String prefix, String suffix, List<BakableModel> hats, BakableModel leftShoulderBuddy, BakableModel rightShoulderBuddy, BakableModel backBling, String capeName, String capeId, boolean thirdPartyCape, ResourceLocation cape, ResourceLocation skin, boolean slim) {
 		this.lore = lore;
 		this.upsideDown = upsideDown;
 		this.prefix = prefix;

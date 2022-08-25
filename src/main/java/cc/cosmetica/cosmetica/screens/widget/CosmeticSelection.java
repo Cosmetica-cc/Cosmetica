@@ -12,16 +12,13 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
 import java.util.List;
@@ -102,31 +99,38 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 					int x1 = this.x0 + this.width / 2 + rowWidth / 2;
 
 					RenderSystem.disableTexture();
-					RenderSystem.setShader(GameRenderer::getPositionShader);
+					RenderSystem.enableDepthTest();
+					RenderSystem.depthFunc(GL11.GL_ALWAYS);
+
 					float g = this.isFocused() ? 1.0F : 0.5F;
 
 					// white ""outline"" (square 1)
-					RenderSystem.setShaderColor(g, g, g, 1.0F);
-					bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-					bufferBuilder.vertex(x0, (y0 + dy + 2), 0.0D).endVertex();
-					bufferBuilder.vertex(x1, (y0 + dy + 2), 0.0D).endVertex();
-					bufferBuilder.vertex(x1, (y0 - 2), 0.0D).endVertex();
-					bufferBuilder.vertex(x0, (y0 - 2), 0.0D).endVertex();
+					bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
+					bufferBuilder.vertex(x0, (y0 + dy + 2), 0.0D).color(g, g, g, 1.0F).endVertex();
+					bufferBuilder.vertex(x1, (y0 + dy + 2), 0.0D).color(g, g, g, 1.0F).endVertex();
+					bufferBuilder.vertex(x1, (y0 - 2), 0.0D).color(g, g, g, 1.0F).endVertex();
+					bufferBuilder.vertex(x0, (y0 - 2), 0.0D).color(g, g, g, 1.0F).endVertex();
 					tesselator.end();
 
 					// blacc
-					RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
-					bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-					bufferBuilder.vertex((x0 + 1), (y0 + dy + 1), 0.0D).endVertex();
-					bufferBuilder.vertex((x1 - 1), (y0 + dy + 1), 0.0D).endVertex();
-					bufferBuilder.vertex((x1 - 1), (y0 - 1), 0.0D).endVertex();
-					bufferBuilder.vertex((x0 + 1), (y0 - 1), 0.0D).endVertex();
+					RenderSystem.depthFunc(GL11.GL_LEQUAL);
+					bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
+
+					bufferBuilder.vertex((x0 + 1), (y0 + dy + 1), 0.0D).color(0.0F, 0.0F, 0.0F, 1.0F).endVertex();
+					bufferBuilder.vertex((x1 - 1), (y0 + dy + 1), 0.0D).color(0.0F, 0.0F, 0.0F, 1.0F).endVertex();
+					bufferBuilder.vertex((x1 - 1), (y0 - 1), 0.0D).color(0.0F, 0.0F, 0.0F, 1.0F).endVertex();
+					bufferBuilder.vertex((x0 + 1), (y0 - 1), 0.0D).color(0.0F, 0.0F, 0.0F, 1.0F).endVertex();
 					tesselator.end();
+
 					RenderSystem.enableTexture();
 				}
 
 				x0 = this.getRowLeft();
-				entry.render(poseStack, i, rowTop, x0, rowWidth, dy, k, l, Objects.equals(this.getHovered(), entry), f);
+
+				boolean hovered = this.isMouseOver(k, l);
+				@Nullable Entry hoveredEntry = this.getEntryAtPosition(k, l);
+
+				entry.render(poseStack, i, rowTop, x0, rowWidth, dy, k, l, hovered && Objects.equals(hoveredEntry, entry), f);
 			}
 		}
 
@@ -235,11 +239,6 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			} else {
 				return false;
 			}
-		}
-
-		@Override
-		public Component getNarration() {
-			return new TranslatableComponent("narrator.select", new Object[]{this.displayName});
 		}
 	}
 }

@@ -65,6 +65,8 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -268,14 +270,14 @@ public class Cosmetica implements ClientModInitializer {
 		keymappings.add(openCustomiseScreen = new SpecialKeyMapping(
 				"key.cosmetica.customise",
 				InputConstants.Type.KEYSYM,
-				InputConstants.KEY_RSHIFT, // not bound by default
+				GLFW.GLFW_KEY_RIGHT_SHIFT, // not bound by default
 				"key.categories.misc"
 		));
 
 		keymappings.add(snipe = new SpecialKeyMapping(
 				"key.cosmetica.snipe",
 				InputConstants.Type.MOUSE,
-				InputConstants.MOUSE_BUTTON_MIDDLE, // not bound by default
+				GLFW.GLFW_MOUSE_BUTTON_MIDDLE, // not bound by default
 				"key.categories.misc"
 		));
 	}
@@ -609,8 +611,8 @@ public class Cosmetica implements ClientModInitializer {
 							Optional<Model> backBling = info.getBackBling();
 							Optional<Cape> cloak = info.getCape();
 
-							Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
-							Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
+							Optional<Model> leftShoulderBuddy = shoulderBuddies.isPresent() ? shoulderBuddies.get().getLeft() : Optional.empty();
+							Optional<Model> rightShoulderBuddy = shoulderBuddies.isPresent() ? shoulderBuddies.get().getRight() : Optional.empty();
 
 							PlayerData newData = new PlayerData(
 									info.getLore(),
@@ -618,13 +620,13 @@ public class Cosmetica implements ClientModInitializer {
 									info.getPrefix(),
 									info.getSuffix(),
 									hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
-									leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
-									rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
-									backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
-									cloak.isEmpty() ? "" : pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape"),
-									cloak.isEmpty() ? "none" : cloak.get().getId(),
+									leftShoulderBuddy.isPresent() ? Models.createBakableModel(leftShoulderBuddy.get()) : null,
+									rightShoulderBuddy.isPresent() ? Models.createBakableModel(rightShoulderBuddy.get()) : null,
+									backBling.isPresent() ? Models.createBakableModel(backBling.get()) : null,
+									cloak.isPresent() ? pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape") : "",
+									cloak.isPresent() ? cloak.get().getId() : "none",
 									cloak.isPresent() && !cloak.get().isCosmeticaAlternative() && !(cloak.get() instanceof CustomCape),
-									cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
+									cloak.isPresent() ? CosmeticaSkinManager.processCape(cloak.get()) : null,
 									CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
 									info.isSlim()
 							);
@@ -792,13 +794,12 @@ public class Cosmetica implements ClientModInitializer {
 		throw new UnsupportedOperationException();
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, texture);
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
 		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, (float)z).uv(0, 1).endVertex();
 		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).uv(1, 1).endVertex();
 		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, (float)z).uv(1, 0).endVertex();

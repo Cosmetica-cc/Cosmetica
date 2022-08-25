@@ -119,8 +119,8 @@ public class RuntimeSpriteAllocator {
 				// generate mipmap
 				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((TextureAtlasSpriteInvokerMixin) sprite).getMainImage().length - 1);
 				Debug.info("Allocating Sprite: " + sprite.getName());
-				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", false, ((TextureAtlasSpriteInvokerMixin) sprite).getMainImage());
-				Debug.dumpImages(sprite.getName().toDebugFileName(), false, mipmap);
+				Debug.dumpImages(sprite.getName().toString().replace(':', '-') + "_old", false, ((TextureAtlasSpriteInvokerMixin) sprite).getMainImage());
+				Debug.dumpImages(sprite.getName().toString().replace(':', '-'), false, mipmap);
 				// bind the texture
 				GlStateManager._bindTexture(((TextureAtlasSpriteInvokerMixin) sprite).getAtlas().getId());
 				// upload to the texture

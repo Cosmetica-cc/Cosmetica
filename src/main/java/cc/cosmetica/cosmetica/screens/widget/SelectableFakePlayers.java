@@ -13,7 +13,6 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
@@ -56,11 +55,6 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 
 	public void addFakePlayer(FakePlayer player, T override) {
 		this.players.add(new Tuple<>(player, override));
-	}
-
-	@Override
-	public void updateNarration(NarrationElementOutput narration) {
-		this.defaultButtonNarrationText(narration);
 	}
 
 	public void createSelectButtons(Consumer<Button> widgetAdder) {

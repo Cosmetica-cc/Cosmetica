@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -49,11 +48,6 @@ public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 		}
 
 		private final Button button;
-
-		@Override
-		public List<? extends NarratableEntry> narratables() {
-			return ImmutableList.of(this.button);
-		}
 
 		@Override
 		public List<? extends GuiEventListener> children() {
