@@ -182,19 +182,26 @@ public class SelectLoreScreen extends SulphateScreen {
 	}
 
 	private static String getTranslationKey(LoreType type) {
-		return switch (type) {
-			case TITLES -> "cosmetica.selection.lore.titles";
-			case PRONOUNS -> "cosmetica.selection.lore.pronouns";
-			case TWITCH -> "cosmetica.selection.lore.twid";
-			default -> "cosmetica.selection.lore.missingno";
-		};
+		switch (type) {
+		case TITLES :
+			return "cosmetica.selection.lore.titles";
+		case PRONOUNS:
+			return "cosmetica.selection.lore.pronouns";
+		case TWITCH:
+			return "cosmetica.selection.lore.twid";
+		default:
+			return "cosmetica.selection.lore.missingno";
+		}
 	}
 
 	private static LoreType cycle(LoreType current) {
-		return switch (current) {
-			case TITLES -> LoreType.PRONOUNS;
-			case PRONOUNS -> LoreType.TWITCH;
-			default -> LoreType.TITLES;
-		};
+		switch (current) {
+		case TITLES:
+			return LoreType.PRONOUNS;
+		case PRONOUNS:
+			return LoreType.TWITCH;
+		default:
+			return LoreType.TITLES;
+		}
 	}
 }

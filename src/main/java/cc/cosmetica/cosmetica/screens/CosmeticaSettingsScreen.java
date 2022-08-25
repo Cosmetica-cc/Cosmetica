@@ -77,7 +77,8 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 		// when done, update settings
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 + 24 * 3, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
-				if (this.parentScreen instanceof MainScreen main) {
+				if (this.parentScreen instanceof MainScreen) {
+					MainScreen main = (MainScreen) this.parentScreen;
 					main.setCosmeticaOptions(this.newOptions);
 				}
 

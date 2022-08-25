@@ -67,7 +67,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 		int x = this.x - this.width / 2;
 		int j = 0;
 
-		for (var player : this.players) {
+		for (Tuple<FakePlayer, T> player : this.players) {
 			final int itemNo = j;
 			widgetAdder.accept(new Button(x, this.y + 10, this.width, 20,
 					TextComponents.translatable("cosmetica.selection.apply.select"), b -> {
@@ -89,7 +89,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 			int x = this.x - this.width / 2;
 			int j = 0;
 
-			for (var player : this.players) {
+			for (Tuple<FakePlayer, T> player : this.players) {
 				if (clickX >= x && clickX < x + this.width) {
 					this.selected = j;
 					if (this.onSelect != null) this.onSelect.accept(j);
@@ -110,7 +110,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 		int j = 0;
 		CosmeticStack<T> overrider = this.overrider;
 
-		for (var player : this.players) {
+		for (Tuple<FakePlayer, T> player : this.players) {
 			if (this.selected == j) {
 				final int x1 = x + (this.width / 2);
 				final int y0 = this.y + this.height + 8;

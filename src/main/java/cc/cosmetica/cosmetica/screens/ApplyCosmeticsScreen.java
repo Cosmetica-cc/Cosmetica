@@ -7,14 +7,14 @@ import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.Model;
-import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
-import cc.cosmetica.cosmetica.screens.fakeplayer.MouseTracker;
-import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.CosmeticaSkinManager;
+import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
+import cc.cosmetica.cosmetica.screens.fakeplayer.MouseTracker;
 import cc.cosmetica.cosmetica.screens.widget.SelectableFakePlayers;
 import cc.cosmetica.cosmetica.screens.widget.TextWidget;
+import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -38,11 +38,13 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 				this.item = (E) CosmeticStack.NO_BAKABLE_MODEL;
 			}
 		}
-		else if (cosmetic instanceof Cape cape) {
+		else if (cosmetic instanceof Cape) {
+			Cape cape = (Cape) cosmetic;
 			this.item = (E) CosmeticaSkinManager.cloakId(this.id);
 			CosmeticaSkinManager.processCape(cape);
 		}
-		else if (cosmetic instanceof Model model) {
+		else if (cosmetic instanceof Model) {
+			Model model = (Model) cosmetic;
 			this.item = (E) Models.createBakableModel(model);
 			this.failed = this.item == null;
 		}
@@ -185,11 +187,15 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 	}
 
 	static String getTranslationPart(CosmeticType<?> type) {
-		return switch (type.getUrlString()) {
-			case "cape" -> "Cape";
-			case "hat" -> "Hat";
-			case "shoulderbuddy" -> "ShoulderBuddy";
-			default -> "BackBling";
-		};
+		switch (type.getUrlString()) {
+		case "cape":
+			return "Cape";
+		case "hat":
+			return "Hat";
+		case "shoulderbuddy":
+			return "ShoulderBuddy";
+		default:
+			return "BackBling";
+		}
 	}
 }

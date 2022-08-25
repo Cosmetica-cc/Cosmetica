@@ -92,7 +92,7 @@ public class FakePlayerRenderer {
 	// LivingEntityRenderer#render
 	private static void drawLivingEntity(FakePlayer player, float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
 		stack.pushPose();
-		var model = player.getModel();
+		PlayerModel<AbstractClientPlayer> model = player.getModel();
 
 		model.attackTime = 0;
 		model.riding = false;
@@ -245,13 +245,8 @@ public class FakePlayerRenderer {
 			model.rightArm.y = 2.0F;
 		}
 
-		if (model.rightArmPose != HumanoidModel.ArmPose.SPYGLASS) {
-			AnimationUtils.bobModelPart(model.rightArm, bob, 1.0F);
-		}
-
-		if (model.leftArmPose != HumanoidModel.ArmPose.SPYGLASS) {
-			AnimationUtils.bobModelPart(model.leftArm, bob, -1.0F);
-		}
+		// TODO is this the correct patch?
+		AnimationUtils.bobArms(model.rightArm, model.leftArm, 1.0F);
 
 		if (model.swimAmount > 0.0F) {
 			float l = f % 26.0F;

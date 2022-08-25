@@ -78,7 +78,8 @@ public class TextComponents {
 		for (int i = 0; i < tokens.size(); i++) {
 			Object currentToken = tokens.get(i);
 
-			if (currentToken instanceof String text) {
+			if (currentToken instanceof String) {
+				String text = (String) currentToken;
 				result.append(text);
 			}
 			else if (currentToken == Token.LINK_START) {
@@ -102,7 +103,8 @@ public class TextComponents {
 		try {
 			Object token;
 			while ((token = tokens.get(++i)) != Token.LINK_MID) { // ++i ensures it starts at the next token
-				if (token instanceof String text) {
+				if (token instanceof String) {
+					String text = (String) token;
 					link.append(text);
 				}
 				else {

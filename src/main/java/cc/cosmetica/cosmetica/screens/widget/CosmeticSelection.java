@@ -142,7 +142,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			this.texture = new ResourceLocation("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
 			this.indicators = Indicators.getIcons(
 					cosmetic.getType(),
-					cosmetic instanceof Model model ? model.flags() : ((CustomCape) cosmetic).getFrameDelay()
+					cosmetic instanceof Model ? ((Model)cosmetic).flags() : ((CustomCape) cosmetic).getFrameDelay()
 			);
 
 			// so we can add off-thread to the data version then duplicate later on thread when we make the view version

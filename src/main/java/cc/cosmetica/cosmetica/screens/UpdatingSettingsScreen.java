@@ -46,7 +46,8 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 					if (finalDoReload) Minecraft.getInstance().tell(() -> {
 						Cosmetica.clearAllCaches();
 
-						if (response.booleanValue() && this.parentScreen instanceof PlayerRenderScreen playerRenderScreen) {
+						if (response.booleanValue() && this.parentScreen instanceof PlayerRenderScreen) {
+							PlayerRenderScreen playerRenderScreen = (PlayerRenderScreen) this.parentScreen;
 							UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
 							playerRenderScreen.setPlayerData(Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true));
 						}
@@ -84,7 +85,8 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 			Debug.info("Updating cape server settings.");
 			Thread requestThread = new Thread(() -> {
 				Cosmetica.api.setCapeServerSettings(newOptions).ifSuccessfulOrElse(response -> {
-					if (this.parentScreen instanceof MainScreen main) {
+					if (this.parentScreen instanceof MainScreen) {
+						MainScreen main = (MainScreen) this.parentScreen;
 						main.setCapeServerSettings(response);
 
 						UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));

@@ -290,12 +290,14 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 				return (E) CosmeticStack.NO_BAKABLE_MODEL;
 			}
 		}
-		if (cosmetic instanceof Cape cape) {
+		if (cosmetic instanceof Cape) {
+			Cape cape = (Cape) cosmetic;
 			E result = (E) CosmeticaSkinManager.cloakId(cosmetic.getId());
 			CosmeticaSkinManager.processCape(cape);
 			return result;
 		}
-		else if (cosmetic instanceof Model model) {
+		else if (cosmetic instanceof Model) {
+			Model model = (Model) cosmetic;
 			return  (E) Models.createBakableModel(model);
 		}
 		else {
@@ -313,11 +315,15 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 	}
 
 	private static String getTranslationPart(CosmeticType<?> type) {
-		return switch (type.getUrlString()) {
-			case "cape" -> "Capes";
-			case "hat" -> "Hats";
-			case "shoulderbuddy" -> "ShoulderBuddies";
-			default -> "BackBlings";
-		};
+		switch (type.getUrlString()) {
+		case "cape":
+			return "Capes";
+		case "hat":
+			return "Hats";
+		case "shoulderbuddy":
+			return "ShoulderBuddies";
+		default:
+			return "BackBlings";
+		}
 	}
 }

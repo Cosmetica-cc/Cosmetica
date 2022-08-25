@@ -159,13 +159,14 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 	@Override
 	public void afterInit() {
 		for (GuiEventListener widget : this.children()) {
-			if (widget instanceof Section section) section.repositionChildren();
+			if (widget instanceof Section) ((Section)widget).repositionChildren();
 		}
 	}
 
 	@Override
 	public void onClose() {
-		if (this.parent instanceof MainScreen main) {
+		if (this.parent instanceof MainScreen) {
+			MainScreen main = (MainScreen) this.parent;
 			main.setTransitionProgress(1.0 - this.getTransitionProgress());
 		}
 
@@ -253,13 +254,13 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 
 		public void calculateDimensions() {
 			for (AbstractWidget child : this.children) {
-				if (child instanceof Section section) section.calculateDimensions();
+				if (child instanceof Section) ((Section) child).calculateDimensions();
 			}
 		}
 
 		public void repositionChildren() {
 			for (AbstractWidget child : this.children) {
-				if (child instanceof Section section) section.repositionChildren();
+				if (child instanceof Section) ((Section) child).repositionChildren();
 			}
 		}
 

@@ -336,23 +336,53 @@ public class Debug {
 		}
 	}
 
-	private record Settings(boolean logging, ImageDumpingSettings imageDumping, boolean testUnverifiedCosmetics, Predicate<String> other) {
+	private class Settings {
 		Settings() {
 			this(false, new ImageDumpingSettings(false), false, i -> false);
 		}
+
+		Settings(boolean logging, ImageDumpingSettings imageDumping, boolean testUnverifiedCosmetics, Predicate<String> other) {
+			this.logging = logging;
+			this.imageDumping = imageDumping;
+			this.testUnverifiedCosmetics = testUnverifiedCosmetics;
+			this.other = other;
+		}
+
+		private boolean logging;
+		private ImageDumpingSettings imageDumping;
+		private boolean testUnverifiedCosmetics;
+		private Predicate<String> other;
 	}
 
-	public record ImageDumpingSettings(boolean textureLoading, boolean capeModifications) {
+	public class ImageDumpingSettings {
 		ImageDumpingSettings(boolean val) {
 			this(val, val);
 		}
+
+		ImageDumpingSettings(boolean textureLoading, boolean capeModifications) {
+			this.textureLoading = textureLoading;
+			this.capeModifications = capeModifications;
+		}
+
+		private boolean textureLoading;
+		private boolean capeModifications;
 
 		boolean either() {
 			return this.textureLoading || this.capeModifications;
 		}
 	}
 
-	public record LocalModelType(CosmeticStack<BakableModel> modelOverride, Supplier<String> localIdProvider, IntSupplier extraInfoLoader) {
+	public class LocalModelType {
+		public LocalModelType(CosmeticStack<BakableModel> modelOverride, Supplier<String> localIdProvider, IntSupplier extraInfoLoader) {
+			this.modelOverride = modelOverride;
+			this.localIdProvider = localIdProvider;
+			this.extraInfoLoader = extraInfoLoader;
+		}
+
+		private CosmeticStack<BakableModel> modelOverride;
+		private Supplier<String> localIdProvider;
+		private IntSupplier extraInfoLoader;
+
 		public static final LocalModelType HAT = new LocalModelType(
 				Hats.OVERRIDDEN,
 				() -> TEST_PROPERTIES.getProperty("hat_location"),
