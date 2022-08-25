@@ -7,9 +7,7 @@ import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.cosmetics.BackBling;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -28,8 +26,7 @@ import java.util.UUID;
 public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>, Playerish {
 	public FakePlayer(Minecraft minecraft, UUID uuid, String name, PlayerData data) {
 		final boolean slim = data.slim();
-		EntityRendererProvider.Context context = new EntityRendererProvider.Context(minecraft.getEntityRenderDispatcher(), minecraft.getItemRenderer(), minecraft.getResourceManager(), minecraft.getEntityModels(), minecraft.font);
-		this.model = new PlayerModel<>(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
+		this.model = new PlayerModel<>(0.0f, slim);
 
 		this.data = data;
 		this.uuid = uuid;
@@ -38,7 +35,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 		// initialise layers
 		this.layers.add(new MenuCapeLayer());
 		this.layers.add(new Hats<>(this));
-		this.layers.add(new ShoulderBuddies<>(this, Minecraft.getInstance().getEntityModels()));
+		this.layers.add(new ShoulderBuddies<>(this));
 		this.layers.add(new BackBling<>(this));
 	}
 
@@ -108,13 +105,13 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	public ResourceLocation getSkin() {
-		return Minecraft.getInstance().getTextureManager().getTexture(this.data.skin(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ?
+		return Minecraft.getInstance().getTextureManager().getTexture(this.data.skin()) == null ?
 				DefaultPlayerSkin.getDefaultSkin(this.uuid) : this.data.skin();
 	}
 
 	public ResourceLocation getRenderableCape() {
 		if (this.data.cape() == null) return MissingTextureAtlasSprite.getLocation();
-		return Minecraft.getInstance().getTextureManager().getTexture(this.data.cape(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ?
+		return Minecraft.getInstance().getTextureManager().getTexture(this.data.cape()) == null ?
 				MissingTextureAtlasSprite.getLocation() : this.data.cape();
 	}
 

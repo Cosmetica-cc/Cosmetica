@@ -1,18 +1,17 @@
 package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.api.Model;
-import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
-import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
+import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
+import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.SheepFurModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,12 +26,10 @@ import java.util.OptionalInt;
 
 public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
 	private ModelManager modelManager;
-	private EntityModelSet entityModelSet;
 
-	public ShoulderBuddies(RenderLayerParent<T, PlayerModel<T>> renderLayerParent, EntityModelSet entityModelSet) {
+	public ShoulderBuddies(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
 		super(renderLayerParent);
 		this.modelManager = Minecraft.getInstance().getModelManager();
-		this.entityModelSet = entityModelSet;
 	}
 
 	@Override
@@ -58,7 +55,7 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 		stack.pushPose();
 
 		if (modelData.id().equals("-sheep")) { // builtin live sheep
-			LiveSheepModel model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP_FUR));
+			SheepFurModel<Sheep> model = new SheepFurModel<>();
 			stack.pushPose();
 			stack.scale(0.8f, 0.8f, 0.8f);
 			stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
@@ -83,19 +80,20 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 
 			// render
 			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
-			model.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0f);
+			model.renderToBuffer(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0f);
 
 			stack.popPose();
 
-			model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP));
+			LiveSheepModel lshm = new LiveSheepModel();
 
 			stack.pushPose();
 
 			stack.scale(0.8f, 0.8f, 0.8f);
 			stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
 
-			vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
-			model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
+			vertexConsumer = multiBufferSource.getBuffer(lshm.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
+			stack.scale(0.35f, 0.35f, 0.35f);
+			lshm.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
 
 			stack.popPose();
 		} else {
