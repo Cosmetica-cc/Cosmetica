@@ -19,7 +19,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
 		super(context, entityModel, f);
 	}
 
-	@Inject(at=@At("TAIL"), method="<init>", allow=1)
+	@Inject(at=@At("TAIL"), method="<init>(Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;Z)V", allow=1)
 	private void init(EntityRenderDispatcher context, boolean bl, CallbackInfo ci) {
 		this.addLayer(new Hats<>(this));
 		this.addLayer(new ShoulderBuddies<>(this));
