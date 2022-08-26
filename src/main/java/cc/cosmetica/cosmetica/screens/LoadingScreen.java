@@ -1,7 +1,8 @@
 package cc.cosmetica.cosmetica.screens;
 
-import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
+import benzenestudios.sulphate.ModernScreen;
 import cc.cosmetica.cosmetica.Authentication;
+import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -14,7 +15,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import static cc.cosmetica.cosmetica.Authentication.runAuthentication;
 
-public class LoadingScreen extends Screen implements LoadingTypeScreen {
+public class LoadingScreen extends ModernScreen implements LoadingTypeScreen {
 	private Screen parentScreen;
 	private Options parentOptions;
 

@@ -816,6 +816,10 @@ public class Cosmetica implements ClientModInitializer {
 		System.gc(); // force jvm to garbage collect our unused data
 	}
 
+	public static final boolean isBlankString(String str) {
+		return str.replace('\t', ' ').trim().isEmpty();
+	}
+
 	public static Consumer<RuntimeException> logErr(String message) {
 		return e -> LOGGER.error(message + ": {}", e);
 	}

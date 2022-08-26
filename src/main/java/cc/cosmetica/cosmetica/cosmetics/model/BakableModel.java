@@ -14,7 +14,7 @@ public final class BakableModel {
 	private final int extraInfo;
 	private final Box bounds;
 
-	BakableModel(String id, String name, BlockModel model, NativeImage image, int extraInfo, Box bounds) {
+	public BakableModel(String id, String name, BlockModel model, NativeImage image, int extraInfo, Box bounds) {
 		this.id = id;
 		this.name = name;
 		this.model = model;

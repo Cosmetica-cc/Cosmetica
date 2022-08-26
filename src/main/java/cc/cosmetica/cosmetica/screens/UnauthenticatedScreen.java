@@ -1,5 +1,6 @@
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ModernScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.Debug;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,7 +16,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
 
-public class UnauthenticatedScreen extends Screen {
+public class UnauthenticatedScreen extends ModernScreen {
 	private Screen parentScreen;
 	private boolean fromSave;
 

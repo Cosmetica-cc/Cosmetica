@@ -113,7 +113,7 @@ public class StealHisLookScreen extends SulphateScreen {
 						}
 					}
 
-					CompletableFuture.allOf(requests.toArray(CompletableFuture[]::new)).join();
+					CompletableFuture.allOf(requests.toArray(new CompletableFuture[0])).join();
 					return new ServerResponse<>(new Object(), SafeURL.direct("https://example.com")); // dummy. it ignores it.
 				}
 		)));

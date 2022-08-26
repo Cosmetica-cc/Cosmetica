@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
@@ -15,11 +14,6 @@ public class TextWidget extends AbstractWidget {
 	}
 
 	private boolean centered;
-
-	@Override
-	public void updateNarration(NarrationElementOutput narration) {
-		this.defaultButtonNarrationText(narration);
-	}
 
 	public boolean mouseClicked(double d, double e, int i) {
 		return false;

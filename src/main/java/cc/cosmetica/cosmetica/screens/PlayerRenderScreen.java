@@ -7,6 +7,7 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MouseTracker;
 import cc.cosmetica.cosmetica.screens.widget.ButtonList;
+import cc.cosmetica.cosmetica.utils.GlobalPoseStack;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
 import com.mojang.blaze3d.platform.Lighting;
@@ -172,12 +173,12 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	public static void renderFakePlayerInMenu(int left, int top, float extraScale, float lookX, float lookY, FakePlayer fakePlayer) {
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
-		PoseStack stack = RenderSystem.getModelViewStack();
+		PoseStack stack = new GlobalPoseStack();
 
 		stack.pushPose();
 		stack.translate(left, top, 1050.0D);
 		stack.scale(2.0F, 2.0F, -1.0F);
-		RenderSystem.applyModelViewMatrix();
+		//RenderSystem.applyModelViewMatrix();
 
 		// view
 		PoseStack viewStack = new PoseStack();
@@ -194,7 +195,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		fakePlayer.yRot += rotationMain;
 		fakePlayer.xRot = -l * 20.0F;
 		fakePlayer.yRotHead = fakePlayer.getYRot(0);
-		Lighting.setupForEntityInInventory();
+		//Lighting.setupForEntityInInventory();
 
 		xRotation.conj();
 		FakePlayerRenderer.cameraOrientation = xRotation;
@@ -209,7 +210,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		fakePlayer.yRot -= rotationMain;
 
 		stack.popPose();
-		RenderSystem.applyModelViewMatrix();
+		//RenderSystem.applyModelViewMatrix();
 		Lighting.setupFor3DItems();
 	}
 }

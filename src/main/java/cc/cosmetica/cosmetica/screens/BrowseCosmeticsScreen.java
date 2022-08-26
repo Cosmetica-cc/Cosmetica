@@ -224,7 +224,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		this.renderBackground(matrices);
 
-		for (Widget widget : List.copyOf(((ExtendedScreen) this).getWidgets())) { // renderables
+		for (Widget widget : ImmutableList.copyOf(((ExtendedScreen) this).getWidgets())) { // renderables
 			widget.render(matrices, mouseX, mouseY, delta);
 		}
 

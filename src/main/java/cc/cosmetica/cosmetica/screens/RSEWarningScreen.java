@@ -1,5 +1,6 @@
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ModernScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.Debug;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -14,7 +15,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nullable;
 
-public class RSEWarningScreen extends Screen {
+public class RSEWarningScreen extends ModernScreen {
 	public RSEWarningScreen(@Nullable Screen parent) {
 		super(new TextComponent("Region-Specific Effects Notice"));
 		this.parent = parent;

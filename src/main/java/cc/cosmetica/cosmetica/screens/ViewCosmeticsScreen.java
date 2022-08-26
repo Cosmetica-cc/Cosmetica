@@ -19,7 +19,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -309,13 +308,6 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 			}
 
 			return false;
-		}
-
-		@Override
-		public void updateNarration(NarrationElementOutput narration) {
-			for (AbstractWidget child : this.children) {
-				child.updateNarration(narration);
-			}
 		}
 
 		@Override

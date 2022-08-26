@@ -172,7 +172,7 @@ public class Debug {
 	public static boolean loadTestModel(LocalModelType type) {
 		String model = type.localIdProvider.get();
 
-		if (model.isBlank()) {
+		if (Cosmetica.isBlankString(model)) {
 			type.modelOverride.clear();
 			return false;
 		} else {
@@ -336,7 +336,7 @@ public class Debug {
 		}
 	}
 
-	private class Settings {
+	private static class Settings {
 		Settings() {
 			this(false, new ImageDumpingSettings(false), false, i -> false);
 		}
@@ -348,13 +348,29 @@ public class Debug {
 			this.other = other;
 		}
 
-		private boolean logging;
-		private ImageDumpingSettings imageDumping;
-		private boolean testUnverifiedCosmetics;
-		private Predicate<String> other;
+		private final boolean logging;
+		private final ImageDumpingSettings imageDumping;
+		private final boolean testUnverifiedCosmetics;
+		private final Predicate<String> other;
+
+		public boolean logging() {
+			return logging;
+		}
+
+		public ImageDumpingSettings imageDumping() {
+			return imageDumping;
+		}
+
+		public boolean testUnverifiedCosmetics() {
+			return testUnverifiedCosmetics;
+		}
+
+		public Predicate<String> other() {
+			return other;
+		}
 	}
 
-	public class ImageDumpingSettings {
+	public static class ImageDumpingSettings {
 		ImageDumpingSettings(boolean val) {
 			this(val, val);
 		}
@@ -364,15 +380,23 @@ public class Debug {
 			this.capeModifications = capeModifications;
 		}
 
-		private boolean textureLoading;
-		private boolean capeModifications;
+		private final boolean textureLoading;
+		private final boolean capeModifications;
 
 		boolean either() {
 			return this.textureLoading || this.capeModifications;
 		}
+
+		public boolean textureLoading() {
+			return textureLoading;
+		}
+
+		public boolean capeModifications() {
+			return capeModifications;
+		}
 	}
 
-	public class LocalModelType {
+	public static class LocalModelType {
 		public LocalModelType(CosmeticStack<BakableModel> modelOverride, Supplier<String> localIdProvider, IntSupplier extraInfoLoader) {
 			this.modelOverride = modelOverride;
 			this.localIdProvider = localIdProvider;
@@ -382,6 +406,18 @@ public class Debug {
 		private CosmeticStack<BakableModel> modelOverride;
 		private Supplier<String> localIdProvider;
 		private IntSupplier extraInfoLoader;
+
+		public CosmeticStack<BakableModel> modelOverride() {
+			return modelOverride;
+		}
+
+		public Supplier<String> localIdProvider() {
+			return localIdProvider;
+		}
+
+		public IntSupplier extraInfoLoader() {
+			return extraInfoLoader;
+		}
 
 		public static final LocalModelType HAT = new LocalModelType(
 				Hats.OVERRIDDEN,

@@ -1,8 +1,9 @@
 package cc.cosmetica.cosmetica.cosmetics.model;
 
 import cc.cosmetica.api.Box;
-import cc.cosmetica.cosmetica.utils.Stacc;
 import cc.cosmetica.cosmetica.utils.ArrayStacc;
+import cc.cosmetica.cosmetica.utils.Stacc;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -56,7 +57,7 @@ public final class CosmeticStack<T> {
 		// if no test models just use existing hats
 		if (this.testModels.isEmpty()) return existingHats;
 		// if there are no existing hats, just use the test ones
-		if (existingHats.isEmpty()) return List.of(this.testModels.peek());
+		if (existingHats.isEmpty()) return ImmutableList.of(this.testModels.peek());
 
 		List<T> useMeHats = new ArrayList<>(existingHats);
 
@@ -85,8 +86,8 @@ public final class CosmeticStack<T> {
 	}
 
 	private List<T> lPeek() {
-		if (this.removeModel) return List.of();
-		return List.of(this.testModels.peek());
+		if (this.removeModel) return ImmutableList.of();
+		return ImmutableList.of(this.testModels.peek());
 	}
 
 	public void clear() {

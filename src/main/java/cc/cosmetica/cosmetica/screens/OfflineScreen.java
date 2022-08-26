@@ -1,5 +1,6 @@
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ModernScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -11,7 +12,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Objects;
 
-public class OfflineScreen extends Screen {
+public class OfflineScreen extends ModernScreen {
 	private Screen parentScreen;
 
 	private Component reason = new TranslatableComponent("cosmetica.offline.message");

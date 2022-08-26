@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,18 +116,18 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 				BufferBuilder bb = tesselator.getBuilder();
 
 				RenderSystem.disableTexture();
-				RenderSystem.setShader(GameRenderer::getPositionShader);
 				float shade = 1.0F;
-				RenderSystem.setShaderColor(shade, shade, shade, 1.0F);
-				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+
+				RenderSystem.color4f(shade, shade, shade, 1.0F);
+				bb.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
 				bb.vertex(x0, y1, 0.0D).endVertex();
 				bb.vertex(x1, y1, 0.0D).endVertex();
 				bb.vertex(x1, y0, 0.0D).endVertex();
 				bb.vertex(x0, y0, 0.0D).endVertex();
 
 				tesselator.end();
-				RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
-				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+				RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+				bb.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
 				bb.vertex(x0 + 1, y1 - 1, 0.0D).endVertex();
 				bb.vertex(x1 - 1, y1 - 1, 0.0D).endVertex();
 				bb.vertex(x1 - 1, y0 + 1, 0.0D).endVertex();

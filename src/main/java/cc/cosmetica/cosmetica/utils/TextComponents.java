@@ -38,7 +38,7 @@ public class TextComponents {
 				literalTxt.append(remoteText.charAt(++i));
 			}
 			else if (c == '[') {
-				if (!literalTxt.isEmpty()) {
+				if (literalTxt.length() != 0) { // !isEmpty
 					tokens.add(literalTxt.toString());
 					literalTxt = new StringBuilder();
 				}
@@ -50,7 +50,7 @@ public class TextComponents {
 					throw new IllegalArgumentException("Unexpected character " + remoteText.charAt(i) + " after list plaintext delimiter ']'!");
 				}
 
-				if (!literalTxt.isEmpty()) {
+				if (literalTxt.length() != 0) { // !isEmpty
 					tokens.add(literalTxt.toString());
 					literalTxt = new StringBuilder();
 				}
@@ -58,7 +58,7 @@ public class TextComponents {
 				tokens.add(Token.LINK_MID);
 			}
 			else if (c == ')') {
-				if (!literalTxt.isEmpty()) {
+				if (literalTxt.length() != 0) { // !isEmpty
 					tokens.add(literalTxt.toString());
 					literalTxt = new StringBuilder();
 				}
@@ -70,7 +70,7 @@ public class TextComponents {
 			}
 		}
 
-		if (!literalTxt.isEmpty()) tokens.add(literalTxt.toString());
+		if (literalTxt.length() != 0) tokens.add(literalTxt.toString()); // !isEmpty
 
 		// parser
 		MutableComponent result = new TextComponent("");
