@@ -797,6 +797,7 @@ public class Cosmetica implements ClientModInitializer {
 	@SuppressWarnings("deprecation")
 	public static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z) {
 		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		Minecraft.getInstance().getTextureManager().bind(texture);
 
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);

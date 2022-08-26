@@ -10,6 +10,7 @@ import cc.cosmetica.cosmetica.screens.widget.ButtonList;
 import cc.cosmetica.cosmetica.utils.GlobalPoseStack;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -97,11 +98,15 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			final int top = this.height / 2 - 60;
 			final int left = this.playerLeft + 25;
 			final int size = 16;
+			RenderSystem.enableBlend();
+			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 			Cosmetica.renderTexture(matrices.last().pose(), this.rseNotif, left, left + size, top, top + size, 0);
 
 			if (mouseY >= top && mouseY <= top + size && mouseX >= left && mouseX <= left + size) {
 				this.renderTooltip(matrices, this.font.split(regionEffectsMsg, Math.max(this.width / 2, 170)), mouseX, mouseY);
 			}
+
+			RenderSystem.disableBlend();
 		}
 	}
 

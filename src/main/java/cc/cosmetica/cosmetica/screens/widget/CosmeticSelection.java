@@ -7,6 +7,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.CosmeticaSkinManager;
 import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
 import cc.cosmetica.cosmetica.utils.textures.Indicators;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -105,7 +106,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 					float g = this.isFocused() ? 1.0F : 0.5F;
 
 					// white ""outline"" (square 1)
-					bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
+					bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 					bufferBuilder.vertex(x0, (y0 + dy + 2), 0.0D).color(g, g, g, 1.0F).endVertex();
 					bufferBuilder.vertex(x1, (y0 + dy + 2), 0.0D).color(g, g, g, 1.0F).endVertex();
 					bufferBuilder.vertex(x1, (y0 - 2), 0.0D).color(g, g, g, 1.0F).endVertex();
@@ -114,7 +115,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 					// blacc
 					RenderSystem.depthFunc(GL11.GL_LEQUAL);
-					bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
+					bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 
 					bufferBuilder.vertex((x0 + 1), (y0 + dy + 1), 0.0D).color(0.0F, 0.0F, 0.0F, 1.0F).endVertex();
 					bufferBuilder.vertex((x1 - 1), (y0 + dy + 1), 0.0D).color(0.0F, 0.0F, 0.0F, 1.0F).endVertex();
@@ -198,6 +199,9 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 			Matrix4f pose = poseStack.last().pose();
 
+			RenderSystem.enableBlend();
+			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+
 			if (textureRegistered) Cosmetica.renderTexture(pose, this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset());
 			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(textY + 6), 16777215, true);
 			
@@ -211,6 +215,8 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			if (this.hoveredIndicator != null) {
 				this.screen.renderTooltip(poseStack, Indicators.TOOLTIPS.get(this.hoveredIndicator), mouseX, mouseY + 8);
 			}
+
+			RenderSystem.disableBlend();
 		}
 
 		@Override

@@ -55,7 +55,9 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 		stack.pushPose();
 
 		if (modelData.id().equals("-sheep")) { // builtin live sheep
-			SheepFurModel<Sheep> model = new SheepFurModel<>();
+			LiveSheepFurModel model = new LiveSheepFurModel();
+			model.young = false;
+
 			stack.pushPose();
 			stack.scale(0.8f, 0.8f, 0.8f);
 			stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
@@ -85,6 +87,7 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 			stack.popPose();
 
 			LiveSheepModel lshm = new LiveSheepModel();
+			lshm.young = false;
 
 			stack.pushPose();
 
@@ -92,7 +95,6 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 			stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
 
 			vertexConsumer = multiBufferSource.getBuffer(lshm.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
-			stack.scale(0.35f, 0.35f, 0.35f);
 			lshm.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
 
 			stack.popPose();
