@@ -62,7 +62,7 @@ tasks.withType(JavaCompile).configureEach {
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
 
-	it.options.release = 1.8
+	it.options.release = 8
 }
 
 java {
