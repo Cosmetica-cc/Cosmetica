@@ -46,14 +46,14 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 		this.frame = 0;
 
 		try {
-			this.upload(image, !loading);
+			this.uploadFrame(image, !loading);
 		} catch (IllegalStateException e) {
 			Cosmetica.LOGGER.error("Error while uploading icon texture (loading: {}, icon url: {})", loading, this.url);
 			e.printStackTrace();
 		}
 	}
 
-	public void upload(NativeImage image, boolean close) {
+	public void uploadFrame(NativeImage image, boolean close) {
 		TextureUtil.prepareImage(this.getId(), 0, image.getWidth(), this.frameHeight);
 		image.upload(0, 0, 0, 0, this.frameHeight * this.frame, image.getWidth(), this.frameHeight, this.blur, false, false, close);
 	}
@@ -66,7 +66,7 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 			if (this.tick == 0) {
 				this.frame = (this.frame + 1) % this.frames;
 				//Debug.info("Uploading frame {}", this.frame);
-				this.upload(this.image, false);
+				this.uploadFrame(this.image, false);
 			}
 		}
 	}
