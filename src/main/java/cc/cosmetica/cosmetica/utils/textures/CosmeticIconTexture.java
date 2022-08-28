@@ -2,8 +2,10 @@ package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
+import cc.cosmetica.cosmetica.utils.Debug;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.Tickable;
 import net.minecraft.resources.ResourceLocation;
@@ -29,11 +31,12 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 	private final Set<String> indicators;
 
 	public void firstUpload(NativeImage image, boolean loading) {
+		Debug.info("Uploading image: {}", loading ? "[loading.png]" : this.url);
+
 		// memory management
 		if (this.image != null && ((NativeImageAccessorMixin)(Object)this.image).getPixels() != 0L) {
-			//Debug.info("Closing image on thread {} due to load. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
+			Debug.info("Closing image on thread {} due to load. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
 			this.image.close();
-			//Debug.info("Closed image.");
 		}
 
 		this.image = image;

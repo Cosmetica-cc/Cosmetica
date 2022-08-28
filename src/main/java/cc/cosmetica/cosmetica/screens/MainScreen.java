@@ -71,29 +71,6 @@ public class MainScreen extends PlayerRenderScreen {
 			}
 		});
 
-		class ReloadingButton extends Button {
-			public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Button.OnTooltip tooltip) {
-				super(i, j, k, l, component, onPress, tooltip);
-			}
-
-			public void onPress() {
-				if (doReload) {
-					Cosmetica.clearAllCaches();
-
-					if (Debug.TEST_MODE) {
-						Debug.loadTestProperties();
-						Debug.loadTestModel(Debug.LocalModelType.HAT);
-						Debug.loadTestModel(Debug.LocalModelType.LEFT_SHOULDERBUDDY);
-						Debug.loadTestModel(Debug.LocalModelType.RIGHT_SHOULDERBUDDY);
-						Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
-						Debug.loadTestCape();
-					}
-				}
-
-				this.onPress.onPress(this);
-			}
-		}
-
 		this.done = this.addDoneWithOffset(ReloadingButton::new, 12 + 24);
 
 		this.initialPlayerLeft = this.width / 2;
@@ -125,5 +102,28 @@ public class MainScreen extends PlayerRenderScreen {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 		this.renderRSENotif(matrices, mouseX, mouseY);
+	}
+
+	class ReloadingButton extends Button {
+		public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Button.OnTooltip tooltip) {
+			super(i, j, k, l, component, onPress, tooltip);
+		}
+
+		public void onPress() {
+			if (doReload) {
+				Cosmetica.clearAllCaches();
+
+				if (Debug.TEST_MODE) {
+					Debug.loadTestProperties();
+					Debug.loadTestModel(Debug.LocalModelType.HAT);
+					Debug.loadTestModel(Debug.LocalModelType.LEFT_SHOULDERBUDDY);
+					Debug.loadTestModel(Debug.LocalModelType.RIGHT_SHOULDERBUDDY);
+					Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
+					Debug.loadTestCape();
+				}
+			}
+
+			this.onPress.onPress(this);
+		}
 	}
 }
