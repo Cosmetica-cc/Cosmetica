@@ -11,7 +11,7 @@
   ],
   
   "icon": "assets/cosmetica/icon.png",
-  "license": "Cosmetica Public License",
+  "license": "Apache 2.0",
   
   "environment": "client",
   
