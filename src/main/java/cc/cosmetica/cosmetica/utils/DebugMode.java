@@ -19,7 +19,7 @@ package cc.cosmetica.cosmetica.utils;
 import cc.cosmetica.api.Box;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.CosmeticaSkinManager;
-import cc.cosmetica.cosmetica.config.DevModeConfig;
+import cc.cosmetica.cosmetica.config.DebugModeConfig;
 import cc.cosmetica.cosmetica.cosmetics.BackBling;
 import cc.cosmetica.cosmetica.cosmetics.CustomLayer;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
@@ -30,7 +30,6 @@ import cc.cosmetica.cosmetica.utils.textures.LocalCapeTexture;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -67,7 +66,7 @@ public class DebugMode {
 	public static int frameDelayMs = 50;
 
 	// edit this to change debug settings
-	private static DevModeConfig debugSettings = new DevModeConfig();
+	private static DebugModeConfig debugSettings = new DebugModeConfig();
 	private static Set<String> complainedAbout = new HashSet<>();
 
 	public static void complainOnce(String key, String str, Object... objects) {
@@ -238,7 +237,7 @@ public class DebugMode {
 		}
 
 		try (FileReader reader = new FileReader(DEBUG_SETTINGS)) {
-			debugSettings = new Gson().fromJson(reader, DevModeConfig.class);
+			debugSettings = new Gson().fromJson(reader, DebugModeConfig.class);
 		}
 
 		return true;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica;
+package cc.cosmetica.cosmetica.config;
 
 import cc.cosmetica.api.CapeDisplay;
 
@@ -31,6 +31,9 @@ public class DefaultSettingsConfig {
 	private final Path propertiesPath;
 
 	private String capeId = "";
+	private boolean enableHats = false;
+	private boolean enableShoulderBuddies = false;
+	private boolean enableBackBlings = false;
 
 	private final Map<String, CapeDisplay> capeServerSettings = new HashMap<>();
 
@@ -40,6 +43,18 @@ public class DefaultSettingsConfig {
 
 	public String getCapeId() {
 		return capeId;
+	}
+
+	public boolean areHatsEnabled() {
+		return this.enableHats;
+	}
+
+	public boolean areShoulderBuddiesEnabled() {
+		return this.enableShoulderBuddies;
+	}
+
+	public boolean areBackBlingsEnabled() {
+		return this.enableBackBlings;
 	}
 
 	public void initialize() throws IOException {
@@ -57,6 +72,10 @@ public class DefaultSettingsConfig {
 		Properties properties = new Properties();
 		properties.load(Files.newInputStream(propertiesPath));
 		capeId = properties.getProperty("starter-cape-id");
+		enableHats = Boolean.parseBoolean(properties.getProperty("enable-hats", "true"));
+		enableShoulderBuddies = Boolean.parseBoolean(properties.getProperty("enable-shoulder-buddies", "true"));
+		enableBackBlings = Boolean.parseBoolean(properties.getProperty("enable-back-blings", "true"));
+
 		capeServerSettings.clear();
 
 		for (String propertyName : properties.stringPropertyNames()) {
@@ -75,8 +94,14 @@ public class DefaultSettingsConfig {
 	public void save() throws IOException {
 		File parentDir = propertiesPath.getParent().toFile();
 		if (!parentDir.exists()) parentDir.mkdir();
+
 		Properties properties = new Properties();
 		properties.setProperty("starter-cape-id", capeId);
+		properties.setProperty("enable-hats", Boolean.toString(enableHats));
+		properties.setProperty("enable-shoulder-buddies", Boolean.toString(enableShoulderBuddies));
+		properties.setProperty("enable-back-blings", Boolean.toString(enableBackBlings));
+
+		capeServerSettings.forEach((capeServerSetting, display) -> properties.setProperty("cape-setting-" + capeServerSetting, display.name().toLowerCase(Locale.ROOT)));
 		properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Default Settings Config");
 	}
 }

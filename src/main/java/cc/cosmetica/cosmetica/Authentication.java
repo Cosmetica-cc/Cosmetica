@@ -16,9 +16,11 @@
 
 package cc.cosmetica.cosmetica;
 
+import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
+import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.MainScreen;
@@ -29,6 +31,7 @@ import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.screens.SnipeScreen;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -37,6 +40,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -188,19 +192,30 @@ public class Authentication {
 								currentlyAuthenticated = true;
 								currentlyAuthenticating = false;
 
-								if (info.isNewPlayer() && !info.hasSpecialCape()) {
-									String capeId = Cosmetica.getDefaultSettingsConfig().getCapeId();
+								if (info.isNewPlayer()) {
+									DefaultSettingsConfig defaults = Cosmetica.getDefaultSettingsConfig();
 
-									if (!capeId.isEmpty()) {
-										Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
-									}
+									Cosmetica.api.updateUserSettings(ImmutableMap.of(
+											"dohats", defaults.areHatsEnabled(),
+											"doshoulderbuddies", defaults.areShoulderBuddiesEnabled(),
+											"dobackblings", defaults.areBackBlingsEnabled()
+									));
 
-									var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
+									if (!info.hasSpecialCape()) {
+										String capeId = Cosmetica.getDefaultSettingsConfig().getCapeId();
 
-									if (!capeServerSettings.isEmpty()) {
-										Cosmetica.api.setCapeServerSettings(capeServerSettings);
+										if (!capeId.isEmpty()) {
+											Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
+										}
+
+										Map<String, CapeDisplay> capeServerSettings = defaults.getCapeServerSettings();
+
+										if (!capeServerSettings.isEmpty()) {
+											Cosmetica.api.setCapeServerSettings(capeServerSettings);
+										}
 									}
 								}
+
 
 								// welcome players
 								// and by new I mean has new to cosmetica lore

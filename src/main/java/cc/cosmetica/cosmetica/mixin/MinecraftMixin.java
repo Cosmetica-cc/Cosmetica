@@ -24,7 +24,6 @@ import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
 import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
 import cc.cosmetica.cosmetica.utils.DebugMode;
-import cc.cosmetica.cosmetica.utils.TextComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;

@@ -23,6 +23,7 @@ import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
+import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
@@ -230,7 +231,10 @@ public class Cosmetica implements ClientModInitializer {
 
 				DebugMode.log("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
 				LOGGER.info(CosmeticaAPI.getMessage());
-				splashes.add(CosmeticaAPI.getMessage());
+
+				if (config.shouldAddCosmeticaSplashMessage()) {
+					splashes.add(CosmeticaAPI.getMessage());
+				}
 
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
 				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();

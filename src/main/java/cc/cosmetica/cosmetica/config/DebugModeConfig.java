@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * GSON config for dev mode.
  */
-public class DevModeConfig {
+public class DebugModeConfig {
 	@SerializedName("elevate_debug_logging") public boolean elevateDebugLogging = true;
 	@SerializedName("log_urls") public boolean logURLs = false;
 	@SerializedName("debug_commands") public boolean debugCommands = false;
