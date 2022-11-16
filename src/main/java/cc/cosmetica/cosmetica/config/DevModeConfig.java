@@ -28,11 +28,11 @@ public class DevModeConfig {
 
 	@SerializedName("image_dumping") public ImageDumpingSettings imageDumpingSettings = new ImageDumpingSettings();
 
-	@SerializedName("hat") public TestModelConfig hat;
-	@SerializedName("left_shoulder_buddy") public TestModelConfig leftShoulderBuddy;
-	@SerializedName("right_shoulder_buddy") public TestModelConfig rightShoulderBuddy;
-	@SerializedName("back_bling") public TestModelConfig backBling;
-	@SerializedName("cape") public TestCapeConfig cape;
+	@SerializedName("hat") public TestModelConfig hat = new TestModelConfig("hat");
+	@SerializedName("left_shoulder_buddy") public TestModelConfig leftShoulderBuddy = new TestModelConfig("shoulder_buddy");
+	@SerializedName("right_shoulder_buddy") public TestModelConfig rightShoulderBuddy = new TestModelConfig("shoulder_buddy");
+	@SerializedName("back_bling") public TestModelConfig backBling = new TestModelConfig("back_bling");
+	@SerializedName("cape") public TestCapeConfig cape = new TestCapeConfig();
 
 	public static class ImageDumpingSettings {
 		public ImageDumpingSettings() {

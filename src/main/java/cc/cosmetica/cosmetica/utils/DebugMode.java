@@ -30,6 +30,7 @@ import cc.cosmetica.cosmetica.utils.textures.LocalCapeTexture;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -255,12 +256,6 @@ public class DebugMode {
 		CONFIG_DIR = new File(FabricLoader.getInstance().getConfigDir().toFile(), "cosmetica");
 		DEBUG_SETTINGS = new File(CONFIG_DIR, "debug_settings.json");
 
-		loadTestModel(LocalModelType.HAT);
-		loadTestModel(LocalModelType.LEFT_SHOULDERBUDDY);
-		loadTestModel(LocalModelType.RIGHT_SHOULDERBUDDY);
-		loadTestModel(LocalModelType.BACK_BLING);
-		loadTestCape();
-
 		if (ENABLED) {
 			CONFIG_DIR.mkdirs();
 
@@ -280,6 +275,15 @@ public class DebugMode {
 			catch (IOException e) {
 				e.printStackTrace();
 			}
+
+			Minecraft.getInstance().tell(() -> {
+				log("Loading test models and capes...");
+				loadTestModel(LocalModelType.HAT);
+				loadTestModel(LocalModelType.LEFT_SHOULDERBUDDY);
+				loadTestModel(LocalModelType.RIGHT_SHOULDERBUDDY);
+				loadTestModel(LocalModelType.BACK_BLING);
+				loadTestCape();
+			});
 		}
 	}
 
