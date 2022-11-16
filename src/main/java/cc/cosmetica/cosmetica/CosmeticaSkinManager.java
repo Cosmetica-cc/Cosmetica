@@ -17,7 +17,7 @@
 package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.api.Cape;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.textures.Base64Texture;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -40,7 +40,7 @@ public class CosmeticaSkinManager {
 	private static Set<ResourceLocation> uploaded = new HashSet<>();
 
 	public static void clearCaches() {
-		Debug.info("Clearing cosmetica skin caches");
+		DebugMode.log("Clearing cosmetica skin caches");
 		textures = new HashMap<>();
 		uploaded = new HashSet<>();
 	}
@@ -110,7 +110,7 @@ public class CosmeticaSkinManager {
 					});
 				}
 
-				Debug.info("Registering " + type + " texture for {}", id);
+				DebugMode.log("Registering " + type + " texture for {}", id);
 				textures.put(id, tex);
 			} catch (IOException e) {
 				Cosmetica.LOGGER.error("Error loading texture", e);

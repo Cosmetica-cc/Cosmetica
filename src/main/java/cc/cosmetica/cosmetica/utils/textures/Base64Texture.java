@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.Tickable;
@@ -60,7 +60,7 @@ public class Base64Texture extends AnimatedTexture {
 	}
 
 	private void reload() {
-		Debug.info("Re-uploading texture {}", this.path);
+		DebugMode.log("Re-uploading texture {}", this.path);
 		try {
 			this.loadImage(loadBase64(this.base64)); // load the image
 			this.upload();

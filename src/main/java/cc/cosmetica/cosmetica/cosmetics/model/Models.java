@@ -19,7 +19,7 @@ package cc.cosmetica.cosmetica.cosmetics.model;
 import cc.cosmetica.api.Box;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.Scheduler;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -87,7 +87,7 @@ public class Models {
 		boolean compute = !BAKED_MODELS.containsKey(unbaked.id());
 
 		if (compute) {
-			Debug.info("Computing Baked Model: " + unbaked.id());
+			DebugMode.log("Computing Baked Model: " + unbaked.id());
 			BAKED_MODELS.put(unbaked.id(), null); // searching
 			TEXTURE_MANAGER.retrieveAllocatedSprite(unbaked, sprite -> {
 				BakedModel model = unbaked.model().bake(
@@ -136,7 +136,7 @@ public class Models {
 	}
 
 	public static void removeBakedModel(String id) {
-		Debug.info("Deallocating baked model, {}", id);
+		DebugMode.log("Deallocating baked model, {}", id);
 		BAKED_MODELS.remove(id);
 	}
 

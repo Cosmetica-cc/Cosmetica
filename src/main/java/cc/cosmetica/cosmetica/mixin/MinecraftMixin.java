@@ -23,7 +23,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
 import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -47,8 +47,6 @@ public abstract class MinecraftMixin {
 	@Shadow @Final public Gui gui;
 
 	@Shadow @Nullable public ClientLevel level;
-
-	private static boolean cosmetica_shownTestModeDeprecationNotice = false;
 
 	@Shadow @Nullable public LocalPlayer player;
 
@@ -77,7 +75,7 @@ public abstract class MinecraftMixin {
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
 		if (Cosmetica.getCacheSize() > 1024) {
-			Debug.info("Clearing Cosmetica Caches");
+			DebugMode.log("Clearing Cosmetica Caches");
 			Cosmetica.clearAllCaches();
 		}
 
@@ -85,11 +83,6 @@ public abstract class MinecraftMixin {
 		if (Cosmetica.displayNext != null) {
 			this.gui.getChat().addMessage(Cosmetica.displayNext);
 			Cosmetica.displayNext = null;
-		}
-
-		if (!cosmetica_shownTestModeDeprecationNotice && Debug.TEST_MODE) {
-			cosmetica_shownTestModeDeprecationNotice = true;
-			this.gui.getChat().addMessage(TextComponents.literal("\u00A7cCosmetica Test Mode is deprecated in favour of using the website to preview cosmetics, and will be removed in the near future."));
 		}
 	}
 

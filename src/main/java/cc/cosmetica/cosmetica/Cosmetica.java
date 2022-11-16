@@ -22,12 +22,13 @@ import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
+import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.NamedThreadFactory;
 import cc.cosmetica.cosmetica.utils.SpecialKeyMapping;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -214,7 +215,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 
 		// delete debug dump images
-		Debug.clearImages();
+		DebugMode.clearImages();
 		
 		// API Url Getter
 		runOffthread(() -> {
@@ -225,9 +226,9 @@ public class Cosmetica implements ClientModInitializer {
 
 			try {
 				api = CosmeticaAPI.newUnauthenticatedInstance();
-				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+				api.setUrlLogger(DebugMode::logURL);
 
-				Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
+				DebugMode.log("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
 				LOGGER.info(CosmeticaAPI.getMessage());
 				splashes.add(CosmeticaAPI.getMessage());
 
@@ -404,7 +405,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo, boolean ignoreSelf) {
 		if (api != null && api.isAuthenticated()) {
-			Debug.info("Thread for safari {}", Thread.currentThread().getName());
+			DebugMode.log("Thread for safari {}", Thread.currentThread().getName());
 
 			api.everyThirtySecondsInAfricaHalfAMinutePasses(prideRock, yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong())
 					.ifSuccessfulOrElse(theLionSleepsTonight -> {
@@ -423,11 +424,11 @@ public class Cosmetica implements ClientModInitializer {
 						Cosmetica.toto = OptionalLong.of(theLionSleepsTonight.getTimestamp());
 
 						if (!yourFirstRodeo) {
-							Debug.info("Processing updates found on the safari.");
+							DebugMode.log("Processing updates found on the safari.");
 
 							for (User individual : theLionSleepsTonight.getNeedsUpdating()) {
 								UUID uuid = individual.getUUID();
-								Debug.info("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
+								DebugMode.log("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
 
 								if (playerDataCache.containsKey(uuid)) {
 									clearPlayerData(uuid);
@@ -438,7 +439,7 @@ public class Cosmetica implements ClientModInitializer {
 									}
 								} else {
 									// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
-									Debug.info("Lol cringe they went scampering into a bush or something!");
+									DebugMode.log("Lol cringe they went scampering into a bush or something!");
 
 									// use username to clear the info - might be in offline mode or something
 									String username = individual.getUsername();
@@ -449,7 +450,7 @@ public class Cosmetica implements ClientModInitializer {
 										UUID serverUuid = info.getProfile().getId();
 
 										if (playerDataCache.containsKey(serverUuid)) {
-											Debug.info("Found them :). They were hiding at uuid {}", serverUuid);
+											DebugMode.log("Found them :). They were hiding at uuid {}", serverUuid);
 											clearPlayerData(serverUuid);
 
 											// if ourselves, refresh asap
@@ -821,7 +822,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void clearAllCaches() {
-		Debug.info("Clearing all Cosmetica Caches");
+		DebugMode.log("Clearing all Cosmetica Caches");
 		playerDataCache = new HashMap<>();
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();

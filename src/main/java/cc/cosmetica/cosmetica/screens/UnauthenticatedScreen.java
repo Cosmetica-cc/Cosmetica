@@ -17,7 +17,7 @@
 package cc.cosmetica.cosmetica.screens;
 
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -56,10 +56,10 @@ public class UnauthenticatedScreen extends Screen {
 		if (fromSave) {
 			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, new TranslatableComponent("cosmetica.okay"), button -> this.onClose()));
 		} else {
-			if (Debug.DEBUG_MODE) { // because I'm not authenticated in dev and can't use the normal button
+			if (DebugMode.ENABLED) { // because I'm not authenticated in dev and can't use the normal button
 				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 100, 20, new TextComponent("Clear Caches"), btn -> {
 					Cosmetica.clearAllCaches();
-					if (Debug.TEST_MODE) Debug.reloadTestModels();
+					if (DebugMode.ENABLED) DebugMode.reloadTestModels();
 				}));
 			}
 
@@ -69,7 +69,7 @@ public class UnauthenticatedScreen extends Screen {
 			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, new TranslatableComponent("cosmetica.unauthenticated.retry"), (button) -> {
 				minecraft.setScreen(new LoadingScreen(this.parentScreen, minecraft.options));
 			}));
-			this.addRenderableWidget(new Button(Debug.DEBUG_MODE ? buttonX + 100 : buttonX, buttonStartY + 48, Debug.DEBUG_MODE ? 100 : 200, 20, new TranslatableComponent("gui.cancel"), button -> this.onClose()));
+			this.addRenderableWidget(new Button(DebugMode.ENABLED ? buttonX + 100 : buttonX, buttonStartY + 48, DebugMode.ENABLED ? 100 : 200, 20, new TranslatableComponent("gui.cancel"), button -> this.onClose()));
 		}
 	}
 

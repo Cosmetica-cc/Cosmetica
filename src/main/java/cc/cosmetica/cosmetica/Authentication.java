@@ -25,7 +25,7 @@ import cc.cosmetica.cosmetica.screens.MainScreen;
 import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
 import cc.cosmetica.cosmetica.screens.UnauthenticatedScreen;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.screens.SnipeScreen;
@@ -63,7 +63,7 @@ public class Authentication {
 			}
 
 			Cosmetica.api.getUserSettings().ifSuccessfulOrElse(settings -> {
-				Debug.info("Handling successful cosmetics settings response.");
+				DebugMode.log("Handling successful cosmetics settings response.");
 
 				// regional effects checking
 				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet();
@@ -87,7 +87,7 @@ public class Authentication {
 					}
 
 					PlayerData info = Cosmetica.getPlayerData(uuid, playerName, true);
-					Debug.info("Loading skin " + info.skin());
+					DebugMode.log("Loading skin " + info.skin());
 					@Nullable PlayerData ownInfo = loadTarget == 2 ? Cosmetica.getPlayerData(ownUUID, ownName, true) : null;
 
 					// check *again* in case they've closed it
@@ -156,9 +156,9 @@ public class Authentication {
 			String devToken = System.getProperty("cosmetica.token");
 
 			if (devToken != null) {
-				Debug.info("Authenticating API from provided token.");
+				DebugMode.log("Authenticating API from provided token.");
 				Cosmetica.api = CosmeticaAPI.fromToken(devToken);
-				Cosmetica.api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+				Cosmetica.api.setUrlLogger(DebugMode::logURL);
 
 				// welcome players if they're new
 				// this isn't really necesary for manual auth because you probably know what you're doing
@@ -168,9 +168,9 @@ public class Authentication {
 				prepareWelcome(uuid, user.getName());
 			} else {
 				if (currentlyAuthenticating) {
-					Debug.info("API is not authenticated but authentication is already in progress.");
+					DebugMode.log("API is not authenticated but authentication is already in progress.");
 				} else {
-					Debug.info("API is not authenticated: starting authentication!");
+					DebugMode.log("API is not authenticated: starting authentication!");
 					currentlyAuthenticating = true;
 
 					new Thread("Cosmetica Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
@@ -180,7 +180,7 @@ public class Authentication {
 								UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
 
 								Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid); // getUuid() better have the dashes... edit: it did not have the dashes.
-								Cosmetica.api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+								Cosmetica.api.setUrlLogger(DebugMode::logURL);
 
 								LoginInfo info = Cosmetica.api.getLoginInfo().get();
 
@@ -219,7 +219,7 @@ public class Authentication {
 				}
 			}
 		} else {
-			Debug.info("Api is authenticated: syncing settings!");
+			DebugMode.log("Api is authenticated: syncing settings!");
 			syncSettings();
 		}
 	}

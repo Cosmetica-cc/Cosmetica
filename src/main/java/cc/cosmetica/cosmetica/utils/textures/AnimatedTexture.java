@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.utils.textures;
 
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
@@ -36,7 +36,7 @@ public abstract class AnimatedTexture extends AbstractTexture {
 		this.frames = (2 * this.image.getHeight()) / this.image.getWidth();
 		this.frameHeight = this.image.getHeight() / this.frames;
 
-		Debug.info("Setting up animations for " + this.frames + " frames");
+		DebugMode.log("Setting up animations for " + this.frames + " frames");
 
 		if (this.frames <= 0) {
 			throw new IllegalStateException("Frames cannot be less than one! If you're not using a cape loaded locally, please contact the Cosmetica devs asap. Debug data: frames=" + this.frames + ",frameHeight=" + this.frameHeight + ",frameDelayTicks=" + this.frameCounterTicks + ",width=" + this.image.getWidth() + ",height=" + this.image.getHeight());

@@ -17,7 +17,6 @@
 package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
-import cc.cosmetica.cosmetica.utils.Debug;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +34,7 @@ public record PlayerData(String lore, boolean upsideDown, String prefix, String 
 
 	@Override
 	public ResourceLocation cape() {
-		return Debug.CAPE_OVERRIDER.get(() -> this.cape);
+		return CustomLayer.CAPE_OVERRIDER.get(() -> this.cape);
 	}
 
 	public ResourceLocation legitCape() {

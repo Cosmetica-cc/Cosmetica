@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.cosmetics.model;
 
 import cc.cosmetica.cosmetica.mixin.textures.TextureAtlasSpriteInvokerMixin;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.Scheduler;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -57,7 +57,7 @@ public class RuntimeSpriteAllocator {
 	public void addAtlasSprite(TextureAtlasSprite result) {
 		// minecraft loads resources in parallel
 		synchronized (this) {
-			Debug.info("Adding Atlas Sprite {} at index {}", result, this.emptySpriteIndex);
+			DebugMode.log("Adding Atlas Sprite {} at index {}", result, this.emptySpriteIndex);
 			this.sprites[this.emptySpriteIndex] = result;
 			this.emptySpriteIndex = (this.emptySpriteIndex + 1) & (this.size - 1);
 		}
@@ -107,7 +107,7 @@ public class RuntimeSpriteAllocator {
 				}
 			}
 
-			Debug.info("Using New Index: " + index);
+			DebugMode.log("Using New Index: " + index);
 			//System.out.println("Count: " + ((MixinTextureAtlasSpriteInvoker)this.sprites[index]).getMainImage().length); Count: 5
 			// at this point, index is guaranteed to be a value which is free
 			this.search = index + 1; // the next spot over
@@ -134,9 +134,9 @@ public class RuntimeSpriteAllocator {
 			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
 				// generate mipmap
 				NativeImage[] mipmap = MipmapGenerator.generateMipLevels(model.image(), ((TextureAtlasSpriteInvokerMixin) sprite).getMainImage().length - 1);
-				Debug.info("Allocating Sprite: " + sprite.getName());
-				Debug.dumpImages(sprite.getName().toDebugFileName() + "_old", false, ((TextureAtlasSpriteInvokerMixin) sprite).getMainImage());
-				Debug.dumpImages(sprite.getName().toDebugFileName(), false, mipmap);
+				DebugMode.log("Allocating Sprite: " + sprite.getName());
+				DebugMode.dumpImages(sprite.getName().toDebugFileName() + "_old", false, ((TextureAtlasSpriteInvokerMixin) sprite).getMainImage());
+				DebugMode.dumpImages(sprite.getName().toDebugFileName(), false, mipmap);
 				// bind the texture
 				GlStateManager._bindTexture(((TextureAtlasSpriteInvokerMixin) sprite).getAtlas().getId());
 				// upload to the texture

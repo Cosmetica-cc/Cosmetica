@@ -23,7 +23,7 @@ import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
@@ -96,13 +96,8 @@ public class MainScreen extends PlayerRenderScreen {
 				if (doReload) {
 					Cosmetica.clearAllCaches();
 
-					if (Debug.TEST_MODE) {
-						Debug.loadTestProperties();
-						Debug.loadTestModel(Debug.LocalModelType.HAT);
-						Debug.loadTestModel(Debug.LocalModelType.LEFT_SHOULDERBUDDY);
-						Debug.loadTestModel(Debug.LocalModelType.RIGHT_SHOULDERBUDDY);
-						Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
-						Debug.loadTestCape();
+					if (DebugMode.ENABLED) {
+						DebugMode.reloadTestModels();
 					}
 				}
 

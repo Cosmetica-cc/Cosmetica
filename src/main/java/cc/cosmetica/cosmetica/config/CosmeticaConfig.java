@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica;
+package cc.cosmetica.cosmetica.config;
 
 import java.io.File;
 import java.io.IOException;

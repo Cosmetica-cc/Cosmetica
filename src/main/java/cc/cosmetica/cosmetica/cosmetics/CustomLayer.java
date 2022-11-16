@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
+import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
@@ -30,6 +31,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> extends RenderLayer<T, PlayerModel<T>> {
@@ -62,4 +64,6 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
 
         stack.popPose();
     }
+
+    public static final CosmeticStack<ResourceLocation> CAPE_OVERRIDER = new CosmeticStack<>();
 }
