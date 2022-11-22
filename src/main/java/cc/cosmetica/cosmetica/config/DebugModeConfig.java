@@ -50,7 +50,7 @@ public class DebugModeConfig {
 
 	public static class TestModelConfig {
 		public TestModelConfig(String location) {
-			this.location = "location";
+			this.location = location;
 		}
 
 		// GSON might need this

@@ -70,7 +70,7 @@ public class Authentication {
 				DebugMode.log("Handling successful cosmetics settings response.");
 
 				// regional effects checking
-				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet();
+				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet() && Cosmetica.getConfig().regionalEffectsPrompt();
 
 				// only bother trying to do the next stage if on a loading screen
 				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen) {

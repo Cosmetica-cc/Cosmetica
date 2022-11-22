@@ -67,7 +67,7 @@ public class DebugMode {
 
 	// edit this to change debug settings
 	private static DebugModeConfig debugSettings = new DebugModeConfig();
-	private static Set<String> complainedAbout = new HashSet<>();
+	private static final Set<String> complainedAbout = new HashSet<>();
 
 	public static void complainOnce(String key, String str, Object... objects) {
 		if (ENABLED && debugSettings.elevateDebugLogging && !complainedAbout.contains(key)) {
