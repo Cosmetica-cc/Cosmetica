@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 
 public class LocalCapeTexture extends AnimatedTexture implements Tickable {
 	public LocalCapeTexture(ResourceLocation debugPath, Supplier<NativeImage> image) {
+		super(2);
 		this.imageSupplier = image;
 		this.debugPath = debugPath;
 

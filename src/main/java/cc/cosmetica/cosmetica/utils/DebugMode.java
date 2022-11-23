@@ -142,7 +142,6 @@ public class DebugMode {
 
 			if (imageF.isFile()) {
 				BlockModel blockModel;
-				NativeImage image;
 
 				try (FileReader reader = new FileReader(modelJsonF)) {
 					blockModel = BlockModel.fromStream(reader);
@@ -151,18 +150,22 @@ public class DebugMode {
 					return false;
 				}
 
-				try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
-					image = NativeImage.read(stream);
-				} catch (IOException | JsonParseException e) {
-					Cosmetica.LOGGER.error("Error reading test block model for " + modelLoc, e);
-					return false;
-				}
+				ResourceLocation resourceLocation = new ResourceLocation("cosmetica_debug", "test/" + modelLoc.toLowerCase(Locale.ROOT));
+
+				Minecraft.getInstance().getTextureManager().register(resourceLocation, new LocalCapeTexture(new ResourceLocation("cosmetica_debug", modelLoc.toLowerCase(Locale.ROOT)), () -> {
+					try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
+						return NativeImage.read(stream);
+					} catch (IOException e) {
+						Cosmetica.LOGGER.error("Error reading test model texture for " + modelLoc, e);
+						return null;
+					}
+				}));
 
 				model.push(new BakableModel(
 						"test-" + modelLoc,
 						modelLoc,
 						blockModel,
-						image,
+						resourceLocation,
 						extraInfo, new Box(0, 0, 0, 0, 0 , 0)));
 
 				return true;
@@ -208,7 +211,7 @@ public class DebugMode {
 		File imageF = new File(CONFIG_DIR, location + ".png");
 
 		if (imageF.isFile()) {
-			Minecraft.getInstance().getTextureManager().register(TEST_CAPE, new LocalCapeTexture(new ResourceLocation("cosmetica_test_mode", location.toLowerCase(Locale.ROOT)), () -> {
+			Minecraft.getInstance().getTextureManager().register(TEST_CAPE, new LocalCapeTexture(new ResourceLocation("cosmetica_debug", location.toLowerCase(Locale.ROOT)), () -> {
 				try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
 					return NativeImage.read(stream);
 				} catch (IOException e) {

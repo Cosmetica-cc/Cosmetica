@@ -23,7 +23,7 @@
     "textures.HttpTextureMixin",
     "textures.NativeImageAccessorMixin",
     "textures.SimpleTextureMixin",
-    "textures.TextureAtlasMixin",
+    "textures.TextureAtlasSpriteMixin",
     "textures.TextureAtlasSpriteInvokerMixin",
     "textures.TextureManagerMixin",
     "textures.TextureManagerAccessorMixin",

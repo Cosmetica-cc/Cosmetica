@@ -42,9 +42,6 @@ public class LocalPlayerMixin {
 			if (args[0].equals("/cosmetica")) {
 				if (args.length == 2) { // cache commands
 					switch (args[1]) {
-					case "texcache":
-						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.TEXTURE_MANAGER.toString()));
-						break;
 					case "infocache":
 						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Cosmetica.getCachedPlayers().toString()));
 						break;

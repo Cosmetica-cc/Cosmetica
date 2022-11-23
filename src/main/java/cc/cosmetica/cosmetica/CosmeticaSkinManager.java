@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.api.Cape;
+import cc.cosmetica.api.Model;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.textures.Base64Texture;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -55,8 +56,8 @@ public class CosmeticaSkinManager {
 		return new ResourceLocation("cosmetica", "test/" + id);
 	}
 
-	public static ResourceLocation cloakId(String id) {
-		return new ResourceLocation("cosmetica", "cape/" + pathify(id));
+	public static ResourceLocation textureId(String type, String id) {
+		return new ResourceLocation("cosmetica", type + "/" + pathify(id));
 	}
 
 	public static void setTestUploaded(String testId) {
@@ -83,8 +84,12 @@ public class CosmeticaSkinManager {
 		return result.toString();
 	}
 
+	public static ResourceLocation processModel(Model model) {
+		return saveTexture(textureId(model.getType().getUrlString(), model.getId()), model.getTexture(), 500);
+	}
+
 	public static ResourceLocation processCape(Cape cloak) {
-		return saveTexture(cloakId(cloak.getId()), cloak.getImage(), cloak.getFrameDelay());
+		return saveTexture(textureId("cape", cloak.getId()), cloak.getImage(), cloak.getFrameDelay());
 	}
 
 	public static ResourceLocation processSkin(String base64Skin, UUID uuid) {
@@ -95,7 +100,9 @@ public class CosmeticaSkinManager {
 		if (!textures.containsKey(id)) {
 			try {
 				String type = id.getPath().split("\\/")[0];
-				AbstractTexture tex = type.equals("cape") ? Base64Texture.cape(id, texture.substring(22), mspf) : Base64Texture.skin(id, texture.substring(22));
+				AbstractTexture tex = type.equals("cape") ? Base64Texture.cape(id, texture.substring(22), mspf) : (
+						type.equals("skin") ? Base64Texture.skin(id, texture.substring(22)) : Base64Texture.model(id, texture, mspf)
+						);
 
 				if (RenderSystem.isOnRenderThreadOrInit()) {
 					Minecraft.getInstance().getTextureManager().register(id, tex);
