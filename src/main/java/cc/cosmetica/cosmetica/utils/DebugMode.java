@@ -152,7 +152,7 @@ public class DebugMode {
 
 				ResourceLocation resourceLocation = new ResourceLocation("cosmetica_debug", "test/" + modelLoc.toLowerCase(Locale.ROOT));
 
-				Minecraft.getInstance().getTextureManager().register(resourceLocation, new LocalCapeTexture(new ResourceLocation("cosmetica_debug", modelLoc.toLowerCase(Locale.ROOT)), () -> {
+				Minecraft.getInstance().getTextureManager().register(resourceLocation, new LocalCapeTexture(new ResourceLocation("cosmetica_debug", modelLoc.toLowerCase(Locale.ROOT)), 1, () -> {
 					try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
 						return NativeImage.read(stream);
 					} catch (IOException e) {
@@ -211,7 +211,7 @@ public class DebugMode {
 		File imageF = new File(CONFIG_DIR, location + ".png");
 
 		if (imageF.isFile()) {
-			Minecraft.getInstance().getTextureManager().register(TEST_CAPE, new LocalCapeTexture(new ResourceLocation("cosmetica_debug", location.toLowerCase(Locale.ROOT)), () -> {
+			Minecraft.getInstance().getTextureManager().register(TEST_CAPE, new LocalCapeTexture(new ResourceLocation("cosmetica_debug", location.toLowerCase(Locale.ROOT)), 2, () -> {
 				try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
 					return NativeImage.read(stream);
 				} catch (IOException e) {

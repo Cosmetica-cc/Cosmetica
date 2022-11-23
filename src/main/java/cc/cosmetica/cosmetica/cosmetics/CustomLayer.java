@@ -60,6 +60,7 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
                 model,
                 stack,
                 multiBufferSource,
+                bakableModel.image(),
                 packedLightProbably);
 
         stack.popPose();

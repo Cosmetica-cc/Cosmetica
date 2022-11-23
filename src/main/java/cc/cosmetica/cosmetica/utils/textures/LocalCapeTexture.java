@@ -28,8 +28,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import java.util.function.Supplier;
 
 public class LocalCapeTexture extends AnimatedTexture implements Tickable {
-	public LocalCapeTexture(ResourceLocation debugPath, Supplier<NativeImage> image) {
-		super(2);
+	public LocalCapeTexture(ResourceLocation debugPath, int aspectRatio, Supplier<NativeImage> image) {
+		super(aspectRatio);
 		this.imageSupplier = image;
 		this.debugPath = debugPath;
 

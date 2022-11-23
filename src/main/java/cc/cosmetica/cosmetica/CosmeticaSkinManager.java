@@ -101,7 +101,7 @@ public class CosmeticaSkinManager {
 			try {
 				String type = id.getPath().split("\\/")[0];
 				AbstractTexture tex = type.equals("cape") ? Base64Texture.cape(id, texture.substring(22), mspf) : (
-						type.equals("skin") ? Base64Texture.skin(id, texture.substring(22)) : Base64Texture.model(id, texture, mspf)
+						type.equals("skin") ? Base64Texture.skin(id, texture.substring(22)) : Base64Texture.model(id, texture.substring(22), mspf)
 						);
 
 				if (RenderSystem.isOnRenderThreadOrInit()) {

@@ -262,13 +262,6 @@ public class Cosmetica implements ClientModInitializer {
 			}
 		}, ThreadPool.GENERAL_THREADS);
 
-		ClientSpriteRegistryCallback.event(InventoryMenu.BLOCK_ATLAS).register((atlasTexture, registry) -> {
-			// register all reserved textures
-			for (int i = 0; i < 128; ++i) {
-				registry.register(new ResourceLocation("cosmetica", "generated/reserved_" + i));
-			}
-		});
-
 		// make sure it clears relevant caches on resource reload
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override

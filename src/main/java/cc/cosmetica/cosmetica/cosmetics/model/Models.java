@@ -18,12 +18,10 @@ package cc.cosmetica.cosmetica.cosmetics.model;
 
 import cc.cosmetica.api.Box;
 import cc.cosmetica.api.Model;
-import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.CosmeticaSkinManager;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.Scheduler;
 import cc.cosmetica.cosmetica.utils.textures.AnimatedTexture;
-import cc.cosmetica.cosmetica.utils.textures.Base64Texture;
 import cc.cosmetica.cosmetica.utils.textures.ModelSprite;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -33,14 +31,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
-import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +49,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -98,7 +90,7 @@ public class Models {
 
 			BakedModel model = unbaked.model().bake(
 					thePieShopDownTheRoad,
-					l -> Models.getAppropriateTexture(l, sprite, unbaked.id()),
+					l -> sprite,
 					BlockModelRotation.X0_Y0,
 					location /*this resource location in bake is just used for debugging in the case of errors*/);
 			NEW_BAKED_MODELS.add(model);
@@ -118,24 +110,6 @@ public class Models {
 			return null;
 		}
 		return result;
-	}
-
-	/**
-	 * @apiNote result is nullable if and only if "allocated" is null.
-	 */
-	private static TextureAtlasSprite getAppropriateTexture(Material material, TextureAtlasSprite allocated, String id) {
-		adfasdfasdfsdafsa
-		// Requesting a MINECRAFT texture is DEPRECATED. Future releases will not support this.
-		// TODO rewrite texture assigner to work like capes
-		if (material.texture().getNamespace().equals("minecraft")) { // if in the "minecraft" namespace they may be requesting a vanilla texture.
-			TextureAtlasSprite vanillaSprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(material.texture());
-
-			if (vanillaSprite == null) {
-				Cosmetica.LOGGER.warn("Model " + id + " requested a 'minecraft' texture but the associated sprite is NULL! Requested texture: " + material.texture() + ", Fallback Sprite: " + allocated);
-			}
-		}
-
-		return allocated;
 	}
 
 	public static void removeBakedModel(String id) {
@@ -174,7 +148,7 @@ public class Models {
 		});
 	}
 
-	public static void renderModel(BakedModel model, PoseStack stack, MultiBufferSource multiBufferSource, AbstractTexture texture, int packedLight) {
+	public static void renderModel(BakedModel model, PoseStack stack, MultiBufferSource multiBufferSource, ResourceLocation texture, int packedLight) {
 		stack.pushPose();
 		boolean isGUI3D = model.isGui3d();
 		float transformStrength = 0.25F;
