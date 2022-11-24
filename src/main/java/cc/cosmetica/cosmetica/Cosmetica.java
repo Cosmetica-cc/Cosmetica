@@ -801,7 +801,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void renderIcon(PoseStack poseStack, MultiBufferSource multiBufferSource, Player player, Font font, int packedLight, Component component) {
+	public static void renderIcon(PoseStack poseStack, Player player, Font font, int packedLight, Component component) {
 		@Nullable ResourceLocation iconTexture = getPlayerData(player).icon();
 
 		if (iconTexture != null) {
@@ -809,14 +809,9 @@ public class Cosmetica implements ClientModInitializer {
 
 			poseStack.pushPose();
 
-			try {
-				poseStack.translate(xOffset, 0, 0);
-				RenderSystem.enableDepthTest();
-				renderTexture(poseStack.last().pose(), iconTexture, -10, 0, -3, 7, 0);
-			}
-			catch (Exception e) {
-				Cosmetica.LOGGER.error("asdfsadf debug render icon", e);
-			}
+			poseStack.translate(xOffset, 0, 0);
+			RenderSystem.enableDepthTest();
+			renderTextureLight(poseStack.last().pose(), iconTexture, -10, 0, -3, 7, 0, packedLight);
 
 			poseStack.popPose();
 		}
@@ -842,10 +837,30 @@ public class Cosmetica implements ClientModInitializer {
 
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferBuilder.vertex(matrix4f, (float) x0, (float) y1, (float) z).uv(0, 1).uv2(0, 0).endVertex();
-		bufferBuilder.vertex(matrix4f, (float) x1, (float) y1, (float) z).uv(1, 1).uv2(0, 0).endVertex();
-		bufferBuilder.vertex(matrix4f, (float) x1, (float) y0, (float) z).uv(1, 0).uv2(0, 0).endVertex();
-		bufferBuilder.vertex(matrix4f, (float) x0, (float) y0, (float) z).uv(0, 0).uv2(0, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x0, (float) y1, (float) z).uv(0, 1).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x1, (float) y1, (float) z).uv(1, 1).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x1, (float) y0, (float) z).uv(1, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x0, (float) y0, (float) z).uv(0, 0).endVertex();
+		bufferBuilder.end();
+		BufferUploader.end(bufferBuilder);
+	}
+
+	public static void renderTextureLight(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, int packedLight) {
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderTexture(0, texture);
+
+		int skylight = (packedLight >> 20) & 0xF;
+		int blocklight = (packedLight >> 4) & 0xF;
+		float shaderColour = Math.max(skylight, blocklight) / 16.0f;
+
+		RenderSystem.setShaderColor(shaderColour, shaderColour, shaderColour, 1.0f);
+
+		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		bufferBuilder.vertex(matrix4f, (float) x0, (float) y1, (float) z).uv(0, 1).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x1, (float) y1, (float) z).uv(1, 1).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x1, (float) y0, (float) z).uv(1, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x0, (float) y0, (float) z).uv(0, 0).endVertex();
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
 	}

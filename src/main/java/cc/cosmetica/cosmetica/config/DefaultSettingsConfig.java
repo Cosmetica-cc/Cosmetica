@@ -34,6 +34,7 @@ public class DefaultSettingsConfig {
 	private boolean enableHats = false;
 	private boolean enableShoulderBuddies = false;
 	private boolean enableBackBlings = false;
+	private boolean enableIcons = false;
 
 	private final Map<String, CapeDisplay> capeServerSettings = new HashMap<>();
 
@@ -75,6 +76,7 @@ public class DefaultSettingsConfig {
 		enableHats = Boolean.parseBoolean(properties.getProperty("enable-hats", "true"));
 		enableShoulderBuddies = Boolean.parseBoolean(properties.getProperty("enable-shoulder-buddies", "true"));
 		enableBackBlings = Boolean.parseBoolean(properties.getProperty("enable-back-blings", "true"));
+		enableIcons = Boolean.parseBoolean(properties.getProperty("enable-icons", "true"));
 
 		capeServerSettings.clear();
 
@@ -100,6 +102,7 @@ public class DefaultSettingsConfig {
 		properties.setProperty("enable-hats", Boolean.toString(enableHats));
 		properties.setProperty("enable-shoulder-buddies", Boolean.toString(enableShoulderBuddies));
 		properties.setProperty("enable-back-blings", Boolean.toString(enableBackBlings));
+		properties.setProperty("enable-icons", Boolean.toString(enableIcons));
 
 		capeServerSettings.forEach((capeServerSetting, display) -> properties.setProperty("cape-setting-" + capeServerSetting, display.name().toLowerCase(Locale.ROOT)));
 		properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Default Settings Config");

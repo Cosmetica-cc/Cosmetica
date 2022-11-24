@@ -38,7 +38,7 @@ public class EntityRendererMixin {
 	@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;last()Lcom/mojang/blaze3d/vertex/PoseStack$Pose;"), method = "renderNameTag")
 	private void onNametagRender(Entity entity, Component component, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, CallbackInfo ci) {
 		if (entity instanceof Player player) {
-			Cosmetica.renderIcon(poseStack, multiBufferSource, player, this.font, packedLight, component);
+			Cosmetica.renderIcon(poseStack, player, this.font, packedLight, component);
 		}
 	}
 }
