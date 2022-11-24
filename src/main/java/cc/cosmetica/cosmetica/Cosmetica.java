@@ -40,6 +40,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
@@ -60,6 +61,8 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
@@ -794,6 +797,51 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
+	public static void renderIcon(PoseStack poseStack, MultiBufferSource multiBufferSource, Player player, Font font, int packedLight, Component component) {
+		@Nullable ResourceLocation iconTexture = getPlayerData(player).icon();
+
+		if (iconTexture != null) {
+			float xOffset = -font.width(component) / 2.0f;
+
+			poseStack.pushPose();
+
+			try {
+				poseStack.translate(xOffset, 0, 0);
+
+//				RenderType renderType = RenderType.(iconTexture); // hopefully this is the right one
+//				VertexConsumer vertexConsumer = multiBufferSource.getBuffer(renderType);
+//
+				PoseStack.Pose pose = poseStack.last();
+//
+//				vertexConsumer.vertex(pose.pose(), -10, 7, 0).color(1.0f, 1.0f, 1.0f, 1.0f).uv(0, 1).uv2(packedLight).endVertex();
+//				vertexConsumer.vertex(pose.pose(), 0, 7, 0).color(1.0f, 1.0f, 1.0f, 1.0f).uv(1, 1).uv2(packedLight).endVertex();
+//				vertexConsumer.vertex(pose.pose(), 0, -3, 0).color(1.0f, 1.0f, 1.0f, 1.0f).uv(1, 0).uv2(packedLight).endVertex();
+//				vertexConsumer.vertex(pose.pose(), -10, -3, 0).color(1.0f, 1.0f, 1.0f, 1.0f).uv(0, 0).uv2(packedLight).endVertex();
+
+//				RenderSystem.setShader(GameRenderer::getParticleShader);
+//				RenderSystem.setShaderTexture(0, iconTexture);
+//				RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+//
+//				BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+//				bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+//
+//				bufferBuilder.vertex(pose.pose(), (float) -10, (float) 7, (float) 0).uv(0, 1).color(255, 255,255,255).uv2(packedLight).endVertex();
+//				bufferBuilder.vertex(pose.pose(), (float) 0, (float) 7, (float) 0).uv(1, 1).color(255, 255,255,255).uv2(packedLight).endVertex();
+//				bufferBuilder.vertex(pose.pose(), (float) 0, (float) -3, (float) 0).uv(1, 0).color(255, 255,255,255).uv2(packedLight).endVertex();
+//				bufferBuilder.vertex(pose.pose(), (float) -10, (float) -3, (float) 0).uv(0, 0).color(255, 255,255,255).uv2(packedLight).endVertex();
+//				bufferBuilder.end();
+//				BufferUploader.end(bufferBuilder);
+
+				renderTexture(poseStack.last().pose(), iconTexture, -10, 0, -3, 7, 0);
+			}
+			catch (Exception e) {
+				Cosmetica.LOGGER.error("asdfsadf debug render icon", e);
+			}
+
+			poseStack.popPose();
+		}
+	}
+
 	private static Vector3f rotateVertex(Vector3f vertex, Vector3f origin, Direction.Axis axis, float angle) {
 		vertex.sub(origin);
 		if (axis == Direction.Axis.X) {
@@ -814,10 +862,10 @@ public class Cosmetica implements ClientModInitializer {
 
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, (float)z).uv(0, 1).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).uv(1, 1).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, (float)z).uv(1, 0).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, (float)z).uv(0, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x0, (float) y1, (float) z).uv(0, 1).uv2(0, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x1, (float) y1, (float) z).uv(1, 1).uv2(0, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x1, (float) y0, (float) z).uv(1, 0).uv2(0, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x0, (float) y0, (float) z).uv(0, 0).uv2(0, 0).endVertex();
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
 	}

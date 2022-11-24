@@ -33,6 +33,7 @@
     "MinecraftMixin",
     "ModelManagerMixin",
     "PlayerEntityRendererMixin",
+    "PlayerMixin",
     "PlayerRendererMixin",
     "SplashManagerMixin"
   ],
