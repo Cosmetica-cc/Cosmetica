@@ -27,10 +27,10 @@ import java.util.List;
 /**
  * Data class for Player Data
  */
-public record PlayerData(String lore, boolean upsideDown, String prefix, String suffix, List<BakableModel> hats, @Nullable BakableModel leftShoulderBuddy, @Nullable BakableModel rightShoulderBuddy, @Nullable BakableModel backBling, String capeName, String capeId, boolean thirdPartyCape, @Nullable ResourceLocation cape, ResourceLocation skin, boolean slim) {
+public record PlayerData(String lore, boolean upsideDown, @Nullable ResourceLocation icon, String prefix, String suffix, List<BakableModel> hats, @Nullable BakableModel leftShoulderBuddy, @Nullable BakableModel rightShoulderBuddy, @Nullable BakableModel backBling, String capeName, String capeId, boolean thirdPartyCape, @Nullable ResourceLocation cape, ResourceLocation skin, boolean slim) {
 
-	public static PlayerData NONE = new PlayerData("", false, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
-	public static PlayerData TEMPORARY = new PlayerData("", false, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
+	public static PlayerData NONE = new PlayerData("", false, null, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
+	public static PlayerData TEMPORARY = new PlayerData("", false, null, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
 
 	@Override
 	public ResourceLocation cape() {

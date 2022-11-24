@@ -84,6 +84,10 @@ public class CosmeticaSkinManager {
 		return result.toString();
 	}
 
+	public static ResourceLocation processIcon(String client, String base64Texture) {
+		return saveTexture(textureId("icon", client), base64Texture, 500);
+	}
+
 	public static ResourceLocation processModel(Model model) {
 		return saveTexture(textureId(model.getType().getUrlString(), model.getId()), model.getTexture(), 500);
 	}
@@ -101,7 +105,7 @@ public class CosmeticaSkinManager {
 			try {
 				String type = id.getPath().split("\\/")[0];
 				AbstractTexture tex = type.equals("cape") ? Base64Texture.cape(id, texture.substring(22), mspf) : (
-						type.equals("skin") ? Base64Texture.skin(id, texture.substring(22)) : Base64Texture.model(id, texture.substring(22), mspf)
+						type.equals("skin") ? Base64Texture.skin(id, texture.substring(22)) : Base64Texture.square(id, texture.substring(22), mspf)
 						);
 
 				if (RenderSystem.isOnRenderThreadOrInit()) {

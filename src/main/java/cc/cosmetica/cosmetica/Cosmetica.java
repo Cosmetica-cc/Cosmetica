@@ -47,7 +47,6 @@ import com.mojang.math.Vector3f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
@@ -74,7 +73,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -620,6 +618,8 @@ public class Cosmetica implements ClientModInitializer {
 							Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
 							Optional<Model> backBling = info.getBackBling();
 							Optional<Cape> cloak = info.getCape();
+							String icon = info.getIcon();
+							Optional<String> client = info.getClient();
 
 							Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
 							Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
@@ -627,6 +627,10 @@ public class Cosmetica implements ClientModInitializer {
 							PlayerData newData = new PlayerData(
 									info.getLore(),
 									info.isUpsideDown(),
+									icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(client.orElseGet(() -> {
+										Cosmetica.LOGGER.warn("Icon is not empty but client is null?! (user " + uuid + ")");
+										return "missingno";
+									}), icon),
 									info.getPrefix(),
 									info.getSuffix(),
 									hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),

@@ -183,7 +183,7 @@ public class Authentication {
 								User user = Minecraft.getInstance().getUser();
 								UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
 
-								Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid); // getUuid() better have the dashes... edit: it did not have the dashes.
+								Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid, "cosmetica"); // getUuid() better have the dashes... edit: it did not have the dashes.
 								Cosmetica.api.setUrlLogger(DebugMode::logURL);
 
 								LoginInfo info = Cosmetica.api.getLoginInfo().get();

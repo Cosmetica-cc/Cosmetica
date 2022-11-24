@@ -94,7 +94,7 @@ public class Base64Texture extends AnimatedTexture {
         }
     }
 
-	public static Base64Texture model(ResourceLocation path, String base64, int frameDelayMs) throws IOException {
+	public static Base64Texture square(ResourceLocation path, String base64, int frameDelayMs) throws IOException {
 		NativeImage image = loadBase64(base64);
 
 		if (image.getHeight() > image.getWidth()) {
