@@ -33,6 +33,8 @@ import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.NamedThreadFactory;
 import cc.cosmetica.cosmetica.utils.SpecialKeyMapping;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.cosmetica.utils.textures.AnimatedTexture;
+import cc.cosmetica.cosmetica.utils.textures.ModelSprite;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -56,6 +58,7 @@ import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -64,6 +67,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -807,31 +811,7 @@ public class Cosmetica implements ClientModInitializer {
 
 			try {
 				poseStack.translate(xOffset, 0, 0);
-
-//				RenderType renderType = RenderType.(iconTexture); // hopefully this is the right one
-//				VertexConsumer vertexConsumer = multiBufferSource.getBuffer(renderType);
-//
-				PoseStack.Pose pose = poseStack.last();
-//
-//				vertexConsumer.vertex(pose.pose(), -10, 7, 0).color(1.0f, 1.0f, 1.0f, 1.0f).uv(0, 1).uv2(packedLight).endVertex();
-//				vertexConsumer.vertex(pose.pose(), 0, 7, 0).color(1.0f, 1.0f, 1.0f, 1.0f).uv(1, 1).uv2(packedLight).endVertex();
-//				vertexConsumer.vertex(pose.pose(), 0, -3, 0).color(1.0f, 1.0f, 1.0f, 1.0f).uv(1, 0).uv2(packedLight).endVertex();
-//				vertexConsumer.vertex(pose.pose(), -10, -3, 0).color(1.0f, 1.0f, 1.0f, 1.0f).uv(0, 0).uv2(packedLight).endVertex();
-
-//				RenderSystem.setShader(GameRenderer::getParticleShader);
-//				RenderSystem.setShaderTexture(0, iconTexture);
-//				RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-//
-//				BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-//				bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-//
-//				bufferBuilder.vertex(pose.pose(), (float) -10, (float) 7, (float) 0).uv(0, 1).color(255, 255,255,255).uv2(packedLight).endVertex();
-//				bufferBuilder.vertex(pose.pose(), (float) 0, (float) 7, (float) 0).uv(1, 1).color(255, 255,255,255).uv2(packedLight).endVertex();
-//				bufferBuilder.vertex(pose.pose(), (float) 0, (float) -3, (float) 0).uv(1, 0).color(255, 255,255,255).uv2(packedLight).endVertex();
-//				bufferBuilder.vertex(pose.pose(), (float) -10, (float) -3, (float) 0).uv(0, 0).color(255, 255,255,255).uv2(packedLight).endVertex();
-//				bufferBuilder.end();
-//				BufferUploader.end(bufferBuilder);
-
+				RenderSystem.enableDepthTest();
 				renderTexture(poseStack.last().pose(), iconTexture, -10, 0, -3, 7, 0);
 			}
 			catch (Exception e) {
