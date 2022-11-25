@@ -31,6 +31,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
@@ -86,22 +87,26 @@ public class Models {
 			BAKED_MODELS.put(unbaked.id(), null); // searching
 
 			final ResourceLocation location = unbaked.image();
-			ModelSprite sprite = new ModelSprite(location, (AnimatedTexture) Minecraft.getInstance().getTextureManager().getTexture(location));
+			AbstractTexture modelTexture = Minecraft.getInstance().getTextureManager().getTexture(location, null);
 
-			BakedModel model = unbaked.model().bake(
-					thePieShopDownTheRoad,
-					l -> sprite,
-					BlockModelRotation.X0_Y0,
-					location /*this resource location in bake is just used for debugging in the case of errors*/);
-			NEW_BAKED_MODELS.add(model);
-			BAKED_MODELS.put(unbaked.id(), model);
+			if (modelTexture instanceof AnimatedTexture) {
+				ModelSprite sprite = new ModelSprite(location, (AnimatedTexture) modelTexture);
 
-			// hack to prevent texture persistence onto other models. See: Line ~+14.
-			Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
-				NEW_BAKED_MODELS.remove(model);
-			});
+				BakedModel model = unbaked.model().bake(
+						thePieShopDownTheRoad,
+						l -> sprite,
+						BlockModelRotation.X0_Y0,
+						location /*this resource location in bake is just used for debugging in the case of errors*/);
+				NEW_BAKED_MODELS.add(model);
+				BAKED_MODELS.put(unbaked.id(), model);
 
-			return null;
+				// hack to prevent texture persistence onto other models. See: Line ~+14.
+				Scheduler.scheduleTask(Scheduler.Location.TEXTURE_TICK, () -> {
+					NEW_BAKED_MODELS.remove(model);
+				});
+
+				return model;
+			}
 		}
 
 		BakedModel result = BAKED_MODELS.get(unbaked.id());

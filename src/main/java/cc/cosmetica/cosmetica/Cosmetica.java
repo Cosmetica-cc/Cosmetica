@@ -866,6 +866,7 @@ public class Cosmetica implements ClientModInitializer {
 
 		// Regular Text Rendering
 		// ======================
+
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.text(texture));

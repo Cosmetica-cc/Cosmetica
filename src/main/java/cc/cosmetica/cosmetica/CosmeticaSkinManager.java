@@ -85,11 +85,11 @@ public class CosmeticaSkinManager {
 	}
 
 	public static ResourceLocation processIcon(String client, String base64Texture) {
-		return saveTexture(textureId("icon", client), base64Texture, 500);
+		return saveTexture(textureId("icon", client), base64Texture, 50 * 2);
 	}
 
 	public static ResourceLocation processModel(Model model) {
-		return saveTexture(textureId(model.getType().getUrlString(), model.getId()), model.getTexture(), 500);
+		return saveTexture(textureId(model.getType().getUrlString(), model.getId()), model.getTexture(), 50 * ((model.flags() >> 4) & 0x1F));
 	}
 
 	public static ResourceLocation processCape(Cape cloak) {
