@@ -35,6 +35,7 @@
     "PlayerEntityRendererMixin",
     "PlayerMixin",
     "PlayerRendererMixin",
+    "PlayerTabOverlayMixin",
     "SplashManagerMixin"
   ],
   "injectors": {

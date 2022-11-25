@@ -23,7 +23,9 @@ import cc.cosmetica.cosmetica.utils.textures.Base64Texture;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -96,7 +98,11 @@ public class CosmeticaSkinManager {
 		return saveTexture(textureId("cape", cloak.getId()), cloak.getImage(), cloak.getFrameDelay());
 	}
 
-	public static ResourceLocation processSkin(String base64Skin, UUID uuid) {
+	public static ResourceLocation processSkin(@Nullable String base64Skin, UUID uuid) {
+		if (base64Skin == null) {
+			return DefaultPlayerSkin.getDefaultSkin(uuid);
+		}
+
 		return saveTexture(new ResourceLocation("cosmetica", "skin/" + uuid.toString().toLowerCase(Locale.ROOT)), base64Skin, 0);
 	}
 

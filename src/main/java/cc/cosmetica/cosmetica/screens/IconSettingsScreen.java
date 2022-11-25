@@ -32,6 +32,8 @@ public class IconSettingsScreen extends SulphateScreen {
 		this.addButton("cosmetica.doSpecialIcons", UserSettings.DISABLE_SPECIAL_ICONS, false);
 
 		this.addDone();
+
+		updateEnabledButtons();
 	}
 
 	private void updateEnabledButtons() {

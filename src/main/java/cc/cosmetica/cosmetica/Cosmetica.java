@@ -633,6 +633,7 @@ public class Cosmetica implements ClientModInitializer {
 										Cosmetica.LOGGER.warn("Icon is not empty but client is null?! (user " + uuid + ")");
 										return "missingno";
 									}), icon),
+									info.isOnline(),
 									info.getPrefix(),
 									info.getSuffix(),
 									hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
@@ -796,15 +797,32 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
+	public static void prepareTabIcon(PoseStack stack, UUID playerUUID, String name) {
+		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
+
+		if (iconTexture != null) {
+			stack.translate(10.0f, 0.0f, 0.0f);
+		}
+	}
+
+	public static void renderTabIcon(PoseStack stack, int x, int y, UUID playerUUID, String name) {
+		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
+
+		if (iconTexture != null) {
+			renderTexture(stack.last().pose(), iconTexture, x, x + 8, y, y + 8, 0);
+		}
+	}
+
 	public static void renderIcon(PoseStack poseStack, MultiBufferSource bufferSource, Player player, Font font, int packedLight, Component component) {
-		@Nullable ResourceLocation iconTexture = getPlayerData(player).icon();
+		PlayerData playerData = getPlayerData(player);
+		@Nullable ResourceLocation iconTexture = playerData.icon();
 
 		if (iconTexture != null) {
 			float xOffset = -font.width(component) / 2.0f;
 
 			poseStack.pushPose();
 			poseStack.translate(xOffset, 0, 0);
-			renderTextureLikeText(poseStack.last().pose(), bufferSource, iconTexture, -10, 0, -3, 7, 0, packedLight, player.isDiscrete());
+			renderTextureLikeText(poseStack.last().pose(), bufferSource, iconTexture, -11, -1, -1, 9, 0, packedLight, playerData.online() ? 1.0f : 0.5f, player.isDiscrete());
 
 			poseStack.popPose();
 		}
@@ -838,11 +856,12 @@ public class Cosmetica implements ClientModInitializer {
 		BufferUploader.end(bufferBuilder);
 	}
 
-	public static void renderTextureLikeText(Matrix4f matrix4f, MultiBufferSource bufferSource, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, int packedLight, boolean discrete) {
+	public static void renderTextureLikeText(Matrix4f matrix4f, MultiBufferSource bufferSource, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, int packedLight, float alpha, boolean discrete) {
 		// Background
 		// ==========
 		if (!discrete) {
 			RenderSystem.enableBlend();
+			RenderSystem.disableDepthTest();
 
 			int skylight = (packedLight >> 20) & 0xF;
 			int blocklight = (packedLight >> 4) & 0xF;
@@ -850,7 +869,7 @@ public class Cosmetica implements ClientModInitializer {
 
 			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.setShaderTexture(0, texture);
-			RenderSystem.setShaderColor(shaderColour, shaderColour, shaderColour, 0.25f);
+			RenderSystem.setShaderColor(shaderColour, shaderColour, shaderColour, 0.25f * alpha);
 
 			BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 			bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -867,14 +886,15 @@ public class Cosmetica implements ClientModInitializer {
 		// Regular Text Rendering
 		// ======================
 
-		RenderSystem.setShaderColor(1, 1, 1, 1);
+		float mainRenderAlpha = (discrete ? 0.3f : 1.0f) * alpha;
 
+		RenderSystem.setShaderColor(1, 1, 1, 1);
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.text(texture));
 
-		vertexConsumer.vertex(matrix4f, (float) x0, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, discrete ? 0.3f : 1.0f).uv(0, 1).uv2(packedLight).endVertex();
-		vertexConsumer.vertex(matrix4f, (float) x1, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, discrete ? 0.3f : 1.0f).uv(1, 1).uv2(packedLight).endVertex();
-		vertexConsumer.vertex(matrix4f, (float) x1, (float) y0, (float) z).color(1.0f, 1.0f, 1.0f, discrete ? 0.3f : 1.0f).uv(1, 0).uv2(packedLight).endVertex();
-		vertexConsumer.vertex(matrix4f, (float) x0, (float) y0, (float) z).color(1.0f, 1.0f, 1.0f, discrete ? 0.3f : 1.0f).uv(0, 0).uv2(packedLight).endVertex();
+		vertexConsumer.vertex(matrix4f, (float) x0, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(0, 1).uv2(packedLight).endVertex();
+		vertexConsumer.vertex(matrix4f, (float) x1, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(1, 1).uv2(packedLight).endVertex();
+		vertexConsumer.vertex(matrix4f, (float) x1, (float) y0, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(1, 0).uv2(packedLight).endVertex();
+		vertexConsumer.vertex(matrix4f, (float) x0, (float) y0, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(0, 0).uv2(packedLight).endVertex();
 	}
 
 	public static void clearAllCaches() {
