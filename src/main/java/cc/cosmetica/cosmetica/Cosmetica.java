@@ -811,7 +811,8 @@ public class Cosmetica implements ClientModInitializer {
 
 			poseStack.translate(xOffset, 0, 0);
 			RenderSystem.enableDepthTest();
-			renderTextureLight(poseStack.last().pose(), iconTexture, -10, 0, -3, 7, 0, packedLight);
+			RenderSystem.enableBlend();
+			renderTextureLight(poseStack.last().pose(), iconTexture, -10, 0, -3, 7, 0, packedLight, player.isDiscrete() ? 0.3f : 1.0f);
 
 			poseStack.popPose();
 		}
@@ -845,15 +846,15 @@ public class Cosmetica implements ClientModInitializer {
 		BufferUploader.end(bufferBuilder);
 	}
 
-	public static void renderTextureLight(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, int packedLight) {
+	public static void renderTextureLight(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, int packedLight, float alpha) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, texture);
 
 		int skylight = (packedLight >> 20) & 0xF;
 		int blocklight = (packedLight >> 4) & 0xF;
-		float shaderColour = Math.max(skylight, blocklight) / 16.0f;
+		float shaderColour = Math.max(skylight, blocklight) / 15.0f;
 
-		RenderSystem.setShaderColor(shaderColour, shaderColour, shaderColour, 1.0f);
+		RenderSystem.setShaderColor(shaderColour, shaderColour, shaderColour, alpha);
 
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);

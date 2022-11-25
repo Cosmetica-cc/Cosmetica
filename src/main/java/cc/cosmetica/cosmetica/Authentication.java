@@ -195,23 +195,27 @@ public class Authentication {
 								if (info.isNewPlayer()) {
 									DefaultSettingsConfig defaults = Cosmetica.getDefaultSettingsConfig();
 
-									Cosmetica.api.updateUserSettings(ImmutableMap.of(
-											"dohats", defaults.areHatsEnabled(),
-											"doshoulderbuddies", defaults.areShoulderBuddiesEnabled(),
-											"dobackblings", defaults.areBackBlingsEnabled()
-									));
+									// only set defaults if there was a file present on first run with the mod
+									if (defaults.wasLoaded()) {
+										Cosmetica.api.updateUserSettings(ImmutableMap.of(
+												"dohats", defaults.areHatsEnabled(),
+												"doshoulderbuddies", defaults.areShoulderBuddiesEnabled(),
+												"dobackblings", defaults.areBackBlingsEnabled(),
+												"iconsettings", defaults.getIconSettings()
+										));
 
-									if (!info.hasSpecialCape()) {
-										String capeId = Cosmetica.getDefaultSettingsConfig().getCapeId();
+										if (!info.hasSpecialCape()) {
+											String capeId = defaults.getCapeId();
 
-										if (!capeId.isEmpty()) {
-											Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
-										}
+											if (!capeId.isEmpty()) {
+												Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
+											}
 
-										Map<String, CapeDisplay> capeServerSettings = defaults.getCapeServerSettings();
+											Map<String, CapeDisplay> capeServerSettings = defaults.getCapeServerSettings();
 
-										if (!capeServerSettings.isEmpty()) {
-											Cosmetica.api.setCapeServerSettings(capeServerSettings);
+											if (!capeServerSettings.isEmpty()) {
+												Cosmetica.api.setCapeServerSettings(capeServerSettings);
+											}
 										}
 									}
 								}

@@ -24,12 +24,14 @@ import java.util.Map;
  * Options handled by the server, modifiable on the client.
  */
 class ServerOptions {
-	private ServerOptions(boolean shoulderBuddies, boolean hats, boolean doBackBlings, boolean regionSpecificEffects, boolean lore) {
-		this.shoulderBuddies = new Option("doshoulderbuddies", shoulderBuddies);
-		this.hats = new Option("dohats", hats);
-		this.backBlings = new Option("dobackblings", doBackBlings);
-		this.regionSpecificEffects = new Option("doregioneffects", regionSpecificEffects);
-		this.lore = new Option("dolore", lore);
+	private ServerOptions(boolean shoulderBuddies, boolean hats, boolean doBackBlings, boolean regionSpecificEffects, boolean lore, int iconSettings) {
+		this.shoulderBuddies = new SimpleOption("doshoulderbuddies", shoulderBuddies);
+		this.hats = new SimpleOption("dohats", hats);
+		this.backBlings = new SimpleOption("dobackblings", doBackBlings);
+		this.regionSpecificEffects = new SimpleOption("doregioneffects", regionSpecificEffects);
+		this.lore = new SimpleOption("dolore", lore);
+		this.onlineActivity = new SimpleOption("doonlineactivity", lore);
+		this.icons = new MultiOption("iconsettings", iconSettings);
 	}
 
 	ServerOptions(ServerOptions other) {
@@ -38,37 +40,47 @@ class ServerOptions {
 		this.backBlings = other.backBlings.clone();
 		this.regionSpecificEffects = other.regionSpecificEffects.clone();
 		this.lore = other.lore.clone();
+		this.onlineActivity = other.onlineActivity.clone();
+		this.icons = other.icons.clone();
 	}
 
 	ServerOptions(UserSettings settings) {
-		this(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore());
+		this(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore(), settings.getIconSettings());
 	}
 
-	final Option shoulderBuddies;
-	final Option hats;
-	final Option backBlings;
-	final Option regionSpecificEffects;
-	final Option lore;
+	final SimpleOption shoulderBuddies;
+	final SimpleOption hats;
+	final SimpleOption backBlings;
+	final SimpleOption regionSpecificEffects;
+	final SimpleOption lore;
+	final SimpleOption onlineActivity;
+	// icons
+	final MultiOption icons;
 }
 
-class Option implements Cloneable {
-	Option(String urlKey, boolean defaultValue) {
-		this.urlKey = urlKey;
+class MultiOption extends Option<MultiOption> {
+	MultiOption(String urlKey, int defaultValue) {
+		super(urlKey);
 		this.value = defaultValue;
 	}
 
-	private boolean value;
-	final String urlKey;
+	private int value;
 
-	boolean get() {
-		return this.value;
+	public boolean get(int flag) {
+		return (this.value & flag) == flag;
 	}
 
-	void toggle() {
-		this.value = !this.value;
+	public void toggle(int flag) {
+		if (this.get(flag)) {
+			this.value &= ~flag;
+		}
+		else {
+			this.value |= flag;
+		}
 	}
 
-	boolean appendToIfChanged(Option old, Map<String, Object> diff) {
+	@Override
+	boolean appendToIfChanged(MultiOption old, Map diff) {
 		if (old.value != this.value) {
 			diff.put(this.urlKey, this.value);
 			return true;
@@ -78,7 +90,48 @@ class Option implements Cloneable {
 	}
 
 	@Override
-	protected Option clone() {
-		return new Option(this.urlKey, this.value);
+	protected MultiOption clone() {
+		return new MultiOption(this.urlKey, this.value);
 	}
+}
+
+class SimpleOption extends Option<SimpleOption> {
+	SimpleOption(String urlKey, boolean defaultValue) {
+		super(urlKey);
+		this.value = defaultValue;
+	}
+
+	private boolean value;
+
+	boolean get() {
+		return this.value;
+	}
+
+	void toggle() {
+		this.value = !this.value;
+	}
+
+	boolean appendToIfChanged(SimpleOption old, Map<String, Object> diff) {
+		if (old.value != this.value) {
+			diff.put(this.urlKey, this.value);
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	protected SimpleOption clone() {
+		return new SimpleOption(this.urlKey, this.value);
+	}
+}
+
+abstract class Option<T extends Option> implements Cloneable {
+	Option(String urlKey) {
+		this.urlKey = urlKey;
+	}
+
+	final String urlKey;
+
+	abstract boolean appendToIfChanged(T old, Map<String, Object> diff);
 }
