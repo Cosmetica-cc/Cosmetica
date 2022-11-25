@@ -54,6 +54,8 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		doReload |= newOptions.hats.appendToIfChanged(oldOptions.hats, changedSettings);
 		doReload |= newOptions.lore.appendToIfChanged(oldOptions.lore, changedSettings);
 		doReload |= newOptions.backBlings.appendToIfChanged(oldOptions.backBlings, changedSettings);
+		doReload |= newOptions.onlineActivity.appendToIfChanged(oldOptions.onlineActivity, changedSettings);
+		doReload |= newOptions.icons.appendToIfChanged(oldOptions.icons, changedSettings);
 		boolean finalDoReload = doReload;
 
 		if (!changedSettings.isEmpty()) {

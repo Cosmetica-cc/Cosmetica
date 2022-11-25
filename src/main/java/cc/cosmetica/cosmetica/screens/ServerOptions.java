@@ -80,7 +80,7 @@ class MultiOption extends Option<MultiOption> {
 	}
 
 	@Override
-	boolean appendToIfChanged(MultiOption old, Map diff) {
+	boolean appendToIfChanged(MultiOption old, Map<String, Object> diff) {
 		if (old.value != this.value) {
 			diff.put(this.urlKey, this.value);
 			return true;

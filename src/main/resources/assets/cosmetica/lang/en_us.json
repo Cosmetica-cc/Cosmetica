@@ -62,7 +62,7 @@
   "cosmetica.doBackBlings": "Back Blings",
   "cosmetica.doShoulderBuddies": "Shoulder Buddies",
   "cosmetica.doLore": "Player Lore",
-  "cosmetica.doOnlineActivity": "Hide Online Status",
+  "cosmetica.hideOnlineActivity": "Hide Online Activity",
   "cosmetica.icons": "Name Tag Icons",
   "cosmetica.doIcons": "Icons",
   "cosmetica.doIcons.disableNotice": "This setting currently has no effect as all icons are disabled.",
