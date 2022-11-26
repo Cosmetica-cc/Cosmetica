@@ -801,7 +801,7 @@ public class Cosmetica implements ClientModInitializer {
 		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
 
 		if (iconTexture != null) {
-			stack.translate(10.0f, 0.0f, 0.0f);
+			stack.translate(9.0f, 0.0f, 0.0f);
 		}
 	}
 

@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 
 public class RSEWarningScreen extends Screen {
 	public RSEWarningScreen(@Nullable Screen parent) {
-		super(new TextComponent("Region-Specific Effects Notice"));
+		super(TextComponents.translatable("cosmetica.rsewarning.title"));
 		this.parent = parent;
 	}
 

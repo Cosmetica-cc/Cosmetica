@@ -28,6 +28,7 @@ import cc.cosmetica.cosmetica.screens.MainScreen;
 import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
 import cc.cosmetica.cosmetica.screens.SnipeScreen;
 import cc.cosmetica.cosmetica.screens.UnauthenticatedScreen;
+import cc.cosmetica.cosmetica.screens.WelcomeScreen;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
@@ -171,6 +172,11 @@ public class Authentication {
 				User user = Minecraft.getInstance().getUser();
 				UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
 				prepareWelcome(uuid, user.getName());
+
+				// TODO move this to a proper location when we move this to prod
+				if (DebugMode.ENABLED) {
+					Minecraft.getInstance().setScreen(new WelcomeScreen());
+				}
 			} else {
 				if (currentlyAuthenticating) {
 					DebugMode.log("API is not authenticated but authentication is already in progress.");
