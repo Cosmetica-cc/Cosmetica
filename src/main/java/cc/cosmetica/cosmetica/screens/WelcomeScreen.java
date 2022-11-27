@@ -19,19 +19,26 @@ package cc.cosmetica.cosmetica.screens;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.resources.ResourceLocation;
 
 public class WelcomeScreen extends Screen {
-	public WelcomeScreen() {
+	public WelcomeScreen(Screen parent) {
 		super(TextComponents.translatable("cosmetica.welcome.header"));
+		this.parent = parent;
 	}
+
+	private final Screen parent;
 
 	@Override
 	protected void init() {
-		this.addRenderableWidget(new Button(this.width / 2 - 100, 2 * this.height / 3, 200, 20, TextComponents.translatable("cosmetica.welcome.continue"), bn -> this.minecraft.setScreen(new TitleScreen())));
+		this.addRenderableWidget(new Button(this.width / 2 - 100, 2 * this.height / 3, 200, 20,
+				TextComponents.translatable("cosmetica.welcome.continue"), bn -> this.minecraft.setScreen(new WelcomeOptionsScreen(this.parent, this.minecraft.options))));
 	}
 
 	@Override

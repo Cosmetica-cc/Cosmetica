@@ -20,13 +20,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Properties;
 
 public class CosmeticaConfig {
     private final Path propertiesPath;
     private boolean showNametagInThirdPerson = true;
     private boolean showNonVitalUpdateMessages = true;
-    private boolean showWelcomeMessage = true;
+    private WelcomeMessageState showWelcomeMessage = WelcomeMessageState.FULL;
     private boolean addCosmeticaSplashMessage = true;
     private boolean regionalEffectsPrompt = true;
 
@@ -47,14 +48,14 @@ public class CosmeticaConfig {
 
         Properties properties = new Properties();
         properties.setProperty("show-nametag-in-third-person", "true"); // default
-        properties.setProperty("show-welcome-message", "true"); // default 2: electric boogaloo
+        properties.setProperty("show-welcome-message", "full"); // default 2: electric boogaloo
         properties.setProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me", "false"); // default 3: the return of the king
         properties.setProperty("add-cosmetica-splash-message", "true");
         properties.setProperty("regional-effects-prompt", "true");
 
         properties.load(Files.newInputStream(propertiesPath));
         showNametagInThirdPerson    =  Boolean.parseBoolean(properties.getProperty("show-nametag-in-third-person"));
-        showWelcomeMessage          =  Boolean.parseBoolean(properties.getProperty("show-welcome-message"));
+        showWelcomeMessage          =  WelcomeMessageState.of(properties.getProperty("show-welcome-message"));
         showNonVitalUpdateMessages  = !Boolean.parseBoolean(properties.getProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me"));
         addCosmeticaSplashMessage   =  Boolean.parseBoolean(properties.getProperty("add-cosmetica-splash-message"));
         regionalEffectsPrompt       =  Boolean.parseBoolean(properties.getProperty("regional-effects-prompt"));
@@ -66,7 +67,7 @@ public class CosmeticaConfig {
 
         Properties properties = new Properties();
         properties.setProperty("show-nametag-in-third-person", String.valueOf(showNametagInThirdPerson));
-        properties.setProperty("show-welcome-message", String.valueOf(showWelcomeMessage));
+        properties.setProperty("show-welcome-message", String.valueOf(showWelcomeMessage).toLowerCase(Locale.ROOT));
         properties.setProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me", String.valueOf(!showNonVitalUpdateMessages));
         properties.setProperty("add-cosmetica-splash-message", String.valueOf(addCosmeticaSplashMessage));
         properties.setProperty("regional-effects-prompt", String.valueOf(regionalEffectsPrompt));
@@ -81,7 +82,7 @@ public class CosmeticaConfig {
         this.showNametagInThirdPerson = showNametagInThirdPerson;
     }
 
-    public boolean shouldShowWelcomeMessage() {
+    public WelcomeMessageState shouldShowWelcomeMessage() {
         return showWelcomeMessage;
     }
 
@@ -95,5 +96,32 @@ public class CosmeticaConfig {
 
     public boolean regionalEffectsPrompt() {
         return regionalEffectsPrompt;
+    }
+
+    public enum WelcomeMessageState {
+        FULL,
+        CHAT_ONLY,
+        OFF;
+
+        public boolean shouldShowChatMessage(boolean newPlayer) {
+            return this == CHAT_ONLY || (this == FULL && !newPlayer);
+        }
+
+        public static WelcomeMessageState of(String string) {
+            switch (string.toUpperCase(Locale.ROOT)) {
+            case "FULL":
+            case "TRUE":
+            case "ON":
+            default:
+                return FULL;
+            case "CHAT_ONLY":
+            case "CHATONLY":
+            case "CHAT-ONLY":
+                return CHAT_ONLY;
+            case "OFF":
+            case "FALSE":
+                return OFF;
+            }
+        }
     }
 }

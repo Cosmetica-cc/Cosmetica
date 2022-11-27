@@ -20,7 +20,7 @@ import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
-import cc.cosmetica.api.UserSettings;
+import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Authentication {
 	private static volatile boolean currentlyAuthenticated = false;
 	private static volatile boolean currentlyAuthenticating = false;
-	public static int settingLoadTarget; // 1 = customise cosmetics screen, 2 = snipe (steal his look) screen, other =
+	public static int settingLoadTarget; // 1 = customise cosmetics screen, 2 = snipe (steal his look) screen, 3 = tutorial customise screen, other = main screen
 	@Nullable
 	public static cc.cosmetica.api.User snipedPlayer;
 
@@ -103,7 +103,7 @@ public class Authentication {
 							Minecraft.getInstance().setScreen(switch (loadTarget) {
 								case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo, new cc.cosmetica.api.User(ownUUID, ownName));
 								case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
-								default -> new MainScreen(lts.getParent(), settings, fakePlayer);
+								default -> new MainScreen(lts.getParent(), settings, fakePlayer, loadTarget == 3);
 							});
 						});
 					}
@@ -142,19 +142,24 @@ public class Authentication {
 
 	private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
 
-	private static void prepareWelcome(UUID uuid, String name) {
+	private static void prepareWelcome(UUID uuid, String name, boolean newPlayer) {
 		// load the player's data if not loaded for later
 		RenderSystem.recordRenderCall(() -> Cosmetica.getPlayerData(uuid, name, false));
 
 		// do a separate request for some reason because I'm cringe
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
 			// welcome new, authenticated players
-			if (Cosmetica.getConfig().shouldShowWelcomeMessage() && Cosmetica.displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
+			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(newPlayer) && Cosmetica.displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
 				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				Cosmetica.displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
 			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));
+
+		// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
+		if (newPlayer && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
+			Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen));
+		}
 	}
 
 	private static void runAuthentication() {
@@ -171,12 +176,7 @@ public class Authentication {
 				// but is useful for testing
 				User user = Minecraft.getInstance().getUser();
 				UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
-				prepareWelcome(uuid, user.getName());
-
-				// TODO move this to a proper location when we move this to prod
-				if (DebugMode.ENABLED) {
-					Minecraft.getInstance().setScreen(new WelcomeScreen());
-				}
+				prepareWelcome(uuid, user.getName(), false);
 			} else {
 				if (currentlyAuthenticating) {
 					DebugMode.log("API is not authenticated but authentication is already in progress.");
@@ -227,10 +227,9 @@ public class Authentication {
 									}
 								}
 
-
 								// welcome players
 								// and by new I mean has new to cosmetica lore
-								prepareWelcome(uuid, user.getName());
+								prepareWelcome(uuid, user.getName(), info.isNewPlayer());
 
 								// synchronise settings from the server to the mod
 								syncSettings();

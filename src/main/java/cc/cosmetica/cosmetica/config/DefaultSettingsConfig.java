@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.config;
 
 import cc.cosmetica.api.CapeDisplay;
+import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.Cosmetica;
 
 import java.io.File;
@@ -26,16 +27,18 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Properties;
 
 public class DefaultSettingsConfig {
 	private final Path propertiesPath;
 
 	private String capeId = "";
-	private boolean enableHats = true;
-	private boolean enableShoulderBuddies = true;
-	private boolean enableBackBlings = true;
-	private int iconSettings = 4 | 2 | 1;
+	private Boolean enableHats = null;
+	private Boolean enableShoulderBuddies = null;
+	private Boolean enableBackBlings = null;
+	private OptionalInt iconSettings = OptionalInt.empty();
 
 	private boolean loaded = false;
 
@@ -49,19 +52,19 @@ public class DefaultSettingsConfig {
 		return capeId;
 	}
 
-	public boolean areHatsEnabled() {
-		return this.enableHats;
+	public Optional<Boolean> areHatsEnabled() {
+		return Optional.ofNullable(enableHats);
 	}
 
-	public boolean areShoulderBuddiesEnabled() {
-		return this.enableShoulderBuddies;
+	public Optional<Boolean> areShoulderBuddiesEnabled() {
+		return Optional.ofNullable(enableShoulderBuddies);
 	}
 
-	public boolean areBackBlingsEnabled() {
-		return this.enableBackBlings;
+	public Optional<Boolean> areBackBlingsEnabled() {
+		return Optional.ofNullable(enableBackBlings);
 	}
 
-	public int getIconSettings() {
+	public OptionalInt getIconSettings() {
 		return this.iconSettings;
 	}
 
@@ -80,12 +83,14 @@ public class DefaultSettingsConfig {
 		Properties properties = new Properties();
 		properties.load(Files.newInputStream(propertiesPath));
 		capeId = properties.getProperty("starter-cape-id");
-		enableHats = Boolean.parseBoolean(properties.getProperty("enable-hats", "true"));
-		enableShoulderBuddies = Boolean.parseBoolean(properties.getProperty("enable-shoulder-buddies", "true"));
-		enableBackBlings = Boolean.parseBoolean(properties.getProperty("enable-back-blings", "true"));
-		iconSettings = flag(HIDE_ALL_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-icons", "true")))
-				| flag(HIDE_OFFLINE_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-online-icons", "true")))
-				| flag(HIDE_SPECIAL_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-special-icons", "true")));
+		enableHats = parseNullableBoolean(properties.getProperty("enable-hats", ""));
+		enableShoulderBuddies = parseNullableBoolean(properties.getProperty("enable-shoulder-buddies", ""));
+		enableBackBlings = parseNullableBoolean(properties.getProperty("enable-back-blings", ""));
+		iconSettings = properties.getProperty("enable-icons", "").isEmpty() ? OptionalInt.empty() : OptionalInt.of(
+				flag(UserSettings.DISABLE_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-icons", "true")))
+				| flag(UserSettings.DISABLE_OFFLINE_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-online-icons", "true")))
+				| flag(UserSettings.DISABLE_SPECIAL_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-special-icons", "true")))
+		);
 
 		capeServerSettings.clear();
 
@@ -117,12 +122,20 @@ public class DefaultSettingsConfig {
 
 		Properties properties = new Properties();
 		properties.setProperty("starter-cape-id", capeId);
-		properties.setProperty("enable-hats", Boolean.toString(enableHats));
-		properties.setProperty("enable-shoulder-buddies", Boolean.toString(enableShoulderBuddies));
-		properties.setProperty("enable-back-blings", Boolean.toString(enableBackBlings));
-		properties.setProperty("enable-icons", Boolean.toString((this.iconSettings & HIDE_ALL_ICONS) == 0));
-		properties.setProperty("enable-offline-icons", Boolean.toString((this.iconSettings & HIDE_OFFLINE_ICONS) == 0));
-		properties.setProperty("enable-special-icons", Boolean.toString((this.iconSettings & HIDE_SPECIAL_ICONS) == 0));
+		properties.setProperty("enable-hats", toStringNullable(enableHats));
+		properties.setProperty("enable-shoulder-buddies", toStringNullable(enableShoulderBuddies));
+		properties.setProperty("enable-back-blings", toStringNullable(enableBackBlings));
+
+		if (this.iconSettings.isPresent()) {
+			properties.setProperty("enable-icons", Boolean.toString((this.iconSettings.getAsInt() & UserSettings.DISABLE_ICONS) == 0));
+			properties.setProperty("enable-offline-icons", Boolean.toString((this.iconSettings.getAsInt() & UserSettings.DISABLE_OFFLINE_ICONS) == 0));
+			properties.setProperty("enable-special-icons", Boolean.toString((this.iconSettings.getAsInt() & UserSettings.DISABLE_SPECIAL_ICONS) == 0));
+		}
+		else {
+			properties.setProperty("enable-icons", "");
+			properties.setProperty("enable-offline-icons", "");
+			properties.setProperty("enable-special-icons", "");
+		}
 
 		capeServerSettings.forEach((capeServerSetting, display) -> properties.setProperty("cape-setting-" + capeServerSetting, display.name().toLowerCase(Locale.ROOT)));
 		properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Default Settings Config");
@@ -136,7 +149,16 @@ public class DefaultSettingsConfig {
 		return condition ? flag : 0;
 	}
 
-	public static final int HIDE_ALL_ICONS = 1;
-	public static final int HIDE_OFFLINE_ICONS = 2;
-	public static final int HIDE_SPECIAL_ICONS = 4;
+	private static Boolean parseNullableBoolean(String property) {
+		if (property.equals("")) {
+			return null;
+		}
+		else {
+			return Boolean.parseBoolean(property);
+		}
+	}
+
+	private static String toStringNullable(Boolean property) {
+		return property == null ? "" : Boolean.toString(property);
+	}
 }
