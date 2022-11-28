@@ -17,12 +17,15 @@
 package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.api.Cape;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.api.Model;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.textures.Base64Texture;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -40,7 +43,7 @@ public class CosmeticaSkinManager {
 	private static Set<ResourceLocation> uploaded = new HashSet<>();
 
 	public static void clearCaches() {
-		Debug.info("Clearing cosmetica skin caches");
+		DebugMode.log("Clearing cosmetica skin caches");
 		textures = new HashMap<>();
 		uploaded = new HashSet<>();
 	}
@@ -55,8 +58,8 @@ public class CosmeticaSkinManager {
 		return new ResourceLocation("cosmetica", "test/" + id);
 	}
 
-	public static ResourceLocation cloakId(String id) {
-		return new ResourceLocation("cosmetica", "cape/" + pathify(id));
+	public static ResourceLocation textureId(String type, String id) {
+		return new ResourceLocation("cosmetica", type + "/" + pathify(id));
 	}
 
 	public static void setTestUploaded(String testId) {
@@ -83,11 +86,23 @@ public class CosmeticaSkinManager {
 		return result.toString();
 	}
 
-	public static ResourceLocation processCape(Cape cloak) {
-		return saveTexture(cloakId(cloak.getId()), cloak.getImage(), cloak.getFrameDelay());
+	public static ResourceLocation processIcon(String client, String base64Texture) {
+		return saveTexture(textureId("icon", client), base64Texture, 50 * 2);
 	}
 
-	public static ResourceLocation processSkin(String base64Skin, UUID uuid) {
+	public static ResourceLocation processModel(Model model) {
+		return saveTexture(textureId(model.getType().getUrlString(), model.getId()), model.getTexture(), 50 * ((model.flags() >> 4) & 0x1F));
+	}
+
+	public static ResourceLocation processCape(Cape cloak) {
+		return saveTexture(textureId("cape", cloak.getId()), cloak.getImage(), cloak.getFrameDelay());
+	}
+
+	public static ResourceLocation processSkin(@Nullable String base64Skin, UUID uuid) {
+		if (base64Skin == null) {
+			return DefaultPlayerSkin.getDefaultSkin(uuid);
+		}
+
 		return saveTexture(new ResourceLocation("cosmetica", "skin/" + uuid.toString().toLowerCase(Locale.ROOT)), base64Skin, 0);
 	}
 
@@ -95,7 +110,9 @@ public class CosmeticaSkinManager {
 		if (!textures.containsKey(id)) {
 			try {
 				String type = id.getPath().split("\\/")[0];
-				AbstractTexture tex = type.equals("cape") ? Base64Texture.cape(id, texture.substring(22), mspf) : Base64Texture.skin(id, texture.substring(22));
+				AbstractTexture tex = type.equals("cape") ? Base64Texture.cape(id, texture.substring(22), mspf) : (
+						type.equals("skin") ? Base64Texture.skin(id, texture.substring(22)) : Base64Texture.square(id, texture.substring(22), mspf)
+						);
 
 				if (RenderSystem.isOnRenderThreadOrInit()) {
 					Minecraft.getInstance().getTextureManager().register(id, tex);
@@ -110,7 +127,7 @@ public class CosmeticaSkinManager {
 					});
 				}
 
-				Debug.info("Registering " + type + " texture for {}", id);
+				DebugMode.log("Registering " + type + " texture for {}", id);
 				textures.put(id, tex);
 			} catch (IOException e) {
 				Cosmetica.LOGGER.error("Error loading texture", e);

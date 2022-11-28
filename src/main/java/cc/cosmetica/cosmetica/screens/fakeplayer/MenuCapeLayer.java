@@ -47,7 +47,7 @@ public class MenuCapeLayer implements MenuRenderLayer {
 				r = 0.0F;
 			}
 
-			if (player.isCrouching()) {
+			if (player.isSneaking()) {
 				q += 25.0F;
 			}
 

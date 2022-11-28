@@ -306,7 +306,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 			}
 		}
 		if (cosmetic instanceof Cape cape) {
-			E result = (E) CosmeticaSkinManager.cloakId(cosmetic.getId());
+			E result = (E) CosmeticaSkinManager.textureId("cape", cosmetic.getId());
 			CosmeticaSkinManager.processCape(cape);
 			return result;
 		}

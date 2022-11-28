@@ -21,6 +21,7 @@ import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.cosmetics.BackBling;
+import cc.cosmetica.cosmetica.cosmetics.CustomLayer;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
@@ -28,7 +29,6 @@ import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.widget.TextWidget;
-import cc.cosmetica.cosmetica.utils.Debug;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -107,7 +107,7 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		PlayerData data = this.fakePlayer.getData();
 
 		// cape
-		this.cloakSection = this.createActiveSection("Cape", immutableListOf(data.capeName()), CosmeticType.CAPE, Debug.CAPE_OVERRIDER);
+		this.cloakSection = this.createActiveSection("Cape", immutableListOf(data.capeName()), CosmeticType.CAPE, CustomLayer.CAPE_OVERRIDER);
 
 		// lore
 		this.loreSection = this.options.lore.get() ? this.createActiveSection("Lore", immutableListOf(data.lore()), null, null) : this.createDisabledSection("Lore");

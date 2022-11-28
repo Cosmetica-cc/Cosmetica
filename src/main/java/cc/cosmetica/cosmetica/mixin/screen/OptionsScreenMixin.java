@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.mixin.screen;
 
 import benzenestudios.sulphate.ExtendedScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
+import cc.cosmetica.cosmetica.screens.WelcomeScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -55,6 +56,7 @@ public abstract class OptionsScreenMixin extends Screen {
 				}
 			}
 		}
+
 		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, Component.translatable("cosmetica.cosmetics"),
 				button -> this.minecraft.setScreen(new LoadingScreen(this, this.options))));
 	}
