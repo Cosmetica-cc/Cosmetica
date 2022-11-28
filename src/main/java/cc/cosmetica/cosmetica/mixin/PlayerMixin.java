@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
@@ -32,8 +33,9 @@ public class PlayerMixin {
 		final Player player = ((Player) (Object) this);
 
 		if (player.getLevel().isClientSide()) {
-			String prefix = Cosmetica.getPlayerData(player.getUUID(), player.getName().getString(), false).prefix();
-			String suffix = Cosmetica.getPlayerData(player.getUUID(), player.getName().getString(), false).suffix();
+			PlayerData data = Cosmetica.getPlayerData(player.getUUID(), player.getName().getString(), false);
+			String prefix = (data.icon() == null ? "" : "\u2001") + data.prefix();
+			String suffix = data.suffix();
 
 			cir.setReturnValue(new TextComponent(prefix).append(cir.getReturnValue()).append(suffix));
 		}

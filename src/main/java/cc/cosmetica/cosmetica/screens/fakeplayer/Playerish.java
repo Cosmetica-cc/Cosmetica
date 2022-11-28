@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica.screens.fakeplayer;
 
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+
 /**
  * Something that's... playerish. Could be a player, could be a fake player.
  * Methods are amazingly named to avoid conflicts.
@@ -35,4 +37,16 @@ public interface Playerish {
 	 * Whether the player is sneaking.
 	 */
 	boolean isSneaking();
+
+	/**
+	 * Whether the player's nametag should be rendered 'discreetly.' When this happens, it cannot be seen through walls and is more transparent.
+	 * The conditions are slightly different from isSneaking for a player.
+	 */
+	boolean renderDiscreteNametag();
+
+	/**
+	 * Get the player data for this player-ish.
+	 * @return the player data associated with this player. Might return dummy data if still loading!
+	 */
+	PlayerData getCosmeticaPlayerData();
 }

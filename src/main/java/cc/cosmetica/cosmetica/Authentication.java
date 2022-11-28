@@ -42,6 +42,8 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.UncheckedIOException;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -110,9 +112,18 @@ public class Authentication {
 				}
 			},
 			error -> {
-				Cosmetica.LOGGER.error("Error during settings get: {}", error);
+				Cosmetica.LOGGER.error("Error during settings get:", error);
 
 				showUnauthenticatedIfLoading();
+
+				// don't repeat spam errors if the internet goes offline
+				if (error instanceof UncheckedIOException) {
+					if (((UncheckedIOException) error).getCause() instanceof UnknownHostException) {
+						// don't run again immediately, see above. Africa or opening a menu will run authentication again inevitably anyway
+						return;
+					}
+				}
+
 				runAuthentication();
 			});
 		});

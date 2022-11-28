@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -35,9 +36,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EntityRendererMixin {
 	@Shadow @Final private Font font;
 
-	@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;last()Lcom/mojang/blaze3d/vertex/PoseStack$Pose;"), method = "renderNameTag")
+	// just before pop pose, after text rendering.
+	@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"), method = "renderNameTag")
 	private void onNametagRender(Entity entity, Component component, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, CallbackInfo ci) {
-		if (entity instanceof Player player) {
+		if (entity instanceof Playerish player) {
 			Cosmetica.renderIcon(poseStack, multiBufferSource, player, this.font, packedLight, component);
 		}
 	}

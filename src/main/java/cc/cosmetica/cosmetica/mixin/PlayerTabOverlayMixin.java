@@ -16,78 +16,42 @@
 
 package cc.cosmetica.cosmetica.mixin;
 
-import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.utils.TextComponents;
-import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.Scoreboard;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerTabOverlay.class)
 public class PlayerTabOverlayMixin {
-	// ================================ //
-	//         Make Names Longer        //
-	// ================================ //
+	// =============================================== //
+	//         Add Full Space Character to Name        //
+	// =============================================== //
 
-	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/PlayerTabOverlay;getNameForDisplay(Lnet/minecraft/client/multiplayer/PlayerInfo;)Lnet/minecraft/network/chat/Component;", ordinal = 0), method = "render")
-	private Component onGetPlayerNameWidth(PlayerTabOverlay self, PlayerInfo info) {
-		PlayerData data = Cosmetica.getPlayerData(info.getProfile().getId(), info.getProfile().getName(), false);
-		Component originalText = self.getNameForDisplay(info);
-		return data.icon() == null ? originalText : TextComponents.literal("Mi").append(originalText);
-	}
+	@Inject(at = @At("RETURN"), method = "getNameForDisplay", cancellable = true)
+	private void modifyTablistDisplayName(PlayerInfo playerInfo, CallbackInfoReturnable<Component> info) {
+		PlayerData data = Cosmetica.getPlayerData(playerInfo.getProfile().getId(), playerInfo.getProfile().getName(), false);
 
-	// ========================== //
-	//         Shift Name         //
-	// ========================== //
-
-	@Shadow @Final private Minecraft minecraft;
-
-	// Why am I doing a redirect here?!
-	// 2 reasons:
-	// - 1. Compatability. This is a very funny place to put a redirect that I suspect no other mod probably will put, and it gives me the info I need.
-	// - 2. Portability. Redirects are more portable than Inject with Local Capture. Cosmetica aims to support a wide range of Minecraft versions at any given
-	//      time, so local captures are out of the question.
-
-	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/PlayerInfo;getProfile()Lcom/mojang/authlib/GameProfile;"), method = "render")
-	private GameProfile capturePlayer(PlayerInfo instance) {
-		GameProfile result = instance.getProfile();
-		this.cosmetica_capturedPlayer = result;
-		return result;
-	}
-
-	// ensure no one else takes this name, somehow
-	@Unique
-	private GameProfile cosmetica_capturedPlayer;
-
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;drawShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/network/chat/Component;FFI)I"), method = "render")
-	public void beforeRenderName(PoseStack stack, int i, Scoreboard scoreboard, Objective objective, CallbackInfo info) {
-		stack.pushPose();
-		Cosmetica.prepareTabIcon(stack, this.cosmetica_capturedPlayer.getId(), this.cosmetica_capturedPlayer.getName());
-	}
-
-	@Inject(at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/gui/Font;drawShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/network/chat/Component;FFI)I"), method = "render")
-	public void afterRenderName(PoseStack stack, int i, Scoreboard scoreboard, Objective objective, CallbackInfo info) {
-		stack.popPose();
+		if (data.icon() != null) {
+			info.setReturnValue(TextComponents.literal("\u2001").append(info.getReturnValue()));
+		}
 	}
 
 	// ========================== //
 	//         Render Icon        //
 	// ========================== //
+
+	@Shadow @Final private Minecraft minecraft;
 
 	@Inject(at = @At("HEAD"), method = "renderPingIcon")
 	private void onRenderPingIcon(PoseStack stack, int p, int x, int y, PlayerInfo playerInfo, CallbackInfo ci) {

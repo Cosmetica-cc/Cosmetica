@@ -29,6 +29,7 @@ import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
+import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.NamedThreadFactory;
 import cc.cosmetica.cosmetica.utils.SpecialKeyMapping;
@@ -738,7 +739,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean sneaking, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
+	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean discrete, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
 		if (!lore.equals("")) {
 			// how much do we need to shift up nametags?
 
@@ -768,7 +769,7 @@ public class Cosmetica implements ClientModInitializer {
 
 			Component component = new TextComponent(lore);
 
-			boolean bl = !sneaking;
+			boolean fullyRender = !discrete;
 
 			float height = playerHeight + 0.25F;
 
@@ -787,9 +788,9 @@ public class Cosmetica implements ClientModInitializer {
 
 			float xOffset = (float) (-font.width(component) / 2);
 
-			font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, bl, alphaARGB, packedLight);
+			font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, fullyRender, alphaARGB, packedLight);
 
-			if (bl) {
+			if (fullyRender) {
 				font.drawInBatch(component, xOffset, 0, -1, false, textModel, multiBufferSource, false, 0, packedLight);
 			}
 
@@ -813,8 +814,8 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void renderIcon(PoseStack poseStack, MultiBufferSource bufferSource, Player player, Font font, int packedLight, Component component) {
-		PlayerData playerData = getPlayerData(player);
+	public static void renderIcon(PoseStack poseStack, MultiBufferSource bufferSource, Playerish player, Font font, int packedLight, Component component) {
+		PlayerData playerData = player.getCosmeticaPlayerData();
 		@Nullable ResourceLocation iconTexture = playerData.icon();
 
 		if (iconTexture != null) {
@@ -822,7 +823,7 @@ public class Cosmetica implements ClientModInitializer {
 
 			poseStack.pushPose();
 			poseStack.translate(xOffset, 0, 0);
-			renderTextureLikeText(poseStack.last().pose(), bufferSource, iconTexture, -11, -1, -1, 9, 0, packedLight, playerData.online() ? 1.0f : 0.5f, player.isDiscrete());
+			renderTextureLikeText(poseStack.last().pose(), bufferSource, iconTexture, -1, 9, -1, 9, 0, packedLight, playerData.online() ? 1.0f : 0.5f, player.renderDiscreteNametag());
 
 			poseStack.popPose();
 		}
@@ -888,7 +889,7 @@ public class Cosmetica implements ClientModInitializer {
 
 		float mainRenderAlpha = (discrete ? 0.3f : 1.0f) * alpha;
 
-		RenderSystem.setShaderColor(1, 1, 1, 1);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.text(texture));
 
 		vertexConsumer.vertex(matrix4f, (float) x0, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(0, 1).uv2(packedLight).endVertex();
@@ -906,6 +907,6 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static Consumer<RuntimeException> logErr(String message) {
-		return e -> LOGGER.error(message + ": {}", e);
+		return e -> LOGGER.error(message + ": ", e);
 	}
 }
