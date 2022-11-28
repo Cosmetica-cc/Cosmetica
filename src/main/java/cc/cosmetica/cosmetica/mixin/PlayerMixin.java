@@ -18,8 +18,8 @@ package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.utils.TextComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,7 +37,7 @@ public class PlayerMixin {
 			String prefix = (data.icon() == null ? "" : "\u2001") + data.prefix();
 			String suffix = data.suffix();
 
-			cir.setReturnValue(new TextComponent(prefix).append(cir.getReturnValue()).append(suffix));
+			cir.setReturnValue(TextComponents.literal(prefix).append(cir.getReturnValue()).append(suffix));
 		}
 	}
 }

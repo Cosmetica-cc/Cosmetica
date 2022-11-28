@@ -2,13 +2,11 @@ package cc.cosmetica.cosmetica.screens;
 
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.UserSettings;
-import cc.cosmetica.cosmetica.screens.widget.ButtonList;
 import cc.cosmetica.cosmetica.utils.TextComponents;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +59,8 @@ public class IconSettingsScreen extends SulphateScreen {
 		}
 	}
 
-	static TextComponent generateIconButtonToggleText(String translationKey, MultiOption option, int flag) {
-		TextComponent component = new TextComponent("");
+	static MutableComponent generateIconButtonToggleText(String translationKey, MultiOption option, int flag) {
+		MutableComponent component = TextComponents.literal("");
 		component.append(TextComponents.translatable(translationKey));
 		component.append(": ");
 
