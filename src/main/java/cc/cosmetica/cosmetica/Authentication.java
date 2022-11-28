@@ -158,7 +158,7 @@ public class Authentication {
 		RenderSystem.recordRenderCall(() -> Cosmetica.getPlayerData(uuid, name, false));
 
 		boolean isWelcomeScreenAllowed = newPlayer && Cosmetica.mayShowWelcomeScreen();
-		DebugMode.log("Preparing Welcome... || newPlayer=" + newPlayer + " mayShowWelcomeScreen=" + Cosmetica.mayShowWelcomeScreen());
+		DebugMode.log("Preparing potential welcome... || newPlayer=" + newPlayer + " mayShowWelcomeScreen=" + Cosmetica.mayShowWelcomeScreen());
 
 		// do a separate request for some reason because I'm cringe
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
