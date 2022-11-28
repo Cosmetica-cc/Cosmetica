@@ -31,6 +31,7 @@ public class WelcomeScreen extends Screen {
 	public WelcomeScreen(Screen parent) {
 		super(TextComponents.translatable("cosmetica.welcome.header"));
 		this.parent = parent;
+		isInTutorial = true;
 	}
 
 	private final Screen parent;
@@ -61,4 +62,6 @@ public class WelcomeScreen extends Screen {
 	public void renderBackground(PoseStack poseStack) {
 		Cosmetica.renderTexture(poseStack.last().pose(), new ResourceLocation("cosmetica", "textures/welcome.png"), 0, this.width, 0 ,this.height, -1);
 	}
+
+	public static boolean isInTutorial = false;
 }

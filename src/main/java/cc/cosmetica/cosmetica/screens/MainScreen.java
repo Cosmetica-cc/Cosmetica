@@ -105,6 +105,7 @@ public class MainScreen extends PlayerRenderScreen {
 					}
 				}
 
+				WelcomeScreen.isInTutorial = false;
 				this.onPress.onPress(this);
 			}
 		}

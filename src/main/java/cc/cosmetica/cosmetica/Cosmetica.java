@@ -250,10 +250,14 @@ public class Cosmetica implements ClientModInitializer {
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
 				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
 
+				DebugMode.log("Checking Version...");
+
 				api.checkVersion(
 						SharedConstants.getCurrentVersion().getId(),
 						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString()
 				).ifSuccessfulOrElse(versionInfo -> {
+					DebugMode.log("Handling version check response");
+
 					String s = versionInfo.minecraftMessage();
 
 					if (!s.isEmpty()) {

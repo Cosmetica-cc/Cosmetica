@@ -158,24 +158,30 @@ public class Authentication {
 		RenderSystem.recordRenderCall(() -> Cosmetica.getPlayerData(uuid, name, false));
 
 		boolean isWelcomeScreenAllowed = newPlayer && Cosmetica.mayShowWelcomeScreen();
+		DebugMode.log("Preparing Welcome... || newPlayer=" + newPlayer + " mayShowWelcomeScreen=" + Cosmetica.mayShowWelcomeScreen());
 
 		// do a separate request for some reason because I'm cringe
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
+			final String colourlessLore = TextComponents.stripColour(userInfo.getLore());
+			DebugMode.log("Received user info on Authenticate/prepareWelcome || displayNext=" + Cosmetica.displayNext + " colourlessLore=" + colourlessLore);
+
 			// welcome new, authenticated players
-			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(isWelcomeScreenAllowed) && Cosmetica.displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
+			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(isWelcomeScreenAllowed) && Cosmetica.displayNext == null && colourlessLore.equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
 				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				Cosmetica.displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
 			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));
 
-
 		// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
 		if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
+			DebugMode.log("New Player: Showing Welcome Screen");
+
 			if (RenderSystem.isOnRenderThread()) {
 				Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen));
 			}
 			else {
+				DebugMode.log("Not on render thread: recording render call for welcome screen!");
 				RenderSystem.recordRenderCall(() -> Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen)));
 			}
 		}

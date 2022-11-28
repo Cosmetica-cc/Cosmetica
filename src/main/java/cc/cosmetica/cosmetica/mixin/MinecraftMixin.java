@@ -17,12 +17,13 @@
 package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.api.User;
-import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
 import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
+import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
+import cc.cosmetica.cosmetica.screens.WelcomeScreen;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -57,7 +58,7 @@ public abstract class MinecraftMixin {
 	@Inject(at = @At("HEAD"), method = "setScreen", cancellable = true)
 	private void addRegionSpecificEffectsPrompt(Screen screen, CallbackInfo info) {
 		// if the RSE warning screen should appear cancel the current screen set in favour of a wrapper thereof
-		if (RSEWarningScreen.appearNextScreenChange) {
+		if (RSEWarningScreen.appearNextScreenChange && !WelcomeScreen.isInTutorial) {
 			RSEWarningScreen.appearNextScreenChange = false;
 			this.setScreen(new RSEWarningScreen(screen));
 			info.cancel();
