@@ -90,8 +90,17 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doBackBlings", this.newOptions.backBlings.get()));
 		});
 
+		this.addButton(TextComponents.translatable("cosmetica.icons"), button ->
+				this.minecraft.setScreen(new IconSettingsScreen(this, this.newOptions))
+		);
+
+		this.addButton(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()), (button) -> {
+			this.newOptions.backBlings.toggle();
+			button.setMessage(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()));
+		});
+
 		// when done, update settings
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 + 24 * 3, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 + 24 * 4 + 12, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
 				if (this.parentScreen instanceof MainScreen main) {
 					main.setCosmeticaOptions(this.newOptions);

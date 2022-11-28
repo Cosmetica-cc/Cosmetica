@@ -16,9 +16,9 @@
 
 package cc.cosmetica.cosmetica.screens.fakeplayer;
 
-import cc.cosmetica.cosmetica.mixin.fakeplayer.PlayerModelAccessor;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.mixin.fakeplayer.HumanoidModelAccessor;
+import cc.cosmetica.cosmetica.mixin.fakeplayer.PlayerModelAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
@@ -62,7 +62,7 @@ public class FakePlayerRenderer {
 
 			stack.popPose();
 		} catch (Throwable var24) {
-			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering entity in world");
+			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering fake player in menu");
 			crashReport.addCategory("Fake Player being rendered");
 
 			CrashReportCategory crashReportCategory2 = crashReport.addCategory("Renderer details");
@@ -74,7 +74,7 @@ public class FakePlayerRenderer {
 	}
 
 	private static Vec3 getRenderOffset(FakePlayer player, float delta) {
-		return player.isCrouching() ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
+		return player.isSneaking() ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
 	}
 
 	// PlayerRenderer#render
@@ -94,7 +94,7 @@ public class FakePlayerRenderer {
 		playerModel.rightPants.visible = fakePlayer.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
 		playerModel.leftSleeve.visible = fakePlayer.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
 		playerModel.rightSleeve.visible = fakePlayer.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
-		playerModel.crouching = fakePlayer.isCrouching();
+		playerModel.crouching = fakePlayer.isSneaking();
 
 		if (fakePlayer.getMainArm() == HumanoidArm.RIGHT) {
 			playerModel.rightArmPose = fakePlayer.isMainArmRaised() ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
@@ -315,7 +315,7 @@ public class FakePlayerRenderer {
 
 		ModelPart cloak = ((PlayerModelAccessor) model).getCloak();
 
-		if (player.isCrouching()) {
+		if (player.isSneaking()) {
 			cloak.z = 1.4F;
 			cloak.y = 1.85F;
 		} else {
@@ -372,12 +372,13 @@ public class FakePlayerRenderer {
 	private static void renderNameTag(FakePlayer player, PoseStack stack, MultiBufferSource bufferSource, int light) {
 		Component name = player.getDisplayName();
 
-		boolean fullyRender = !player.isCrouching();
+		boolean fullyRender = !player.renderDiscreteNametag();
 		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
 		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
 
 		stack.pushPose();
 
+		// add lore
 		Cosmetica.renderLore(
 				stack,
 				cameraOrientation,
@@ -386,7 +387,7 @@ public class FakePlayerRenderer {
 				player.getData().lore(),
 				player.getData().hats(),
 				false,
-				player.isCrouching(),
+				player.renderDiscreteNametag(),
 				player.getData().upsideDown(),
 				EntityType.PLAYER.getDimensions().height,
 				player.getModel().getHead().xRot,
@@ -400,10 +401,15 @@ public class FakePlayerRenderer {
 		int k = (int)(backgroundOpacity * 255.0F) << 24;
 		Font font = Minecraft.getInstance().font;
 		float h = (float)(-font.width(name) / 2);
-		font.drawInBatch(name, h, (float)offsetForDeadmau5, 553648127, false, pose, bufferSource, fullyRender, k, light);
+		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender, k, light);
 
 		if (fullyRender) {
 			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, light);
+		}
+
+		// add comsetica icon
+		if (player.getData().icon() != null) {
+			Cosmetica.renderIcon(stack, bufferSource, player, font, light, name);
 		}
 
 		stack.popPose();

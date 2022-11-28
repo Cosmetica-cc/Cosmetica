@@ -17,7 +17,7 @@
 package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -28,11 +28,12 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import java.util.function.Supplier;
 
 public class LocalCapeTexture extends AnimatedTexture implements Tickable {
-	public LocalCapeTexture(ResourceLocation debugPath, Supplier<NativeImage> image) {
+	public LocalCapeTexture(ResourceLocation debugPath, int aspectRatio, Supplier<NativeImage> image) {
+		super(aspectRatio);
 		this.imageSupplier = image;
 		this.debugPath = debugPath;
 
-		Debug.info("Uploading native texture {}", this.debugPath);
+		DebugMode.log("Uploading native texture {}", this.debugPath);
 
 		this.image = this.imageSupplier.get();
 
@@ -50,7 +51,7 @@ public class LocalCapeTexture extends AnimatedTexture implements Tickable {
 	@Override
 	protected void setupAnimations() throws IllegalStateException {
 		super.setupAnimations();
-		this.frameCounterTicks = Math.max(1, Debug.frameDelayMs / 50);
+		this.frameCounterTicks = Math.max(1, DebugMode.frameDelayMs / 50);
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class LocalCapeTexture extends AnimatedTexture implements Tickable {
 	}
 
 	private void reload() {
-		Debug.info("Re-uploading native texture {}", this.debugPath);
+		DebugMode.log("Re-uploading native texture {}", this.debugPath);
 		this.image = this.imageSupplier.get();
 
 		if (this.image == null) {

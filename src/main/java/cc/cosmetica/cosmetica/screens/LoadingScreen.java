@@ -73,11 +73,11 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 
 		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30), 200, 20, Component.translatable("options.skinCustomisation"), (button) -> {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, this.parentOptions));
-		}));
+		})).active = Authentication.settingLoadTarget != 3;
 
 		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30) + 24, 200, 20, TextComponents.translatable("gui.cancel"), (button) -> {
 			this.onClose();
-		}));
+		})).active = Authentication.settingLoadTarget != 3;
 	}
 
 	public void render(PoseStack poseStack, int i, int j, float f) {
@@ -85,5 +85,10 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		drawCenteredString(poseStack, this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
 		this.message.renderCentered(poseStack, this.width / 2, this.height / 2 - this.textHeight / 2);
 		super.render(poseStack, i, j, f);
+	}
+
+	@Override
+	public boolean shouldCloseOnEsc() {
+		return Authentication.settingLoadTarget != 3;
 	}
 }

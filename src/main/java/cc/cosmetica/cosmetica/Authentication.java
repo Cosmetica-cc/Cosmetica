@@ -16,19 +16,23 @@
 
 package cc.cosmetica.cosmetica;
 
+import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
+import cc.cosmetica.cosmetica.config.CosmeticaConfig;
+import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.MainScreen;
 import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
+import cc.cosmetica.cosmetica.screens.SnipeScreen;
 import cc.cosmetica.cosmetica.screens.UnauthenticatedScreen;
+import cc.cosmetica.cosmetica.screens.WelcomeScreen;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
-import cc.cosmetica.cosmetica.screens.SnipeScreen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -37,13 +41,17 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.UncheckedIOException;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Authentication {
 	private static volatile boolean currentlyAuthenticated = false;
 	private static volatile boolean currentlyAuthenticating = false;
-	public static int settingLoadTarget; // 1 = customise cosmetics screen, 2 = snipe (steal his look) screen, other =
+	public static int settingLoadTarget; // 1 = customise cosmetics screen, 2 = snipe (steal his look) screen, 3 = tutorial customise screen, other = main screen
 	@Nullable
 	public static cc.cosmetica.api.User snipedPlayer;
 
@@ -63,10 +71,10 @@ public class Authentication {
 			}
 
 			Cosmetica.api.getUserSettings().ifSuccessfulOrElse(settings -> {
-				Debug.info("Handling successful cosmetics settings response.");
+				DebugMode.log("Handling successful cosmetics settings response.");
 
 				// regional effects checking
-				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet();
+				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet() && Cosmetica.getConfig().regionalEffectsPrompt();
 
 				// only bother trying to do the next stage if on a loading screen
 				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen) {
@@ -87,7 +95,7 @@ public class Authentication {
 					}
 
 					PlayerData info = Cosmetica.getPlayerData(uuid, playerName, true);
-					Debug.info("Loading skin " + info.skin());
+					DebugMode.log("Loading skin " + info.skin());
 					@Nullable PlayerData ownInfo = loadTarget == 2 ? Cosmetica.getPlayerData(ownUUID, ownName, true) : null;
 
 					// check *again* in case they've closed it
@@ -97,16 +105,25 @@ public class Authentication {
 							Minecraft.getInstance().setScreen(switch (loadTarget) {
 								case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo, new cc.cosmetica.api.User(ownUUID, ownName));
 								case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
-								default -> new MainScreen(lts.getParent(), settings, fakePlayer);
+								default -> new MainScreen(lts.getParent(), settings, fakePlayer, loadTarget == 3);
 							});
 						});
 					}
 				}
 			},
 			error -> {
-				Cosmetica.LOGGER.error("Error during settings get: {}", error);
+				Cosmetica.LOGGER.error("Error during settings get:", error);
 
 				showUnauthenticatedIfLoading();
+
+				// don't repeat spam errors if the internet goes offline
+				if (error instanceof UncheckedIOException) {
+					if (((UncheckedIOException) error).getCause() instanceof UnknownHostException) {
+						// don't run again immediately, see above. Africa or opening a menu will run authentication again inevitably anyway
+						return;
+					}
+				}
+
 				runAuthentication();
 			});
 		});
@@ -136,19 +153,38 @@ public class Authentication {
 
 	private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
 
-	private static void prepareWelcome(UUID uuid, String name) {
+	private static void prepareWelcome(UUID uuid, String name, boolean newPlayer) {
 		// load the player's data if not loaded for later
 		RenderSystem.recordRenderCall(() -> Cosmetica.getPlayerData(uuid, name, false));
 
+		boolean isWelcomeScreenAllowed = newPlayer && Cosmetica.mayShowWelcomeScreen();
+		DebugMode.log("Preparing Welcome... || newPlayer=" + newPlayer + " mayShowWelcomeScreen=" + Cosmetica.mayShowWelcomeScreen());
+
 		// do a separate request for some reason because I'm cringe
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
+			final String colourlessLore = TextComponents.stripColour(userInfo.getLore());
+			DebugMode.log("Received user info on Authenticate/prepareWelcome || displayNext=" + Cosmetica.displayNext + " colourlessLore=" + colourlessLore);
+
 			// welcome new, authenticated players
-			if (Cosmetica.getConfig().shouldShowWelcomeMessage() && Cosmetica.displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
+			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(isWelcomeScreenAllowed) && Cosmetica.displayNext == null && colourlessLore.equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
 				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				Cosmetica.displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
 			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));
+
+		// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
+		if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
+			DebugMode.log("New Player: Showing Welcome Screen");
+
+			if (RenderSystem.isOnRenderThread()) {
+				Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen));
+			}
+			else {
+				DebugMode.log("Not on render thread: recording render call for welcome screen!");
+				RenderSystem.recordRenderCall(() -> Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen)));
+			}
+		}
 	}
 
 	private static void runAuthentication() {
@@ -156,21 +192,21 @@ public class Authentication {
 			String devToken = System.getProperty("cosmetica.token");
 
 			if (devToken != null) {
-				Debug.info("Authenticating API from provided token.");
+				DebugMode.log("Authenticating API from provided token.");
 				Cosmetica.api = CosmeticaAPI.fromToken(devToken);
-				Cosmetica.api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+				Cosmetica.api.setUrlLogger(DebugMode::logURL);
 
 				// welcome players if they're new
 				// this isn't really necesary for manual auth because you probably know what you're doing
 				// but is useful for testing
 				User user = Minecraft.getInstance().getUser();
 				UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
-				prepareWelcome(uuid, user.getName());
+				prepareWelcome(uuid, user.getName(), false);
 			} else {
 				if (currentlyAuthenticating) {
-					Debug.info("API is not authenticated but authentication is already in progress.");
+					DebugMode.log("API is not authenticated but authentication is already in progress.");
 				} else {
-					Debug.info("API is not authenticated: starting authentication!");
+					DebugMode.log("API is not authenticated: starting authentication!");
 					currentlyAuthenticating = true;
 
 					new Thread("Cosmetica Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
@@ -179,8 +215,8 @@ public class Authentication {
 								User user = Minecraft.getInstance().getUser();
 								UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
 
-								Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid); // getUuid() better have the dashes... edit: it did not have the dashes.
-								Cosmetica.api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+								Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid, System.getProperty("cosmetica.client", "cosmetica")); // getUuid() better have the dashes... edit: it did not have the dashes.
+								Cosmetica.api.setUrlLogger(DebugMode::logURL);
 
 								LoginInfo info = Cosmetica.api.getLoginInfo().get();
 
@@ -188,23 +224,47 @@ public class Authentication {
 								currentlyAuthenticated = true;
 								currentlyAuthenticating = false;
 
-								if (info.isNewPlayer() && !info.hasSpecialCape()) {
-									String capeId = Cosmetica.getDefaultSettingsConfig().getCapeId();
+								if (info.isNewPlayer()) {
+									DefaultSettingsConfig defaults = Cosmetica.getDefaultSettingsConfig();
 
-									if (!capeId.isEmpty()) {
-										Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
-									}
+									// only set defaults if there was a file present on first run with the mod
+									if (defaults.wasLoaded()) {
+										// Create map of settings to update
+										final Map<String, Object> settings = new HashMap<>();
 
-									var capeServerSettings = Cosmetica.getDefaultSettingsConfig().getCapeServerSettings();
+										// add the various fields to the map
+										defaults.areHatsEnabled().ifPresent(v -> settings.put("dohats", v));
+										defaults.areShoulderBuddiesEnabled().ifPresent(v -> settings.put("doshoulderbuddies", v));
+										defaults.areBackBlingsEnabled().ifPresent(v -> settings.put("dobackblings", v));
+										defaults.isLoreEnabled().ifPresent(v -> settings.put("dolore", v));
+										defaults.getIconSettings().ifPresent(v -> settings.put("iconsettings", v));
 
-									if (!capeServerSettings.isEmpty()) {
-										Cosmetica.api.setCapeServerSettings(capeServerSettings);
+										// post the settings to update if they exist
+										if (!settings.isEmpty()) {
+											Cosmetica.api.updateUserSettings(settings);
+										}
+
+										// handle default-setting-defined capes
+										if (!info.hasSpecialCape()) {
+											String capeId = defaults.getCapeId();
+
+											if (!capeId.isEmpty()) {
+												Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
+											}
+										}
+
+										// handle default-setting-defined cape server settings
+										Map<String, CapeDisplay> capeServerSettings = defaults.getCapeServerSettings();
+
+										if (!capeServerSettings.isEmpty()) {
+											Cosmetica.api.setCapeServerSettings(capeServerSettings);
+										}
 									}
 								}
 
 								// welcome players
 								// and by new I mean has new to cosmetica lore
-								prepareWelcome(uuid, user.getName());
+								prepareWelcome(uuid, user.getName(), info.isNewPlayer());
 
 								// synchronise settings from the server to the mod
 								syncSettings();
@@ -219,7 +279,7 @@ public class Authentication {
 				}
 			}
 		} else {
-			Debug.info("Api is authenticated: syncing settings!");
+			DebugMode.log("Api is authenticated: syncing settings!");
 			syncSettings();
 		}
 	}

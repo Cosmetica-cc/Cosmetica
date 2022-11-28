@@ -153,14 +153,14 @@ public class TextComponents {
 		}
 	}
 
-	public static String stripColour(String lore) {
+	public static String stripColour(String text) {
 		final char sectionSign = '\u00A7';
 
-		if (lore.charAt(0) == sectionSign) {
-			return lore.substring(2);
+		if (!text.isEmpty() && text.charAt(0) == sectionSign) {
+			return text.substring(2);
 		}
 		else {
-			return lore;
+			return text;
 		}
 	}
 

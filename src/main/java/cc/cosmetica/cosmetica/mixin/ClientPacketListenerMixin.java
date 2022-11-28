@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.mixin;
 
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.Cosmetica;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -40,7 +40,7 @@ public abstract class ClientPacketListenerMixin {
 		if (Minecraft.getInstance().getCurrentServer() != null && !Objects.equals(Minecraft.getInstance().getCurrentServer().ip, Cosmetica.authServer)) address = Minecraft.getInstance().getCurrentServer().ip;
 		if (Cosmetica.currentServerAddressCache.isEmpty() || !Objects.equals(Cosmetica.currentServerAddressCache, address)) {
 			Cosmetica.currentServerAddressCache = address;
-			Debug.info("Clearing all player data due to login.");
+			DebugMode.log("Clearing all player data due to login.");
 			Cosmetica.clearAllCaches();
 			Cosmetica.getPlayerData(this.minecraft.player);
 		}

@@ -23,10 +23,8 @@
     "textures.HttpTextureMixin",
     "textures.NativeImageAccessorMixin",
     "textures.SimpleTextureMixin",
-    "textures.TextureAtlasMixin",
-    "textures.TextureAtlasSpriteInvokerMixin",
+    "textures.TextureAtlasSpriteMixin",
     "textures.TextureManagerMixin",
-    "textures.TextureManagerAccessorMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "EntityRendererMixin",
@@ -35,7 +33,9 @@
     "MinecraftMixin",
     "ModelManagerMixin",
     "PlayerEntityRendererMixin",
+    "PlayerMixin",
     "PlayerRendererMixin",
+    "PlayerTabOverlayMixin",
     "SplashManagerMixin"
   ],
   "injectors": {

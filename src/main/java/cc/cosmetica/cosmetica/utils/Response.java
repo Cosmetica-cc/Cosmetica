@@ -77,7 +77,7 @@ public class Response implements Closeable {
 		try {
 			return PARSER.parse(s).getAsJsonObject();
 		} catch (JsonParseException e) {
-			Debug.info("Error parsing json: " + s);
+			DebugMode.log("Error parsing json: " + s);
 			throw e;
 		}
 	}
