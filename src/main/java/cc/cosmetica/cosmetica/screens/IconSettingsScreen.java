@@ -53,7 +53,7 @@ public class IconSettingsScreen extends SulphateScreen {
 				this.updateEnabledButtons();
 			}
 		}, (button__, poseStack, i, j) -> {
-			if (!master) this.renderTooltip(poseStack, this.font.split(DISABLE_NOTICE, Math.max(this.width / 2 - 43, 170)), i, j + 18);
+			if (!master && !button__.active) this.renderTooltip(poseStack, this.font.split(DISABLE_NOTICE, Math.max(this.width / 2 - 43, 170)), i, j + 18);
 		});
 
 		if (!master) {
