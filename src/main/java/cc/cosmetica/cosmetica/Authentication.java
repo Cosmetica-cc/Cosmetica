@@ -33,7 +33,6 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -44,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.UncheckedIOException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -157,19 +157,27 @@ public class Authentication {
 		// load the player's data if not loaded for later
 		RenderSystem.recordRenderCall(() -> Cosmetica.getPlayerData(uuid, name, false));
 
+		boolean isWelcomeScreenAllowed = newPlayer && Cosmetica.mayShowWelcomeScreen();
+
 		// do a separate request for some reason because I'm cringe
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
 			// welcome new, authenticated players
-			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(newPlayer) && Cosmetica.displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
+			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(isWelcomeScreenAllowed) && Cosmetica.displayNext == null && TextComponents.stripColour(userInfo.getLore()).equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
 				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				Cosmetica.displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
 			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));
 
+
 		// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
-		if (newPlayer && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
-			Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen));
+		if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
+			if (RenderSystem.isOnRenderThread()) {
+				Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen));
+			}
+			else {
+				RenderSystem.recordRenderCall(() -> Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen)));
+			}
 		}
 	}
 
@@ -215,25 +223,35 @@ public class Authentication {
 
 									// only set defaults if there was a file present on first run with the mod
 									if (defaults.wasLoaded()) {
-										Cosmetica.api.updateUserSettings(ImmutableMap.of(
-												"dohats", defaults.areHatsEnabled(),
-												"doshoulderbuddies", defaults.areShoulderBuddiesEnabled(),
-												"dobackblings", defaults.areBackBlingsEnabled(),
-												"iconsettings", defaults.getIconSettings()
-										));
+										// Create map of settings to update
+										final Map<String, Object> settings = new HashMap<>();
 
+										// add the various fields to the map
+										defaults.areHatsEnabled().ifPresent(v -> settings.put("dohats", v));
+										defaults.areShoulderBuddiesEnabled().ifPresent(v -> settings.put("doshoulderbuddies", v));
+										defaults.areBackBlingsEnabled().ifPresent(v -> settings.put("dobackblings", v));
+										defaults.isLoreEnabled().ifPresent(v -> settings.put("dolore", v));
+										defaults.getIconSettings().ifPresent(v -> settings.put("iconsettings", v));
+
+										// post the settings to update if they exist
+										if (!settings.isEmpty()) {
+											Cosmetica.api.updateUserSettings(settings);
+										}
+
+										// handle default-setting-defined capes
 										if (!info.hasSpecialCape()) {
 											String capeId = defaults.getCapeId();
 
 											if (!capeId.isEmpty()) {
 												Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
 											}
+										}
 
-											Map<String, CapeDisplay> capeServerSettings = defaults.getCapeServerSettings();
+										// handle default-setting-defined cape server settings
+										Map<String, CapeDisplay> capeServerSettings = defaults.getCapeServerSettings();
 
-											if (!capeServerSettings.isEmpty()) {
-												Cosmetica.api.setCapeServerSettings(capeServerSettings);
-											}
+										if (!capeServerSettings.isEmpty()) {
+											Cosmetica.api.setCapeServerSettings(capeServerSettings);
 										}
 									}
 								}

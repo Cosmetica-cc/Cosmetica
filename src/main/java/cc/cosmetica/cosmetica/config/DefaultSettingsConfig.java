@@ -35,9 +35,10 @@ public class DefaultSettingsConfig {
 	private final Path propertiesPath;
 
 	private String capeId = "";
-	private Boolean enableHats = null;
-	private Boolean enableShoulderBuddies = null;
-	private Boolean enableBackBlings = null;
+	private Optional<Boolean> enableHats = Optional.empty();
+	private Optional<Boolean> enableShoulderBuddies = Optional.empty();
+	private Optional<Boolean> enableBackBlings = Optional.empty();
+	private Optional<Boolean> enableLore = Optional.empty();
 	private OptionalInt iconSettings = OptionalInt.empty();
 
 	private boolean loaded = false;
@@ -53,15 +54,19 @@ public class DefaultSettingsConfig {
 	}
 
 	public Optional<Boolean> areHatsEnabled() {
-		return Optional.ofNullable(enableHats);
+		return enableHats;
 	}
 
 	public Optional<Boolean> areShoulderBuddiesEnabled() {
-		return Optional.ofNullable(enableShoulderBuddies);
+		return enableShoulderBuddies;
 	}
 
 	public Optional<Boolean> areBackBlingsEnabled() {
-		return Optional.ofNullable(enableBackBlings);
+		return enableBackBlings;
+	}
+
+	public Optional<Boolean> isLoreEnabled() {
+		return enableLore;
 	}
 
 	public OptionalInt getIconSettings() {
@@ -83,13 +88,13 @@ public class DefaultSettingsConfig {
 		Properties properties = new Properties();
 		properties.load(Files.newInputStream(propertiesPath));
 		capeId = properties.getProperty("starter-cape-id");
-		enableHats = parseNullableBoolean(properties.getProperty("enable-hats", ""));
-		enableShoulderBuddies = parseNullableBoolean(properties.getProperty("enable-shoulder-buddies", ""));
-		enableBackBlings = parseNullableBoolean(properties.getProperty("enable-back-blings", ""));
+		enableHats = parseBlankableBoolean(properties.getProperty("enable-hats", ""));
+		enableShoulderBuddies = parseBlankableBoolean(properties.getProperty("enable-shoulder-buddies", ""));
+		enableBackBlings = parseBlankableBoolean(properties.getProperty("enable-back-blings", ""));
 		iconSettings = properties.getProperty("enable-icons", "").isEmpty() ? OptionalInt.empty() : OptionalInt.of(
 				flag(UserSettings.DISABLE_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-icons", "true")))
-				| flag(UserSettings.DISABLE_OFFLINE_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-online-icons", "true")))
-				| flag(UserSettings.DISABLE_SPECIAL_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-special-icons", "true")))
+				| flag(UserSettings.DISABLE_OFFLINE_ICONS, !parseBlankableBoolean(properties.getProperty("enable-online-icons", ""), true))
+				| flag(UserSettings.DISABLE_SPECIAL_ICONS, !parseBlankableBoolean(properties.getProperty("enable-special-icons", ""), true))
 		);
 
 		capeServerSettings.clear();
@@ -122,9 +127,9 @@ public class DefaultSettingsConfig {
 
 		Properties properties = new Properties();
 		properties.setProperty("starter-cape-id", capeId);
-		properties.setProperty("enable-hats", toStringNullable(enableHats));
-		properties.setProperty("enable-shoulder-buddies", toStringNullable(enableShoulderBuddies));
-		properties.setProperty("enable-back-blings", toStringNullable(enableBackBlings));
+		properties.setProperty("enable-hats", toStringBlankable(enableHats));
+		properties.setProperty("enable-shoulder-buddies", toStringBlankable(enableShoulderBuddies));
+		properties.setProperty("enable-back-blings", toStringBlankable(enableBackBlings));
 
 		if (this.iconSettings.isPresent()) {
 			properties.setProperty("enable-icons", Boolean.toString((this.iconSettings.getAsInt() & UserSettings.DISABLE_ICONS) == 0));
@@ -149,16 +154,25 @@ public class DefaultSettingsConfig {
 		return condition ? flag : 0;
 	}
 
-	private static Boolean parseNullableBoolean(String property) {
+	private static Optional<Boolean> parseBlankableBoolean(String property) {
 		if (property.equals("")) {
-			return null;
+			return Optional.empty();
+		}
+		else {
+			return Optional.of(Boolean.parseBoolean(property));
+		}
+	}
+
+	private static boolean parseBlankableBoolean(String property, boolean defaultValue) {
+		if (property.equals("")) {
+			return defaultValue;
 		}
 		else {
 			return Boolean.parseBoolean(property);
 		}
 	}
 
-	private static String toStringNullable(Boolean property) {
-		return property == null ? "" : Boolean.toString(property);
+	private static String toStringBlankable(Optional<Boolean> property) {
+		return property.isPresent() ? Boolean.toString(property.get()) : "";
 	}
 }

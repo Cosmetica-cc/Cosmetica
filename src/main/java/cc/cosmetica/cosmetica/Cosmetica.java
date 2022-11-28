@@ -142,7 +142,9 @@ public class Cosmetica implements ClientModInitializer {
 	private static Path configDirectory;
 	private static Path cacheDirectory;
 
-	/**
+	private static boolean mayShowWelcomeScreen = false;
+
+ 	/**
 	 * The timestamp for the africa endpoint.
 	 */
 	private static OptionalLong toto = OptionalLong.empty();
@@ -173,6 +175,14 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static DefaultSettingsConfig getDefaultSettingsConfig() {
 		return defaultSettingsConfig;
+	}
+
+	/**
+	 * Gets whether the client is allowed to show the welcome screen.
+	 * @return a boolean giving the status of whether the client is allowed to show the welcome screen.
+	 */
+	public static boolean mayShowWelcomeScreen() {
+		return mayShowWelcomeScreen;
 	}
 
 	@Override
@@ -239,7 +249,6 @@ public class Cosmetica implements ClientModInitializer {
 
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
 				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
-				Authentication.runAuthentication(1);
 
 				api.checkVersion(
 						SharedConstants.getCurrentVersion().getId(),
@@ -256,7 +265,11 @@ public class Cosmetica implements ClientModInitializer {
 							displayNext = TextComponents.literal(s);
 						}
 					}
+
+					mayShowWelcomeScreen = versionInfo.megaInvasiveTutorial();
 				}, Cosmetica.logErr("Error checking version"));
+
+				Authentication.runAuthentication(1);
 			} catch (Exception e) {
 				LOGGER.error("Error retrieving API Url. Mod functionality will be disabled!");
 				e.printStackTrace();

@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica.config;
 
+import cc.cosmetica.api.VersionInfo;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -103,8 +105,13 @@ public class CosmeticaConfig {
         CHAT_ONLY,
         OFF;
 
-        public boolean shouldShowChatMessage(boolean newPlayer) {
-            return this == CHAT_ONLY || (this == FULL && !newPlayer);
+        /**
+         * Get whether a chat message for welcome should be shown.
+         * @param welcomeScreenAllowed whether the welcome screen should be allowed. Generally {@link VersionInfo#megaInvasiveTutorial()} {@code && newPlayer}
+         * @return whether the welcome chat message should be shown.
+         */
+        public boolean shouldShowChatMessage(boolean welcomeScreenAllowed) {
+            return this == CHAT_ONLY || (this == FULL && !welcomeScreenAllowed);
         }
 
         public static WelcomeMessageState of(String string) {
