@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.mixin.textures;
 
+import cc.cosmetica.cosmetica.utils.textures.ModelSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,6 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class TextureAtlasSpriteMixin {
 	@Inject(at = @At("HEAD"), method = "createTicker", cancellable = true)
 	private void beforeCreateTicker(TextureAtlasSprite.Info tasInfo, int i, int j, int k, CallbackInfoReturnable<TextureAtlasSprite.AnimatedTexture> info) {
-		info.setReturnValue(null);
+		if ((TextureAtlasSprite) (Object) this instanceof ModelSprite) {
+			info.setReturnValue(null);
+		}
 	}
 }
