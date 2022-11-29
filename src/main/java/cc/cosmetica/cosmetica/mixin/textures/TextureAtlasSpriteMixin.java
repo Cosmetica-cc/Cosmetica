@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.mixin.textures;
 
+import cc.cosmetica.cosmetica.utils.textures.ModelSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
