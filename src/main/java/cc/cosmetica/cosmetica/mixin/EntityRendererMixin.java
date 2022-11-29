@@ -24,8 +24,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,14 +31,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityRenderer.class)
-public class EntityRendererMixin {
-	@Shadow @Final private Font font;
+public abstract class EntityRendererMixin {
+	@Shadow public abstract Font getFont();
 
 	// just before pop pose, after text rendering.
 	@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"), method = "renderNameTag")
 	private void onNametagRender(Entity entity, Component component, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, CallbackInfo ci) {
-		if (entity instanceof Playerish player) {
-			Cosmetica.renderIcon(poseStack, multiBufferSource, player, this.font, packedLight, component);
+		if (entity instanceof Playerish) {
+			Cosmetica.renderIcon(poseStack, multiBufferSource, (Playerish) entity, this.getFont(), packedLight, component);
 		}
 	}
 }

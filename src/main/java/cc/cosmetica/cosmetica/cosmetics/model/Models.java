@@ -87,7 +87,7 @@ public class Models {
 			BAKED_MODELS.put(unbaked.id(), null); // searching
 
 			final ResourceLocation location = unbaked.image();
-			AbstractTexture modelTexture = Minecraft.getInstance().getTextureManager().getTexture(location, null);
+			AbstractTexture modelTexture = Minecraft.getInstance().getTextureManager().getTexture(location);
 
 			if (modelTexture instanceof AnimatedTexture) {
 				ModelSprite sprite = new ModelSprite(location, (AnimatedTexture) modelTexture);

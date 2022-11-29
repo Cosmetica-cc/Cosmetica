@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -47,11 +47,11 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 	private final Set<String> indicators;
 
 	public void firstUpload(NativeImage image, boolean loading) {
-		Debug.info("Uploading image: {}", loading ? "[loading.png]" : this.url);
+		DebugMode.log("Uploading image: {}", loading ? "[loading.png]" : this.url);
 
 		// memory management
 		if (this.image != null && ((NativeImageAccessorMixin)(Object)this.image).getPixels() != 0L) {
-			Debug.info("Closing image on thread {} due to load. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
+			DebugMode.log("Closing image on thread {} due to load. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
 			this.image.close();
 		}
 
@@ -81,7 +81,7 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 
 			if (this.tick == 0) {
 				this.frame = (this.frame + 1) % this.frames;
-				//Debug.info("Uploading frame {}", this.frame);
+				//DebugMode.log("Uploading frame {}", this.frame);
 				this.uploadFrame(this.image, false);
 			}
 		}
@@ -89,9 +89,9 @@ public class CosmeticIconTexture extends HttpTexture implements Tickable {
 
 	@Override
 	public void close() {
-		//Debug.info("Closing image on thread {} due to dispose. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
+		//DebugMode.log("Closing image on thread {} due to dispose. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
 		if (this.image != null) this.image.close();
-		//Debug.info("Disposed of image.");
+		//DebugMode.log("Disposed of image.");
 	}
 
 	private static void copyRect(NativeImage src, int srcX, int srcY, NativeImage dest, int destX, int destY, int width, int height) {

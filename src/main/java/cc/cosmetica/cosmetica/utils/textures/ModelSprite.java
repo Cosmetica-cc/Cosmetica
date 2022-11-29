@@ -16,13 +16,12 @@
 
 package cc.cosmetica.cosmetica.utils.textures;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.Tickable;
+import net.minecraft.client.resources.metadata.animation.AnimationFrame;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.stream.IntStream;
 
 public class ModelSprite extends TextureAtlasSprite {
 	public ModelSprite(ResourceLocation location, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture texture) {
@@ -32,7 +31,8 @@ public class ModelSprite extends TextureAtlasSprite {
 	private ModelSprite(ResourceLocation location, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture texture, int width, int height) {
 		// textureAtlas, info, mipLevels, uScale (atlasTextureWidth), vScale (atlasTextureHeight), width, height, image
 		super(null,
-				new Info(location, width, height, null),
+				// dummy data for the animation metadata: we want to handle the animation ourselves.
+				new Info(location, width, height, new AnimationMetadataSection(ImmutableList.of(new AnimationFrame(0)), width, height, 69, false)),
 				4,
 				width,
 				height,
@@ -47,13 +47,8 @@ public class ModelSprite extends TextureAtlasSprite {
 	private final cc.cosmetica.cosmetica.utils.textures.AnimatedTexture animatedTexture;
 
 	@Override
-	protected int getFrameCount() {
+	public int getFrameCount() {
 		return this.animatedTexture.getFrameCount();
-	}
-
-	@Override
-	public IntStream getUniqueFrames() {
-		return IntStream.range(0, getFrameCount());
 	}
 
 	@Override
@@ -84,11 +79,5 @@ public class ModelSprite extends TextureAtlasSprite {
 	@Override
 	public void uploadFirstFrame() {
 		throw new UnsupportedOperationException("I am a teapot. Tried to call isTransparent() on cosmetica ModelSprite.");
-	}
-
-	@Nullable
-	@Override
-	public Tickable getAnimationTicker() {
-		return this.animatedTexture instanceof Tickable ? (Tickable) this.animatedTexture : null;
 	}
 }

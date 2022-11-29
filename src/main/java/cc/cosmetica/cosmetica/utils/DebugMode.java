@@ -194,7 +194,7 @@ public class DebugMode {
 	public static boolean loadTestModel(LocalModelType type) {
 		String model = type.localIdProvider.get();
 
-		if (model.isBlank()) {
+		if (model.trim().isEmpty()) {
 			type.modelOverride.clear();
 			return false;
 		} else {
@@ -289,7 +289,29 @@ public class DebugMode {
 		}
 	}
 
-	public record LocalModelType(CosmeticStack<BakableModel> modelOverride, Supplier<String> localIdProvider, IntSupplier extraInfoLoader) {
+	public static class LocalModelType {
+		private LocalModelType(CosmeticStack<BakableModel> modelOverride, Supplier<String> localIdProvider, IntSupplier extraInfoLoader) {
+			this.modelOverride = modelOverride;
+			this.localIdProvider = localIdProvider;
+			this.extraInfoLoader = extraInfoLoader;
+		}
+
+		private final CosmeticStack<BakableModel> modelOverride;
+		private final Supplier<String> localIdProvider;
+		private final IntSupplier extraInfoLoader;
+
+		public CosmeticStack<BakableModel> modelOverride() {
+			return this.modelOverride;
+		}
+
+		public Supplier<String> localIdProvider() {
+			return this.localIdProvider;
+		}
+
+		public IntSupplier extraInfoLoader() {
+			return this.extraInfoLoader;
+		}
+
 		public static final LocalModelType HAT = new LocalModelType(
 				Hats.OVERRIDDEN,
 				() -> debugSettings.hat.location,

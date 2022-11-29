@@ -815,10 +815,12 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void renderTabIcon(PoseStack stack, int x, int y, UUID playerUUID, String name) {
 		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
 
 		if (iconTexture != null) {
+			RenderSystem.enableAlphaTest();
 			renderTexture(stack.last().pose(), iconTexture, x, x + 8, y, y + 8, 0);
 		}
 	}

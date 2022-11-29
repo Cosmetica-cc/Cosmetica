@@ -38,7 +38,7 @@ public class WelcomeScreen extends Screen {
 
 	@Override
 	protected void init() {
-		this.addRenderableWidget(new Button(this.width / 2 - 100, 2 * this.height / 3, 200, 20,
+		this.addButton(new Button(this.width / 2 - 100, 2 * this.height / 3, 200, 20,
 				TextComponents.translatable("cosmetica.welcome.continue"), bn -> this.minecraft.setScreen(new WelcomeOptionsScreen(this.parent, this.minecraft.options))));
 	}
 

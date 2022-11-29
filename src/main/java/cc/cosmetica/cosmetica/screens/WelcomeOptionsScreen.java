@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ExtendedScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -44,8 +45,10 @@ public class WelcomeOptionsScreen extends OptionsScreen {
 		Button removeMe = null;
 
 		for (GuiEventListener widget : this.children()) {
-			if (widget instanceof AbstractWidget b) {
-				if (b instanceof Button && b.getMessage() instanceof TranslatableComponent tc && tc.getKey().equals("cosmetica.cosmetics")) {
+			if (widget instanceof AbstractWidget) {
+				AbstractWidget b = (AbstractWidget) widget;
+
+				if (b instanceof Button && b.getMessage() instanceof TranslatableComponent && ((TranslatableComponent) b.getMessage()).getKey().equals("cosmetica.cosmetics")) {
 					removeMe = (Button) b;
 				}
 				else {
@@ -54,9 +57,9 @@ public class WelcomeOptionsScreen extends OptionsScreen {
 			}
 		}
 
-		this.removeWidget(removeMe);
+		((ExtendedScreen) this).removeChild(removeMe);
 
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, new TranslatableComponent("cosmetica.cosmetics"),
+		this.addButton(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, new TranslatableComponent("cosmetica.cosmetics"),
 				button -> this.minecraft.setScreen(new LoadingScreen(this.parent instanceof OptionsScreen ? this.parent : new OptionsScreen(this.parent, this.options), this.options, 3))));
 	}
 

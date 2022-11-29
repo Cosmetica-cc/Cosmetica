@@ -24,8 +24,4 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(TextureAtlasSprite.class)
 public class TextureAtlasSpriteMixin {
-	@Inject(at = @At("HEAD"), method = "createTicker", cancellable = true)
-	private void beforeCreateTicker(TextureAtlasSprite.Info tasInfo, int i, int j, int k, CallbackInfoReturnable<TextureAtlasSprite.AnimatedTexture> info) {
-		info.setReturnValue(null);
-	}
 }
