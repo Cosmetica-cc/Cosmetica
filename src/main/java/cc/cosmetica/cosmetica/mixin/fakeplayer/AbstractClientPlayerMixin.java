@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica.mixin.fakeplayer;
 
+import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -43,5 +45,15 @@ public abstract class AbstractClientPlayerMixin extends Player implements Player
 	@Override
 	public boolean isSneaking() {
 		return this.isCrouching();
+	}
+
+	@Override
+	public boolean renderDiscreteNametag() {
+		return this.isDiscrete();
+	}
+
+	@Override
+	public PlayerData getCosmeticaPlayerData() {
+		return Cosmetica.getPlayerData(this);
 	}
 }

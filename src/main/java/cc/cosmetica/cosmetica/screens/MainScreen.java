@@ -23,7 +23,7 @@ import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MainScreen extends PlayerRenderScreen {
-	public MainScreen(Screen parentScreen, UserSettings settings, FakePlayer fakePlayer) {
+	public MainScreen(Screen parentScreen, UserSettings settings, FakePlayer fakePlayer, boolean demo) {
 		super(TextComponents.translatable("cosmetica.cosmeticaMainMenu"), parentScreen, fakePlayer);
 
 		this.cosmeticaOptions = new ServerOptions(settings);
@@ -52,6 +52,8 @@ public class MainScreen extends PlayerRenderScreen {
 		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
 		this.setTransitionProgress(1.0f);
+
+		this.demo = demo;
 	}
 
 	private ServerOptions cosmeticaOptions;
@@ -59,24 +61,26 @@ public class MainScreen extends PlayerRenderScreen {
 	private List<Map.Entry<String, CapeServer>> capeServerSettingsForButtons;
 	private AbstractButton done;
 	private boolean doReload;
+	private boolean demo;
 
 	@Override
 	protected void addWidgets() {
-		this.addButton(150, 20, TextComponents.translatable("cosmetica.customizeCosmetics"), button ->
-			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this, this.fakePlayer, this.cosmeticaOptions, 1.0 - this.getTransitionProgress()))
-		);
+		this.addButton(150, 20, TextComponents.translatable("cosmetica.customizeCosmetics"), button -> {
+			this.demo = false;
+			this.minecraft.setScreen(new CustomiseCosmeticsScreen(this, this.fakePlayer, this.cosmeticaOptions, 1.0 - this.getTransitionProgress()));
+		});
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.capeServerSettings"), button ->
 			this.minecraft.setScreen(new CapeServerSettingsScreen(this, this.capeServerSettings, this.capeServerSettingsForButtons))
-		);
+		).active = !this.demo;
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.cosmeticaSettings"), button ->
 			this.minecraft.setScreen(new CosmeticaSettingsScreen(this, this.cosmeticaOptions))
-		);
+		).active = !this.demo;
 
 		this.addButton(150, 20, TextComponents.translatable("options.skinCustomisation"), button ->
 			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options))
-		);
+		).active = !this.demo;
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> {
 			try {
@@ -85,9 +89,29 @@ public class MainScreen extends PlayerRenderScreen {
 			} catch (Exception e) {
 				throw new RuntimeException("bruh", e);
 			}
-		});
+		}).active = !this.demo;
+
+		class ReloadingButton extends Button {
+			public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Button.OnTooltip tooltip) {
+				super(i, j, k, l, component, onPress, tooltip);
+			}
+
+			public void onPress() {
+				if (doReload) {
+					Cosmetica.clearAllCaches();
+
+					if (DebugMode.ENABLED) {
+						DebugMode.reloadTestModels();
+					}
+				}
+
+				WelcomeScreen.isInTutorial = false;
+				this.onPress.onPress(this);
+			}
+		}
 
 		this.done = this.addDoneWithOffset(ReloadingButton::new, 12 + 24);
+		this.done.active = !this.demo;
 
 		this.initialPlayerLeft = this.width / 2;
 		this.deltaPlayerLeft = this.width / 3 + 10 - this.initialPlayerLeft;
@@ -103,7 +127,7 @@ public class MainScreen extends PlayerRenderScreen {
 			} else {
 				button.setMessage(TextComponents.translatable("cosmetica.reloadCosmetics"));
 			}
-		}));
+		})).active = !this.demo;
 	}
 
 	void setCapeServerSettings(Map<String, CapeDisplay> settings) {
@@ -115,31 +139,13 @@ public class MainScreen extends PlayerRenderScreen {
 	}
 
 	@Override
+	public boolean shouldCloseOnEsc() {
+		return !this.demo;
+	}
+
+	@Override
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 		this.renderRSENotif(matrices, mouseX, mouseY);
-	}
-
-	class ReloadingButton extends Button {
-		public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Button.OnTooltip tooltip) {
-			super(i, j, k, l, component, onPress, tooltip);
-		}
-
-		public void onPress() {
-			if (doReload) {
-				Cosmetica.clearAllCaches();
-
-				if (Debug.TEST_MODE) {
-					Debug.loadTestProperties();
-					Debug.loadTestModel(Debug.LocalModelType.HAT);
-					Debug.loadTestModel(Debug.LocalModelType.LEFT_SHOULDERBUDDY);
-					Debug.loadTestModel(Debug.LocalModelType.RIGHT_SHOULDERBUDDY);
-					Debug.loadTestModel(Debug.LocalModelType.BACK_BLING);
-					Debug.loadTestCape();
-				}
-			}
-
-			this.onPress.onPress(this);
-		}
 	}
 }

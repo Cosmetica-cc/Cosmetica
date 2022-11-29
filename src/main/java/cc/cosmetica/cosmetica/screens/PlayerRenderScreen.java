@@ -100,10 +100,10 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			regionEffectsMsg = TextComponents.translatable("cosmetica.rsenotice.australian");
 		}
 		else if (!data.prefix().isEmpty()) {
-			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.prefix", data.prefix());
+			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.prefix", data.prefix().trim());
 		}
 		else if (!data.suffix().isEmpty()) {
-			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.suffix", data.suffix());
+			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.suffix", data.suffix().trim());
 		}
 		else if (Optional.ofNullable(data.rightShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)
 				|| Optional.ofNullable(data.leftShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)) {

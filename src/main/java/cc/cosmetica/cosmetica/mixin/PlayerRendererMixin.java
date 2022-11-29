@@ -30,7 +30,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PlayerRenderer.class)
+// increase priority to run later, letting anyone cancelling the method have their code run first.
+@Mixin(value = PlayerRenderer.class, priority = 2000)
 public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 	public PlayerRendererMixin(EntityRenderDispatcher context, PlayerModel<AbstractClientPlayer> entityModel, float f) {
 		super(context, entityModel, f);

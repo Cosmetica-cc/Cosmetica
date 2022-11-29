@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.mixin.screen;
 
 import benzenestudios.sulphate.ExtendedScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
+import cc.cosmetica.cosmetica.screens.WelcomeScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;

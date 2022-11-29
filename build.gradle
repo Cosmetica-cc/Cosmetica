@@ -17,6 +17,10 @@ repositories {
 	maven { url 'https://maven.terraformersmc.com/' }
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/cosmetica.accesswidener")
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.layered() {

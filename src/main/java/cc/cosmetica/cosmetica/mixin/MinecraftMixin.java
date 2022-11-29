@@ -17,14 +17,14 @@
 package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.api.User;
-import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
 import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
-import cc.cosmetica.cosmetica.utils.Debug;
-import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
+import cc.cosmetica.cosmetica.screens.WelcomeScreen;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
@@ -48,8 +48,6 @@ public abstract class MinecraftMixin {
 
 	@Shadow @Nullable public ClientLevel level;
 
-	private static boolean cosmetica_shownTestModeDeprecationNotice = false;
-
 	@Shadow @Nullable public LocalPlayer player;
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;shutdownExecutors()V"), method = "close")
@@ -60,7 +58,7 @@ public abstract class MinecraftMixin {
 	@Inject(at = @At("HEAD"), method = "setScreen", cancellable = true)
 	private void addRegionSpecificEffectsPrompt(Screen screen, CallbackInfo info) {
 		// if the RSE warning screen should appear cancel the current screen set in favour of a wrapper thereof
-		if (RSEWarningScreen.appearNextScreenChange) {
+		if (RSEWarningScreen.appearNextScreenChange && !WelcomeScreen.isInTutorial) {
 			RSEWarningScreen.appearNextScreenChange = false;
 			this.setScreen(new RSEWarningScreen(screen));
 			info.cancel();
@@ -78,7 +76,7 @@ public abstract class MinecraftMixin {
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
 		if (Cosmetica.getCacheSize() > 1024) {
-			Debug.info("Clearing Cosmetica Caches");
+			DebugMode.log("Clearing Cosmetica Caches");
 			Cosmetica.clearAllCaches();
 		}
 
@@ -86,11 +84,6 @@ public abstract class MinecraftMixin {
 		if (Cosmetica.displayNext != null) {
 			this.gui.getChat().addMessage(Cosmetica.displayNext);
 			Cosmetica.displayNext = null;
-		}
-
-		if (!cosmetica_shownTestModeDeprecationNotice && Debug.TEST_MODE) {
-			cosmetica_shownTestModeDeprecationNotice = true;
-			this.gui.getChat().addMessage(TextComponents.literal("\u00A7cCosmetica Test Mode is deprecated in favour of using the website to preview cosmetics, and will be removed in the near future."));
 		}
 	}
 

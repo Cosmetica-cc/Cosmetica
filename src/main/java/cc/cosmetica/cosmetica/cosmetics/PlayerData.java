@@ -17,7 +17,6 @@
 package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
-import cc.cosmetica.cosmetica.utils.Debug;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +31,9 @@ import java.util.Objects;
 public final class PlayerData {
 	private final String lore;
 	private final boolean upsideDown;
+	private final @Nullable ResourceLocation icon;
+	private final boolean online;
+
 	private final String prefix;
 	private final String suffix;
 	private final List<BakableModel> hats;
@@ -41,11 +43,13 @@ public final class PlayerData {
 	private final String capeName;
 	private final String capeId;
 	private final boolean thirdPartyCape;
-	private final ResourceLocation cape;
+	private final @Nullable ResourceLocation cape;
 	private final ResourceLocation skin;
 	private final boolean slim;
 
-	public PlayerData(String lore, boolean upsideDown, String prefix, String suffix, List<BakableModel> hats, BakableModel leftShoulderBuddy, BakableModel rightShoulderBuddy, BakableModel backBling, String capeName, String capeId, boolean thirdPartyCape, ResourceLocation cape, ResourceLocation skin, boolean slim) {
+	public PlayerData(String lore, boolean upsideDown, @Nullable ResourceLocation icon, boolean online, String prefix, String suffix, List<BakableModel> hats,
+					  @Nullable BakableModel leftShoulderBuddy, @Nullable BakableModel rightShoulderBuddy, @Nullable BakableModel backBling, String capeName,
+					  String capeId, boolean thirdPartyCape, @Nullable ResourceLocation cape, ResourceLocation skin, boolean slim) {
 		this.lore = lore;
 		this.upsideDown = upsideDown;
 		this.prefix = prefix;
@@ -60,6 +64,9 @@ public final class PlayerData {
 		this.cape = cape;
 		this.skin = skin;
 		this.slim = slim;
+		// 1.2.2
+		this.icon = icon;
+		this.online = online;
 	}
 
 	public String lore() {
@@ -103,7 +110,7 @@ public final class PlayerData {
 	}
 
 	public ResourceLocation cape() {
-		return Debug.CAPE_OVERRIDER.get(() -> this.cape);
+		return CustomLayer.CAPE_OVERRIDER.get(() -> this.cape);
 	}
 
 	public ResourceLocation legitCape() {
@@ -122,6 +129,19 @@ public final class PlayerData {
 		return slim;
 	}
 
+	// 1.2.2
+
+	@Nullable
+	public ResourceLocation icon() {
+		return icon;
+	}
+
+	public boolean online() {
+		return online;
+	}
+
+	// --
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
@@ -129,6 +149,8 @@ public final class PlayerData {
 		PlayerData that = (PlayerData) obj;
 		return Objects.equals(this.lore, that.lore) &&
 				this.upsideDown == that.upsideDown &&
+				Objects.equals(this.icon, that.icon) &&
+				this.online == that.online &&
 				Objects.equals(this.prefix, that.prefix) &&
 				Objects.equals(this.suffix, that.suffix) &&
 				Objects.equals(this.hats, that.hats) &&
@@ -145,7 +167,7 @@ public final class PlayerData {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(lore, upsideDown, prefix, suffix, hats, leftShoulderBuddy, rightShoulderBuddy, backBling, capeName, capeId, thirdPartyCape, cape, skin, slim);
+		return Objects.hash(lore, upsideDown, icon, online, prefix, suffix, hats, leftShoulderBuddy, rightShoulderBuddy, backBling, capeName, capeId, thirdPartyCape, cape, skin, slim);
 	}
 
 	@Override
@@ -153,6 +175,8 @@ public final class PlayerData {
 		return "PlayerData[" +
 				"lore=" + lore + ", " +
 				"upsideDown=" + upsideDown + ", " +
+				"icon=" + icon + ", " +
+				"online=" + online + ", " +
 				"prefix=" + prefix + ", " +
 				"suffix=" + suffix + ", " +
 				"hats=" + hats + ", " +
@@ -167,6 +191,6 @@ public final class PlayerData {
 				"slim=" + slim + ']';
 	}
 
-	public static PlayerData NONE = new PlayerData("", false, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
-	public static PlayerData TEMPORARY = new PlayerData("", false, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
+	public static PlayerData NONE = new PlayerData("", false, null, false, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
+	public static PlayerData TEMPORARY = new PlayerData("", false, null, false, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
 }

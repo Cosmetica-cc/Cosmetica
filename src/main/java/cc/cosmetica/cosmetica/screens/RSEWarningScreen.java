@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.screens;
 
 import benzenestudios.sulphate.ModernScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 
 public class RSEWarningScreen extends ModernScreen {
 	public RSEWarningScreen(@Nullable Screen parent) {
-		super(new TextComponent("Region-Specific Effects Notice"));
+		super(TextComponents.translatable("cosmetica.rsewarning.title"));
 		this.parent = parent;
 	}
 
@@ -54,7 +54,7 @@ public class RSEWarningScreen extends ModernScreen {
 	private void setRSEAndClose(boolean enabled) {
 		Thread requestThread = new Thread(() -> {
 			if (Cosmetica.api.isAuthenticated()) {
-				Cosmetica.api.updateUserSettings(ImmutableMap.of("doregioneffects", enabled)).ifSuccessfulOrElse(j -> Debug.info("Received successful response for RSE update."), Cosmetica.logErr("Error while setting region specific effects!"));
+				Cosmetica.api.updateUserSettings(ImmutableMap.of("doregioneffects", enabled)).ifSuccessfulOrElse(j -> DebugMode.log("Received successful response for RSE update."), Cosmetica.logErr("Error while setting region specific effects!"));
 			}
 			else {
 				Cosmetica.LOGGER.warn("Could not update RSE because you are not authenticated!");

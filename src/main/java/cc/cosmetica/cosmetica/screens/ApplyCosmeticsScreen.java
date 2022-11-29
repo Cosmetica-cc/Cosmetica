@@ -55,9 +55,8 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 			}
 		}
 		else if (cosmetic instanceof Cape) {
-			Cape cape = (Cape) cosmetic;
-			this.item = (E) CosmeticaSkinManager.cloakId(this.id);
-			CosmeticaSkinManager.processCape(cape);
+			this.item = (E) CosmeticaSkinManager.textureId("cape", this.id);
+			CosmeticaSkinManager.processCape((Cape) cosmetic);
 		}
 		else if (cosmetic instanceof Model) {
 			Model model = (Model) cosmetic;

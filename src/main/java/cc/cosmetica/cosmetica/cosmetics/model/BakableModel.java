@@ -17,8 +17,8 @@
 package cc.cosmetica.cosmetica.cosmetics.model;
 
 import cc.cosmetica.api.Box;
-import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
@@ -26,11 +26,11 @@ public final class BakableModel {
 	private final String id;
 	private final String name;
 	private final BlockModel model;
-	private final NativeImage image;
+	private final ResourceLocation image;
 	private final int extraInfo;
 	private final Box bounds;
 
-	public BakableModel(String id, String name, BlockModel model, NativeImage image, int extraInfo, Box bounds) {
+	public BakableModel(String id, String name, BlockModel model, ResourceLocation image, int extraInfo, Box bounds) {
 		this.id = id;
 		this.name = name;
 		this.model = model;
@@ -51,7 +51,7 @@ public final class BakableModel {
 		return model;
 	}
 
-	public NativeImage image() {
+	public ResourceLocation image() {
 		return image;
 	}
 
@@ -91,5 +91,4 @@ public final class BakableModel {
 				"extraInfo=" + extraInfo + ", " +
 				"bounds=" + bounds + ']';
 	}
-
 }
