@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -36,15 +36,12 @@ public class LocalPlayerMixin {
 	private void sendMessage(String string, CallbackInfo info) {
 		if (Cosmetica.api == null) return; // no debug commands if offline
 
-		if (!string.isEmpty() && string.charAt(0) == '/' && Debug.debugCommands()) {
+		if (!string.isEmpty() && string.charAt(0) == '/' && DebugMode.debugCommands()) {
 			String[] args = string.split(" ");
 
 			if (args[0].equals("/cosmetica")) {
 				if (args.length == 2) { // cache commands
 					switch (args[1]) {
-					case "texcache":
-						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Models.TEXTURE_MANAGER.toString()));
-						break;
 					case "infocache":
 						Minecraft.getInstance().gui.getChat().addMessage(new TextComponent(Cosmetica.getCachedPlayers().toString()));
 						break;

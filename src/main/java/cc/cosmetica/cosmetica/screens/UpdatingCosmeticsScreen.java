@@ -19,7 +19,7 @@ package cc.cosmetica.cosmetica.screens;
 import cc.cosmetica.api.ServerResponse;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -47,7 +47,7 @@ public class UpdatingCosmeticsScreen<T> extends Screen implements LoadingTypeScr
 		super(new TranslatableComponent("cosmetica.updating"));
 		this.parentScreen = parentScreen;
 
-		Debug.info("Updating cape server settings.");
+		DebugMode.log("Updating cape server settings.");
 		Thread requestThread = new Thread(() -> {
 			contact.get().ifSuccessfulOrElse(response -> {
 				if (this.parentScreen instanceof PlayerRenderScreen prs) {

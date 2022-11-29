@@ -22,12 +22,15 @@ import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
+import cc.cosmetica.cosmetica.config.CosmeticaConfig;
+import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.NamedThreadFactory;
 import cc.cosmetica.cosmetica.utils.SpecialKeyMapping;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -38,6 +41,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
@@ -45,7 +49,6 @@ import com.mojang.math.Vector3f;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
@@ -59,6 +62,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
@@ -72,7 +76,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -139,7 +142,9 @@ public class Cosmetica implements ClientModInitializer {
 	private static Path configDirectory;
 	private static Path cacheDirectory;
 
-	/**
+	private static boolean mayShowWelcomeScreen = false;
+
+ 	/**
 	 * The timestamp for the africa endpoint.
 	 */
 	private static OptionalLong toto = OptionalLong.empty();
@@ -170,6 +175,14 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static DefaultSettingsConfig getDefaultSettingsConfig() {
 		return defaultSettingsConfig;
+	}
+
+	/**
+	 * Gets whether the client is allowed to show the welcome screen.
+	 * @return a boolean giving the status of whether the client is allowed to show the welcome screen.
+	 */
+	public static boolean mayShowWelcomeScreen() {
+		return mayShowWelcomeScreen;
 	}
 
 	@Override
@@ -214,7 +227,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 
 		// delete debug dump images
-		Debug.clearImages();
+		DebugMode.clearImages();
 		
 		// API Url Getter
 		runOffthread(() -> {
@@ -225,20 +238,26 @@ public class Cosmetica implements ClientModInitializer {
 
 			try {
 				api = CosmeticaAPI.newUnauthenticatedInstance();
-				api.setUrlLogger(str -> Debug.checkedInfo(str, "always_print_urls"));
+				api.setUrlLogger(DebugMode::logURL);
 
-				Debug.info("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
+				DebugMode.log("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
 				LOGGER.info(CosmeticaAPI.getMessage());
-				splashes.add(CosmeticaAPI.getMessage());
+
+				if (config.shouldAddCosmeticaSplashMessage()) {
+					splashes.add(CosmeticaAPI.getMessage());
+				}
 
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
 				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
-				Authentication.runAuthentication(1);
+
+				DebugMode.log("Checking Version...");
 
 				api.checkVersion(
 						SharedConstants.getCurrentVersion().getId(),
 						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString()
 				).ifSuccessfulOrElse(versionInfo -> {
+					DebugMode.log("Handling version check response");
+
 					String s = versionInfo.minecraftMessage();
 
 					if (!s.isEmpty()) {
@@ -250,19 +269,16 @@ public class Cosmetica implements ClientModInitializer {
 							displayNext = TextComponents.literal(s);
 						}
 					}
+
+					mayShowWelcomeScreen = versionInfo.megaInvasiveTutorial();
 				}, Cosmetica.logErr("Error checking version"));
+
+				Authentication.runAuthentication(1);
 			} catch (Exception e) {
 				LOGGER.error("Error retrieving API Url. Mod functionality will be disabled!");
 				e.printStackTrace();
 			}
 		}, ThreadPool.GENERAL_THREADS);
-
-		ClientSpriteRegistryCallback.event(InventoryMenu.BLOCK_ATLAS).register((atlasTexture, registry) -> {
-			// register all reserved textures
-			for (int i = 0; i < 128; ++i) {
-				registry.register(new ResourceLocation("cosmetica", "generated/reserved_" + i));
-			}
-		});
 
 		// make sure it clears relevant caches on resource reload
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
@@ -404,7 +420,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo, boolean ignoreSelf) {
 		if (api != null && api.isAuthenticated()) {
-			Debug.info("Thread for safari {}", Thread.currentThread().getName());
+			DebugMode.log("Thread for safari {}", Thread.currentThread().getName());
 
 			api.everyThirtySecondsInAfricaHalfAMinutePasses(prideRock, yourFirstRodeo || !Cosmetica.toto.isPresent() ? 0 : Cosmetica.toto.getAsLong())
 					.ifSuccessfulOrElse(theLionSleepsTonight -> {
@@ -423,11 +439,11 @@ public class Cosmetica implements ClientModInitializer {
 						Cosmetica.toto = OptionalLong.of(theLionSleepsTonight.getTimestamp());
 
 						if (!yourFirstRodeo) {
-							Debug.info("Processing updates found on the safari.");
+							DebugMode.log("Processing updates found on the safari.");
 
 							for (User individual : theLionSleepsTonight.getNeedsUpdating()) {
 								UUID uuid = individual.getUUID();
-								Debug.info("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
+								DebugMode.log("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
 
 								if (playerDataCache.containsKey(uuid)) {
 									clearPlayerData(uuid);
@@ -438,7 +454,7 @@ public class Cosmetica implements ClientModInitializer {
 									}
 								} else {
 									// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
-									Debug.info("Lol cringe they went scampering into a bush or something!");
+									DebugMode.log("Lol cringe they went scampering into a bush or something!");
 
 									// use username to clear the info - might be in offline mode or something
 									String username = individual.getUsername();
@@ -449,7 +465,7 @@ public class Cosmetica implements ClientModInitializer {
 										UUID serverUuid = info.getProfile().getId();
 
 										if (playerDataCache.containsKey(serverUuid)) {
-											Debug.info("Found them :). They were hiding at uuid {}", serverUuid);
+											DebugMode.log("Found them :). They were hiding at uuid {}", serverUuid);
 											clearPlayerData(serverUuid);
 
 											// if ourselves, refresh asap
@@ -622,6 +638,8 @@ public class Cosmetica implements ClientModInitializer {
 							Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
 							Optional<Model> backBling = info.getBackBling();
 							Optional<Cape> cloak = info.getCape();
+							String icon = info.getIcon();
+							Optional<String> client = info.getClient();
 
 							Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
 							Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
@@ -629,6 +647,11 @@ public class Cosmetica implements ClientModInitializer {
 							PlayerData newData = new PlayerData(
 									info.getLore(),
 									info.isUpsideDown(),
+									icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(client.orElseGet(() -> {
+										Cosmetica.LOGGER.warn("Icon is not empty but client is null?! (user " + uuid + ")");
+										return "missingno";
+									}), icon),
+									info.isOnline(),
 									info.getPrefix(),
 									info.getSuffix(),
 									hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
@@ -733,7 +756,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean sneaking, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
+	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean discrete, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
 		if (!lore.equals("")) {
 			// how much do we need to shift up nametags?
 
@@ -763,7 +786,7 @@ public class Cosmetica implements ClientModInitializer {
 
 			Component component = new TextComponent(lore);
 
-			boolean bl = !sneaking;
+			boolean fullyRender = !discrete;
 
 			float height = playerHeight + 0.25F;
 
@@ -782,13 +805,44 @@ public class Cosmetica implements ClientModInitializer {
 
 			float xOffset = (float) (-font.width(component) / 2);
 
-			font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, bl, alphaARGB, packedLight);
+			font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, fullyRender, alphaARGB, packedLight);
 
-			if (bl) {
+			if (fullyRender) {
 				font.drawInBatch(component, xOffset, 0, -1, false, textModel, multiBufferSource, false, 0, packedLight);
 			}
 
 			stack.popPose();
+		}
+	}
+
+	public static void prepareTabIcon(PoseStack stack, UUID playerUUID, String name) {
+		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
+
+		if (iconTexture != null) {
+			stack.translate(9.0f, 0.0f, 0.0f);
+		}
+	}
+
+	public static void renderTabIcon(PoseStack stack, int x, int y, UUID playerUUID, String name) {
+		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
+
+		if (iconTexture != null) {
+			renderTexture(stack.last().pose(), iconTexture, x, x + 8, y, y + 8, 0);
+		}
+	}
+
+	public static void renderIcon(PoseStack poseStack, MultiBufferSource bufferSource, Playerish player, Font font, int packedLight, Component component) {
+		PlayerData playerData = player.getCosmeticaPlayerData();
+		@Nullable ResourceLocation iconTexture = playerData.icon();
+
+		if (iconTexture != null) {
+			float xOffset = -font.width(component) / 2.0f;
+
+			poseStack.pushPose();
+			poseStack.translate(xOffset, 0, 0);
+			renderTextureLikeText(poseStack.last().pose(), bufferSource, iconTexture, -1, 9, -1, 9, 0, packedLight, playerData.online() ? 1.0f : 0.5f, player.renderDiscreteNametag());
+
+			poseStack.popPose();
 		}
 	}
 
@@ -812,16 +866,57 @@ public class Cosmetica implements ClientModInitializer {
 
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, (float)z).uv(0, 1).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).uv(1, 1).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, (float)z).uv(1, 0).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, (float)z).uv(0, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x0, (float) y1, (float) z).uv(0, 1).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x1, (float) y1, (float) z).uv(1, 1).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x1, (float) y0, (float) z).uv(1, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float) x0, (float) y0, (float) z).uv(0, 0).endVertex();
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
 	}
 
+	public static void renderTextureLikeText(Matrix4f matrix4f, MultiBufferSource bufferSource, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, int packedLight, float alpha, boolean discrete) {
+		// Background
+		// ==========
+		if (!discrete) {
+			RenderSystem.enableBlend();
+			RenderSystem.disableDepthTest();
+
+			int skylight = (packedLight >> 20) & 0xF;
+			int blocklight = (packedLight >> 4) & 0xF;
+			float shaderColour = Math.max(skylight, blocklight) / 15.0f;
+
+			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+			RenderSystem.setShaderTexture(0, texture);
+			RenderSystem.setShaderColor(shaderColour, shaderColour, shaderColour, 0.25f * alpha);
+
+			BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+			bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+
+			bufferBuilder.vertex(matrix4f, (float) x0, (float) y1, (float) z).uv(0, 1).endVertex();
+			bufferBuilder.vertex(matrix4f, (float) x1, (float) y1, (float) z).uv(1, 1).endVertex();
+			bufferBuilder.vertex(matrix4f, (float) x1, (float) y0, (float) z).uv(1, 0).endVertex();
+			bufferBuilder.vertex(matrix4f, (float) x0, (float) y0, (float) z).uv(0, 0).endVertex();
+
+			bufferBuilder.end();
+			BufferUploader.end(bufferBuilder);
+		}
+
+		// Regular Text Rendering
+		// ======================
+
+		float mainRenderAlpha = (discrete ? 0.3f : 1.0f) * alpha;
+
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.text(texture));
+
+		vertexConsumer.vertex(matrix4f, (float) x0, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(0, 1).uv2(packedLight).endVertex();
+		vertexConsumer.vertex(matrix4f, (float) x1, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(1, 1).uv2(packedLight).endVertex();
+		vertexConsumer.vertex(matrix4f, (float) x1, (float) y0, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(1, 0).uv2(packedLight).endVertex();
+		vertexConsumer.vertex(matrix4f, (float) x0, (float) y0, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(0, 0).uv2(packedLight).endVertex();
+	}
+
 	public static void clearAllCaches() {
-		Debug.info("Clearing all Cosmetica Caches");
+		DebugMode.log("Clearing all Cosmetica Caches");
 		playerDataCache = new HashMap<>();
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();
@@ -829,6 +924,6 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static Consumer<RuntimeException> logErr(String message) {
-		return e -> LOGGER.error(message + ": {}", e);
+		return e -> LOGGER.error(message + ": ", e);
 	}
 }

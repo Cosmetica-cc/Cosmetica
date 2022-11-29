@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.screens;
 
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -54,6 +54,8 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		doReload |= newOptions.hats.appendToIfChanged(oldOptions.hats, changedSettings);
 		doReload |= newOptions.lore.appendToIfChanged(oldOptions.lore, changedSettings);
 		doReload |= newOptions.backBlings.appendToIfChanged(oldOptions.backBlings, changedSettings);
+		doReload |= newOptions.onlineActivity.appendToIfChanged(oldOptions.onlineActivity, changedSettings);
+		doReload |= newOptions.icons.appendToIfChanged(oldOptions.icons, changedSettings);
 		boolean finalDoReload = doReload;
 
 		if (!changedSettings.isEmpty()) {
@@ -81,7 +83,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 			});
 			requestThread.start();
 		} else {
-			Debug.info("No settings changed.");
+			DebugMode.log("No settings changed.");
 			if (doReload) Cosmetica.clearAllCaches();
 			Minecraft.getInstance().tell(this::onClose);
 		}
@@ -97,7 +99,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		boolean updateCapeServerSettings = oldOptions.entrySet().stream().anyMatch(entry -> entry.getValue().id != newOptions.get(entry.getKey()).id);
 
 		if (updateCapeServerSettings) {
-			Debug.info("Updating cape server settings.");
+			DebugMode.log("Updating cape server settings.");
 			Thread requestThread = new Thread(() -> {
 				Cosmetica.api.setCapeServerSettings(newOptions).ifSuccessfulOrElse(response -> {
 					if (this.parentScreen instanceof MainScreen main) {
@@ -118,7 +120,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 			});
 			requestThread.start();
 		} else {
-			Debug.info("No cape server settings changed.");
+			DebugMode.log("No cape server settings changed.");
 			Minecraft.getInstance().tell(this::onClose);
 		}
 	}

@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
-import cc.cosmetica.cosmetica.utils.Debug;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.Tickable;
@@ -32,16 +32,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class Base64Texture extends AnimatedTexture {
-	private Base64Texture(ResourceLocation path, String base64, NativeImage initialImage, boolean cape) throws IOException {
+	private Base64Texture(ResourceLocation path, String base64, NativeImage initialImage, int aspectRatio) throws IOException {
+		super(aspectRatio);
 		this.base64 = base64;
-		this.cape = cape;
 		this.path = path;
 
 		this.loadImage(initialImage);
 	}
 
 	private final ResourceLocation path;
-	private final boolean cape;
 	private final String base64;
 
 	@Override
@@ -60,7 +59,7 @@ public class Base64Texture extends AnimatedTexture {
 	}
 
 	private void reload() {
-		Debug.info("Re-uploading texture {}", this.path);
+		DebugMode.log("Re-uploading texture {}", this.path);
 		try {
 			this.loadImage(loadBase64(this.base64)); // load the image
 			this.upload();
@@ -72,7 +71,7 @@ public class Base64Texture extends AnimatedTexture {
 	private void loadImage(NativeImage image) {
 		this.image = image;
 
-		if (this.cape) {
+		if (this.isAnimatable()) {
 			this.setupAnimations();
 		}
 		else {
@@ -95,24 +94,35 @@ public class Base64Texture extends AnimatedTexture {
         }
     }
 
+	public static Base64Texture square(ResourceLocation path, String base64, int frameDelayMs) throws IOException {
+		NativeImage image = loadBase64(base64);
+
+		if (image.getHeight() > image.getWidth()) {
+			return new TickingCape(path, base64, image, frameDelayMs, 1);
+		}
+		else {
+			return new Base64Texture(path, base64, image, 0);
+		}
+	}
+
 	public static Base64Texture cape(ResourceLocation path, String base64, int frameDelayMs) throws IOException {
 		NativeImage image = loadBase64(base64);
 
 		if (image.getHeight() >= image.getWidth()) {
-			return new TickingCape(path, base64, image, frameDelayMs);
+			return new TickingCape(path, base64, image, frameDelayMs, 2);
 		}
 		else {
-			return new Base64Texture(path, base64, image, true);
+			return new Base64Texture(path, base64, image, 0);
 		}
 	}
 
 	public static Base64Texture skin(ResourceLocation path, String base64) throws IOException {
-		return new Base64Texture(path, base64, loadBase64(base64), false);
+		return new Base64Texture(path, base64, loadBase64(base64), 0);
 	}
 
 	private static class TickingCape extends Base64Texture implements Tickable {
-		private TickingCape(ResourceLocation path, String base64, NativeImage initialImage, int frameDelayMs) throws IOException {
-			super(path, base64, initialImage, true);
+		private TickingCape(ResourceLocation path, String base64, NativeImage initialImage, int frameDelayMs, int aspectRatio) throws IOException {
+			super(path, base64, initialImage, aspectRatio);
 			this.frameCounterTicks = Math.max(1, frameDelayMs / 50);
 		}
 

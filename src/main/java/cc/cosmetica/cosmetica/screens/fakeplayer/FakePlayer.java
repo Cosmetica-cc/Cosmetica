@@ -80,13 +80,14 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 		return true;
 	}
 
-	public boolean isCrouching() {
+	@Override
+	public boolean isSneaking() {
 		return this.crouching;
 	}
 
 	@Override
-	public boolean isSneaking() {
-		return this.isCrouching();
+	public boolean renderDiscreteNametag() {
+		return this.crouching;
 	}
 
 	@Override
@@ -107,6 +108,11 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 		return this.data;
 	}
 
+	@Override
+	public PlayerData getCosmeticaPlayerData() {
+		return this.data;
+	}
+
 	public void setData(PlayerData data) {
 		this.data = data;
 	}
@@ -120,7 +126,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	public Component getDisplayName() {
-		return TextComponents.literal(this.name);
+		return TextComponents.literal((this.data.icon() == null ? "" : "\u2001") + this.data.prefix() + this.name + this.data.suffix());
 	}
 
 	public ResourceLocation getSkin() {
