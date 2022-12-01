@@ -124,6 +124,15 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 			if (this.state == LoadState.LOADING) this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 2 + 20, 200, 20, CommonComponents.GUI_CANCEL, b -> this.onClose()));
 			break;
 		case LOADED:
+			if (this.dataSelection == null) {
+				Cosmetica.LOGGER.warn("In state \"LOADED\" but dataSelection is null. Switching to state \"LOADING\"!");
+				this.state = LoadState.LOADING;
+				// run again but in the new state
+				this.addWidgets();
+				// the previous call did it all for us. return
+				return;
+			}
+
 			this.addMainGUI(false);
 			break;
 		case FAILED:

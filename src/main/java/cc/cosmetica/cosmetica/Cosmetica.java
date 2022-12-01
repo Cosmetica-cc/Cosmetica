@@ -114,7 +114,8 @@ import static cc.cosmetica.cosmetica.Authentication.runAuthenticationCheckThread
 public class Cosmetica implements ClientModInitializer {
 	public static String authServer;
 	public static String websiteHost;
-	public static CosmeticaAPI api;
+	// Initialise to an unauthenticated instance, Authenticate later, if possible.
+	public static CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
 
 	// for cosmetic sniper
 	public static Player farPickPlayer;
@@ -237,14 +238,13 @@ public class Cosmetica implements ClientModInitializer {
 			CosmeticaAPI.setAPICache(apiCache);
 
 			try {
-				api = CosmeticaAPI.newUnauthenticatedInstance();
 				api.setUrlLogger(DebugMode::logURL);
 
 				DebugMode.log("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
 				LOGGER.info(CosmeticaAPI.getMessage());
 
 				if (config.shouldAddCosmeticaSplashMessage()) {
-					splashes.add(CosmeticaAPI.getMessage());
+					addSplash(CosmeticaAPI.getMessage());
 				}
 
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
