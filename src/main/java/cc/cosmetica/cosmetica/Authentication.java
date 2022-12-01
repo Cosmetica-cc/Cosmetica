@@ -165,26 +165,23 @@ public class Authentication {
 			final String colourlessLore = TextComponents.stripColour(userInfo.getLore());
 			DebugMode.log("Received user info on Authenticate/prepareWelcome || displayNext=" + Cosmetica.displayNext + " colourlessLore=" + colourlessLore);
 
-			// welcome new, authenticated players
+			// welcome new, authenticated players in chat
 			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(isWelcomeScreenAllowed) && Cosmetica.displayNext == null && colourlessLore.equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
 				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				Cosmetica.displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
 			}
+
+			// or... with the welcome screen!
+			// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
+			if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
+				DebugMode.log("New Player: Showing Welcome Screen");
+
+				RenderSystem.recordRenderCall(() -> {
+					Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen, uuid, name, Cosmetica.newPlayerData(userInfo, uuid)));
+				});
+			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));
-
-		// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
-		if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
-			DebugMode.log("New Player: Showing Welcome Screen");
-
-			if (RenderSystem.isOnRenderThread()) {
-				Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen));
-			}
-			else {
-				DebugMode.log("Not on render thread: recording render call for welcome screen!");
-				RenderSystem.recordRenderCall(() -> Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen)));
-			}
-		}
 	}
 
 	private static void runAuthentication() {

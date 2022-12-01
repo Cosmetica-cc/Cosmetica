@@ -22,6 +22,7 @@ import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
+import cc.cosmetica.api.UserInfo;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
@@ -634,37 +635,7 @@ public class Cosmetica implements ClientModInitializer {
 						AtomicReference<PlayerData> newDataHolder = new AtomicReference<>(PlayerData.NONE);
 
 						Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
-							List<Model> hats = info.getHats();
-							Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
-							Optional<Model> backBling = info.getBackBling();
-							Optional<Cape> cloak = info.getCape();
-							String icon = info.getIcon();
-							Optional<String> client = info.getClient();
-
-							Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
-							Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
-
-							PlayerData newData = new PlayerData(
-									info.getLore(),
-									info.isUpsideDown(),
-									icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(client.orElseGet(() -> {
-										Cosmetica.LOGGER.warn("Icon is not empty but client is null?! (user " + uuid + ")");
-										return "missingno";
-									}), icon),
-									info.isOnline(),
-									info.getPrefix(),
-									info.getSuffix(),
-									hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
-									leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
-									rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
-									backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
-									cloak.isEmpty() ? "" : pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape"),
-									cloak.isEmpty() ? "none" : cloak.get().getId(),
-									cloak.isPresent() && !cloak.get().isCosmeticaAlternative() && !(cloak.get() instanceof CustomCape),
-									cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
-									CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
-									info.isSlim()
-							);
+							PlayerData newData = newPlayerData(info, uuid);
 
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, newData);
@@ -727,6 +698,40 @@ public class Cosmetica implements ClientModInitializer {
 		}
 
 		return result;
+	}
+
+	static PlayerData newPlayerData(UserInfo info, UUID uuid) {
+		List<Model> hats = info.getHats();
+		Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
+		Optional<Model> backBling = info.getBackBling();
+		Optional<Cape> cloak = info.getCape();
+		String icon = info.getIcon();
+		Optional<String> client = info.getClient();
+
+		Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
+		Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
+
+		return new PlayerData(
+				info.getLore(),
+				info.isUpsideDown(),
+				icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(client.orElseGet(() -> {
+					Cosmetica.LOGGER.warn("Icon is not empty but client is null?! (user " + uuid + ")");
+					return "missingno";
+				}), icon),
+				info.isOnline(),
+				info.getPrefix(),
+				info.getSuffix(),
+				hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
+				leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
+				rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
+				backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
+				cloak.isEmpty() ? "" : pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape"),
+				cloak.isEmpty() ? "none" : cloak.get().getId(),
+				cloak.isPresent() && !cloak.get().isCosmeticaAlternative() && !(cloak.get() instanceof CustomCape),
+				cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
+				CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
+				info.isSlim()
+		);
 	}
 
 	public static void renderLore(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
