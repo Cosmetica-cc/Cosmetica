@@ -87,6 +87,9 @@ public class CosmeticaSkinManager {
 			if (c == '+') {
 				result.append(".");
 			}
+			else if (c == '=') {
+				result.append("__");
+			}
 			else if (Character.isUpperCase(c)) {
 				result.append("_").append(Character.toLowerCase(c));
 			}
