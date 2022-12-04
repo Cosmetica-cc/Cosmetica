@@ -25,9 +25,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -41,6 +44,15 @@ public class CosmeticaSkinManager {
 	 * Stores capes that have been both loaded and uploaded.
 	 */
 	private static Set<ResourceLocation> uploaded = new HashSet<>();
+	private static final MessageDigest SHA1;
+
+	static {
+		try {
+			SHA1 = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("SHA-1 Hashing not supported by the current Java Configuration.", e);
+		}
+	}
 
 	public static void clearCaches() {
 		DebugMode.log("Clearing cosmetica skin caches");
@@ -86,8 +98,8 @@ public class CosmeticaSkinManager {
 		return result.toString();
 	}
 
-	public static ResourceLocation processIcon(String client, String base64Texture) {
-		return saveTexture(textureId("icon", client), base64Texture, 50 * 2);
+	public static ResourceLocation processIcon(String base64Texture) {
+		return saveTexture(textureId("icon", Base64.encodeBase64String(SHA1.digest(base64Texture.getBytes()))), base64Texture, 50 * 2);
 	}
 
 	public static ResourceLocation processModel(Model model) {

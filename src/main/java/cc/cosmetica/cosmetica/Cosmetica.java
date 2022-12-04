@@ -714,10 +714,7 @@ public class Cosmetica implements ClientModInitializer {
 		return new PlayerData(
 				info.getLore(),
 				info.isUpsideDown(),
-				icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(client.orElseGet(() -> {
-					Cosmetica.LOGGER.warn("Icon is not empty but client is null?! (user " + uuid + ")");
-					return "missingno";
-				}), icon),
+				icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(icon),
 				info.isOnline(),
 				info.getPrefix(),
 				info.getSuffix(),
