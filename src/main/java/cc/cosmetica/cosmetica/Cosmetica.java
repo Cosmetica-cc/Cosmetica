@@ -841,7 +841,7 @@ public class Cosmetica implements ClientModInitializer {
 			float xOffset = -font.width(component) / 2.0f;
 
 			poseStack.pushPose();
-			poseStack.translate(xOffset, 0, 0);
+			poseStack.translate(xOffset + 1, 0, 0);
 			renderTextureLikeText(poseStack.last().pose(), bufferSource, iconTexture, -1, 9, -1, 9, 0, packedLight, playerData.online() ? 1.0f : 0.5f, player.renderDiscreteNametag());
 
 			poseStack.popPose();
