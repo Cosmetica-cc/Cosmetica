@@ -192,7 +192,6 @@ public class Authentication {
 				DebugMode.log("Authenticating API from provided token.");
 				Cosmetica.api = CosmeticaAPI.fromToken(devToken);
 				Cosmetica.api.setUrlLogger(DebugMode::logURL);
-				Cosmetica.api.setForceHttps(Cosmetica.getConfig().paranoidHttps());
 
 				// welcome players if they're new
 				// this isn't really necesary for manual auth because you probably know what you're doing
@@ -215,7 +214,6 @@ public class Authentication {
 
 								Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid, System.getProperty("cosmetica.client", "cosmetica")); // getUuid() better have the dashes... edit: it did not have the dashes.
 								Cosmetica.api.setUrlLogger(DebugMode::logURL);
-								Cosmetica.api.setForceHttps(Cosmetica.getConfig().paranoidHttps());
 
 								LoginInfo info = Cosmetica.api.getLoginInfo().get();
 

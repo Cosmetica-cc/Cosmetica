@@ -116,7 +116,7 @@ public class Cosmetica implements ClientModInitializer {
 	public static String authServer;
 	public static String websiteHost;
 	// Initialise to an unauthenticated instance, Authenticate later, if possible.
-	public static CosmeticaAPI api = CosmeticaAPI.newUnauthenticatedInstance();
+	public static CosmeticaAPI api;
 
 	// for cosmetic sniper
 	public static Player farPickPlayer;
@@ -190,6 +190,10 @@ public class Cosmetica implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		config = new CosmeticaConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("cosmetica.properties"));
+		CosmeticaAPI.setDefaultForceHttps(config.paranoidHttps());
+
+		api = CosmeticaAPI.newUnauthenticatedInstance();
+
 		configDirectory = FabricLoader.getInstance().getConfigDir().resolve("cosmetica");
 		defaultSettingsConfig = new DefaultSettingsConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("default-settings.properties"));
 
