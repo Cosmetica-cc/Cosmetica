@@ -34,11 +34,9 @@ import net.minecraft.world.entity.player.Player;
 import java.util.List;
 
 public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
-	private ModelManager modelManager;
 
 	public Hats(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
 		super(renderLayerParent);
-		this.modelManager = Minecraft.getInstance().getModelManager();
 	}
 
 	@Override

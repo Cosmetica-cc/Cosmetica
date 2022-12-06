@@ -42,12 +42,10 @@ import net.minecraft.world.item.DyeColor;
 import java.util.OptionalInt;
 
 public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
-	private ModelManager modelManager;
 	private EntityModelSet entityModelSet;
 
 	public ShoulderBuddies(RenderLayerParent<T, PlayerModel<T>> renderLayerParent, EntityModelSet entityModelSet) {
 		super(renderLayerParent);
-		this.modelManager = Minecraft.getInstance().getModelManager();
 		this.entityModelSet = entityModelSet;
 	}
 
@@ -58,7 +56,7 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 		boolean canOverridePlayerCosmetics = this.canOverridePlayerCosmetics(player);
 
 		PlayerData playerData = Cosmetica.getPlayerData(player);
-		
+
 		BakableModel left = canOverridePlayerCosmetics ? LEFT_OVERRIDDEN.get(playerData::leftShoulderBuddy) : playerData.leftShoulderBuddy();
 		BakableModel right = canOverridePlayerCosmetics ? RIGHT_OVERRIDDEN.get(playerData::rightShoulderBuddy) : playerData.rightShoulderBuddy();
 

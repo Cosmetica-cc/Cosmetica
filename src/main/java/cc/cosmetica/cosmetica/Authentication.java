@@ -20,6 +20,9 @@ import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
+import cc.cosmetica.api.ServerResponse;
+import cc.cosmetica.api.UserInfo;
+import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
@@ -33,6 +36,9 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.util.Response;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.MalformedJsonException;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -41,6 +47,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -70,7 +77,9 @@ public class Authentication {
 				return;
 			}
 
-			Cosmetica.api.getUserSettings().ifSuccessfulOrElse(settings -> {
+			final ServerResponse<UserSettings> settings_ = Cosmetica.api.getUserSettings();
+
+			settings_.ifSuccessfulOrElse(settings -> {
 				DebugMode.log("Handling successful cosmetics settings response.");
 
 				// regional effects checking
@@ -122,6 +131,19 @@ public class Authentication {
 						// don't run again immediately, see above. Africa or opening a menu will run authentication again inevitably anyway
 						return;
 					}
+				}
+				else if (error instanceof JsonSyntaxException) {
+					if (DebugMode.ENABLED) {
+						//TODO proper way of dong this lmao
+						Cosmetica.LOGGER.error("The Json causing this error is as follows:");
+						try {
+							Cosmetica.LOGGER.error(Response.get(settings_.getURL()).getAsString());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+
+					return;
 				}
 
 				runAuthentication();

@@ -70,7 +70,7 @@ public class WelcomeScreen extends PlayerRenderScreen {
 			this.fakePlayer = new FakePlayer(Minecraft.getInstance(), this.playerUUID, this.playerName, this.playerData);
 		}
 
-		this.panorama.render(0, 1);
+		this.panorama.render(time, 1);
 		super.render(stack, x, y, time);
 
 		stack.pushPose();
