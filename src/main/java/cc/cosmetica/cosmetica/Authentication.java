@@ -133,9 +133,10 @@ public class Authentication {
 					}
 				}
 				else if (error instanceof JsonSyntaxException) {
-					if (DebugMode.ENABLED) {
+					if (DebugMode.elevatedLogging()) {
 						//TODO proper way of dong this lmao
-						Cosmetica.LOGGER.error("The Json causing this error is as follows:");
+						// Perhaps in CosmeticaDotJava 2.0.0, more likely a 1.X.0 version.
+						Cosmetica.LOGGER.error("The Json causing this error is as follows, assuming repetitive issue:");
 						try {
 							Cosmetica.LOGGER.error(Response.get(settings_.getURL()).getAsString());
 						} catch (IOException e) {

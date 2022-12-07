@@ -104,6 +104,10 @@ public class DebugMode {
 		return ENABLED && debugSettings.debugCommands;
 	}
 
+	public static boolean elevatedLogging() {
+		return ENABLED && debugSettings.elevateDebugLogging;
+	}
+
 	/**
 	 * Dump images to the image dump folder.
 	 * These images will be cleared on the next run.

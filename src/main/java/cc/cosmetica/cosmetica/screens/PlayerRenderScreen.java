@@ -118,7 +118,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			final int top = this.height / 2 - 60;
 			final int left = this.playerLeft + 25;
 			final int size = 16;
-			Cosmetica.renderTexture(matrices.last().pose(), this.rseNotif, left, left + size, top, top + size, 0);
+			Cosmetica.renderTexture(matrices.last().pose(), this.rseNotif, left, left + size, top, top + size, 0, 1.0f);
 
 			if (mouseY >= top && mouseY <= top + size && mouseX >= left && mouseX <= left + size) {
 				this.renderTooltip(matrices, this.font.split(regionEffectsMsg, Math.max(this.width / 2, 170)), mouseX, mouseY);

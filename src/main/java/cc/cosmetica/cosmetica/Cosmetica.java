@@ -821,19 +821,15 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void prepareTabIcon(PoseStack stack, UUID playerUUID, String name) {
-		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
-
-		if (iconTexture != null) {
-			stack.translate(9.0f, 0.0f, 0.0f);
-		}
-	}
-
 	public static void renderTabIcon(PoseStack stack, int x, int y, UUID playerUUID, String name) {
-		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
+		PlayerData data = getPlayerData(playerUUID, name, false);
+		@Nullable ResourceLocation iconTexture = data.icon();
 
 		if (iconTexture != null) {
-			renderTexture(stack.last().pose(), iconTexture, x, x + 8, y, y + 8, 0);
+			// don't do discrete in tab. That could be classified as cheating, as you'd know if anyone online is sneaking.
+			// I'm sure there's some minigame out there where that's important
+			RenderSystem.enableBlend();
+			renderTexture(stack.last().pose(), iconTexture, x + 1, x + 1 + 8, y, y + 8, 0, data.online() ? 1.0f : 0.5f);
 		}
 	}
 
@@ -865,10 +861,10 @@ public class Cosmetica implements ClientModInitializer {
 		throw new UnsupportedOperationException();
 	}
 
-	public static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z) {
+	public static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, float transparency) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, texture);
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, transparency);
 
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -878,6 +874,10 @@ public class Cosmetica implements ClientModInitializer {
 		bufferBuilder.vertex(matrix4f, (float) x0, (float) y0, (float) z).uv(0, 0).endVertex();
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
+	}
+
+	private static int getMaxLight() {
+		return (0xF << 20) | (0xF << 4);
 	}
 
 	public static void renderTextureLikeText(Matrix4f matrix4f, MultiBufferSource bufferSource, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, int packedLight, float alpha, boolean discrete) {

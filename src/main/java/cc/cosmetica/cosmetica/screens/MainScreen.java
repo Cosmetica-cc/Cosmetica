@@ -25,6 +25,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -33,6 +34,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,14 +84,7 @@ public class MainScreen extends PlayerRenderScreen {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this, Minecraft.getInstance().options))
 		).active = !this.demo;
 
-		this.addButton(150, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> {
-			try {
-				Minecraft.getInstance().keyboardHandler.setClipboard(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
-				Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
-			} catch (Exception e) {
-				throw new RuntimeException("bruh", e);
-			}
-		}).active = !this.demo;
+		this.addButton(150, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> this.copyAndOpenURL(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken())).active = !this.demo;
 
 		class ReloadingButton extends Button {
 			public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Button.OnTooltip tooltip) {
@@ -130,6 +125,17 @@ public class MainScreen extends PlayerRenderScreen {
 		})).active = !this.demo;
 	}
 
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (this.isMouseOnDiscord((int) mouseX, (int) mouseY) && button == 0) {
+			this.copyAndOpenURL("https://discord.gg/aQh5SJEUBm");
+			return true;
+		}
+		else {
+			return super.mouseClicked(mouseX, mouseY, button);
+		}
+	}
+
 	void setCapeServerSettings(Map<String, CapeDisplay> settings) {
 		this.capeServerSettings = settings;
 	}
@@ -147,5 +153,23 @@ public class MainScreen extends PlayerRenderScreen {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 		this.renderRSENotif(matrices, mouseX, mouseY);
+
+		RenderSystem.enableBlend();
+		Cosmetica.renderTexture(matrices.last().pose(), DISCORD, this.width - 10 - 19, this.width - 10, 10, 10 + 15, 0, this.isMouseOnDiscord(mouseX, mouseY) ? 1.0f : 0.5f);
 	}
+
+	private boolean isMouseOnDiscord(int x, int y) {
+		return x >= this.width - 10 - 19 && x <= this.width - 10 && y >= 10 && y <= 10 + 15;
+	}
+
+	private void copyAndOpenURL(String url) {
+		try {
+			Minecraft.getInstance().keyboardHandler.setClipboard(url);
+			Util.getPlatform().openUri(url);
+		} catch (Exception e) {
+			throw new RuntimeException("bruh", e);
+		}
+	}
+
+	private static final ResourceLocation DISCORD = new ResourceLocation("cosmetica", "textures/gui/discord.png");
 }
