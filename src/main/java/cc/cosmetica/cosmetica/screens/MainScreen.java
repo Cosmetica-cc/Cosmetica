@@ -31,6 +31,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
@@ -87,7 +88,7 @@ public class MainScreen extends PlayerRenderScreen {
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> this.copyAndOpenURL(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken())).active = !this.demo;
 
 		class ReloadingButton extends Button {
-			public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Button.OnTooltip tooltip) {
+			public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Tooltip tooltip) {
 				super(i, j, k, l, component, onPress, tooltip);
 			}
 

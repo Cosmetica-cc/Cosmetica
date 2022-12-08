@@ -19,9 +19,8 @@ package cc.cosmetica.cosmetica.cosmetics;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
+import cc.cosmetica.cosmetica.utils.LinearAlgebra;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -33,6 +32,9 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> extends RenderLayer<T, PlayerModel<T>> {
     public ModelManager modelManager;
@@ -53,7 +55,7 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
         float o = 1.001f; // prevent z fighting
         modelPart.translateAndRotate(stack);
         stack.scale(o, -o, -o);
-        stack.mulPose(new Quaternion(Vector3f.YP, (float)Math.PI, false)); // pi radians on y axis
+        stack.mulPose(LinearAlgebra.quaternion(LinearAlgebra.YP, (float)Math.PI)); // pi radians on y axis
         stack.translate(x, y, z); // vanilla: 0.0 second param
         if (mirror) stack.scale(-1, 1, 1);
         Models.renderModel(
