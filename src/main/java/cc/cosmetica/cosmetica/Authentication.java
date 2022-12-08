@@ -20,6 +20,9 @@ import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
+import cc.cosmetica.api.ServerResponse;
+import cc.cosmetica.api.UserInfo;
+import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
@@ -33,6 +36,9 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.util.Response;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.MalformedJsonException;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -41,6 +47,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -70,7 +77,9 @@ public class Authentication {
 				return;
 			}
 
-			Cosmetica.api.getUserSettings().ifSuccessfulOrElse(settings -> {
+			final ServerResponse<UserSettings> settings_ = Cosmetica.api.getUserSettings();
+
+			settings_.ifSuccessfulOrElse(settings -> {
 				DebugMode.log("Handling successful cosmetics settings response.");
 
 				// regional effects checking
@@ -123,6 +132,20 @@ public class Authentication {
 						return;
 					}
 				}
+				else if (error instanceof JsonSyntaxException) {
+					if (DebugMode.elevatedLogging()) {
+						//TODO proper way of dong this lmao
+						// Perhaps in CosmeticaDotJava 2.0.0, more likely a 1.X.0 version.
+						Cosmetica.LOGGER.error("The Json causing this error is as follows, assuming repetitive issue:");
+						try {
+							Cosmetica.LOGGER.error(Response.get(settings_.getURL()).getAsString());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+
+					return;
+				}
 
 				runAuthentication();
 			});
@@ -165,26 +188,23 @@ public class Authentication {
 			final String colourlessLore = TextComponents.stripColour(userInfo.getLore());
 			DebugMode.log("Received user info on Authenticate/prepareWelcome || displayNext=" + Cosmetica.displayNext + " colourlessLore=" + colourlessLore);
 
-			// welcome new, authenticated players
+			// welcome new, authenticated players in chat
 			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(isWelcomeScreenAllowed) && Cosmetica.displayNext == null && colourlessLore.equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
 				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				Cosmetica.displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
 			}
+
+			// or... with the welcome screen!
+			// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
+			if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
+				DebugMode.log("New Player: Showing Welcome Screen");
+
+				RenderSystem.recordRenderCall(() -> {
+					Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen, uuid, name, Cosmetica.newPlayerData(userInfo, uuid)));
+				});
+			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));
-
-		// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
-		if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
-			DebugMode.log("New Player: Showing Welcome Screen");
-
-			if (RenderSystem.isOnRenderThread()) {
-				Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen));
-			}
-			else {
-				DebugMode.log("Not on render thread: recording render call for welcome screen!");
-				RenderSystem.recordRenderCall(() -> Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen)));
-			}
-		}
 	}
 
 	private static void runAuthentication() {

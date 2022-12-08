@@ -210,13 +210,13 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 			Matrix4f pose = poseStack.last().pose();
 
-			if (textureRegistered) Cosmetica.renderTexture(pose, this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset());
+			if (textureRegistered) Cosmetica.renderTexture(pose, this.texture, x - 25, x + 25, y - 25, y + 25, this.selection.getBlitOffset(), 1.0f);
 			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(textY + 6), 16777215, true);
 			
 			int indicatorX = x + 30;
 			
 			for (ResourceLocation location : this.indicators) {
-				Cosmetica.renderTexture(pose, location, indicatorX, indicatorX + 10, this.indicatorStartY, this.indicatorStartY + 10, this.selection.getBlitOffset());
+				Cosmetica.renderTexture(pose, location, indicatorX, indicatorX + 10, this.indicatorStartY, this.indicatorStartY + 10, this.selection.getBlitOffset(), 1.0f);
 				indicatorX += 14; // move x down
 			}
 
