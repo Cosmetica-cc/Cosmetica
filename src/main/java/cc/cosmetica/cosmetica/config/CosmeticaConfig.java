@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.config;
 
 import cc.cosmetica.api.VersionInfo;
+import cc.cosmetica.cosmetica.Cosmetica;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class CosmeticaConfig {
     private WelcomeMessageState showWelcomeMessage = WelcomeMessageState.FULL;
     private boolean addCosmeticaSplashMessage = true;
     private boolean regionalEffectsPrompt = true;
+    private boolean paranoidHttps = false;
 
     public CosmeticaConfig(Path propertiesPath) {
         this.propertiesPath = propertiesPath;
@@ -54,6 +56,7 @@ public class CosmeticaConfig {
         properties.setProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me", "false"); // default 3: the return of the king
         properties.setProperty("add-cosmetica-splash-message", "true");
         properties.setProperty("regional-effects-prompt", "true");
+        properties.setProperty("paranoid-https", "false");
 
         properties.load(Files.newInputStream(propertiesPath));
         showNametagInThirdPerson    =  Boolean.parseBoolean(properties.getProperty("show-nametag-in-third-person"));
@@ -61,6 +64,10 @@ public class CosmeticaConfig {
         showNonVitalUpdateMessages  = !Boolean.parseBoolean(properties.getProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me"));
         addCosmeticaSplashMessage   =  Boolean.parseBoolean(properties.getProperty("add-cosmetica-splash-message"));
         regionalEffectsPrompt       =  Boolean.parseBoolean(properties.getProperty("regional-effects-prompt"));
+        paranoidHttps               =  Boolean.parseBoolean(properties.getProperty("paranoid-https"));
+
+        // update paranoid https status on existing API instance
+        Cosmetica.api.setForceHttps(paranoidHttps);
     }
 
     public void save() throws IOException {
@@ -73,6 +80,7 @@ public class CosmeticaConfig {
         properties.setProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me", String.valueOf(!showNonVitalUpdateMessages));
         properties.setProperty("add-cosmetica-splash-message", String.valueOf(addCosmeticaSplashMessage));
         properties.setProperty("regional-effects-prompt", String.valueOf(regionalEffectsPrompt));
+        properties.setProperty("paranoid-https", String.valueOf(paranoidHttps));
         properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Config");
     }
 
@@ -98,6 +106,10 @@ public class CosmeticaConfig {
 
     public boolean regionalEffectsPrompt() {
         return regionalEffectsPrompt;
+    }
+
+    public boolean paranoidHttps() {
+        return paranoidHttps;
     }
 
     public enum WelcomeMessageState {

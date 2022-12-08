@@ -1,5 +1,6 @@
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -15,6 +16,8 @@ public class IconSettingsScreen extends SulphateScreen {
 	public IconSettingsScreen(Screen parent, ServerOptions options) {
 		super(TextComponents.translatable("cosmetica.icons"), parent);
 		this.butler = options;
+
+		this.setAnchorY(Anchor.TOP, () -> this.height / 6);
 	}
 
 	// the butler serves server options
