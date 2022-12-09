@@ -93,6 +93,7 @@
   "cosmetica.rsenotice.kiwi": "You have enabled Region Specific Effects, which is giving you a special sheep shoulder buddy to flex you're 100% pure NZ ;)",
   "cosmetica.rsenotice.prefix": "You have enabled Region Specific Effects, which has given you the prefix %s based on the country you're in.",
   "cosmetica.rsenotice.suffix": "You have enabled Region Specific Effects, which has given you the suffix %s based on the country you're in.",
+  "cosmetica.welcome.blanktitle": "",
   "cosmetica.welcome.header": "Welcome to Cosmetica!",
   "cosmetica.welcome.continue": "Let's Get Started!",
   "cosmetica.debugCosmetica.disable": "Disabled debug cosmetics.",

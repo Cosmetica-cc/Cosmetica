@@ -34,17 +34,15 @@ import net.minecraft.world.entity.player.Player;
 import java.util.List;
 
 public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
-	private ModelManager modelManager;
 
 	public Hats(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
 		super(renderLayerParent);
-		this.modelManager = Minecraft.getInstance().getModelManager();
 	}
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		List<BakableModel> hats = OVERRIDDEN.getList(() -> Cosmetica.getPlayerData(player).hats());
+		List<BakableModel> hats = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.getList(() -> Cosmetica.getPlayerData(player).hats()) : Cosmetica.getPlayerData(player).hats();
 
 		stack.pushPose();
 

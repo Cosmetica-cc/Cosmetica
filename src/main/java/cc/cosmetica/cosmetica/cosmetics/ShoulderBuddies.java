@@ -42,20 +42,23 @@ import net.minecraft.world.item.DyeColor;
 import java.util.OptionalInt;
 
 public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
-	private ModelManager modelManager;
 	private EntityModelSet entityModelSet;
 
 	public ShoulderBuddies(RenderLayerParent<T, PlayerModel<T>> renderLayerParent, EntityModelSet entityModelSet) {
 		super(renderLayerParent);
-		this.modelManager = Minecraft.getInstance().getModelManager();
 		this.entityModelSet = entityModelSet;
 	}
 
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		BakableModel left = LEFT_OVERRIDDEN.get(() -> Cosmetica.getPlayerData(player).leftShoulderBuddy());
-		BakableModel right = RIGHT_OVERRIDDEN.get(() -> Cosmetica.getPlayerData(player).rightShoulderBuddy());
+
+		boolean canOverridePlayerCosmetics = this.canOverridePlayerCosmetics(player);
+
+		PlayerData playerData = Cosmetica.getPlayerData(player);
+
+		BakableModel left = canOverridePlayerCosmetics ? LEFT_OVERRIDDEN.get(playerData::leftShoulderBuddy) : playerData.leftShoulderBuddy();
+		BakableModel right = canOverridePlayerCosmetics ? RIGHT_OVERRIDDEN.get(playerData::rightShoulderBuddy) : playerData.rightShoulderBuddy();
 
 		if (left != null && ((left.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityLeft().isEmpty())) render(left, stack, multiBufferSource, packedLight, (Playerish) player, true);
 		if (right != null && ((right.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityRight().isEmpty())) render(right, stack, multiBufferSource, packedLight, (Playerish) player, false);
