@@ -18,14 +18,11 @@ package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
-import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MessageSigner;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,10 +30,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.OptionalInt;
 
-@Mixin(LocalPlayer.class)
+@Mixin(ClientPacketListener.class)
 public class LocalPlayerMixin {
 	@Inject(at = @At("HEAD"), method = "sendCommand", cancellable = true)
-	private void sendMessage(String string, Component component, CallbackInfo info) {
+	private void sendMessage(String string, CallbackInfo info) {
 		if (Cosmetica.api == null) return; // no debug commands if offline
 
 		if (!string.isEmpty() && string.charAt(0) == '/' && DebugMode.debugCommands()) {

@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.screens;
 
 import benzenestudios.sulphate.Anchor;
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CapeServer;
 import cc.cosmetica.api.UserSettings;
@@ -87,8 +88,8 @@ public class MainScreen extends PlayerRenderScreen {
 
 		this.addButton(150, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> this.copyAndOpenURL(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken())).active = !this.demo;
 
-		class ReloadingButton extends Button {
-			public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, Tooltip tooltip) {
+		class ReloadingButton extends ClassicButton {
+			public ReloadingButton(int i, int j, int k, int l, Component component, Button.OnPress onPress, OnTooltip tooltip) {
 				super(i, j, k, l, component, onPress, tooltip);
 			}
 
@@ -115,7 +116,7 @@ public class MainScreen extends PlayerRenderScreen {
 
 	@Override
 	public void afterInit() {
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.done.y - 24, 200, 20, TextComponents.translatable("cosmetica.reloadCosmetics"), button -> {
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, this.done.getY() - 24, 200, 20, TextComponents.translatable("cosmetica.reloadCosmetics"), button -> {
 			doReload = !doReload;
 
 			if (doReload) {

@@ -35,7 +35,10 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -92,11 +95,21 @@ public class Models {
 			if (modelTexture instanceof AnimatedTexture) {
 				ModelSprite sprite = new ModelSprite(location, (AnimatedTexture) modelTexture);
 
-				BakedModel model = unbaked.model().bake(
-						thePieShopDownTheRoad,
-						l -> sprite,
-						BlockModelRotation.X0_Y0,
-						location /*this resource location in bake is just used for debugging in the case of errors*/);
+				ModelBaker ratatouille = new ModelBaker() {
+					@Override
+					public UnbakedModel getModel(ResourceLocation resourceLocation) {
+						return thePieShopDownTheRoad.getModel(resourceLocation);
+					}
+
+					@Override
+					@Nullable
+					public BakedModel bake(ResourceLocation resourceLocation, ModelState modelState) {
+						return this.getModel(resourceLocation).bake(this, l -> sprite, modelState, resourceLocation /*this resource location in bake is just used for debugging in the case of errors*/);
+					}
+				};
+
+				BakedModel model = ratatouille.bake(location, BlockModelRotation.X0_Y0);
+
 				NEW_BAKED_MODELS.add(model);
 				BAKED_MODELS.put(unbaked.id(), model);
 
