@@ -60,7 +60,7 @@ public class CosmeticaConfig {
 
         properties.load(Files.newInputStream(propertiesPath));
         showNametagInThirdPerson    =  Boolean.parseBoolean(properties.getProperty("show-nametag-in-third-person"));
-        showWelcomeMessage          =  WelcomeMessageState.of(properties.getProperty("show-welcome-message"));
+        showWelcomeMessage =  WelcomeMessageState.of(properties.getProperty("show-welcome-message"));
         showNonVitalUpdateMessages  = !Boolean.parseBoolean(properties.getProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me"));
         addCosmeticaSplashMessage   =  Boolean.parseBoolean(properties.getProperty("add-cosmetica-splash-message"));
         regionalEffectsPrompt       =  Boolean.parseBoolean(properties.getProperty("regional-effects-prompt"));
@@ -92,7 +92,7 @@ public class CosmeticaConfig {
         this.showNametagInThirdPerson = showNametagInThirdPerson;
     }
 
-    public WelcomeMessageState shouldShowWelcomeMessage() {
+    public WelcomeMessageState showWelcomeMessage() {
         return showWelcomeMessage;
     }
 
@@ -114,6 +114,7 @@ public class CosmeticaConfig {
 
     public enum WelcomeMessageState {
         FULL,
+        SCREEN_ONLY,
         CHAT_ONLY,
         OFF;
 
@@ -126,6 +127,15 @@ public class CosmeticaConfig {
             return this == CHAT_ONLY || (this == FULL && !welcomeScreenAllowed);
         }
 
+        /**
+         * Get whether the welcome tutorial should be shown.
+         * @param welcomeScreenAllowed whether the welcome screen should be allowed. Generally {@link VersionInfo#megaInvasiveTutorial()} {@code && newPlayer}
+         * @return whether the welcome tutorial should be shown.
+         */
+        public boolean shouldShowWelcomeTutorial(boolean welcomeScreenAllowed) {
+            return welcomeScreenAllowed && (this == FULL || this == SCREEN_ONLY);
+        }
+
         public static WelcomeMessageState of(String string) {
             switch (string.toUpperCase(Locale.ROOT)) {
             case "FULL":
@@ -133,8 +143,14 @@ public class CosmeticaConfig {
             case "ON":
             default:
                 return FULL;
+            case "SCREEN_ONLY":
+            case "SCREENONLY":
+            case "SCREEN ONLY":
+            case "SCREEN-ONLY":
+                return SCREEN_ONLY;
             case "CHAT_ONLY":
             case "CHATONLY":
+            case "CHAT ONLY":
             case "CHAT-ONLY":
                 return CHAT_ONLY;
             case "OFF":
