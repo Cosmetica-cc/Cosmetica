@@ -26,6 +26,7 @@ import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.mixin.screen.TitleScreenAccessorMixin;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.MainScreen;
 import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
@@ -43,6 +44,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
@@ -201,7 +203,14 @@ public class Authentication {
 				DebugMode.log("New Player: Showing Welcome Screen");
 
 				RenderSystem.recordRenderCall(() -> {
-					Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen, uuid, name, Cosmetica.newPlayerData(userInfo, uuid)));
+					Screen screen = Minecraft.getInstance().screen;
+
+					// prevent flashbang on some versions of minecraft
+//					if (screen instanceof TitleScreen) {
+//						((TitleScreenAccessorMixin) screen).setFading(false);
+//					}
+
+					Minecraft.getInstance().setScreen(new WelcomeScreen(screen, uuid, name, Cosmetica.newPlayerData(userInfo, uuid)));
 				});
 			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));
