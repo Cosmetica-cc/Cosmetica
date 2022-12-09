@@ -66,5 +66,9 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
         stack.popPose();
     }
 
-    public static final CosmeticStack<ResourceLocation> CAPE_OVERRIDER = new CosmeticStack<>();
+    protected boolean canOverridePlayerCosmetics(Player player) {
+        return Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID().equals(player.getUUID());
+    }
+
+	public static final CosmeticStack<ResourceLocation> CAPE_OVERRIDER = new CosmeticStack<>();
 }

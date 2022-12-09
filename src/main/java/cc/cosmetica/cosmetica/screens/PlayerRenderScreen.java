@@ -43,14 +43,15 @@ import java.util.List;
 import java.util.Optional;
 
 public abstract class PlayerRenderScreen extends SulphateScreen {
-	protected PlayerRenderScreen(Component title, @Nullable Screen parent, FakePlayer fakePlayer) {
+	protected PlayerRenderScreen(Component title, @Nullable Screen parent, @Nullable FakePlayer fakePlayer) {
 		super(title, parent);
 
 		this.fakePlayer = fakePlayer;
 		this.rseNotif = new ResourceLocation("cosmetica", "textures/gui/icon/wtf.png");
 	}
 
-	protected final FakePlayer fakePlayer;
+	@Nullable
+	protected FakePlayer fakePlayer;
 	// for the rotation
 	private final MouseTracker mouseTracker = new MouseTracker();
 	private boolean spinning = false;
@@ -60,6 +61,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 	protected int initialPlayerLeft;
 	protected int deltaPlayerLeft;
+	protected int playerTopMod = 55;
 	private long lastTimeMillis = System.currentTimeMillis();
 
 	protected int rightMouseGrabBuffer = 51;
@@ -69,7 +71,9 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 	@Override
 	public void tick() {
-		this.fakePlayer.tickCount++;
+		if (this.fakePlayer != null) {
+			this.fakePlayer.tickCount++;
+		}
 
 		if (this.minecraft.level == null) {
 			this.minecraft.getProfiler().push("textures");
@@ -86,8 +90,10 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 
-		this.updateSpin(mouseX, mouseY);
-		this.renderFakePlayer(mouseX, mouseY);
+		if (this.fakePlayer != null) {
+			this.updateSpin(mouseX, mouseY);
+			this.renderFakePlayer(mouseX, mouseY);
+		}
 	}
 
 	protected void renderRSENotif(PoseStack matrices, int mouseX, int mouseY) {
@@ -112,7 +118,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			final int top = this.height / 2 - 60;
 			final int left = this.playerLeft + 25;
 			final int size = 16;
-			Cosmetica.renderTexture(matrices.last().pose(), this.rseNotif, left, left + size, top, top + size, 0);
+			Cosmetica.renderTexture(matrices.last().pose(), this.rseNotif, left, left + size, top, top + size, 0, 1.0f);
 
 			if (mouseY >= top && mouseY <= top + size && mouseX >= left && mouseX <= left + size) {
 				this.renderTooltip(matrices, this.font.split(regionEffectsMsg, Math.max(this.width / 2, 170)), mouseX, mouseY);
@@ -149,7 +155,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	}
 
 	protected void renderFakePlayer(int mouseX, int mouseY) {
-		final int top = this.height / 2 + 55;
+		final int top = this.height / 2 + this.playerTopMod;
 
 		renderFakePlayerInMenu(this.playerLeft, top, 30.0f, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.fakePlayer);
 
