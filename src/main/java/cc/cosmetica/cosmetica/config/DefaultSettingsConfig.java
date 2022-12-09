@@ -91,6 +91,7 @@ public class DefaultSettingsConfig {
 		enableHats = parseBlankableBoolean(properties.getProperty("enable-hats", ""));
 		enableShoulderBuddies = parseBlankableBoolean(properties.getProperty("enable-shoulder-buddies", ""));
 		enableBackBlings = parseBlankableBoolean(properties.getProperty("enable-back-blings", ""));
+		enableLore = parseBlankableBoolean(properties.getProperty("enable-lore", ""));
 		iconSettings = properties.getProperty("enable-icons", "").isEmpty() ? OptionalInt.empty() : OptionalInt.of(
 				flag(UserSettings.DISABLE_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-icons", "true")))
 				| flag(UserSettings.DISABLE_OFFLINE_ICONS, !parseBlankableBoolean(properties.getProperty("enable-online-icons", ""), true))
@@ -130,6 +131,7 @@ public class DefaultSettingsConfig {
 		properties.setProperty("enable-hats", toStringBlankable(enableHats));
 		properties.setProperty("enable-shoulder-buddies", toStringBlankable(enableShoulderBuddies));
 		properties.setProperty("enable-back-blings", toStringBlankable(enableBackBlings));
+		properties.setProperty("enable-lore", toStringBlankable(enableLore));
 
 		if (this.iconSettings.isPresent()) {
 			properties.setProperty("enable-icons", Boolean.toString((this.iconSettings.getAsInt() & UserSettings.DISABLE_ICONS) == 0));

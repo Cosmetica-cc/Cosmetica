@@ -37,7 +37,7 @@ public abstract class EntityRendererMixin {
 	// just before pop pose, after text rendering.
 	@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"), method = "renderNameTag")
 	private void onNametagRender(Entity entity, Component component, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, CallbackInfo ci) {
-		if (entity instanceof Playerish) {
+		if (component.getString().charAt(0) == '\u2001' && entity instanceof Playerish) {
 			Cosmetica.renderIcon(poseStack, multiBufferSource, (Playerish) entity, this.getFont(), packedLight, component);
 		}
 	}

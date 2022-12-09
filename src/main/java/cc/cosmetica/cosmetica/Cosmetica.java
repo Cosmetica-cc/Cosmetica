@@ -22,6 +22,7 @@ import cc.cosmetica.api.CustomCape;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
+import cc.cosmetica.api.UserInfo;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
@@ -116,6 +117,7 @@ import static cc.cosmetica.cosmetica.Authentication.runAuthenticationCheckThread
 public class Cosmetica implements ClientModInitializer {
 	public static String authServer;
 	public static String websiteHost;
+	// Initialise to an unauthenticated instance, Authenticate later, if possible.
 	public static CosmeticaAPI api;
 
 	// for cosmetic sniper
@@ -190,6 +192,10 @@ public class Cosmetica implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		config = new CosmeticaConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("cosmetica.properties"));
+		CosmeticaAPI.setDefaultForceHttps(config.paranoidHttps());
+
+		api = CosmeticaAPI.newUnauthenticatedInstance();
+
 		configDirectory = FabricLoader.getInstance().getConfigDir().resolve("cosmetica");
 		defaultSettingsConfig = new DefaultSettingsConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("default-settings.properties"));
 
@@ -239,14 +245,13 @@ public class Cosmetica implements ClientModInitializer {
 			CosmeticaAPI.setAPICache(apiCache);
 
 			try {
-				api = CosmeticaAPI.newUnauthenticatedInstance();
 				api.setUrlLogger(DebugMode::logURL);
 
 				DebugMode.log("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
 				LOGGER.info(CosmeticaAPI.getMessage());
 
 				if (config.shouldAddCosmeticaSplashMessage()) {
-					splashes.add(CosmeticaAPI.getMessage());
+					addSplash(CosmeticaAPI.getMessage());
 				}
 
 				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
@@ -625,37 +630,7 @@ public class Cosmetica implements ClientModInitializer {
 						AtomicReference<PlayerData> newDataHolder = new AtomicReference<>(PlayerData.NONE);
 
 						Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
-							List<Model> hats = info.getHats();
-							Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
-							Optional<Model> backBling = info.getBackBling();
-							Optional<Cape> cloak = info.getCape();
-							String icon = info.getIcon();
-							Optional<String> client = info.getClient();
-
-							Optional<Model> leftShoulderBuddy = shoulderBuddies.isPresent() ? shoulderBuddies.get().getLeft() : Optional.empty();
-							Optional<Model> rightShoulderBuddy = shoulderBuddies.isPresent() ? shoulderBuddies.get().getRight() : Optional.empty();
-
-							PlayerData newData = new PlayerData(
-									info.getLore(),
-									info.isUpsideDown(),
-									icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(client.orElseGet(() -> {
-										Cosmetica.LOGGER.warn("Icon is not empty but client is null?! (user " + uuid + ")");
-										return "missingno";
-									}), icon),
-									info.isOnline(),
-									info.getPrefix(),
-									info.getSuffix(),
-									hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
-									leftShoulderBuddy.isPresent() ? Models.createBakableModel(leftShoulderBuddy.get()) : null,
-									rightShoulderBuddy.isPresent() ? Models.createBakableModel(rightShoulderBuddy.get()) : null,
-									backBling.isPresent() ? Models.createBakableModel(backBling.get()) : null,
-									cloak.isPresent() ? pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape") : "",
-									cloak.isPresent() ? cloak.get().getId() : "none",
-									cloak.isPresent() && !cloak.get().isCosmeticaAlternative() && !(cloak.get() instanceof CustomCape),
-									cloak.isPresent() ? CosmeticaSkinManager.processCape(cloak.get()) : null,
-									CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
-									info.isSlim()
-							);
+							PlayerData newData = newPlayerData(info, uuid);
 
 							synchronized (playerDataCache) { // update the information with what we have gotten.
 								playerDataCache.put(uuid, newData);
@@ -718,6 +693,37 @@ public class Cosmetica implements ClientModInitializer {
 		}
 
 		return result;
+	}
+
+	static PlayerData newPlayerData(UserInfo info, UUID uuid) {
+		List<Model> hats = info.getHats();
+		Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
+		Optional<Model> backBling = info.getBackBling();
+		Optional<Cape> cloak = info.getCape();
+		String icon = info.getIcon();
+		Optional<String> client = info.getClient();
+
+		Optional<Model> leftShoulderBuddy = shoulderBuddies.isPresent() ? shoulderBuddies.get().getLeft() : Optional.empty();
+		Optional<Model> rightShoulderBuddy = shoulderBuddies.isPresent() ? shoulderBuddies.get().getRight() : Optional.empty();
+
+		return new PlayerData(
+				info.getLore(),
+				info.isUpsideDown(),
+				icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(icon),
+				info.isOnline(),
+				info.getPrefix(),
+				info.getSuffix(),
+				hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
+				leftShoulderBuddy.isPresent() ? Models.createBakableModel(leftShoulderBuddy.get()) : null,
+				rightShoulderBuddy.isPresent() ? Models.createBakableModel(rightShoulderBuddy.get()) : null,
+				backBling.isPresent() ? Models.createBakableModel(backBling.get()) : null,
+				cloak.isPresent() ? pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape") : "",
+				cloak.isPresent() ? cloak.get().getId() : "none",
+				cloak.isPresent() && !cloak.get().isCosmeticaAlternative() && !(cloak.get() instanceof CustomCape),
+				cloak.isPresent() ? CosmeticaSkinManager.processCape(cloak.get()) : null,
+				CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
+				info.isSlim()
+		);
 	}
 
 	public static void renderLore(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
@@ -807,21 +813,17 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void prepareTabIcon(PoseStack stack, UUID playerUUID, String name) {
-		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
-
-		if (iconTexture != null) {
-			stack.translate(9.0f, 0.0f, 0.0f);
-		}
-	}
-
 	@SuppressWarnings("deprecation")
 	public static void renderTabIcon(PoseStack stack, int x, int y, UUID playerUUID, String name) {
-		@Nullable ResourceLocation iconTexture = getPlayerData(playerUUID, name, false).icon();
+		PlayerData data = getPlayerData(playerUUID, name, false);
+		@Nullable ResourceLocation iconTexture = data.icon();
 
 		if (iconTexture != null) {
+			// don't do discrete in tab. That could be classified as cheating, as you'd know if anyone online is sneaking.
+			// I'm sure there's some minigame out there where that's important
 			RenderSystem.enableAlphaTest();
-			renderTexture(stack.last().pose(), iconTexture, x, x + 8, y, y + 8, 0);
+			RenderSystem.enableBlend();
+			renderTexture(stack.last().pose(), iconTexture, x + 1, x + 1 + 8, y, y + 8, 0, data.online() ? 1.0f : 0.5f);
 		}
 	}
 
@@ -833,7 +835,7 @@ public class Cosmetica implements ClientModInitializer {
 			float xOffset = -font.width(component) / 2.0f;
 
 			poseStack.pushPose();
-			poseStack.translate(xOffset, 0, 0);
+			poseStack.translate(xOffset + 1, 0, 0);
 			renderTextureLikeText(poseStack.last().pose(), bufferSource, iconTexture, -1, 9, -1, 9, 0, packedLight, playerData.online() ? 1.0f : 0.5f, player.renderDiscreteNametag());
 
 			poseStack.popPose();
@@ -853,11 +855,9 @@ public class Cosmetica implements ClientModInitializer {
 		throw new UnsupportedOperationException();
 	}
 
-	@SuppressWarnings("deprecation")
-	public static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z) {
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+	public static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, float transparency) {
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, transparency);
 		Minecraft.getInstance().getTextureManager().bind(texture);
-
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 
 		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -868,6 +868,10 @@ public class Cosmetica implements ClientModInitializer {
 
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
+	}
+
+	private static int getMaxLight() {
+		return (0xF << 20) | (0xF << 4);
 	}
 
 	@SuppressWarnings("deprecation")

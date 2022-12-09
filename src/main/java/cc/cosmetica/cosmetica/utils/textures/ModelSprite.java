@@ -78,6 +78,6 @@ public class ModelSprite extends TextureAtlasSprite {
 
 	@Override
 	public void uploadFirstFrame() {
-		throw new UnsupportedOperationException("I am a teapot. Tried to call isTransparent() on cosmetica ModelSprite.");
+		throw new UnsupportedOperationException("I am a teapot. Tried to call uploadFirstFrame() on cosmetica ModelSprite.");
 	}
 }
