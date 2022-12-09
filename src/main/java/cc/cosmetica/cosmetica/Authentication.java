@@ -21,9 +21,7 @@ import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
 import cc.cosmetica.api.LoginInfo;
 import cc.cosmetica.api.ServerResponse;
-import cc.cosmetica.api.UserInfo;
 import cc.cosmetica.api.UserSettings;
-import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
@@ -38,7 +36,6 @@ import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.util.Response;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.MalformedJsonException;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -199,10 +196,10 @@ public class Authentication {
 		// do a separate request for some reason because I'm cringe
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
 			final String colourlessLore = TextComponents.stripColour(userInfo.getLore());
-			DebugMode.log("Received user info on Authenticate/prepareWelcome || displayNext=" + Cosmetica.displayNext + " colourlessLore=" + colourlessLore);
+			DebugMode.log("Received user info on Authenticate/prepareWelcome || displayNext=" + Cosmetica.displayNext + " colourlessLore=" + colourlessLore + " show-welcome-message=" + Cosmetica.getConfig().showWelcomeMessage());
 
 			// welcome new, authenticated players in chat
-			if (Cosmetica.getConfig().shouldShowWelcomeMessage().shouldShowChatMessage(isWelcomeScreenAllowed) && Cosmetica.displayNext == null && colourlessLore.equals("New to Cosmetica")) {
+			if (Cosmetica.getConfig().showWelcomeMessage().shouldShowChatMessage(isWelcomeScreenAllowed) && Cosmetica.displayNext == null && colourlessLore.equals("New to Cosmetica")) {
 				MutableComponent menuOpenText = TextComponents.translatable("cosmetica.linkhere");
 				menuOpenText.setStyle(menuOpenText.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, "cosmetica.customise")));
 				Cosmetica.displayNext = TextComponents.formattedTranslatable("cosmetica.welcome", menuOpenText);
@@ -210,11 +207,18 @@ public class Authentication {
 
 			// or... with the welcome screen!
 			// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
-			if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
+			if (Cosmetica.getConfig().showWelcomeMessage().shouldShowWelcomeTutorial(isWelcomeScreenAllowed)) {
 				DebugMode.log("New Player: Showing Welcome Screen");
 
 				RenderSystem.recordRenderCall(() -> {
-					Minecraft.getInstance().setScreen(new WelcomeScreen(Minecraft.getInstance().screen, uuid, name, Cosmetica.newPlayerData(userInfo, uuid)));
+					Screen screen = Minecraft.getInstance().screen;
+
+					// prevent flashbang on some versions of minecraft
+//					if (screen instanceof TitleScreen) {
+//						((TitleScreenAccessorMixin) screen).setFading(false);
+//					}
+
+					Minecraft.getInstance().setScreen(new WelcomeScreen(screen, uuid, name, Cosmetica.newPlayerData(userInfo, uuid)));
 				});
 			}
 		}, Cosmetica.logErr("Failed to request user info on authenticate."));
