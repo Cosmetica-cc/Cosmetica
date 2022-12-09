@@ -21,6 +21,7 @@ import benzenestudios.sulphate.ExtendedScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.GridWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -46,13 +47,16 @@ public abstract class OptionsScreenMixin extends Screen {
 	@Inject(at=@At("RETURN"), method="init")
 	private void onInit(CallbackInfo info) {
 		for (GuiEventListener eventListener: ((ExtendedScreen) this).getChildren()) {
-			if (eventListener instanceof AbstractWidget widget) {
-				if (widget.getMessage().getContents() instanceof TranslatableContents whyIsJavaLikeThis) {
-					System.out.println("asdf TranslatableContents " + whyIsJavaLikeThis.getKey());
-					if (whyIsJavaLikeThis.getKey().equals("options.skinCustomisation")) {
-						System.out.println("oogabooga replacing");
-						this.removeWidget(eventListener);
-						break;
+			if (eventListener instanceof GridWidget grid) {
+				for (GuiEventListener gridChild : grid.children()) {
+					if (gridChild instanceof AbstractWidget widget) {
+						if (widget.getMessage().getContents() instanceof TranslatableContents thisIsRidiculous) {
+							if (thisIsRidiculous.getKey().equals("options.skinCustomisation")) {
+								widget.visible = false;
+								widget.active = false;
+								break;
+							}
+						}
 					}
 				}
 			}

@@ -98,7 +98,7 @@ public class Models {
 				ModelBaker ratatouille = new ModelBaker() {
 					@Override
 					public UnbakedModel getModel(ResourceLocation resourceLocation) {
-						return thePieShopDownTheRoad.getModel(resourceLocation);
+						return unbaked.model();
 					}
 
 					@Override
