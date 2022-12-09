@@ -16,7 +16,6 @@
     "screen.InventoryScreenMixin",
     "screen.OptionsScreenMixin",
     "screen.ScreenMixin",
-    "screen.TitleScreenAccessorMixin",
     "screen.TitleScreenMixin",
     "textures.AbstractClientPlayerMixin",
     "textures.CapeLayerMixin",

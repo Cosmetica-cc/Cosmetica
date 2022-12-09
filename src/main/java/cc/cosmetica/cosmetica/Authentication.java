@@ -32,6 +32,7 @@ import cc.cosmetica.cosmetica.screens.UnauthenticatedScreen;
 import cc.cosmetica.cosmetica.screens.WelcomeScreen;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
+import cc.cosmetica.cosmetica.utils.ExtendedTitleScreen;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.util.Response;
@@ -40,6 +41,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
@@ -214,9 +216,9 @@ public class Authentication {
 					Screen screen = Minecraft.getInstance().screen;
 
 					// prevent flashbang on some versions of minecraft
-//					if (screen instanceof TitleScreen) {
-//						((TitleScreenAccessorMixin) screen).setFading(false);
-//					}
+					if (screen instanceof TitleScreen) {
+						((ExtendedTitleScreen) screen).setFlashbang(false);
+					}
 
 					Minecraft.getInstance().setScreen(new WelcomeScreen(screen, uuid, name, Cosmetica.newPlayerData(userInfo, uuid)));
 				});

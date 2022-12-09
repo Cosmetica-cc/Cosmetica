@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.mixin.screen;
+package cc.cosmetica.cosmetica.utils;
 
-import net.minecraft.client.gui.screens.TitleScreen;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
-
-@Mixin(TitleScreen.class)
-public interface TitleScreenAccessorMixin {
-	@Accessor
-	void setFading(boolean fading);
+/**
+ * Duck interface for the {@linkplain net.minecraft.client.gui.screens.TitleScreen title screen} to add extended functionality.
+ */
+public interface ExtendedTitleScreen {
+	/**
+	 * Set whether to 'flashbang' (fade from white) on title screen. On by default. Does not exist past 1.17.
+	 * @param flashbang whether to flashbang on the title screen.
+	 */
+	void setFlashbang(boolean flashbang);
 }
