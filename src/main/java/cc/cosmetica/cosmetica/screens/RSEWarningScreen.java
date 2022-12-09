@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -45,8 +46,8 @@ public class RSEWarningScreen extends Screen {
 
 		this.message = MultiLineLabel.create(this.font, TextComponents.translatable("cosmetica.rsewarning.description"), this.width - 30);
 
-		this.addRenderableWidget(new Button(this.width / 2 + 20, y, 120, 20, TextComponents.translatable("cosmetica.options.yes"), bn -> setRSEAndClose(true)));
-		this.addRenderableWidget(new Button(this.width / 2 - 140, y, 120, 20, TextComponents.translatable("cosmetica.options.no"), bn -> setRSEAndClose(false)));
+		this.addRenderableWidget(new ClassicButton(this.width / 2 + 20, y, 120, 20, TextComponents.translatable("cosmetica.options.yes"), bn -> setRSEAndClose(true)));
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 140, y, 120, 20, TextComponents.translatable("cosmetica.options.no"), bn -> setRSEAndClose(false)));
 	}
 
 	private void setRSEAndClose(boolean enabled) {

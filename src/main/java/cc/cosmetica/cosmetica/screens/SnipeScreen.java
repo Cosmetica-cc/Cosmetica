@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
@@ -44,7 +45,7 @@ public class SnipeScreen extends ViewCosmeticsScreen {
 	// funny hack to add both
 	@Override
 	protected AbstractButton addDone(int y) {
-		this.addRenderableWidget(new Button(this.width / 2 - 100, y - 24, 200, 20, this.stealTheirLook, b -> this.minecraft.setScreen(new StealHisLookScreen(this.stealTheirLook, this.fakePlayer.getData(), this.ownData, this))));
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, y - 24, 200, 20, this.stealTheirLook, b -> this.minecraft.setScreen(new StealHisLookScreen(this.stealTheirLook, this.fakePlayer.getData(), this.ownData, this))));
 		return super.addDone(y);
 	}
 }

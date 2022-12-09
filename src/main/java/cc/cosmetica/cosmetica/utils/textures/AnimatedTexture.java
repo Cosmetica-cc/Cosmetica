@@ -97,4 +97,5 @@ public abstract class AnimatedTexture extends AbstractTexture {
 				", tick=" + tick +
 				'}';
 	}
+	// TODO do we have a memory leak? should I be closing the image on close()?
 }

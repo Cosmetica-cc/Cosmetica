@@ -33,7 +33,7 @@ public class TextWidget extends AbstractWidget {
 	private boolean centered;
 
 	@Override
-	public void updateNarration(NarrationElementOutput narration) {
+	public void updateWidgetNarration(NarrationElementOutput narration) {
 		this.defaultButtonNarrationText(narration);
 	}
 
@@ -49,10 +49,10 @@ public class TextWidget extends AbstractWidget {
 		int colour = this.active ? 16777215 : 10526880;
 
 		if (this.centered) {
-			drawCenteredString(poseStack, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
+			drawCenteredString(poseStack, font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
 		}
 		else {
-			drawString(poseStack, font, this.getMessage(), this.x, this.y + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
+			drawString(poseStack, font, this.getMessage(), this.getX(), this.getY() + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
 		}
 	}
 }

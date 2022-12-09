@@ -29,8 +29,8 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(AbstractClientPlayer.class)
 public abstract class AbstractClientPlayerMixin extends Player implements Playerish {
-	public AbstractClientPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile, ProfilePublicKey ppk) {
-		super(level, blockPos, f, gameProfile, ppk);
+	public AbstractClientPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
+		super(level, blockPos, f, gameProfile);
 	}
 
 	@Override

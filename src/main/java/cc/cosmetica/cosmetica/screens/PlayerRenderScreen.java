@@ -22,18 +22,18 @@ import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MouseTracker;
+import cc.cosmetica.cosmetica.utils.LinearAlgebra;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.Optional;
 
@@ -200,8 +200,8 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		PoseStack viewStack = new PoseStack();
 		viewStack.translate(0.0D, 0.0D, 1000.0D);
 		viewStack.scale(extraScale, extraScale, extraScale);
-		Quaternion zRotation = Vector3f.ZP.rotationDegrees(180.0F);
-		Quaternion xRotation = Vector3f.XP.rotationDegrees(l * 20.0F);
+		Quaternionf zRotation = LinearAlgebra.quaternionDegrees(LinearAlgebra.ZP, 180.0F);
+		Quaternionf xRotation = LinearAlgebra.quaternionDegrees(LinearAlgebra.XP, l * 20.0F);
 		zRotation.mul(xRotation);
 		viewStack.mulPose(zRotation);
 
@@ -213,7 +213,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		fakePlayer.yRotHead = fakePlayer.getYRot(0);
 		Lighting.setupForEntityInInventory();
 
-		xRotation.conj();
+		xRotation.conjugate(); // originally conj() in mojang's maths library
 		FakePlayerRenderer.cameraOrientation = xRotation;
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 

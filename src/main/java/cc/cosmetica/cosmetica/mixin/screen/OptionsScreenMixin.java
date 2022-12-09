@@ -16,12 +16,11 @@
 
 package cc.cosmetica.cosmetica.mixin.screen;
 
+import benzenestudios.sulphate.ClassicButton;
 import benzenestudios.sulphate.ExtendedScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
-import cc.cosmetica.cosmetica.screens.WelcomeScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -49,7 +48,9 @@ public abstract class OptionsScreenMixin extends Screen {
 		for (GuiEventListener eventListener: ((ExtendedScreen) this).getChildren()) {
 			if (eventListener instanceof AbstractWidget widget) {
 				if (widget.getMessage().getContents() instanceof TranslatableContents whyIsJavaLikeThis) {
+					System.out.println("asdf TranslatableContents " + whyIsJavaLikeThis.getKey());
 					if (whyIsJavaLikeThis.getKey().equals("options.skinCustomisation")) {
+						System.out.println("oogabooga replacing");
 						this.removeWidget(eventListener);
 						break;
 					}
@@ -57,7 +58,7 @@ public abstract class OptionsScreenMixin extends Screen {
 			}
 		}
 
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, Component.translatable("cosmetica.cosmetics"),
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, Component.translatable("cosmetica.cosmetics"),
 				button -> this.minecraft.setScreen(new LoadingScreen(this, this.options))));
 	}
 }

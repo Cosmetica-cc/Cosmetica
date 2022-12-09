@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.api.CosmeticType;
 import cc.cosmetica.api.CustomCosmetic;
 import cc.cosmetica.api.UserSettings;
@@ -65,7 +66,7 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 			}
 		}
 
-		section.addChild(new Button(0, 0, 100, 20, TextComponents.translatable("cosmetica.change"), onChange));
+		section.addChild(new ClassicButton(0, 0, 100, 20, TextComponents.translatable("cosmetica.change"), onChange));
 		section.calculateDimensions();
 		return section;
 	}

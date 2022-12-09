@@ -17,17 +17,20 @@
 package cc.cosmetica.cosmetica.mixin.textures;
 
 import cc.cosmetica.cosmetica.utils.textures.ModelSprite;
+import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
+import net.minecraft.client.resources.metadata.animation.FrameSize;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(TextureAtlasSprite.class)
-public class TextureAtlasSpriteMixin {
-	@Inject(at = @At("HEAD"), method = "createTicker", cancellable = true)
-	private void beforeCreateTicker(CallbackInfoReturnable<TextureAtlasSprite.Ticker> info) {
-		if ((TextureAtlasSprite) (Object) this instanceof ModelSprite) {
+@Mixin(SpriteContents.class)
+public class SpriteContentsMixin {
+	@Inject(at = @At("HEAD"), method = "createAnimatedTexture", cancellable = true)
+	private void beforeCreateTicker(FrameSize frameSize, int i, int j, AnimationMetadataSection animationMetadataSection, CallbackInfoReturnable<SpriteContents.AnimatedTexture> info) {
+		if ((SpriteContents) (Object) this instanceof ModelSprite.ModelSpriteContents) {
 			info.setReturnValue(null);
 		}
 	}

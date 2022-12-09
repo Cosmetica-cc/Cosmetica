@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.screens;
 
 import benzenestudios.sulphate.Anchor;
+import benzenestudios.sulphate.ClassicButton;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -100,7 +101,7 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 		});
 
 		// when done, update settings
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 + 24 * 4 + 12, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, this.height / 6 + 24 * 4 + 12, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
 				if (this.parentScreen instanceof MainScreen main) {
 					main.setCosmeticaOptions(this.newOptions);

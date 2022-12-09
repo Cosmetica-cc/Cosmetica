@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens.widget;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
@@ -75,17 +76,17 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput narration) {
+	public void updateWidgetNarration(NarrationElementOutput narration) {
 		this.defaultButtonNarrationText(narration);
 	}
 
 	public void createSelectButtons(Consumer<Button> widgetAdder) {
-		int x = this.x - this.width / 2;
+		int x = this.getX() - this.width / 2;
 		int j = 0;
 
 		for (var player : this.players) {
 			final int itemNo = j;
-			widgetAdder.accept(new Button(x, this.y + 10, this.width, 20,
+			widgetAdder.accept(new ClassicButton(x, this.getY() + 10, this.width, 20,
 					TextComponents.translatable("cosmetica.selection.apply.select"), b -> {
 						this.selected = itemNo;
 						if (this.onSelect != null) this.onSelect.accept(itemNo);
@@ -101,8 +102,8 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 		if (!this.active) return false;
 		if (this.players.size() < 2) return false;
 
-		if (clickY < this.y && clickY >= (double)(this.y + this.height) && i == 0) {
-			int x = this.x - this.width / 2;
+		if (clickY < this.getY() && clickY >= (double)(this.getY() + this.height) && i == 0) {
+			int x = this.getX() - this.width / 2;
 			int j = 0;
 
 			for (var player : this.players) {
@@ -122,15 +123,15 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 
 	@Override
 	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float delta) {
-		int x = this.x;
+		int x = this.getX();
 		int j = 0;
 		CosmeticStack<T> overrider = this.overrider;
 
 		for (var player : this.players) {
 			if (this.selected == j) {
 				final int x1 = x + (this.width / 2);
-				final int y0 = this.y + this.height + 8;
-				final int y1 = this.y + 8;
+				final int y0 = this.getY() + this.height + 8;
+				final int y1 = this.getY() + 8;
 				final int x0 = x - (this.width / 2);
 
 				Tesselator tesselator = Tesselator.getInstance();
@@ -159,7 +160,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 
 			this.overrider.setIndex(j); // to make sure it's all -1 at the end we use this.overrider for index setting but really it doesn't matter because it's only for hats anyway
 			overrider.push(player.getB());
-			PlayerRenderScreen.renderFakePlayerInMenu(x, this.y, this.scale, x - mouseX, (float)(this.y - 90) - mouseY, player.getA());
+			PlayerRenderScreen.renderFakePlayerInMenu(x, this.getY(), this.scale, x - mouseX, (float)(this.getY() - 90) - mouseY, player.getA());
 			overrider.pop();
 
 			x += this.separation;

@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -53,24 +54,24 @@ public class UnauthenticatedScreen extends Screen {
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 
 		if (fromSave) {
-			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, Component.translatable("cosmetica.okay"), button -> this.onClose()));
+			this.addRenderableWidget(new ClassicButton(buttonX, buttonStartY, 200, 20, Component.translatable("cosmetica.okay"), button -> this.onClose()));
 		} else {
 			if (DebugMode.ENABLED) { // because I'm not authenticated in dev and can't use the normal button
-				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 100, 20, TextComponents.literal("Clear Caches"), btn -> {
+				this.addRenderableWidget(new ClassicButton(buttonX, buttonStartY + 48, 100, 20, TextComponents.literal("Clear Caches"), btn -> {
 					Cosmetica.clearAllCaches();
 					if (DebugMode.ENABLED) DebugMode.reloadTestModels();
 				}));
 			}
 
-			this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, Component.translatable("options.skinCustomisation"), (button) -> {
+			this.addRenderableWidget(new ClassicButton(buttonX, buttonStartY, 200, 20, Component.translatable("options.skinCustomisation"), (button) -> {
 				this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options));
 			}));
 
-			this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, Component.translatable("cosmetica.unauthenticated.retry"), (button) -> {
+			this.addRenderableWidget(new ClassicButton(buttonX, buttonStartY + 24, 200, 20, Component.translatable("cosmetica.unauthenticated.retry"), (button) -> {
 				minecraft.setScreen(new LoadingScreen(this.parentScreen, minecraft.options));
 			}));
 
-			this.addRenderableWidget(new Button(DebugMode.ENABLED ? buttonX + 100 : buttonX, buttonStartY + 48, DebugMode.ENABLED ? 100 : 200, 20, TextComponents.translatable("gui.cancel"), button -> this.onClose()));
+			this.addRenderableWidget(new ClassicButton(DebugMode.ENABLED ? buttonX + 100 : buttonX, buttonStartY + 48, DebugMode.ENABLED ? 100 : 200, 20, TextComponents.translatable("gui.cancel"), button -> this.onClose()));
 		}
 	}
 

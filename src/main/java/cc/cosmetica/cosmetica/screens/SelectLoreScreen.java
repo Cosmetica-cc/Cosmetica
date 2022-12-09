@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import benzenestudios.sulphate.ExtendedScreen;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.CosmeticType;
@@ -89,7 +90,7 @@ public class SelectLoreScreen extends SulphateScreen {
 			if (this.showing == LoreType.TWITCH) {
 				this.pleaseUseWebsite = MultiLineLabel.create(this.font, TextComponents.translatable("cosmetica.selection.lore.pleaseusethewebsite"), this.width - 50);
 
-				this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 2 + this.pleaseUseWebsite.getLineCount() * 10 + 4, 200, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> {
+				this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, this.height / 2 + this.pleaseUseWebsite.getLineCount() * 10 + 4, 200, 20, TextComponents.translatable("cosmetica.openWebPanel"), button -> {
 					try {
 						Minecraft.getInstance().keyboardHandler.setClipboard(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
 						Util.getPlatform().openUri(Cosmetica.websiteHost + "/manage?" + ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
@@ -151,21 +152,21 @@ public class SelectLoreScreen extends SulphateScreen {
 
 			this.updateTitle();
 
-			this.addRenderableWidget(new Button(this.width / 2 - 102, this.height - 52, 100, 20, TextComponents.translatable(getTranslationKey(cycle(this.showing))), b -> {
+			this.addRenderableWidget(new ClassicButton(this.width / 2 - 102, this.height - 52, 100, 20, TextComponents.translatable(getTranslationKey(cycle(this.showing))), b -> {
 				this.showing = cycle(this.showing);
 				this.list = null;
 				this.init(this.minecraft, this.width, this.height);
 			}));
 
-			this.addRenderableWidget(new Button(this.width / 2 + 2, this.height - 52, 100, 20, TextComponents.translatable("cosmetica.selection.lore.clear"), b -> {
+			this.addRenderableWidget(new ClassicButton(this.width / 2 + 2, this.height - 52, 100, 20, TextComponents.translatable("cosmetica.selection.lore.clear"), b -> {
 				this.lore = "";
 				this.pronounsSelected = 0;
 				this.updateTitle();
 			}));
 
-			this.addRenderableWidget(new Button(this.width / 2 - 102, this.height - 28, 100, 20, CommonComponents.GUI_CANCEL, b -> this.onClose()));
+			this.addRenderableWidget(new ClassicButton(this.width / 2 - 102, this.height - 28, 100, 20, CommonComponents.GUI_CANCEL, b -> this.onClose()));
 
-			this.addRenderableWidget(new Button(this.width / 2 + 2, this.height - 28, 100, 20, CommonComponents.GUI_DONE, b -> {
+			this.addRenderableWidget(new ClassicButton(this.width / 2 + 2, this.height - 28, 100, 20, CommonComponents.GUI_DONE, b -> {
 				if (this.lore.equals(this.originalLore)) {
 					this.onClose();
 				}

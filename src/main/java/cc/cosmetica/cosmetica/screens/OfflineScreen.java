@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -55,12 +56,12 @@ public class OfflineScreen extends Screen {
 		int buttonX = this.width / 2 - 100;
 		int buttonStartY = Math.min((this.height / 2 + this.textHeight / 2) + 9, this.height - 30);
 
-		this.addRenderableWidget(new Button(buttonX, buttonStartY, 200, 20, TextComponents.translatable("options.skinCustomisation"), button -> this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options))));
-		this.addRenderableWidget(new Button(buttonX, buttonStartY + 24, 200, 20, TextComponents.translatable("cosmetica.unauthenticated.retry"), (button) -> {
+		this.addRenderableWidget(new ClassicButton(buttonX, buttonStartY, 200, 20, TextComponents.translatable("options.skinCustomisation"), button -> this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, Minecraft.getInstance().options))));
+		this.addRenderableWidget(new ClassicButton(buttonX, buttonStartY + 24, 200, 20, TextComponents.translatable("cosmetica.unauthenticated.retry"), (button) -> {
 			minecraft.setScreen(new LoadingScreen(this.parentScreen, this.minecraft.options, this.reloadTarget));
 		}));
 
-		this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 200, 20, Component.translatable("cosmetica.okay"), button -> this.onClose()));
+		this.addRenderableWidget(new ClassicButton(buttonX, buttonStartY + 48, 200, 20, Component.translatable("cosmetica.okay"), button -> this.onClose()));
 	}
 
 	@Override

@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -52,7 +53,7 @@ public class WelcomeScreen extends PlayerRenderScreen {
 
 	@Override
 	protected void addWidgets() {
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 2 + 30 + 48, 200, 20,
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, this.height / 2 + 30 + 48, 200, 20,
 				TextComponents.translatable("cosmetica.welcome.continue"), bn -> this.minecraft.setScreen(new WelcomeOptionsScreen(this.parent, this.minecraft.options))));
 
 		this.initialPlayerLeft = this.width / 2;

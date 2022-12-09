@@ -17,9 +17,9 @@
 package cc.cosmetica.cosmetica.screens.fakeplayer;
 
 import cc.cosmetica.cosmetica.mixin.fakeplayer.PlayerModelAccessor;
+import cc.cosmetica.cosmetica.utils.LinearAlgebra;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -51,9 +51,9 @@ public class MenuCapeLayer implements MenuRenderLayer {
 				q += 25.0F;
 			}
 
-			stack.mulPose(Vector3f.XP.rotationDegrees(6.0F + r / 2.0F + q));
-			stack.mulPose(Vector3f.ZP.rotationDegrees(s / 2.0F));
-			stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - s / 2.0F));
+			stack.mulPose(LinearAlgebra.quaternionDegrees(LinearAlgebra.XP, 6.0F + r / 2.0F + q));
+			stack.mulPose(LinearAlgebra.quaternionDegrees(LinearAlgebra.ZP, s / 2.0F));
+			stack.mulPose(LinearAlgebra.quaternionDegrees(LinearAlgebra.YP, 180.0F - s / 2.0F));
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(player.getRenderableCape()));
 			((PlayerModelAccessor) player.getModel()).getCloak().render(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.popPose();

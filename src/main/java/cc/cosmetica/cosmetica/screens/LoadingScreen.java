@@ -16,13 +16,13 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
@@ -71,11 +71,11 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		this.message = MultiLineLabel.create(this.font, this.reason, this.width - 50);
 		this.textHeight = this.message.getLineCount() * 9;
 
-		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30), 200, 20, Component.translatable("options.skinCustomisation"), (button) -> {
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30), 200, 20, Component.translatable("options.skinCustomisation"), (button) -> {
 			this.minecraft.setScreen(new SkinCustomizationScreen(this.parentScreen, this.parentOptions));
 		})).active = Authentication.settingLoadTarget != 3;
 
-		this.addRenderableWidget(new Button(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30) + 24, 200, 20, TextComponents.translatable("gui.cancel"), (button) -> {
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, Math.min(this.height / 2 + this.textHeight / 2 + 9, this.height - 30) + 24, 200, 20, TextComponents.translatable("gui.cancel"), (button) -> {
 			this.onClose();
 		})).active = Authentication.settingLoadTarget != 3;
 	}

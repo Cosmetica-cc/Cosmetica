@@ -16,69 +16,52 @@
 
 package cc.cosmetica.cosmetica.utils.textures;
 
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.SpriteTicker;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.Tickable;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
+import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
 
 public class ModelSprite extends TextureAtlasSprite {
-	public ModelSprite(ResourceLocation location, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture texture) {
+	public ModelSprite(ResourceLocation location, AnimatedTexture texture) {
 		this(location, texture, texture.image.getWidth(), texture.getFrameHeight());
 	}
 
-	private ModelSprite(ResourceLocation location, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture texture, int width, int height) {
+	private ModelSprite(ResourceLocation location, AnimatedTexture texture, int width, int height) {
 		// textureAtlas, info, mipLevels, uScale (atlasTextureWidth), vScale (atlasTextureHeight), width, height, image
 		super(null,
-				new Info(location, width, height, null),
-				4,
-				width,
-				height,
-				width,
-				height,
-				texture.image
+				new ModelSpriteContents(location, new FrameSize(width, height), texture, null),
+				width, height,
+				0, 0
 		);
 
 		this.animatedTexture = texture;
+		this.location = location;
 	}
 
-	private final cc.cosmetica.cosmetica.utils.textures.AnimatedTexture animatedTexture;
-
-	@Override
-	protected int getFrameCount() {
-		return this.animatedTexture.getFrameCount();
-	}
-
-	@Override
-	public IntStream getUniqueFrames() {
-		return IntStream.range(0, getFrameCount());
-	}
-
-	@Override
-	public void close() {
-		this.animatedTexture.close();
-	}
+	private final AnimatedTexture animatedTexture;
+	private final ResourceLocation location;
 
 	@Override
 	public String toString() {
 		return "ModelSprite{" +
 				"animatedTexture=" + animatedTexture +
-				", resourceLocation=" + this.getName() +
+				", resourceLocation=" + this.location +
 				", u=[" + this.getU0() + "," + this.getU1() + "]" +
 				", v=[" + this.getV0() + ", " + this.getV1() + "]" +
 				'}';
 	}
 
 	@Override
-	public TextureAtlas atlas() {
-		throw new UnsupportedOperationException("I am a teapot. Tried to call atlas() on cosmetica ModelSprite.");
-	}
-
-	@Override
-	public boolean isTransparent(int i, int j, int k) {
-		throw new UnsupportedOperationException("I am a teapot. Tried to call isTransparent() on cosmetica ModelSprite.");
+	public ResourceLocation atlasLocation() {
+		throw new UnsupportedOperationException("I am a teapot. Tried to call atlasLocation() on cosmetica ModelSprite.");
 	}
 
 	@Override
@@ -86,9 +69,46 @@ public class ModelSprite extends TextureAtlasSprite {
 		throw new UnsupportedOperationException("I am a teapot. Tried to call uploadFirstFrame() on cosmetica ModelSprite.");
 	}
 
-	@Nullable
-	@Override
-	public Tickable getAnimationTicker() {
-		return this.animatedTexture instanceof Tickable ? (Tickable) this.animatedTexture : null;
+	public static class ModelSpriteContents extends SpriteContents {
+		public ModelSpriteContents(ResourceLocation resourceLocation, FrameSize frameSize, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture animatedTexture, AnimationMetadataSection animationMetadataSection) {
+			super(resourceLocation, frameSize, animatedTexture.image, animationMetadataSection);
+			this.animatedTexture = animatedTexture;
+		}
+
+		private final cc.cosmetica.cosmetica.utils.textures.AnimatedTexture animatedTexture;
+
+		@Override
+		protected int getFrameCount() {
+			return this.animatedTexture.getFrameCount();
+		}
+
+		@Override
+		public IntStream getUniqueFrames() {
+			return IntStream.range(0, getFrameCount());
+		}
+
+		// TODO what are these two close() functions for?
+		// This one seems to close the image in vanilla, whereas ticker/close seems to close the interpolation data object
+		// the latter does effectively the same thing but whatever texture is currently active in the interpolation data object
+		@Override
+		public void close() {
+			this.animatedTexture.close();
+		}
+
+		@Nullable
+		@Override
+		public SpriteTicker createTicker() {
+			return this.animatedTexture instanceof Tickable ? new SpriteTicker() {
+				@Override
+				public void tickAndUpload(int i, int j) {
+					ModelSpriteContents.this.animatedTexture.doTick();
+				}
+
+				@Override
+				public void close() {
+					ModelSpriteContents.this.animatedTexture.close();
+				}
+			} : null;
+		}
 	}
 }

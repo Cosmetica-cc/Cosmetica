@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -57,7 +58,7 @@ public class WelcomeOptionsScreen extends OptionsScreen {
 
 		this.removeWidget(removeMe);
 
-		this.addRenderableWidget(new Button(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, TextComponents.translatable("cosmetica.cosmetics"),
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, TextComponents.translatable("cosmetica.cosmetics"),
 				button -> this.minecraft.setScreen(new LoadingScreen(this.parent instanceof OptionsScreen ? this.parent : new OptionsScreen(this.parent, this.options), this.options, 3))));
 	}
 

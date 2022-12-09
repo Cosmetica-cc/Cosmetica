@@ -156,8 +156,8 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		}
 
 		// right selected area
-		this.selected.x = this.width / 2 + 50;
-		this.selected.y = this.height / 2 - availableSections.size() * 12 - 2;
+		this.selected.setX(this.width / 2 + 50);
+		this.selected.setY(this.height / 2 - availableSections.size() * 12 - 2);
 		this.addRenderableWidget(this.selected);
 
 		// done button
@@ -212,11 +212,11 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 
 		@Override
 		public void repositionChildren() {
-			int y0 = this.y;
+			int y0 = this.getY();
 
 			for (AbstractWidget child : this.children) {
-				child.x += this.x;
-				child.y += y0;
+				child.setX(child.getX() + this.getX());
+				child.setY(child.getY() + y0);
 
 				y0 += child.getHeight();
 			}
@@ -243,11 +243,11 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 
 		@Override
 		public void repositionChildren() {
-			int x0 = this.x;
+			int x0 = this.getX();
 
 			for (AbstractWidget child : this.children) {
-				child.x += x0;
-				child.y += this.y;
+				child.setX(child.getX() + x0);
+				child.setY(child.getY() + this.getY());
 
 				x0 += child.getWidth();
 			}
@@ -291,8 +291,8 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		@Override
 		public boolean mouseClicked(double x, double y, int i) {
 			for (AbstractWidget child : this.children) {
-				if (child.x <= x && x < child.x + child.getWidth()) {
-					if (child.y <= y && y < child.y + child.getHeight()) {
+				if (child.getX() <= x && x < child.getX() + child.getWidth()) {
+					if (child.getY() <= y && y < child.getY() + child.getHeight()) {
 						return child.mouseClicked(x, y, i);
 					}
 				}
@@ -304,8 +304,8 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		@Override
 		public void onRelease(double x, double y) {
 			for (AbstractWidget child : this.children) {
-				if (child.x <= x && x < child.x + child.getWidth()) {
-					if (child.y <= y && y < child.y + child.getHeight()) {
+				if (child.getX() <= x && x < child.getX() + child.getWidth()) {
+					if (child.getY() <= y && y < child.getY() + child.getHeight()) {
 						child.onRelease(x, y);
 						return;
 					}
@@ -316,8 +316,8 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		@Override
 		public boolean mouseDragged(double x, double y, int button, double prevX, double prevY) {
 			for (AbstractWidget child : this.children) {
-				if (child.x <= x && x < child.x + child.getWidth()) {
-					if (child.y <= y && y < child.y + child.getHeight()) {
+				if (child.getX() <= x && x < child.getX() + child.getWidth()) {
+					if (child.getY() <= y && y < child.getY() + child.getHeight()) {
 						return child.mouseDragged(x, y, button, prevX, prevY);
 					}
 				}
@@ -327,7 +327,7 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		}
 
 		@Override
-		public void updateNarration(NarrationElementOutput narration) {
+		public void updateWidgetNarration(NarrationElementOutput narration) {
 			for (AbstractWidget child : this.children) {
 				child.updateNarration(narration);
 			}

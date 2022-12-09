@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.screens;
 
 import benzenestudios.sulphate.Anchor;
+import benzenestudios.sulphate.ClassicButton;
 import benzenestudios.sulphate.ExtendedScreen;
 import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.CosmeticType;
@@ -31,14 +32,14 @@ import cc.cosmetica.cosmetica.screens.widget.CosmeticSelection;
 import cc.cosmetica.cosmetica.screens.widget.FetchingCosmetics;
 import cc.cosmetica.cosmetica.screens.widget.SearchEditBox;
 import cc.cosmetica.cosmetica.screens.widget.TextWidget;
-import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.utils.LoadState;
+import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -117,10 +118,10 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 					this.rebuildGUI();
 				});
 			}));
-			this.currentFetcher.y = this.height / 2 - 20;
-			this.currentFetcher.x = this.width / 2 - this.currentFetcher.getWidth() / 2;
+			this.currentFetcher.setY(this.height / 2 - 20);
+			this.currentFetcher.setX(this.width / 2 - this.currentFetcher.getWidth() / 2);
 
-			if (this.state == LoadState.LOADING) this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 2 + 20, 200, 20, CommonComponents.GUI_CANCEL, b -> this.onClose()));
+			if (this.state == LoadState.LOADING) this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, this.height / 2 + 20, 200, 20, CommonComponents.GUI_CANCEL, b -> this.onClose()));
 			break;
 		case LOADED:
 			if (this.dataSelection == null) {
@@ -248,7 +249,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		this.renderBackground(matrices);
 
-		for (Widget widget : List.copyOf(((ExtendedScreen) this).getWidgets())) { // renderables
+		for (Renderable widget : List.copyOf(((ExtendedScreen) this).getWidgets())) { // renderables
 			widget.render(matrices, mouseX, mouseY, delta);
 		}
 

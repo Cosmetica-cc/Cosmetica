@@ -16,14 +16,14 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.ClassicButton;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CapeServer;
-import cc.cosmetica.cosmetica.screens.widget.ButtonList;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.screens.widget.ButtonList;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 
@@ -62,7 +62,7 @@ public class CapeServerSettingsScreen extends SulphateScreen {
 
 		this.addRenderableWidget(list);
 
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 25, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, this.height - 25, 200, 20, CommonComponents.GUI_DONE, (button) -> {
 			try {
 				this.minecraft.setScreen(new UpdatingSettingsScreen(this.parent, this.originalSettings, this.settings));
 			} catch (IOException e) {

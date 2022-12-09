@@ -19,11 +19,9 @@ package cc.cosmetica.cosmetica.screens.fakeplayer;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.mixin.fakeplayer.HumanoidModelAccessor;
 import cc.cosmetica.cosmetica.mixin.fakeplayer.PlayerModelAccessor;
+import cc.cosmetica.cosmetica.utils.LinearAlgebra;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -44,9 +42,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 public class FakePlayerRenderer {
-	public static Quaternion cameraOrientation = Quaternion.ONE;
+	public static Quaternionf cameraOrientation = LinearAlgebra.QUATERNION_ONE;
 
 	// EntityRenderDispatcher#render
 	public static void render(PoseStack stack, FakePlayer player, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
@@ -357,11 +357,11 @@ public class FakePlayerRenderer {
 	}
 
 	private static void setupRotations(FakePlayer player, PoseStack stack, float f, float g, float h) {
-		stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - g));
+		stack.mulPose(LinearAlgebra.quaternionDegrees(LinearAlgebra.YP, 180.0F - g));
 
 		if (player.getData().upsideDown()) {
 			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
-			stack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+			stack.mulPose(LinearAlgebra.quaternionDegrees(LinearAlgebra.ZP, 180.0F));
 		}
 	}
 

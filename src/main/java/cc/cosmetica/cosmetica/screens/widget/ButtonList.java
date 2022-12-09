@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens.widget;
 
+import benzenestudios.sulphate.ClassicButton;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -49,7 +50,7 @@ public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 
 	class Entry extends ContainerObjectSelectionList.Entry<ButtonList.Entry> {
 		Entry(int width, Component text, Button.OnPress callback, @Nullable Component tooltip) {
-			this.button = new Button(0, 0, width, 20, text, callback, tooltip == null ? Button.NO_TOOLTIP : new Button.OnTooltip() {
+			this.button = new ClassicButton(0, 0, width, 20, text, callback, tooltip == null ? ClassicButton.NO_TOOLTIP : new ClassicButton.OnTooltip() {
 				@Nonnull // to make intellij shut up about null warnings
 				private final Component text = tooltip;
 
@@ -78,8 +79,8 @@ public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 
 		@Override
 		public void render(PoseStack poseStack, int i, int y, int k, int l, int m, int passMe1, int passMe2, boolean bl, float passMe3) {
-			this.button.x = ButtonList.this.width / 2 - this.button.getWidth() / 2;
-			this.button.y = y;
+			this.button.setX(ButtonList.this.width / 2 - this.button.getWidth() / 2);
+			this.button.setY(y);
 			this.button.render(poseStack, passMe1, passMe2, passMe3);
 		}
 

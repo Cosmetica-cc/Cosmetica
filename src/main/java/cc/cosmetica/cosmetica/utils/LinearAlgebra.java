@@ -30,7 +30,13 @@ public class LinearAlgebra {
 	public static final Vector3f ZP = new Vector3f(0, 0, 1);
 	public static final Vector3f ZN = new Vector3f(0, 0, -1);
 
+	public static final Quaternionf QUATERNION_ONE = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
+
 	public static Quaternionf quaternion(Vector3f axis, float radians) {
 		return new Quaternionf(new AxisAngle4f(radians, axis));
+	}
+
+	public static Quaternionf quaternionDegrees(Vector3f axis, float degrees) {
+		return new Quaternionf(new AxisAngle4f((float)Math.toRadians(degrees), axis));
 	}
 }
