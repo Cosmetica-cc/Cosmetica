@@ -21,6 +21,7 @@ import cc.cosmetica.cosmetica.utils.TextComponents;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.GridWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -49,6 +50,14 @@ public class WelcomeOptionsScreen extends OptionsScreen {
 			if (widget instanceof AbstractWidget b) {
 				if (b instanceof Button && b.getMessage() instanceof TranslatableContents tc && tc.getKey().equals("cosmetica.cosmetics")) {
 					removeMe = (Button) b;
+				}
+				// 1.19.3 uses GridWidget for this screen.
+				else if (widget instanceof GridWidget grid) {
+					for (GuiEventListener gridChild : grid.children()) {
+						if (gridChild instanceof AbstractWidget bb) {
+							bb.active = false;
+						}
+					}
 				}
 				else {
 					b.active = false;
