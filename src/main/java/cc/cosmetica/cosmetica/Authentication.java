@@ -210,7 +210,7 @@ public class Authentication {
 
 			// or... with the welcome screen!
 			// Welcome tutorial. Only show the first time they start with the mod, and only if show-welcome-message is set to full.
-			if (true || isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
+			if (isWelcomeScreenAllowed && Cosmetica.getConfig().shouldShowWelcomeMessage() == CosmeticaConfig.WelcomeMessageState.FULL) {
 				DebugMode.log("New Player: Showing Welcome Screen");
 
 				RenderSystem.recordRenderCall(() -> {
