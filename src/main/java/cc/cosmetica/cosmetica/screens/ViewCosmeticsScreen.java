@@ -102,12 +102,16 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		return str.isEmpty() ? ImmutableList.of() : ImmutableList.of(str);
 	}
 
+	private List<String> immutableListOf(String mainString, String additionalString) {
+		return mainString.isEmpty() ? ImmutableList.of() : ImmutableList.of(mainString, additionalString);
+	}
+
 	@Override
 	protected void addWidgets() {
 		PlayerData data = this.fakePlayer.getData();
 
 		// cape
-		this.cloakSection = this.createActiveSection("Cape", immutableListOf(data.capeName()), CosmeticType.CAPE, CustomLayer.CAPE_OVERRIDER);
+		this.cloakSection = this.createActiveSection("Cape", immutableListOf(data.cape().getCapeName(), "\u00A77" + data.cape().getOrigin()), CosmeticType.CAPE, CustomLayer.CAPE_OVERRIDER);
 
 		// lore
 		this.loreSection = this.options.lore.get() ? this.createActiveSection("Lore", immutableListOf(data.lore()), null, null) : this.createDisabledSection("Lore");
