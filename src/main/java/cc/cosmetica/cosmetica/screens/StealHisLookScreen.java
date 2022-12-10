@@ -65,8 +65,8 @@ public class StealHisLookScreen extends SulphateScreen {
 
 					// minimise requests by not duplicating
 					// don't set for 3p capes
-					if (!this.look.thirdPartyCape() && !removeNullLikeAChad(this.look.legitCape()).equals(removeNullLikeAChad(this.currentLook.legitCape()))) {
-						requests.add(CompletableFuture.supplyAsync(() -> setCosmeticNotifyErr(CosmeticPosition.CAPE, this.look.capeId())));
+					if (!this.look.cape().isThirdPartyCape() && !removeNullLikeAChad(this.look.cape().getActualImage()).equals(removeNullLikeAChad(this.currentLook.cape().getActualImage()))) {
+						requests.add(CompletableFuture.supplyAsync(() -> setCosmeticNotifyErr(CosmeticPosition.CAPE, this.look.cape().getId())));
 					}
 
 					if (!id(this.look.backBling()).equals(id(this.currentLook.backBling()))) {

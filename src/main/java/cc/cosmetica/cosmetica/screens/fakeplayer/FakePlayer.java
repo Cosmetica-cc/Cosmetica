@@ -135,9 +135,9 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	public ResourceLocation getRenderableCape() {
-		if (this.data.cape() == null) return MissingTextureAtlasSprite.getLocation();
-		return Minecraft.getInstance().getTextureManager().getTexture(this.data.cape(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ?
-				MissingTextureAtlasSprite.getLocation() : this.data.cape();
+		if (this.data.cape().getImage() == null) return MissingTextureAtlasSprite.getLocation();
+		return Minecraft.getInstance().getTextureManager().getTexture(this.data.cape().getImage(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ?
+				MissingTextureAtlasSprite.getLocation() : this.data.cape().getImage();
 	}
 
 	public Iterable<MenuRenderLayer> getLayers() {
