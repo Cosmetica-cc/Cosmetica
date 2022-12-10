@@ -46,7 +46,7 @@ public class TextWidget extends AbstractWidget {
 		Minecraft minecraft = Minecraft.getInstance();
 		Font font = minecraft.font;
 
-		int colour = this.active ? 16777215 : 10526880;
+		int colour = this.active ? 0xFFFFFF : 0xA0A0A0;
 
 		if (this.centered) {
 			drawCenteredString(poseStack, font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);

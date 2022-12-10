@@ -23,21 +23,149 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Data class for Player Data
+ *
+ * @implNote Why isn't this a record? Well, it was a record. However, this mod is maintained across many versions, some of which use
+ * older versions of java without records. Therefore, as this class is edited relatively often, it has been refactored into
+ * a class to prevent merge conflicts every time it is edited.
  */
-public record PlayerData(String lore, boolean upsideDown, @Nullable ResourceLocation icon, boolean online, String prefix, String suffix, List<BakableModel> hats, @Nullable BakableModel leftShoulderBuddy, @Nullable BakableModel rightShoulderBuddy, @Nullable BakableModel backBling, String capeName, String capeId, boolean thirdPartyCape, @Nullable ResourceLocation cape, ResourceLocation skin, boolean slim) {
+public final class PlayerData {
+	private final String lore;
+	private final boolean upsideDown;
+	private final @Nullable ResourceLocation icon;
+	private final boolean online;
 
-	public static PlayerData NONE = new PlayerData("", false, null, false, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
-	public static PlayerData TEMPORARY = new PlayerData("", false, null, false, "", "", new ArrayList<>(), null, null, null, "", "none", false, null, DefaultPlayerSkin.getDefaultSkin(), false);
+	private final String prefix;
+	private final String suffix;
+	private final List<BakableModel> hats;
+	private final CapeData cape;
+	private final @Nullable BakableModel leftShoulderBuddy;
+	private final @Nullable BakableModel rightShoulderBuddy;
+	private final @Nullable BakableModel backBling;
+	private final ResourceLocation skin;
+	private final boolean slim;
 
-	@Override
-	public ResourceLocation cape() {
-		return CustomLayer.CAPE_OVERRIDER.get(() -> this.cape);
+	public PlayerData(String lore, boolean upsideDown, @Nullable ResourceLocation icon, boolean online, String prefix, String suffix, List<BakableModel> hats,
+					  CapeData cape, @Nullable BakableModel leftShoulderBuddy, @Nullable BakableModel rightShoulderBuddy, @Nullable BakableModel backBling, ResourceLocation skin, boolean slim) {
+		this.lore = lore;
+		this.upsideDown = upsideDown;
+		this.prefix = prefix;
+		this.suffix = suffix;
+		this.hats = hats;
+		this.cape = cape;
+		this.leftShoulderBuddy = leftShoulderBuddy;
+		this.rightShoulderBuddy = rightShoulderBuddy;
+		this.backBling = backBling;
+		this.skin = skin;
+		this.slim = slim;
+		// 1.2.2
+		this.icon = icon;
+		this.online = online;
 	}
 
-	public ResourceLocation legitCape() {
+	public String lore() {
+		return lore;
+	}
+
+	public boolean upsideDown() {
+		return upsideDown;
+	}
+
+	public String prefix() {
+		return prefix;
+	}
+
+	public String suffix() {
+		return suffix;
+	}
+
+	public List<BakableModel> hats() {
+		return hats;
+	}
+
+	public BakableModel leftShoulderBuddy() {
+		return leftShoulderBuddy;
+	}
+
+	public BakableModel rightShoulderBuddy() {
+		return rightShoulderBuddy;
+	}
+
+	public BakableModel backBling() {
+		return backBling;
+	}
+
+	public CapeData cape() {
 		return this.cape;
 	}
+
+	public ResourceLocation skin() {
+		return skin;
+	}
+
+	public boolean slim() {
+		return slim;
+	}
+
+	// 1.2.2
+
+	@Nullable
+	public ResourceLocation icon() {
+		return icon;
+	}
+
+	public boolean online() {
+		return online;
+	}
+
+	// --
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) return true;
+		if (obj == null || obj.getClass() != this.getClass()) return false;
+		PlayerData that = (PlayerData) obj;
+		return Objects.equals(this.lore, that.lore) &&
+				this.upsideDown == that.upsideDown &&
+				Objects.equals(this.icon, that.icon) &&
+				this.online == that.online &&
+				Objects.equals(this.prefix, that.prefix) &&
+				Objects.equals(this.suffix, that.suffix) &&
+				Objects.equals(this.cape, that.cape) &&
+				Objects.equals(this.hats, that.hats) &&
+				Objects.equals(this.leftShoulderBuddy, that.leftShoulderBuddy) &&
+				Objects.equals(this.rightShoulderBuddy, that.rightShoulderBuddy) &&
+				Objects.equals(this.backBling, that.backBling) &&
+				Objects.equals(this.skin, that.skin) &&
+				this.slim == that.slim;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(lore, upsideDown, icon, online, prefix, suffix, cape, hats, leftShoulderBuddy, rightShoulderBuddy, backBling, skin, slim);
+	}
+
+	@Override
+	public String toString() {
+		return "PlayerData[" +
+				"lore=" + lore + ", " +
+				"upsideDown=" + upsideDown + ", " +
+				"icon=" + icon + ", " +
+				"online=" + online + ", " +
+				"prefix=" + prefix + ", " +
+				"suffix=" + suffix + ", " +
+				"cape=" + cape + ", " +
+				"hats=" + hats + ", " +
+				"leftShoulderBuddy=" + leftShoulderBuddy + ", " +
+				"rightShoulderBuddy=" + rightShoulderBuddy + ", " +
+				"backBling=" + backBling + ", " +
+				"skin=" + skin + ", " +
+				"slim=" + slim + ']';
+	}
+
+	public static PlayerData NONE = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultSkin(), false);
+	public static PlayerData TEMPORARY = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultSkin(), false);
 }

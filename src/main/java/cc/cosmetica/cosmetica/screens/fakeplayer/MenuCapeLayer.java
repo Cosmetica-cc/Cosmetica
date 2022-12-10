@@ -28,7 +28,7 @@ import net.minecraft.util.Mth;
 public class MenuCapeLayer implements MenuRenderLayer {
 	@Override
 	public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLight, FakePlayer player, float f, float g, float delta, float bob, float yRotDiff, float xRot) {
-		if (player.getData().cape() != null) {
+		if (player.getData().cape().getImage() != null) {
 			stack.pushPose();
 			stack.translate(0.0D, 0.0D, 0.125D);
 			double d = 0 - 0;

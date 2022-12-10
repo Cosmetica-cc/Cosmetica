@@ -45,7 +45,7 @@ public abstract class AbstractClientPlayerMixin extends Player {
 	@Inject(at = @At("HEAD"), method = "getCloakTextureLocation", cancellable = true)
 	private void addCosmeticaCapes(CallbackInfoReturnable<ResourceLocation> info) {
 		if (!Cosmetica.isProbablyNPC(this.uuid)) { // ignore npcs
-			ResourceLocation location = Cosmetica.isPlayerCached(this.uuid) ? Cosmetica.getPlayerData(this).cape() : null; // get the location if cached
+			ResourceLocation location = Cosmetica.isPlayerCached(this.uuid) ? Cosmetica.getPlayerData(this).cape().getImage() : null; // get the location if cached
 			if (location != null && !CosmeticaSkinManager.isUploaded(location)) location = null; // only actually get it if it's been uploaded
 			info.setReturnValue(location); // set the return value to our one
 		}
