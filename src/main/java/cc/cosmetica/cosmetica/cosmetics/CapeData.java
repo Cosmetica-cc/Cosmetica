@@ -46,11 +46,11 @@ public final class CapeData {
 		return this.image;
 	}
 
-	public String getCapeName() {
+	public String getName() {
 		return this.capeName;
 	}
 
-	public String getCapeId() {
+	public String getId() {
 		return this.capeId;
 	}
 
