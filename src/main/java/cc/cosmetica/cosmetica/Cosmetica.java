@@ -25,6 +25,7 @@ import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserInfo;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
+import cc.cosmetica.cosmetica.cosmetics.CapeData;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
@@ -722,13 +723,16 @@ public class Cosmetica implements ClientModInitializer {
 				info.getPrefix(),
 				info.getSuffix(),
 				hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
+				cloak.isPresent() ? new CapeData(
+						CosmeticaSkinManager.processCape(cloak.get()),
+						pickFirst(cloak.get().getName(), cloak.get().getOrigin() + " Cape"),
+						cloak.get().getId(),
+						!cloak.get().isCosmeticaAlternative() && !(cloak.get() instanceof CustomCape),
+						cloak.get().getOrigin()
+				) : CapeData.NO_CAPE,
 				leftShoulderBuddy.isEmpty() ? null : Models.createBakableModel(leftShoulderBuddy.get()),
 				rightShoulderBuddy.isEmpty() ? null : Models.createBakableModel(rightShoulderBuddy.get()),
 				backBling.isEmpty() ? null : Models.createBakableModel(backBling.get()),
-				cloak.isEmpty() ? "" : pickFirst(cloak.get().getName() + (cloak.get().getOrigin().equals("Cosmetica") ? "" : (" (" + cloak.get().getOrigin() + ")")), cloak.get().getOrigin() + " Cape"),
-				cloak.isEmpty() ? "none" : cloak.get().getId(),
-				cloak.isPresent() && !cloak.get().isCosmeticaAlternative() && !(cloak.get() instanceof CustomCape),
-				cloak.isEmpty() ? null : CosmeticaSkinManager.processCape(cloak.get()),
 				CosmeticaSkinManager.processSkin(info.getSkin(), uuid),
 				info.isSlim()
 		);
