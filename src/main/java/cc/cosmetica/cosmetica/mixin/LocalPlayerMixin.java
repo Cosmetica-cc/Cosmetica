@@ -34,8 +34,6 @@ import java.util.OptionalInt;
 public class LocalPlayerMixin {
 	@Inject(at = @At("HEAD"), method = "chat", cancellable = true)
 	private void sendMessage(String string, CallbackInfo info) {
-		if (Cosmetica.api == null) return; // no debug commands if offline
-
 		if (!string.isEmpty() && string.charAt(0) == '/' && DebugMode.debugCommands()) {
 			String[] args = string.split(" ");
 
