@@ -71,9 +71,10 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 	private Section selected;
 
 	private Section createDisabledSection(String title) {
-		Span section = Span.create(title);
+		Div section = Div.create(title);
 
-		this.addTextTo(section, TextComponents.translatable("cosmetica.entry." + title.replace(" ", "") + "Disabled"), 100, false).active = false;
+		this.addTextTo(section, TextComponents.translatable("cosmetica.entry." + title.replace(" ", "")), 100, false);
+		this.addTextTo(section, TextComponents.translatable("cosmetica.entry.disabled"), 100, false);
 
 		section.calculateDimensions();
 		return section;
