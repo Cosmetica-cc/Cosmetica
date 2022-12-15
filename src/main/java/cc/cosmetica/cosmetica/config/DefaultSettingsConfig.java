@@ -39,6 +39,7 @@ public class DefaultSettingsConfig {
 	private Optional<Boolean> enableShoulderBuddies = Optional.empty();
 	private Optional<Boolean> enableBackBlings = Optional.empty();
 	private Optional<Boolean> enableLore = Optional.empty();
+	private Optional<Boolean> onlineActivity = Optional.empty();
 	private OptionalInt iconSettings = OptionalInt.empty();
 
 	private boolean loaded = false;
@@ -69,6 +70,10 @@ public class DefaultSettingsConfig {
 		return enableLore;
 	}
 
+	public Optional<Boolean> shouldDoOnlineActivity() {
+		return onlineActivity;
+	}
+
 	public OptionalInt getIconSettings() {
 		return this.iconSettings;
 	}
@@ -92,6 +97,7 @@ public class DefaultSettingsConfig {
 		enableShoulderBuddies = parseBlankableBoolean(properties.getProperty("enable-shoulder-buddies", ""));
 		enableBackBlings = parseBlankableBoolean(properties.getProperty("enable-back-blings", ""));
 		enableLore = parseBlankableBoolean(properties.getProperty("enable-lore", ""));
+		onlineActivity = parseBlankableBoolean(properties.getProperty("online-activity", ""));
 		iconSettings = properties.getProperty("enable-icons", "").isEmpty() ? OptionalInt.empty() : OptionalInt.of(
 				flag(UserSettings.DISABLE_ICONS, !Boolean.parseBoolean(properties.getProperty("enable-icons", "true")))
 				| flag(UserSettings.DISABLE_OFFLINE_ICONS, !parseBlankableBoolean(properties.getProperty("enable-online-icons", ""), true))
@@ -143,6 +149,8 @@ public class DefaultSettingsConfig {
 			properties.setProperty("enable-offline-icons", "");
 			properties.setProperty("enable-special-icons", "");
 		}
+
+		properties.setProperty("online-activity", toStringBlankable(onlineActivity));
 
 		capeServerSettings.forEach((capeServerSetting, display) -> properties.setProperty("cape-setting-" + capeServerSetting, display.name().toLowerCase(Locale.ROOT)));
 		properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Default Settings Config");
