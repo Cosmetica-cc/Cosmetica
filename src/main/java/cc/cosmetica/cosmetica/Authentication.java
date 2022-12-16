@@ -261,6 +261,7 @@ public class Authentication {
 										defaults.areShoulderBuddiesEnabled().ifPresent(v -> settings.put("doshoulderbuddies", v));
 										defaults.areBackBlingsEnabled().ifPresent(v -> settings.put("dobackblings", v));
 										defaults.isLoreEnabled().ifPresent(v -> settings.put("dolore", v));
+										defaults.shouldDoOnlineActivity().ifPresent(v -> settings.put("doonlineactivity", v));
 										defaults.getIconSettings().ifPresent(v -> settings.put("iconsettings", v));
 
 										// post the settings to update if they exist
