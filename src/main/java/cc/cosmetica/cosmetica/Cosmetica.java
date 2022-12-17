@@ -497,7 +497,7 @@ public class Cosmetica implements ClientModInitializer {
 					africaFails++;
 					return true;
 				}
-				else if (DebugMode.ENABLED) {
+				else if (DebugMode.elevatedLogging()) {
 					return true;
 				}
 				else {
