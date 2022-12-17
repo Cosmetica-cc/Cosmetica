@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.utils.textures;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.SpriteTicker;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -61,8 +62,17 @@ public class ModelSprite extends TextureAtlasSprite {
 
 	@Override
 	public ResourceLocation atlasLocation() {
-		throw new UnsupportedOperationException("I am a teapot. Tried to call atlasLocation() on cosmetica ModelSprite.");
+		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+			throw new UnsupportedOperationException("I am a teapot. Tried to call atlasLocation() on cosmetica ModelSprite.");
+		}
+		else {
+			// fix compat with ModelGapFix (modelfix)
+			// pretend to be the block atlas
+			return BLOCK_ATLAS;
+		}
 	}
+
+	private static final ResourceLocation BLOCK_ATLAS = new ResourceLocation("textures/atlas/blocks.png");
 
 	@Override
 	public void uploadFirstFrame() {

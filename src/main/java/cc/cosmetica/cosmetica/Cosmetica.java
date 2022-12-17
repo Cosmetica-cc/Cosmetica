@@ -105,6 +105,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -410,6 +411,12 @@ public class Cosmetica implements ClientModInitializer {
 			safari(prideRock, yourFirstRodeo, ignoreSelf);
 	}
 
+	/**
+	 * Keep track of africa fails to silence it after 3 fails.
+	 * If elevated logging is on, this is ignored.
+	 */
+	private static int africaFails = 0;
+
 	public static void safari(InetSocketAddress prideRock, boolean yourFirstRodeo, boolean ignoreSelf) {
 		if (api != null && api.isAuthenticated()) {
 			DebugMode.log("Thread for safari {}", Thread.currentThread().getName());
@@ -469,7 +476,20 @@ public class Cosmetica implements ClientModInitializer {
 								}
 							}
 						}
-			}, logErr("Error checking for cosmetic updates on the remote server"));
+
+						africaFails = 0;
+			}, logErr("Error checking for cosmetic updates on the remote server", e -> {
+				if (africaFails < 3) {
+					africaFails++;
+					return true;
+				}
+				else if (DebugMode.elevatedLogging()) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}));
 		}
 	}
 
@@ -921,5 +941,13 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static Consumer<RuntimeException> logErr(String message) {
 		return e -> LOGGER.error(message + ": ", e);
+	}
+
+	public static Consumer<RuntimeException> logErr(String message, Predicate<RuntimeException> predicate) {
+		return e -> {
+			if (predicate.test(e)) {
+				LOGGER.error(message + ": ", e);
+			}
+		};
 	}
 }
