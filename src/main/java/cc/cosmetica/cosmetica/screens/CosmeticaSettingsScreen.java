@@ -95,7 +95,7 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 		);
 
 		this.addButton(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()), (button) -> {
-			this.newOptions.backBlings.toggle();
+			this.newOptions.onlineActivity.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()));
 		});
 
