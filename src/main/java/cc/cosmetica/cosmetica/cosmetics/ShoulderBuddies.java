@@ -17,7 +17,10 @@
 package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.api.Model;
+import cc.cosmetica.cosmetica.cosmetics.model.BuiltInModel;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
+import cc.cosmetica.cosmetica.cosmetics.model.NZSheepBuiltinModel;
+import cc.cosmetica.cosmetica.cosmetics.model.PersianCatBuiltinModel;
 import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
@@ -76,48 +79,10 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 	public void render(BakableModel modelData, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, Playerish player, boolean left) {
 		stack.pushPose();
 
-		if (modelData.id().equals("-sheep")) { // builtin live sheep
-			LiveSheepModel model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP_FUR));
-			stack.pushPose();
-			stack.scale(0.8f, 0.8f, 0.8f);
-			stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
-			stack.scale(0.35f, 0.35f, 0.35f);
-
-			// calculate colour like a jeb sheep
-			final int rate = 25;
-
-			int tick = player.getLifetime() / rate + player.getPseudoId();
-			int numColours = DyeColor.values().length;
-
-			int prevTick = tick % numColours;
-			int nextTick = (tick + 1) % numColours;
-			float progress = ((float)(player.getLifetime() % rate) + 0) / (float) rate;
-
-			float[] prevColours = Sheep.getColorArray(DyeColor.byId(prevTick));
-			float[] nextColours = Sheep.getColorArray(DyeColor.byId(nextTick));
-
-			float red = prevColours[0] * (1.0F - progress) + nextColours[0] * progress;
-			float green = prevColours[1] * (1.0F - progress) + nextColours[1] * progress;
-			float blue = prevColours[2] * (1.0F - progress) + nextColours[2] * progress;
-
-			// render
-			VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
-			model.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0f);
-
-			stack.popPose();
-
-			model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP));
-
-			stack.pushPose();
-
-			stack.scale(0.8f, 0.8f, 0.8f);
-			stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
-
-			vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
-			model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
-
-			stack.popPose();
-		} else {
+		if (BuiltInModel.BUILT_IN_MODELS.containsKey(modelData.id())) { // builtin live sheep
+			BuiltInModel.BUILT_IN_MODELS.get(modelData.id()).render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
+		}
+		else {
 			boolean staticPosition = staticOverride.orElse(modelData.extraInfo() & Model.LOCK_SHOULDER_BUDDY_ORIENTATION) == Model.LOCK_SHOULDER_BUDDY_ORIENTATION;
 
 			if (staticPosition) {
@@ -135,4 +100,9 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 	public static final CosmeticStack<BakableModel> LEFT_OVERRIDDEN = new CosmeticStack();
 	public static final CosmeticStack<BakableModel> RIGHT_OVERRIDDEN = new CosmeticStack();
 	public static OptionalInt staticOverride = OptionalInt.empty();
+
+	static {
+		BuiltInModel.BUILT_IN_MODELS.put("-sheep", new NZSheepBuiltinModel());
+		BuiltInModel.BUILT_IN_MODELS.put("-persiancat", new PersianCatBuiltinModel());
+	}
 }

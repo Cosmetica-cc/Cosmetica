@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.cosmetics;
+package cc.cosmetica.cosmetica.cosmetics.model;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -31,7 +31,7 @@ import net.minecraft.world.entity.animal.Sheep;
 
 public class LiveSheepModel<T extends Sheep> extends QuadrupedModel<T> {
 	private float headXRot;
-	ModelPart root;
+	final ModelPart root;
 
 	public LiveSheepModel(ModelPart modelPart) {
 		super(modelPart, false, 8.0F, 4.0F, 2.0F, 2.0F, 24);
