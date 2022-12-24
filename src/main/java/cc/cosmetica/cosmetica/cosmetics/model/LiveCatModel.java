@@ -14,7 +14,7 @@ public class LiveCatModel extends CatModel<Cat> {
 
 	final ModelPart root;
 
-	void lieDown(float amount, float amountTail) {
+	void lieDown(int lifetime) {
 		this.leftFrontLeg.xRot = (float)-Math.PI / 3f;
 		this.leftFrontLeg.y += 3f;
 
@@ -24,9 +24,14 @@ public class LiveCatModel extends CatModel<Cat> {
 		this.leftHindLeg.xRot = (float)Math.PI / 6f;
 		this.rightHindLeg.xRot = (float)Math.PI / 6f;
 
-		this.tail1.zRot = (float) Math.PI;
-		this.tail2.xRot = (float) Math.PI;
-		this.tail2.z += 1;
-		this.tail2.y -= 8;
+		
+		float rotation = 0;
+
+		this.tail1.zRot = rotation;
+		this.tail2.zRot = this.tail1.zRot;
+
+		this.tail2.y += 4.19f * Mth.cos(this.tail1.zRot) - 5.04f;
+		this.tail2.x += -4.19f * Mth.sin(this.tail1.zRot);
+		this.tail2.z -= 0.1f;
 	}
 }
