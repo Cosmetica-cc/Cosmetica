@@ -80,8 +80,8 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 		stack.pushPose();
 
 		if (BuiltInModel.BUILT_IN_MODELS.containsKey(modelData.id())) { // builtin live sheep
-//			BuiltInModel.BUILT_IN_MODELS.get(modelData.id()).render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
-			BuiltInModel.BUILT_IN_MODELS.get("-persiancat").render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
+			BuiltInModel.BUILT_IN_MODELS.get(modelData.id()).render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
+//			BuiltInModel.BUILT_IN_MODELS.get("-persiancat").render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
 		}
 		else {
 			boolean staticPosition = staticOverride.orElse(modelData.extraInfo() & Model.LOCK_SHOULDER_BUDDY_ORIENTATION) == Model.LOCK_SHOULDER_BUDDY_ORIENTATION;
