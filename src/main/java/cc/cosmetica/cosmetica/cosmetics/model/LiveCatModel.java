@@ -39,10 +39,12 @@ public class LiveCatModel extends CatModel<Cat> {
 	void pose(int lifetime) {
 		// general stuff
 		this.leftFrontLeg.xRot = (float)-Math.PI / 3f;
-		this.leftFrontLeg.y += 3f;
+		this.leftFrontLeg.y += 2f;
+		this.leftFrontLeg.z += 1f;
 
 		this.rightFrontLeg.xRot = (float)-Math.PI / 3f;
-		this.rightFrontLeg.y += 3f;
+		this.rightFrontLeg.y += 2f;
+		this.rightFrontLeg.z += 1f;
 
 		this.leftHindLeg.xRot = (float)Math.PI / 6f;
 		this.rightHindLeg.xRot = (float)Math.PI / 6f;
@@ -84,7 +86,7 @@ public class LiveCatModel extends CatModel<Cat> {
 			// transition
 			pawRaise = MutableOptionalFloat.empty()
 					.computeIfAbsent(() -> RAISE_ARM.getNullable(1024 - RAISE_ARM.duration, cycle_m5))
-					.computeIfAbsent(() -> RAISE_ARM.getNullable(820 - 15, cycle))
+					.computeIfAbsent(() -> RAISE_ARM.getNullable(820 - RAISE_ARM.duration + 5, cycle))
 					.computeIfAbsent(() -> LOWER_ARM.getNullable(0 + HEAD_ROT.duration, cycle))
 					.computeIfAbsent(() -> LOWER_ARM.getNullable(820 + HEAD_ROT_LONG.duration, cycle))
 					.orElse(0);
@@ -216,9 +218,11 @@ public class LiveCatModel extends CatModel<Cat> {
 			.then(5, Mth.PI / 3, EASE_IN_OUT)
 			.then(10, 0, EASE_IN);
 
+	static final int ARM_TRANSITION_DURATION = 12;
+
 	static final Animation RAISE_ARM = new Animation(0)
-			.then(20, 1, EASE_OUT);
+			.then(ARM_TRANSITION_DURATION, 1, EASE_OUT);
 
 	static final Animation LOWER_ARM = new Animation(1)
-			.then(20, 0, EASE_OUT);
+			.then(ARM_TRANSITION_DURATION, 0, EASE_OUT);
 }

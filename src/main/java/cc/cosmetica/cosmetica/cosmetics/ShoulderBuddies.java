@@ -79,7 +79,7 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 	public void render(BakableModel modelData, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, Playerish player, boolean left) {
 		stack.pushPose();
 
-		if (true || BuiltInModel.BUILT_IN_MODELS.containsKey(modelData.id())) { // builtin live sheep
+		if (BuiltInModel.BUILT_IN_MODELS.containsKey(modelData.id())) { // builtin live sheep
 //			BuiltInModel.BUILT_IN_MODELS.get(modelData.id()).render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
 			BuiltInModel.BUILT_IN_MODELS.get("-persiancat").render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
 		}
