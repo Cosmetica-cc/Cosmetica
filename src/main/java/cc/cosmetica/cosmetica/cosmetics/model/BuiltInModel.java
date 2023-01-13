@@ -18,19 +18,13 @@ package cc.cosmetica.cosmetica.cosmetics.model;
 
 import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A built-in, live model. Used for some Region Specific Effects.
  */
 public interface BuiltInModel {
-	void render(PoseStack stack, MultiBufferSource multiBufferSource, EntityModelSet modelSet, Playerish player, boolean left, int packedLight);
+	void render(PoseStack stack, MultiBufferSource multiBufferSource, Playerish player, boolean left, int packedLight);
 	Component notice();
-
-	Map<String, BuiltInModel> BUILT_IN_MODELS = new HashMap<>();
 }

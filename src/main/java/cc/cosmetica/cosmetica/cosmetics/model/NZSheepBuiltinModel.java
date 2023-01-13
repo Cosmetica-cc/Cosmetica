@@ -30,13 +30,22 @@ import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.item.DyeColor;
 
 public class NZSheepBuiltinModel implements BuiltInModel {
+	public NZSheepBuiltinModel(EntityModelSet modelSet) {
+		this.fur = new LiveSheepModel(modelSet.bakeLayer(ModelLayers.SHEEP_FUR));
+		this.body = new LiveSheepModel(modelSet.bakeLayer(ModelLayers.SHEEP));
+	}
+
+	private final LiveSheepModel fur;
+	private final LiveSheepModel body;
+
 	@Override
-	public void render(PoseStack stack, MultiBufferSource multiBufferSource, EntityModelSet entityModelSet, Playerish player, boolean left, int packedLightProbably) {
-		LiveSheepModel model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP_FUR));
+	public void render(PoseStack stack, MultiBufferSource multiBufferSource, Playerish player, boolean left, int packedLightProbably) {
 		stack.pushPose();
 		stack.scale(0.8f, 0.8f, 0.8f);
 		stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
 		stack.scale(0.35f, 0.35f, 0.35f);
+
+		// Fur
 
 		// calculate colour like a jeb sheep
 		final int rate = 25;
@@ -56,20 +65,20 @@ public class NZSheepBuiltinModel implements BuiltInModel {
 		float blue = prevColours[2] * (1.0F - progress) + nextColours[2] * progress;
 
 		// render
-		VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
-		model.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0f);
+		VertexConsumer vertexConsumer = multiBufferSource.getBuffer(fur.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
+		fur.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0f);
 
 		stack.popPose();
 
-		model = new LiveSheepModel(entityModelSet.bakeLayer(ModelLayers.SHEEP));
+		// Body
 
 		stack.pushPose();
 
 		stack.scale(0.8f, 0.8f, 0.8f);
 		stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
 
-		vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
-		model.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
+		vertexConsumer = multiBufferSource.getBuffer(body.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
+		body.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
 
 		stack.popPose();
 	}

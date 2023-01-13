@@ -28,9 +28,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class PersianCatBuiltinModel implements BuiltInModel {
+	public PersianCatBuiltinModel(EntityModelSet modelSet) {
+		this.model = new LiveCatModel(modelSet.bakeLayer(ModelLayers.CAT));
+	}
+
+	private final LiveCatModel model;
+
 	@Override
-	public void render(PoseStack stack, MultiBufferSource multiBufferSource, EntityModelSet modelSet, Playerish player, boolean left, int packedLight) {
-		LiveCatModel model = new LiveCatModel(modelSet.bakeLayer(ModelLayers.CAT));
+	public void render(PoseStack stack, MultiBufferSource multiBufferSource, Playerish player, boolean left, int packedLight) {
 		stack.pushPose();
 		stack.translate(left ? 0.405 : -0.405, (player.isSneaking() ? -1.3 : -1.515D) + 1.07D, 0.0D);
 		stack.scale(0.35f, 0.35f, 0.35f);

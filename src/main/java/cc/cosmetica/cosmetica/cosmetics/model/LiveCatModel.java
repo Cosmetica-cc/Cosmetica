@@ -49,6 +49,8 @@ public class LiveCatModel extends CatModel<Cat> {
 		this.leftHindLeg.xRot = (float)Math.PI / 6f;
 		this.rightHindLeg.xRot = (float)Math.PI / 6f;
 
+		// falling leg raise
+
 		// animations master timer
 		// 51.2 second cycle
 		final int cycle = lifetime % 1024;
