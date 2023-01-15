@@ -40,15 +40,10 @@ public class PersianCatBuiltinModel implements BuiltInModel {
 		stack.translate(left ? 0.405 : -0.405, (player.isSneaking() ? -1.3 : -1.515D) + 1.07D, 0.0D);
 		stack.scale(0.35f, 0.35f, 0.35f);
 
-		model.pose(player.getLifetime());
+		model.pose(player);
 
 		VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/cat/persian.png")));
 		model.root.render(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 		stack.popPose();
-	}
-
-	@Override
-	public Component notice() {
-		return TextComponents.translatable("cosmetica.rsenotice.iranian");
 	}
 }

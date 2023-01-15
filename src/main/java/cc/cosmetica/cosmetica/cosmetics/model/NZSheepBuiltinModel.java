@@ -17,14 +17,12 @@
 package cc.cosmetica.cosmetica.cosmetics.model;
 
 import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
-import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.item.DyeColor;
@@ -81,10 +79,5 @@ public class NZSheepBuiltinModel implements BuiltInModel {
 		body.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
 
 		stack.popPose();
-	}
-
-	@Override
-	public Component notice() {
-		return TextComponents.translatable("cosmetica.rsenotice.kiwi");
 	}
 }

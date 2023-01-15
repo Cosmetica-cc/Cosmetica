@@ -21,10 +21,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A built-in, live model. Used for some Region Specific Effects.
  */
 public interface BuiltInModel {
 	void render(PoseStack stack, MultiBufferSource multiBufferSource, Playerish player, boolean left, int packedLight);
-	Component notice();
+
+	/**
+	 * Stores the RSE notices for the IDs of each built-in model.
+	 */
+	Map<String, Component> NOTICES = new HashMap<>();
 }

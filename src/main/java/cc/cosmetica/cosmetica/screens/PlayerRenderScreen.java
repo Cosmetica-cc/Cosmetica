@@ -23,26 +23,18 @@ import cc.cosmetica.cosmetica.cosmetics.model.BuiltInModel;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MouseTracker;
-import cc.cosmetica.cosmetica.screens.widget.ButtonList;
 import cc.cosmetica.cosmetica.utils.TextComponents;
-import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
-import cc.cosmetica.util.Yootil;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.Optional;
 
 public abstract class PlayerRenderScreen extends SulphateScreen {
 	protected PlayerRenderScreen(Component title, @Nullable Screen parent, @Nullable FakePlayer fakePlayer) {
@@ -114,11 +106,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.suffix", data.suffix().trim());
 		}
 		else if (builtInShoulderBuddyId != null) {
-			BuiltInModel model = BuiltInModel.BUILT_IN_MODELS.get(builtInShoulderBuddyId);
-
-			if (model != null) {
-				regionEffectsMsg = model.notice();
-			}
+			regionEffectsMsg = BuiltInModel.NOTICES.get(builtInShoulderBuddyId);
 		}
 
 		if (regionEffectsMsg != null) {

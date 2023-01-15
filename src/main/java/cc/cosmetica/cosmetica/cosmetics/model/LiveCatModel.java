@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.cosmetics.model;
 
+import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import cc.cosmetica.cosmetica.utils.MutableOptionalFloat;
 import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import net.minecraft.client.model.CatModel;
@@ -32,28 +33,45 @@ public class LiveCatModel extends CatModel<Cat> {
 	public LiveCatModel(ModelPart modelPart) {
 		super(modelPart);
 		this.root = modelPart;
+
+		this.leftHindLeg.xRot = (float)Math.PI / 6f;
+		this.rightHindLeg.xRot = (float)Math.PI / 6f;
 	}
 
 	final ModelPart root;
 
-	void pose(int lifetime) {
+	void pose(Playerish player) {
 		// general stuff
 		this.leftFrontLeg.xRot = (float)-Math.PI / 3f;
-		this.leftFrontLeg.y += 2f;
-		this.leftFrontLeg.z += 1f;
+		this.leftFrontLeg.y = 14.1f + 2f;
+		this.leftFrontLeg.z = -5.0f + 1f;
 
 		this.rightFrontLeg.xRot = (float)-Math.PI / 3f;
-		this.rightFrontLeg.y += 2f;
-		this.rightFrontLeg.z += 1f;
+		this.rightFrontLeg.y = 14.1f + 2f;
+		this.rightFrontLeg.z = -5.0f + 1f;
 
-		this.leftHindLeg.xRot = (float)Math.PI / 6f;
-		this.rightHindLeg.xRot = (float)Math.PI / 6f;
+		this.leftHindLeg.z = 5.0f + 0.2f;
+		this.rightHindLeg.z = 5.0f + 0.2f;
 
 		// falling leg raise
+		float hindLegRot = (float)Math.PI / 6f + (player.getVelocity().y < 0 ? Mth.clamp((float) -player.getVelocity().y, 0, (float)Math.PI / 4f): 0);
+		final float minShift = 0.005f;
+
+		if (Math.abs(hindLegRot - this.leftHindLeg.xRot) < 0.03f) {
+			this.leftHindLeg.xRot = hindLegRot;
+			this.rightHindLeg.xRot = hindLegRot;
+		}
+		else {
+			float hindLegRotMod = (hindLegRot - this.leftHindLeg.xRot) * 0.1f;
+			if (Math.abs(hindLegRotMod) < minShift) hindLegRotMod = minShift;
+
+			this.leftHindLeg.xRot += hindLegRotMod;
+			this.rightHindLeg.xRot += hindLegRotMod;
+		}
 
 		// animations master timer
 		// 51.2 second cycle
-		final int cycle = lifetime % 1024;
+		final int cycle = player.getLifetime() % 1024;
 
 		// tail animation
 		float tailRotation = MutableOptionalFloat.empty()
@@ -64,9 +82,9 @@ public class LiveCatModel extends CatModel<Cat> {
 		this.tail1.zRot = tailRotation;
 		this.tail2.zRot = this.tail1.zRot;
 
-		this.tail2.y += 4.19f * Mth.cos(this.tail1.zRot) - 5.04f;
-		this.tail2.x += -4.19f * Mth.sin(this.tail1.zRot);
-		this.tail2.z -= 0.1f;
+		this.tail2.y = 20.0f + 4.19f * Mth.cos(this.tail1.zRot) - 5.04f;
+		this.tail2.x = -4.19f * Mth.sin(this.tail1.zRot);
+		this.tail2.z = 14.0f - 0.1f;
 
 		// licking animation
 
@@ -95,8 +113,8 @@ public class LiveCatModel extends CatModel<Cat> {
 		}
 
 
-		this.rightFrontLeg.yRot += pawRaise * 0.2f;
-		this.rightFrontLeg.xRot -= pawRaise * 0.62f;
+		this.rightFrontLeg.yRot = pawRaise * 0.2f;
+		this.rightFrontLeg.xRot -= pawRaise * 0.62f; // adjusting from base position established at beginning of method
 	}
 
 	private static class Animation {

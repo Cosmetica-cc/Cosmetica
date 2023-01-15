@@ -28,7 +28,9 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import cc.cosmetica.cosmetica.utils.HashMapBackedLazyMap;
 import cc.cosmetica.cosmetica.utils.LazyMap;
+import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
@@ -36,21 +38,17 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.OptionalInt;
 
 public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
 	public ShoulderBuddies(RenderLayerParent<T, PlayerModel<T>> renderLayerParent, EntityModelSet entityModelSet) {
 		super(renderLayerParent);
-		this.entityModelSet = entityModelSet;
 		this.builtInModels = new HashMapBackedLazyMap<>();
 
 		this.builtInModels.put("-sheep", () -> new NZSheepBuiltinModel(entityModelSet));
 		this.builtInModels.put("-persiancat", () -> new PersianCatBuiltinModel(entityModelSet));
 	}
 
-	private EntityModelSet entityModelSet;
 	private final LazyMap<String, BuiltInModel> builtInModels;
 
 	@Override
@@ -81,8 +79,8 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 		stack.pushPose();
 
 		if (this.builtInModels.containsKey(modelData.id())) { // builtin live sheep
-			this.builtInModels.get(modelData.id()).render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
-//			this.builtInModels.get("-persiancat").render(stack, multiBufferSource, this.entityModelSet, player, left, packedLightProbably);
+			this.builtInModels.get(modelData.id()).render(stack, multiBufferSource, player, left, packedLightProbably);
+//			this.builtInModels.get("-persiancat").render(stack, multiBufferSource, player, left, packedLightProbably);
 		}
 		else {
 			boolean staticPosition = staticOverride.orElse(modelData.extraInfo() & Model.LOCK_SHOULDER_BUDDY_ORIENTATION) == Model.LOCK_SHOULDER_BUDDY_ORIENTATION;
@@ -102,4 +100,9 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 	public static final CosmeticStack<BakableModel> LEFT_OVERRIDDEN = new CosmeticStack();
 	public static final CosmeticStack<BakableModel> RIGHT_OVERRIDDEN = new CosmeticStack();
 	public static OptionalInt staticOverride = OptionalInt.empty();
+
+	static {
+		BuiltInModel.NOTICES.put("-sheep", TextComponents.translatable("cosmetica.rsenotice.kiwi"));
+		BuiltInModel.NOTICES.put("-persiancat", TextComponents.translatable("cosmetica.rsenotice.iranian"));
+	}
 }
