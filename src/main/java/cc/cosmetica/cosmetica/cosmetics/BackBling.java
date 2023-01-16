@@ -44,7 +44,7 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 		if (modelData == null) return; // if it has a model
 		if (((player.isCapeLoaded() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null) || player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA))
 				&& (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CAPE) == 0) return; // if wearing cape/elytra and show bb w cape is not set
-		else if (player.hasItemInSlot(EquipmentSlot.CHEST) && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CHESTPLATE) == 0) return; // if wearing chestplate and show bb w chestplate is not set
+		else if ((player.hasItemInSlot(EquipmentSlot.CHEST) && !player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA)) && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CHESTPLATE) == 0) return; // if wearing chestplate and show bb w chestplate is not set
 
 		stack.pushPose();
 		doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLightProbably, 0, -0.1f - (0.15f/6.0f), 0.1f + (0.4f/16.0f));
