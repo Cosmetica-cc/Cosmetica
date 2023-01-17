@@ -19,28 +19,22 @@ package cc.cosmetica.cosmetica.screens;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.cosmetics.model.BuiltInModel;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MouseTracker;
-import cc.cosmetica.cosmetica.screens.widget.ButtonList;
 import cc.cosmetica.cosmetica.utils.TextComponents;
-import cc.cosmetica.cosmetica.utils.textures.CosmeticIconTexture;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.Optional;
 
 public abstract class PlayerRenderScreen extends SulphateScreen {
 	protected PlayerRenderScreen(Component title, @Nullable Screen parent, @Nullable FakePlayer fakePlayer) {
@@ -99,6 +93,8 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	protected void renderRSENotif(PoseStack matrices, int mouseX, int mouseY) {
 		Component regionEffectsMsg = null;
 		PlayerData data = this.fakePlayer.getData();
+		@Nullable String builtInShoulderBuddyId = data.rightShoulderBuddy() == null ? null : (data.rightShoulderBuddy().id().startsWith("-") ? data.rightShoulderBuddy().id() : null);
+		if (builtInShoulderBuddyId == null) builtInShoulderBuddyId = data.leftShoulderBuddy() == null ? null : (data.leftShoulderBuddy().id().startsWith("-") ? data.leftShoulderBuddy().id() : null);
 
 		if (data.upsideDown()) {
 			regionEffectsMsg = TextComponents.translatable("cosmetica.rsenotice.australian");
@@ -109,9 +105,8 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		else if (!data.suffix().isEmpty()) {
 			regionEffectsMsg = TextComponents.formattedTranslatable("cosmetica.rsenotice.suffix", data.suffix().trim());
 		}
-		else if (Optional.ofNullable(data.rightShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)
-				|| Optional.ofNullable(data.leftShoulderBuddy()).map(b -> b.id().equals("-sheep")).orElse(false)) {
-			regionEffectsMsg = TextComponents.translatable("cosmetica.rsenotice.kiwi");
+		else if (builtInShoulderBuddyId != null) {
+			regionEffectsMsg = BuiltInModel.NOTICES.get(builtInShoulderBuddyId);
 		}
 
 		if (regionEffectsMsg != null) {
