@@ -24,6 +24,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(AbstractClientPlayer.class)
@@ -55,5 +56,10 @@ public abstract class AbstractClientPlayerMixin extends Player implements Player
 	@Override
 	public PlayerData getCosmeticaPlayerData() {
 		return Cosmetica.getPlayerData(this);
+	}
+
+	@Override
+	public Vec3 getVelocity() {
+		return this.getDeltaMovement();
 	}
 }

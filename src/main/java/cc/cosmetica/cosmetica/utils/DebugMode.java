@@ -68,11 +68,20 @@ public class DebugMode {
 	// edit this to change debug settings
 	private static DebugModeConfig debugSettings = new DebugModeConfig();
 	private static final Set<String> complainedAbout = new HashSet<>();
+	private static final Set<String> warnedAbout = new HashSet<>();
 
 	public static void complainOnce(String key, String str, Object... objects) {
 		if (ENABLED && debugSettings.elevateDebugLogging && !complainedAbout.contains(key)) {
 			complainedAbout.add(key);
 			DEBUG_LOGGER.info("[COMPLAINT] " + str, objects);
+		}
+	}
+
+	// not actually a debug mode thing but it fits here
+	public static void warnOnce(String key, String str, Object... objects) {
+		if (!warnedAbout.contains(key)) {
+			warnedAbout.add(key);
+			Cosmetica.LOGGER.warn(str, objects);
 		}
 	}
 

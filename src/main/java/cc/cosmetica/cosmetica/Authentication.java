@@ -289,7 +289,7 @@ public class Authentication {
 											String capeId = defaults.getCapeId();
 
 											if (!capeId.isEmpty()) {
-												Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId);
+												Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId, true);
 											}
 										}
 

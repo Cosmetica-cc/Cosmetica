@@ -382,6 +382,7 @@ public class FakePlayerRenderer {
 				player.getData().lore(),
 				player.getData().hats(),
 				false,
+				true,
 				player.renderDiscreteNametag(),
 				player.getData().upsideDown(),
 				EntityType.PLAYER.getDimensions().height,
