@@ -16,6 +16,9 @@
 
 package cc.cosmetica.cosmetica.utils.textures;
 
+import cc.cosmetica.cosmetica.utils.DebugMode;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.Tickable;
@@ -73,8 +76,17 @@ public class ModelSprite extends TextureAtlasSprite {
 
 	@Override
 	public TextureAtlas atlas() {
-		throw new UnsupportedOperationException("I am a teapot. Tried to call atlas() on cosmetica ModelSprite.");
+		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+			throw new UnsupportedOperationException("I am a teapot. Tried to call atlas() on cosmetica ModelSprite.");
+		}
+		else {
+			// fix compat with ModelGapFix (modelfix)
+			// pretend to be the block atlas
+			DebugMode.warnOnce("UnsafeAtlasAccess", "A mod called atlas() on a cosmetica ModelSprite. Behaviour could be unpredictable.");
+			return Minecraft.getInstance().getModelManager().getAtlas(BLOCK_ATLAS);
+		}
 	}
+	private static final ResourceLocation BLOCK_ATLAS = new ResourceLocation("textures/atlas/blocks.png");
 
 	@Override
 	public boolean isTransparent(int i, int j, int k) {
