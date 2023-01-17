@@ -88,6 +88,7 @@
   "cosmetica.rsewarning.description": "\u00A77Region-Specific Effects applies extra exclusive cosmetics based on what country you're in. For example, Australians will be turned uʍop ǝpısdn ;). While this is a lot of fun, it does mean that players can use this to determine your country of origin. If you disable Region-Specific effects, you won't be able to see the effects on others either.",
   "cosmetica.rsenotice.australian": "You have enabled Region Specific Effects, which has determined you're an uʍop ǝpısdn australian!",
   "cosmetica.rsenotice.kiwi": "You have enabled Region Specific Effects, which is giving you a special sheep shoulder buddy to flex you're 100% pure NZ ;)",
+  "cosmetica.rsenotice.iranian": "You have enabled Region Specific Effects, which is giving you a special persian cat shoulder buddy to show you're from Iran.",
   "cosmetica.rsenotice.prefix": "You have enabled Region Specific Effects, which has given you the prefix %s based on the country you're in.",
   "cosmetica.rsenotice.suffix": "You have enabled Region Specific Effects, which has given you the suffix %s based on the country you're in.",
   "cosmetica.welcome.blanktitle": "",

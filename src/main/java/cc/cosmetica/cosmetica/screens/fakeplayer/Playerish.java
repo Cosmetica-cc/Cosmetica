@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.screens.fakeplayer;
 
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Something that's... playerish. Could be a player, could be a fake player.
@@ -32,6 +33,12 @@ public interface Playerish {
 	 * Get something that could be an entity id. Then again, maybe it isn't.
 	 */
 	int getPseudoId();
+
+	/**
+	 * Gets the velocity of the player.
+	 * @return the velocity of this player.
+	 */
+	Vec3 getVelocity();
 
 	/**
 	 * Whether the player is sneaking.

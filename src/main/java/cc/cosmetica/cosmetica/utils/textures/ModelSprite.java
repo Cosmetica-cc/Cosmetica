@@ -16,11 +16,10 @@
 
 package cc.cosmetica.cosmetica.utils.textures;
 
-import com.mojang.blaze3d.platform.NativeImage;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.SpriteTicker;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.Tickable;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
@@ -68,6 +67,7 @@ public class ModelSprite extends TextureAtlasSprite {
 		else {
 			// fix compat with ModelGapFix (modelfix)
 			// pretend to be the block atlas
+			DebugMode.warnOnce("UnsafeAtlasAccess", "A mod called atlas() on a cosmetica ModelSprite. Behaviour could be unpredictable.");
 			return BLOCK_ATLAS;
 		}
 	}

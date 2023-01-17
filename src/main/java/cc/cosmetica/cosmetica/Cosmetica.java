@@ -762,6 +762,7 @@ public class Cosmetica implements ClientModInitializer {
 							data.lore(),
 							Hats.OVERRIDDEN.getList(() -> data.hats()),
 							player.hasItemInSlot(EquipmentSlot.HEAD),
+							!player.isSleeping(), // doNametagShift
 							entity.isDiscrete(),
 							data.upsideDown(),
 							entity.getBbHeight(),
@@ -772,7 +773,7 @@ public class Cosmetica implements ClientModInitializer {
 		}
 	}
 
-	public static void renderLore(PoseStack stack, Quaternionf cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean discrete, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
+	public static void renderLore(PoseStack stack, Quaternionf cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean doNametagShift, boolean discrete, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
 		if (!lore.equals("")) {
 			// how much do we need to shift up nametags?
 
@@ -780,9 +781,11 @@ public class Cosmetica implements ClientModInitializer {
 			if (!upsideDown) {
 				float hatTopY = 0;
 
-				for (BakableModel hat : hats) {
-					if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
-						hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+				if (doNametagShift) {
+					for (BakableModel hat : hats) {
+						if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
+							hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+						}
 					}
 				}
 
