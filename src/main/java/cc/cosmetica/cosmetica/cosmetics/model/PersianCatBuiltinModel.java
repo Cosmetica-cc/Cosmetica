@@ -26,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 public class PersianCatBuiltinModel implements BuiltInModel {
 	public PersianCatBuiltinModel() {
 		this.model = new LiveCatModel();
+		this.model.young = false;
 	}
 
 	private final LiveCatModel model;

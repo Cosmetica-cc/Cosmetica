@@ -40,7 +40,7 @@ public class HashMapBackedLazyMap<K, V> implements LazyMap<K, V> {
 
 	@Override
 	public V get(K key) {
-		var item = this.map.get(key);
+		Either<Supplier<V>, V> item = this.map.get(key);
 
 		if (item.left().isPresent()) {
 			V value = item.left().get().get();
