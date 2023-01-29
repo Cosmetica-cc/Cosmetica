@@ -25,23 +25,23 @@ import cc.cosmetica.cosmetica.cosmetics.model.NZSheepBuiltinModel;
 import cc.cosmetica.cosmetica.cosmetics.model.PersianCatBuiltinModel;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
-import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
 import cc.cosmetica.cosmetica.utils.HashMapBackedLazyMap;
 import cc.cosmetica.cosmetica.utils.LazyMap;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.OptionalInt;
 
-public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
-	public ShoulderBuddies(RenderLayerParent<T, PlayerModel<T>> renderLayerParent, EntityModelSet entityModelSet) {
+public class ShoulderBuddies<T extends LivingEntity, P extends HumanoidModel<T>> extends CustomLayer<T, P> {
+	public ShoulderBuddies(RenderLayerParent<T, P> renderLayerParent, EntityModelSet entityModelSet) {
 		super(renderLayerParent);
 		this.builtInModels = new HashMapBackedLazyMap<>();
 
@@ -52,27 +52,18 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 	private final LazyMap<String, BuiltInModel> builtInModels;
 
 	@Override
-	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
-		if (player.isInvisible()) return;
+	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, Playerish player, float f, float g, float pitch, float j, float k, float l) {
+		if (!player.isVisible()) return;
 
 		boolean canOverridePlayerCosmetics = this.canOverridePlayerCosmetics(player);
 
-		PlayerData playerData = Cosmetica.getPlayerData(player);
+		PlayerData playerData = player.getCosmeticaPlayerData();
 
 		BakableModel left = canOverridePlayerCosmetics ? LEFT_OVERRIDDEN.get(playerData::leftShoulderBuddy) : playerData.leftShoulderBuddy();
 		BakableModel right = canOverridePlayerCosmetics ? RIGHT_OVERRIDDEN.get(playerData::rightShoulderBuddy) : playerData.rightShoulderBuddy();
 
-		if (left != null && ((left.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityLeft().isEmpty())) render(left, stack, multiBufferSource, packedLight, (Playerish) player, true);
-		if (right != null && ((right.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || player.getShoulderEntityRight().isEmpty())) render(right, stack, multiBufferSource, packedLight, (Playerish) player, false);
-	}
-
-	@Override
-	public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLight, FakePlayer player, float o, float n, float delta, float bob, float yRotDiff, float xRot) {
-		BakableModel left = LEFT_OVERRIDDEN.get(() -> player.getData().leftShoulderBuddy());
-		BakableModel right = RIGHT_OVERRIDDEN.get(() -> player.getData().rightShoulderBuddy());
-
-		if (left != null) render(left, stack, bufferSource, packedLight, player, true);
-		if (right != null) render(right, stack, bufferSource, packedLight, player, false);
+		if (left != null && ((left.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || !player.isWearing(Playerish.Equipment.LEFT_PARROT))) render(left, stack, multiBufferSource, packedLight, player, true);
+		if (right != null && ((right.extraInfo() & Model.SHOW_SHOULDER_BUDDY_WITH_PARROT) != 0 || !player.isWearing(Playerish.Equipment.RIGHT_PARROT))) render(right, stack, multiBufferSource, packedLight, player, false);
 	}
 
 	public void render(BakableModel modelData, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, Playerish player, boolean left) {

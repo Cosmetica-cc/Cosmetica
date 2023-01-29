@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.screens.fakeplayer;
+package cc.cosmetica.cosmetica.cosmetics;
 
-import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Something that's... playerish. Could be a player, could be a fake player.
+ * Something that's... playerish. Could be a player, could be a fake player, could be a humanoid.
  * Methods are amazingly named to avoid conflicts.
  */
 public interface Playerish {
@@ -56,4 +55,27 @@ public interface Playerish {
 	 * @return the player data associated with this player. Might return dummy data if still loading!
 	 */
 	PlayerData getCosmeticaPlayerData();
+
+	/**
+	 * Get whether the player is able to be seen.
+	 * @return whether the player is not invisible.
+	 */
+	boolean isVisible();
+
+	/**
+	 * Get whether the player is wearing a particular article of clothing.
+	 * @return whether the player is wearing an article of clothing of the type given.
+	 */
+	boolean isWearing(Equipment equipment);
+
+	enum Equipment {
+		HELMET,
+		CHESTPLATE,
+		ELYTRA,
+		LEGGINGS,
+		BOOTS,
+		LEFT_PARROT,
+		RIGHT_PARROT,
+		CAPE
+	}
 }

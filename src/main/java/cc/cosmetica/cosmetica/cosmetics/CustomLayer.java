@@ -19,6 +19,8 @@ package cc.cosmetica.cosmetica.cosmetics;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
+import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
+import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
@@ -32,15 +34,28 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
-public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> extends RenderLayer<T, PlayerModel<T>> {
+public abstract class CustomLayer<T extends LivingEntity, P extends HumanoidModel<T>> extends RenderLayer<T, P> implements MenuRenderLayer {
     public ModelManager modelManager;
 
-    public CustomLayer(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
+    public CustomLayer(RenderLayerParent<T, P> renderLayerParent) {
         super(renderLayerParent);
         this.modelManager = Minecraft.getInstance().getModelManager();
     }
+
+    @Override
+    public final void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float bob, float yRotDiff, float xRot) {
+        this.render(stack, multiBufferSource, packedLight, player, f, g, pitch, bob, yRotDiff, xRot);
+    }
+
+    @Override
+    public final void renderInMenu(PoseStack stack, MultiBufferSource bufferSource, int packedLight, FakePlayer player, float o, float n, float delta, float bob, float yRotDiff, float xRot) {
+        this.render(stack, bufferSource, packedLight, player, o, n, delta, bob, yRotDiff, xRot);
+    }
+
+    protected abstract void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, Playerish entity, float f, float g, float pitch, float bob, float yRotDiff, float xRot);
 
     public void doCoolRenderThings(BakableModel bakableModel, ModelPart modelPart, PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, float x, float y, float z) {
         this.doCoolRenderThings(bakableModel, modelPart, stack, multiBufferSource, packedLightProbably, x, y, z, false);
@@ -66,8 +81,8 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
         stack.popPose();
     }
 
-    protected boolean canOverridePlayerCosmetics(Player player) {
-        return Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID().equals(player.getUUID());
+    protected boolean canOverridePlayerCosmetics(Playerish playerish) {
+        return playerish instanceof Player player && (Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID().equals(player.getUUID()));
     }
 
 	public static final CosmeticStack<ResourceLocation> CAPE_OVERRIDER = new CosmeticStack<>();

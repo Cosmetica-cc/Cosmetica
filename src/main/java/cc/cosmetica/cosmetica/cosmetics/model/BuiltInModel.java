@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.cosmetics.model;
 
-import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
+import cc.cosmetica.cosmetica.cosmetics.Playerish;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;

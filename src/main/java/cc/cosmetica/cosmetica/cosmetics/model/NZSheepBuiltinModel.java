@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.cosmetics.model;
 
-import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
+import cc.cosmetica.cosmetica.cosmetics.Playerish;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.EntityModelSet;

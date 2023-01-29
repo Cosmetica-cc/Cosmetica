@@ -31,7 +31,7 @@ import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
-import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
+import cc.cosmetica.cosmetica.cosmetics.Playerish;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.NamedThreadFactory;
 import cc.cosmetica.cosmetica.utils.SpecialKeyMapping;

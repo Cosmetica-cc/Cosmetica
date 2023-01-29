@@ -17,14 +17,13 @@
 package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
+import cc.cosmetica.cosmetica.cosmetics.Playerish;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

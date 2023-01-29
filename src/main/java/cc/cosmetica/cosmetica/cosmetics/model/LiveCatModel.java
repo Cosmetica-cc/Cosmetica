@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.cosmetics.model;
 
-import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
+import cc.cosmetica.cosmetica.cosmetics.Playerish;
 import cc.cosmetica.cosmetica.utils.MutableOptionalFloat;
 import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import net.minecraft.client.model.CatModel;

@@ -18,36 +18,32 @@ package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.api.Model;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
-import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
-import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 
-public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
+public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
 
 	public Hats(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
 		super(renderLayerParent);
 	}
 
 	@Override
-	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
-		if (player.isInvisible()) return;
-		List<BakableModel> hats = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.getList(() -> Cosmetica.getPlayerData(player).hats()) : Cosmetica.getPlayerData(player).hats();
+	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, Playerish player, float f, float g, float pitch, float bob, float yRotDiff, float xRot) {
+		if (!player.isVisible()) return;
+		List<BakableModel> hats = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.getList(() -> player.getCosmeticaPlayerData().hats()) : player.getCosmeticaPlayerData().hats();
 
 		stack.pushPose();
 
 		for (BakableModel modelData : hats) {
-			if ((modelData.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) {
+			if ((modelData.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && player.isWearing(Playerish.Equipment.HELMET)) {
 				continue; // disable hat flag
 			}
 
@@ -55,25 +51,6 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 				doCoolRenderThings(modelData, this.getParentModel().getHead(), stack, multiBufferSource, packedLight, 0, 0.75f, 0);
 			} else {
 				doCoolRenderThings(modelData, this.getParentModel().body, stack, multiBufferSource, packedLight, 0, 0.77f, 0);
-			}
-
-			stack.scale(1.001f, 1.001f, 1.001f); // stop multiple hats conflicting
-		}
-
-		stack.popPose();
-	}
-
-	@Override
-	public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLight, FakePlayer player, float o, float n, float delta, float bob, float yRotDiff, float xRot) {
-		List<BakableModel> hats = OVERRIDDEN.getList(() -> player.getData().hats());
-
-		stack.pushPose();
-
-		for (BakableModel modelData : hats) {
-			if ((modelData.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
-				doCoolRenderThings(modelData, this.getParentModel().getHead(), stack, bufferSource, packedLight, 0, 0.75f, 0);
-			} else {
-				doCoolRenderThings(modelData, this.getParentModel().body, stack, bufferSource, packedLight, 0, 0.77f, 0);
 			}
 
 			stack.scale(1.001f, 1.001f, 1.001f); // stop multiple hats conflicting

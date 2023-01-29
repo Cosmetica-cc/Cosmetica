@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.screens.fakeplayer;
 
 import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.cosmetics.Playerish;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.cosmetics.BackBling;
@@ -104,6 +105,21 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	@Override
 	public int getPseudoId() {
 		return (int) this.uuid.getMostSignificantBits();
+	}
+
+	@Override
+	public boolean isVisible() {
+		return true;
+	}
+
+	@Override
+	public boolean isWearing(Equipment equipment) {
+		switch (equipment) {
+		case CAPE:
+			return this.data.cape().getImage() != null;
+		default:
+			return false;
+		}
 	}
 
 	public void setCrouching(boolean crouching) {

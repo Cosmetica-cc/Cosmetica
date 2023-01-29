@@ -153,7 +153,7 @@ public class FakePlayerRenderer {
 		// render layers
 
 		for (MenuRenderLayer layer : player.getLayers()) {
-			layer.render(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
+			layer.renderInMenu(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
 		}
 
 		stack.popPose();

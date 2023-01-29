@@ -16,15 +16,13 @@
 
 package cc.cosmetica.cosmetica.cosmetics.model;
 
-import cc.cosmetica.cosmetica.screens.fakeplayer.Playerish;
-import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.cosmetica.cosmetics.Playerish;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class PersianCatBuiltinModel implements BuiltInModel {
