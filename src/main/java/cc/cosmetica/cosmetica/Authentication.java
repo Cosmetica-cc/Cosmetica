@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.CosmeticaAPIException;
 import cc.cosmetica.api.LoginInfo;
 import cc.cosmetica.api.ServerResponse;
 import cc.cosmetica.api.UserSettings;
@@ -36,6 +37,7 @@ import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.util.Response;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -219,6 +221,13 @@ public class Authentication {
 				DebugMode.log("Authenticating API from provided token.");
 				Cosmetica.api = CosmeticaAPI.fromToken(devToken);
 				Cosmetica.api.setUrlLogger(DebugMode::logURL);
+
+				// test the token is valid using gross hacks
+				try {
+					Cosmetica.api.getUserSettings().get();
+				} catch (Exception e) {
+					throw new RuntimeException("Provided token is outdated or invalid. Please update your token.", e);
+				}
 
 				// welcome players if they're new
 				// this isn't really necesary for manual auth because you probably know what you're doing

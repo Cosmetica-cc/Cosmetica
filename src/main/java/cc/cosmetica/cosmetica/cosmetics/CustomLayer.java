@@ -47,7 +47,7 @@ public abstract class CustomLayer<T extends LivingEntity, P extends HumanoidMode
 
     @Override
     public final void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float bob, float yRotDiff, float xRot) {
-        this.render(stack, multiBufferSource, packedLight, player, f, g, pitch, bob, yRotDiff, xRot);
+        this.render(stack, multiBufferSource, packedLight, (Playerish) player, f, g, pitch, bob, yRotDiff, xRot);
     }
 
     @Override
