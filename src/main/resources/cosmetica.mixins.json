@@ -4,7 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "compat.TitleScreenMixin",
-    "fakeplayer.AbstractClientPlayerMixin",
+    "fakeplayer.LivingEntityMixin",
     "fakeplayer.PlayerModelAccessor",
     "fakeplayer.GameRendererMixin",
     "fakeplayer.HumanoidModelAccessor",
@@ -33,7 +33,7 @@
     "LocalPlayerMixin",
     "MinecraftMixin",
     "ModelManagerMixin",
-    "PlayerEntityRendererMixin",
+    "AddCustomLayersMixin",
     "PlayerMixin",
     "PlayerRendererMixin",
     "PlayerTabOverlayMixin",

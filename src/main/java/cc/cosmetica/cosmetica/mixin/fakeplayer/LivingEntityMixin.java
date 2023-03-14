@@ -19,29 +19,33 @@ package cc.cosmetica.cosmetica.mixin.fakeplayer;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.Playerish;
-import com.mojang.authlib.GameProfile;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(AbstractClientPlayer.class)
-public abstract class AbstractClientPlayerMixin extends Player implements Playerish {
-	@Shadow public abstract boolean isCapeLoaded();
+@Mixin(LivingEntity.class)
+public abstract class LivingEntityMixin extends Entity implements Playerish {
+	@Shadow public abstract boolean hasItemInSlot(EquipmentSlot equipmentSlot);
 
-	@Shadow public abstract @Nullable ResourceLocation getCloakTextureLocation();
+	@Shadow public abstract ItemStack getItemBySlot(EquipmentSlot equipmentSlot);
 
-	public AbstractClientPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-		super(level, blockPos, f, gameProfile);
+	public LivingEntityMixin(EntityType<?> entityType, Level level) {
+		super(entityType, level);
 	}
+
+	//@Shadow public abstract boolean isCapeLoaded();
+
+	//@Shadow public abstract @Nullable ResourceLocation getCloakTextureLocation();
 
 	@Override
 	public int getLifetime() {
@@ -65,7 +69,7 @@ public abstract class AbstractClientPlayerMixin extends Player implements Player
 
 	@Override
 	public PlayerData getCosmeticaPlayerData() {
-		return Cosmetica.getPlayerData(this);
+		return (Object)this instanceof Player p ? Cosmetica.getPlayerData(p) : PlayerData.DEBUG;
 	}
 
 	@Override
@@ -92,11 +96,15 @@ public abstract class AbstractClientPlayerMixin extends Player implements Player
 		case BOOTS:
 			return this.hasItemInSlot(EquipmentSlot.FEET);
 		case LEFT_PARROT:
-			return !this.getShoulderEntityLeft().isEmpty();
+			return (Object) this instanceof Player p && !p.getShoulderEntityLeft().isEmpty();
 		case RIGHT_PARROT:
-			return !this.getShoulderEntityRight().isEmpty();
+			return (Object) this instanceof Player p && !p.getShoulderEntityRight().isEmpty();
 		case CAPE:
-			return this.isCapeLoaded() && this.isModelPartShown(PlayerModelPart.CAPE) && this.getCloakTextureLocation() != null;
+			if ((Object) this instanceof AbstractClientPlayer p) {
+				return p.isCapeLoaded() && p.isModelPartShown(PlayerModelPart.CAPE) && p.getCloakTextureLocation() != null;
+			} else {
+				return false;
+			}
 		default:
 			return false;
 		}

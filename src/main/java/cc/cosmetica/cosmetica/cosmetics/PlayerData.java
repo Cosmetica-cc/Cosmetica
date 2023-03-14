@@ -16,7 +16,11 @@
 
 package cc.cosmetica.cosmetica.cosmetics;
 
+import cc.cosmetica.api.CosmeticType;
+import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
+import cc.cosmetica.cosmetica.cosmetics.model.Models;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -168,4 +172,5 @@ public final class PlayerData {
 
 	public static PlayerData NONE      = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultSkin(), false);
 	public static PlayerData TEMPORARY = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultSkin(), false);
+	public static PlayerData DEBUG      = new PlayerData("", false, null, false, "", "", new ArrayList<>(List.of(Models.createBakableModel(Cosmetica.api.getCosmetic(CosmeticType.HAT, "VGhLUjlCZnBIdkRSOVE").get()))), CapeData.NO_CAPE, null, null, Models.createBakableModel(Cosmetica.api.getCosmetic(CosmeticType.BACK_BLING, "dKFpJZJnDP").get()), DefaultPlayerSkin.getDefaultSkin(), false);
 }
