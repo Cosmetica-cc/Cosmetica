@@ -17,21 +17,19 @@
 package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.api.Model;
-import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
-import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
+import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.List;
 
-public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> {
+public class Hats<T extends LivingEntity, P extends HumanoidModel<T>> extends CustomLayer<T, P> {
 
-	public Hats(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
+	public Hats(RenderLayerParent<T, P> renderLayerParent) {
 		super(renderLayerParent);
 	}
 

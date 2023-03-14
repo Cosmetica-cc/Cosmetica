@@ -225,7 +225,7 @@ public class Authentication {
 				// test the token is valid using gross hacks
 				try {
 					Cosmetica.api.getUserSettings().get();
-				} catch (Exception e) {
+				} catch (CosmeticaAPIException e) {
 					throw new RuntimeException("Provided token is outdated or invalid. Please update your token.", e);
 				}
 
