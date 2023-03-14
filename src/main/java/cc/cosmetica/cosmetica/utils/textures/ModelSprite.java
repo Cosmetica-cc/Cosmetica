@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.utils.DebugMode;
+import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -36,7 +37,7 @@ public class ModelSprite extends TextureAtlasSprite {
 		// textureAtlas, info, mipLevels, uScale (atlasTextureWidth), vScale (atlasTextureHeight), width, height, image
 		super(null,
 				new Info(location, width, height, null),
-				4,
+				Math.min(4, getMaximumMipmapLevels(texture.image)),
 				width,
 				height,
 				width,
@@ -102,5 +103,21 @@ public class ModelSprite extends TextureAtlasSprite {
 	@Override
 	public Tickable getAnimationTicker() {
 		return this.animatedTexture instanceof Tickable ? (Tickable) this.animatedTexture : null;
+	}
+
+	private static int getMaximumMipmapLevels(NativeImage image) {
+		return log2(Math.min(image.getWidth(), image.getHeight()));
+	}
+
+	// Fast, Integer Log2
+	private static int log2(int in) {
+		int i = 0;
+
+		while (in > 1) {
+			i++;
+			in >>= 1;
+		}
+
+		return i;
 	}
 }
