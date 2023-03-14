@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -36,7 +37,7 @@ public class ModelSprite extends TextureAtlasSprite {
 		super(null,
 				// dummy data for the animation metadata: we want to handle the animation ourselves.
 				new Info(location, width, height, new AnimationMetadataSection(ImmutableList.of(new AnimationFrame(0)), width, height, 69, false)),
-				4,
+				Math.min(4, getMaximumMipmapLevels(texture.image)),
 				width,
 				height,
 				width,
@@ -91,5 +92,21 @@ public class ModelSprite extends TextureAtlasSprite {
 	@Override
 	public void uploadFirstFrame() {
 		throw new UnsupportedOperationException("I am a teapot. Tried to call uploadFirstFrame() on cosmetica ModelSprite.");
+	}
+
+	private static int getMaximumMipmapLevels(NativeImage image) {
+		return log2(Math.min(image.getWidth(), image.getHeight()));
+	}
+
+	// Fast, Integer Log2
+	private static int log2(int in) {
+		int i = 0;
+
+		while (in > 1) {
+			i++;
+			in >>= 1;
+		}
+
+		return i;
 	}
 }
