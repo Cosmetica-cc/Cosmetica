@@ -122,20 +122,4 @@ public class ModelSprite extends TextureAtlasSprite {
 			} : null;
 		}
 	}
-
-	private static int getMaximumMipmapLevels(NativeImage image) {
-		return log2(Math.min(image.getWidth(), image.getHeight()));
-	}
-
-	// Fast, Integer Log2
-	private static int log2(int in) {
-		int i = 0;
-
-		while (in > 1) {
-			i++;
-			in >>= 1;
-		}
-
-		return i;
-	}
 }
