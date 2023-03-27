@@ -66,8 +66,10 @@ public class CosmeticaConfig {
         regionalEffectsPrompt       =  Boolean.parseBoolean(properties.getProperty("regional-effects-prompt"));
         paranoidHttps               =  Boolean.parseBoolean(properties.getProperty("paranoid-https"));
 
-        // update paranoid https status on existing API instance
-        Cosmetica.api.setForceHttps(paranoidHttps);
+        // update paranoid https status on existing API instance, if one exists
+        if (Cosmetica.api != null) {
+            Cosmetica.api.setForceHttps(paranoidHttps);
+        }
     }
 
     public void save() throws IOException {
