@@ -139,14 +139,15 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 
 				RenderSystem.setShader(GameRenderer::getPositionShader);
 				float shade = 1.0F;
+
 				RenderSystem.setShaderColor(shade, shade, shade, 1.0F);
 				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 				bb.vertex(x0, y1, 0.0D).endVertex();
 				bb.vertex(x1, y1, 0.0D).endVertex();
 				bb.vertex(x1, y0, 0.0D).endVertex();
 				bb.vertex(x0, y0, 0.0D).endVertex();
-
 				tesselator.end();
+
 				RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
 				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 				bb.vertex(x0 + 1, y1 - 1, 0.0D).endVertex();
@@ -154,6 +155,8 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 				bb.vertex(x1 - 1, y0 + 1, 0.0D).endVertex();
 				bb.vertex(x0 + 1, y0 + 1, 0.0D).endVertex();
 				tesselator.end();
+
+				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			}
 
 			this.overrider.setIndex(j); // to make sure it's all -1 at the end we use this.overrider for index setting but really it doesn't matter because it's only for hats anyway
