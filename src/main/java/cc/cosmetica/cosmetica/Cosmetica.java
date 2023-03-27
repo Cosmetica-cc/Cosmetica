@@ -824,10 +824,10 @@ public class Cosmetica implements ClientModInitializer {
 
 			float xOffset = (float) (-font.width(component) / 2);
 
-			font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, fullyRender, alphaARGB, packedLight);
+			font.drawInBatch(component, xOffset, 0, 553648127, false, textModel, multiBufferSource, fullyRender ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, alphaARGB, packedLight);
 
 			if (fullyRender) {
-				font.drawInBatch(component, xOffset, 0, -1, false, textModel, multiBufferSource, false, 0, packedLight);
+				font.drawInBatch(component, xOffset, 0, -1, false, textModel, multiBufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 			}
 
 			stack.popPose();

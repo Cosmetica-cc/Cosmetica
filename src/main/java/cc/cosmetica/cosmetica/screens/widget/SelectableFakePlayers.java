@@ -122,7 +122,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 	}
 
 	@Override
-	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float delta) {
+	public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float delta) {
 		int x = this.getX();
 		int j = 0;
 		CosmeticStack<T> overrider = this.overrider;
@@ -137,7 +137,6 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 				Tesselator tesselator = Tesselator.getInstance();
 				BufferBuilder bb = tesselator.getBuilder();
 
-				RenderSystem.disableTexture();
 				RenderSystem.setShader(GameRenderer::getPositionShader);
 				float shade = 1.0F;
 				RenderSystem.setShaderColor(shade, shade, shade, 1.0F);
@@ -155,7 +154,6 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 				bb.vertex(x1 - 1, y0 + 1, 0.0D).endVertex();
 				bb.vertex(x0 + 1, y0 + 1, 0.0D).endVertex();
 				tesselator.end();
-				RenderSystem.enableTexture();
 			}
 
 			this.overrider.setIndex(j); // to make sure it's all -1 at the end we use this.overrider for index setting but really it doesn't matter because it's only for hats anyway

@@ -186,7 +186,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 
 		if (this.searchBox != null && wasFocusedOnSearch) {
 			this.setFocused(this.searchBox);
-			this.searchBox.setFocus(true);
+			this.searchBox.setFocused(true);
 		}
 	}
 

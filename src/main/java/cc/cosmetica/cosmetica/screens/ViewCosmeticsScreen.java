@@ -339,7 +339,7 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		}
 
 		@Override
-		public void render(PoseStack poseStack, int i, int j, float f) {
+		public void renderWidget(PoseStack poseStack, int i, int j, float f) {
 			for (AbstractWidget child : this.children) {
 				child.render(poseStack, i, j, f);
 			}

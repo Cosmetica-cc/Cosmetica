@@ -39,7 +39,7 @@ public class SearchEditBox extends EditBox {
 	@Override
 	public boolean keyPressed(int i, int j, int k) {
 		if (this.canConsumeInput() && (i == GLFW.GLFW_KEY_ENTER || i == GLFW.GLFW_KEY_KP_ENTER) && this.onEnter != null) {
-			this.setFocus(false);
+			this.setFocused(false);
 			this.onEnter.accept(this.getValue());
 			return true;
 		}

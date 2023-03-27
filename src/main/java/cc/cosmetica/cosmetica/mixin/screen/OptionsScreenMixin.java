@@ -21,7 +21,6 @@ import benzenestudios.sulphate.ExtendedScreen;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.GridWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -46,18 +45,13 @@ public abstract class OptionsScreenMixin extends Screen {
 
 	@Inject(at=@At("RETURN"), method="init")
 	private void onInit(CallbackInfo info) {
-		for (GuiEventListener eventListener: ((ExtendedScreen) this).getChildren()) {
-			if (eventListener instanceof GridWidget grid) {
-				for (GuiEventListener gridChild : grid.children()) {
-					if (gridChild instanceof AbstractWidget widget) {
-						if (widget.getMessage().getContents() instanceof TranslatableContents thisIsRidiculous) {
-							if (thisIsRidiculous.getKey().equals("options.skinCustomisation")) {
-								widget.visible = false;
-								widget.active = false;
-								break;
-							}
-						}
-					}
+		for (GuiEventListener eventListener : ((ExtendedScreen) this).getChildren()) {
+			// Grid layout is no longer an element in 1.19.4 but a class to prepare element positions, so I can go back to doing this.
+			if (eventListener instanceof AbstractWidget widget && widget.getMessage().getContents() instanceof TranslatableContents thisIsRidiculous) {
+				if (thisIsRidiculous.getKey().equals("options.skinCustomisation")) {
+					widget.visible = false;
+					widget.active = false;
+					break;
 				}
 			}
 		}

@@ -402,10 +402,10 @@ public class FakePlayerRenderer {
 		int k = (int)(backgroundOpacity * 255.0F) << 24;
 		Font font = Minecraft.getInstance().font;
 		float h = (float)(-font.width(name) / 2);
-		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender, k, light);
+		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, k, light);
 
 		if (fullyRender) {
-			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, light);
+			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, Font.DisplayMode.NORMAL, 0, light);
 		}
 
 		// add comsetica icon

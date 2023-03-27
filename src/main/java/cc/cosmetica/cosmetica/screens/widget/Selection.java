@@ -78,7 +78,7 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 	}
 
 	@Override
-	protected boolean isFocused() {
+	public boolean isFocused() {
 		return this.parent.getFocused() == this;
 	}
 

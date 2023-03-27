@@ -42,6 +42,7 @@ import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
 
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
@@ -171,7 +172,7 @@ public class Models {
 		boolean isGUI3D = model.isGui3d();
 		float transformStrength = 0.25F;
 		float rotation = 0.0f;
-		float transform = model.getTransforms().getTransform(ItemTransforms.TransformType.GROUND).scale.y();
+		float transform = model.getTransforms().getTransform(ItemDisplayContext.GROUND).scale.y();
 		stack.translate(0.0D, rotation + transformStrength * transform, 0.0D);
 		float xScale = model.getTransforms().ground.scale.x();
 		float yScale = model.getTransforms().ground.scale.y();
@@ -179,7 +180,7 @@ public class Models {
 
 		stack.pushPose();
 
-		final ItemTransforms.TransformType transformType = ItemTransforms.TransformType.FIXED;
+		final ItemDisplayContext transformType = ItemDisplayContext.FIXED;
 		int overlayTyp = OverlayTexture.NO_OVERLAY;
 		// ItemRenderer#render start
 		stack.pushPose();

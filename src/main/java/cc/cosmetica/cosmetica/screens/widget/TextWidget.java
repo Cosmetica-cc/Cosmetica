@@ -42,7 +42,7 @@ public class TextWidget extends AbstractWidget {
 	}
 
 	@Override
-	public void render(PoseStack poseStack, int i, int j, float f) {
+	public void renderWidget(PoseStack poseStack, int i, int j, float f) {
 		Minecraft minecraft = Minecraft.getInstance();
 		Font font = minecraft.font;
 

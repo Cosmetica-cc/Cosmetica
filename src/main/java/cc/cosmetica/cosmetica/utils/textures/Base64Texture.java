@@ -80,9 +80,10 @@ public class Base64Texture extends AnimatedTexture {
 	}
 
     private static NativeImage loadBase64(String base64) throws IOException {
-        if(base64.length() < 1000) { //TODO: Tweak this number
-            return NativeImage.fromBase64(base64);
-        } else {
+		// fromBase64 was removed in 1.19.4
+//        if(base64.length() < 1000) { //TODO: Tweak this number
+//            return NativeImage.read(base64);
+//        } else {
             //For large images, NativeImage.fromBase64 does not work because it tries to allocate it on the stack and fails
             byte[] bs = Base64.getDecoder().decode(base64.replace("\n", "").getBytes(StandardCharsets.UTF_8));
             ByteBuffer buffer = MemoryUtil.memAlloc(bs.length);
@@ -91,7 +92,7 @@ public class Base64Texture extends AnimatedTexture {
             NativeImage image = NativeImage.read(buffer);
             MemoryUtil.memFree(buffer);
             return image;
-        }
+//        }
     }
 
 	public static Base64Texture square(ResourceLocation path, String base64, int frameDelayMs) throws IOException {
