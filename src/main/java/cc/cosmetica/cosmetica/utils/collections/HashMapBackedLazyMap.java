@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.utils;
+package cc.cosmetica.cosmetica.utils.collections;
 
 import com.mojang.datafixers.util.Either;
 
