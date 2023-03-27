@@ -191,10 +191,96 @@ public class Cosmetica implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		config = new CosmeticaConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("cosmetica.properties"));
-		CosmeticaAPI.setDefaultForceHttps(config.paranoidHttps());
 
-		api = CosmeticaAPI.newUnauthenticatedInstance();
+		setupDirectories();
 
+		// initialise config
+		try {
+			config.initialize();
+			defaultSettingsConfig.initialize();
+		} catch (IOException e) {
+			LOGGER.warn("Failed to load config, falling back to defaults!");
+			e.printStackTrace();
+		}
+
+		// delete debug dump images
+		DebugMode.clearImages();
+
+		// Set up API stuff
+		try {
+			CosmeticaAPI.setDefaultForceHttps(config.paranoidHttps());
+			api = CosmeticaAPI.newUnauthenticatedInstance();
+
+			// API Url Getter
+			runOffthread(() -> {
+				File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
+				//System.out.println(apiCache.getAbsolutePath());
+
+				CosmeticaAPI.setAPICache(apiCache);
+
+				try {
+					api.setUrlLogger(DebugMode::logURL);
+
+					DebugMode.log("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
+					LOGGER.info(CosmeticaAPI.getMessage());
+
+					if (config.shouldAddCosmeticaSplashMessage()) {
+						addSplash(CosmeticaAPI.getMessage());
+					}
+
+					Cosmetica.authServer = CosmeticaAPI.getAuthServer();
+					Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
+
+					DebugMode.log("Checking Version...");
+
+					api.checkVersion(
+							SharedConstants.getCurrentVersion().getId(),
+							FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString()
+					).ifSuccessfulOrElse(versionInfo -> {
+						DebugMode.log("Handling version check response");
+
+						String s = versionInfo.minecraftMessage();
+
+						if (!s.isEmpty()) {
+							// log every time
+							Cosmetica.LOGGER.warn(versionInfo.plainMessage());
+
+							// always show in game if vital, otherwise the user can choose whether to show
+							if (versionInfo.isVital() || Cosmetica.getConfig().shouldShowNonVitalUpdateMessages()) {
+								displayNext = TextComponents.literal(s);
+							}
+						}
+
+						mayShowWelcomeScreen = versionInfo.megaInvasiveTutorial();
+					}, Cosmetica.logErr("Error checking version"));
+
+					Authentication.runAuthentication(1);
+				} catch (Exception e) {
+					LOGGER.error("Error retrieving API Url. Mod functionality will be disabled!");
+					e.printStackTrace();
+				}
+			}, ThreadPool.GENERAL_THREADS);
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		}
+
+		// make sure it clears relevant caches on resource reload
+		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+			@Override
+			public ResourceLocation getFabricId() {
+				return new ResourceLocation("cosmetica", "cache_clearer");
+			}
+
+			@Override
+			public void onResourceManagerReload(ResourceManager resourceManager) {
+				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
+			}
+		});
+
+		runAuthenticationCheckThread();
+	}
+
+	private static void setupDirectories() {
 		configDirectory = FabricLoader.getInstance().getConfigDir().resolve("cosmetica");
 		defaultSettingsConfig = new DefaultSettingsConfig(FabricLoader.getInstance().getConfigDir().resolve("cosmetica").resolve("default-settings.properties"));
 
@@ -224,82 +310,6 @@ public class Cosmetica implements ClientModInitializer {
 				throw new RuntimeException("Error creating cache directory", e);
 			}
 		}
-
-		try {
-			config.initialize();
-			defaultSettingsConfig.initialize();
-		} catch (IOException e) {
-			LOGGER.warn("Failed to load config, falling back to defaults!");
-			e.printStackTrace();
-		}
-
-		// delete debug dump images
-		DebugMode.clearImages();
-		
-		// API Url Getter
-		runOffthread(() -> {
-			File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
-			//System.out.println(apiCache.getAbsolutePath());
-
-			CosmeticaAPI.setAPICache(apiCache);
-
-			try {
-				api.setUrlLogger(DebugMode::logURL);
-
-				DebugMode.log("Finished retrieving API Url. Conclusion: the API should be contacted at " + CosmeticaAPI.getAPIServer());
-				LOGGER.info(CosmeticaAPI.getMessage());
-
-				if (config.shouldAddCosmeticaSplashMessage()) {
-					addSplash(CosmeticaAPI.getMessage());
-				}
-
-				Cosmetica.authServer = CosmeticaAPI.getAuthServer();
-				Cosmetica.websiteHost = CosmeticaAPI.getWebsite();
-
-				DebugMode.log("Checking Version...");
-
-				api.checkVersion(
-						SharedConstants.getCurrentVersion().getId(),
-						FabricLoader.getInstance().getModContainer("cosmetica").get().getMetadata().getVersion().getFriendlyString()
-				).ifSuccessfulOrElse(versionInfo -> {
-					DebugMode.log("Handling version check response");
-
-					String s = versionInfo.minecraftMessage();
-
-					if (!s.isEmpty()) {
-						// log every time
-						Cosmetica.LOGGER.warn(versionInfo.plainMessage());
-
-						// always show in game if vital, otherwise the user can choose whether to show
-						if (versionInfo.isVital() || Cosmetica.getConfig().shouldShowNonVitalUpdateMessages()) {
-							displayNext = TextComponents.literal(s);
-						}
-					}
-
-					mayShowWelcomeScreen = versionInfo.megaInvasiveTutorial();
-				}, Cosmetica.logErr("Error checking version"));
-
-				Authentication.runAuthentication(1);
-			} catch (Exception e) {
-				LOGGER.error("Error retrieving API Url. Mod functionality will be disabled!");
-				e.printStackTrace();
-			}
-		}, ThreadPool.GENERAL_THREADS);
-
-		// make sure it clears relevant caches on resource reload
-		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-			@Override
-			public ResourceLocation getFabricId() {
-				return new ResourceLocation("cosmetica", "cache_clearer");
-			}
-
-			@Override
-			public void onResourceManagerReload(ResourceManager resourceManager) {
-				Models.resetTextureBasedCaches(); // reset only the caches that need to be reset after a resource reload
-			}
-		});
-
-		runAuthenticationCheckThread();
 	}
 
 	public static void registerKeyMappings(List<KeyMapping> keymappings) {
@@ -385,19 +395,6 @@ public class Cosmetica implements ClientModInitializer {
 			MAIN_POOL.shutdownNow();
 		} catch (RuntimeException e) { // Just in case.
 			e.printStackTrace();
-		}
-	}
-
-	// example fabristation connection
-	public static String getFabriStationActivity() {
-		System.out.println("running activity check");
-		if (FabricLoader.getInstance().isModLoaded("fabristation")) {
-			System.out.println("Station is loaded");
-			//return "connected";
-			return FabriStationConnector.getFormatted();
-		} else {
-			System.out.println("Station isn't loaded");
-			return "not connected";
 		}
 	}
 

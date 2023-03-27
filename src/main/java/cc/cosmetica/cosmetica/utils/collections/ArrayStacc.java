@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.utils;
+package cc.cosmetica.cosmetica.utils.collections;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import java.util.ArrayDeque;
 
-public interface AuthenticatingScreen {
-	void eyezahAuthConnect(Minecraft minecraft, ServerAddress serverAddress);
+public class ArrayStacc<T> extends ArrayDeque<T> implements Stacc<T> {
 }
