@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.utils;
+package cc.cosmetica.cosmetica.utils.collections;
 
-import java.util.ArrayDeque;
-
-public class ArrayStacc<T> extends ArrayDeque<T> implements Stacc<T> {
+public interface Stacc<T> {
+	T peek();
+	void push(T item);
+	boolean isEmpty();
+	T pop();
+	void clear();
 }
