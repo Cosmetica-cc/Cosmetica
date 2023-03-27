@@ -49,9 +49,6 @@ dependencies {
 
 	// Load in dev for Compat & Interacting with
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
-	modImplementation('com.github.Station-rip:FabriStation:1.17-SNAPSHOT') {
-		exclude module: "fabric-api"
-	}
 }
 
 processResources {
