@@ -17,8 +17,8 @@
 package cc.cosmetica.cosmetica.cosmetics.model;
 
 import cc.cosmetica.api.Box;
-import cc.cosmetica.cosmetica.utils.Stacc;
-import cc.cosmetica.cosmetica.utils.ArrayStacc;
+import cc.cosmetica.cosmetica.utils.collections.Stacc;
+import cc.cosmetica.cosmetica.utils.collections.ArrayStacc;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
