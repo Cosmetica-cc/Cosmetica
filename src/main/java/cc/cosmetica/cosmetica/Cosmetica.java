@@ -208,16 +208,14 @@ public class Cosmetica implements ClientModInitializer {
 
 		// Set up API stuff
 		try {
+			File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
+			CosmeticaAPI.setAPICache(apiCache);
+			
 			CosmeticaAPI.setDefaultForceHttps(config.paranoidHttps());
 			api = CosmeticaAPI.newUnauthenticatedInstance();
 
 			// API Url Getter
 			runOffthread(() -> {
-				File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
-				//System.out.println(apiCache.getAbsolutePath());
-
-				CosmeticaAPI.setAPICache(apiCache);
-
 				try {
 					api.setUrlLogger(DebugMode::logURL);
 
