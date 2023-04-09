@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica;
 import cc.cosmetica.api.Cape;
 import cc.cosmetica.api.Model;
 import cc.cosmetica.cosmetica.utils.DebugMode;
+import cc.cosmetica.cosmetica.utils.textures.AnimatedTexture;
 import cc.cosmetica.cosmetica.utils.textures.Base64Texture;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -125,9 +126,7 @@ public class CosmeticaSkinManager {
 		if (!textures.containsKey(id)) {
 			try {
 				String type = id.getPath().split("\\/")[0];
-				AbstractTexture tex = type.equals("cape") ? Base64Texture.cape(id, texture.substring(22), mspf) : (
-						type.equals("skin") ? Base64Texture.skin(id, texture.substring(22)) : Base64Texture.square(id, texture.substring(22), mspf)
-						);
+				AnimatedTexture tex = createTexture(type, id, texture, mspf);
 
 				if (RenderSystem.isOnRenderThreadOrInit()) {
 					Minecraft.getInstance().getTextureManager().register(id, tex);
@@ -142,7 +141,11 @@ public class CosmeticaSkinManager {
 					});
 				}
 
-				DebugMode.log("Registering " + type + " texture for {}", id);
+				DebugMode.log(
+						"Registering " + type + " texture for {}. Raw Size: {}x{}, Interpreted Size: {}x{} with {} frames.",
+						id,
+						tex.getRawImage().getWidth(), tex.getRawImage().getHeight(),
+						tex.getRawImage().getWidth(), tex.getFrameHeight(), tex.getFrameCount());
 				textures.put(id, tex);
 			} catch (IOException e) {
 				Cosmetica.LOGGER.error("Error loading texture", e);
@@ -151,5 +154,32 @@ public class CosmeticaSkinManager {
 		}
 
 		return id;
+	}
+
+	/**
+	 * Creates a potentially animated texture based on the type, raw texture data, id, and milliseconds per frame. Does
+	 * not register the texture.
+	 * @param type the type of texture to create. This handles how the aspect ratio is handled in loading the texture.
+	 *             By default, the texture will be treated as a square tilesheet. There are two special cases:
+	 *             "cape" and "skin". Capes are a tilesheet of half-squares, twice as long as they are high. Skins
+	 *             on the other hand need special processing due to the two different skin texture formats supported by
+	 *             the game.
+	 * @param id the id of the texture.
+	 * @param texture the raw base64 texture data, including the 22-character header.
+	 * @param mspf the number of milliseconds each frame should last for. This is ignored if the texture is not a
+	 *                tilesheet of multiple frames.
+	 * @return the created texture.
+	 * @throws IOException if there is an error reading the texture.
+	 */
+	private static AnimatedTexture createTexture(String type, ResourceLocation id, String texture, int mspf) throws IOException {
+		texture = texture.substring(22);
+
+		if ("cape".equals(type)) {
+			return Base64Texture.cape(id, texture, mspf);
+		} else if ("skin".equals(type)) {
+			return Base64Texture.skin(id, texture);
+		} else {
+			return Base64Texture.square(id, texture, mspf);
+		}
 	}
 }

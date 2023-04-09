@@ -208,16 +208,14 @@ public class Cosmetica implements ClientModInitializer {
 
 		// Set up API stuff
 		try {
+			File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
+			CosmeticaAPI.setAPICache(apiCache);
+			
 			CosmeticaAPI.setDefaultForceHttps(config.paranoidHttps());
 			api = CosmeticaAPI.newUnauthenticatedInstance();
 
 			// API Url Getter
 			runOffthread(() -> {
-				File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
-				//System.out.println(apiCache.getAbsolutePath());
-
-				CosmeticaAPI.setAPICache(apiCache);
-
 				try {
 					api.setUrlLogger(DebugMode::logURL);
 
@@ -262,6 +260,12 @@ public class Cosmetica implements ClientModInitializer {
 			}, ThreadPool.GENERAL_THREADS);
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
+
+			// in the case that Cosmetica API host can't be received, give the user more info on what this entails with regards to the mod.
+			// TODO retry authentication later so this isn't really an issue. Offline screen should trigger so perhaps this isn't too necessary?
+			if ("Could not receive Cosmetica API host".equals(e.getMessage())) {
+				Cosmetica.LOGGER.warn("Authenticated functionality will be disabled!");
+			}
 		}
 
 		// make sure it clears relevant caches on resource reload
@@ -402,8 +406,6 @@ public class Cosmetica implements ClientModInitializer {
 	//       IMPL
 	// =================
 
-	// Start Africa
-
 	public static String dashifyUUID(String uuid) {
 		return UNDASHED_UUID_GAPS.matcher(uuid).replaceAll(UUID_DASHIFIER_REPLACEMENT);
 	}
@@ -412,6 +414,8 @@ public class Cosmetica implements ClientModInitializer {
 		byte[] arr = (ip.getAddress().getHostAddress() + ":" + ip.getPort()).getBytes(StandardCharsets.UTF_8);
 		return Base64.encodeBase64String(arr);
 	}
+
+	// Start Africa
 
 	public static void safari(Minecraft minecraft, boolean yourFirstRodeo, boolean ignoreSelf) {
 		InetSocketAddress prideRock = minecraft.isLocalServer() ? new InetSocketAddress("127.0.0.1", 25565) : null;
