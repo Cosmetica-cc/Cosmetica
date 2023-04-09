@@ -122,14 +122,7 @@ public class Authentication {
 
 				showUnauthenticatedIfLoading();
 
-				// don't repeat spam errors if the internet goes offline
-				if (error instanceof UncheckedIOException) {
-					if (((UncheckedIOException) error).getCause() instanceof UnknownHostException) {
-						// don't run again immediately, see above. Africa or opening a menu will run authentication again inevitably anyway
-						return;
-					}
-				}
-				else if (error instanceof JsonSyntaxException) {
+				if (error instanceof JsonSyntaxException) {
 					if (DebugMode.elevatedLogging()) {
 						//TODO proper way of dong this lmao
 						// Perhaps in CosmeticaDotJava 2.0.0, more likely a 1.X.0 version.
@@ -140,11 +133,12 @@ public class Authentication {
 							e.printStackTrace();
 						}
 					}
-
-					return;
 				}
-
-				runAuthentication();
+				// don't repeat spam errors if the internet goes offline. So don't run again immediately
+				// opening a menu will run authentication again inevitably anyway
+				else if (!(error instanceof UncheckedIOException)) {
+					runAuthentication();
+				}
 			});
 		});
 		requestThread.start();
