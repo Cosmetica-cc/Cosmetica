@@ -18,4 +18,9 @@
   "cosmetica.loading.message": "Das soll nicht zu lang dauern",
   "cosmetica.offline": "Sie sind aktuell offline!",
   "cosmetica.unauthenticated": "Fehler beim Verbinden mit der Cosmeticaserver.",
+  "cosmetica.openWebPanel": "Web-Panel öffnen",
+  "cosmetica.capeDisplay.show": "Zeigen",
+  "cosmetica.capeDisplay.hide": "Verstecken",
+  "cosmetica.rsewarning.title": "Möchsten Sie Region-Specific Effects anmachen?",
+  "cosmetica.rsewarning.description": "\u00A77Region-Specific Effects gibt Sie super-exclusiven Kosmetica abhängig von wo sie sind. Zum Beispiel, Australier steht ɟdoʞ ɯǝp ɟnɐ ;). Obwohl das viel spaß macht, meint es, dass andere Spieler können das benutzen, um ihr Herkunftsland herauszufinden. Wenn Sie Region-Specific effects ausmachen, können Sie ebenfalls die Region-Specific Effects von Anderer nicht sehen."
 }

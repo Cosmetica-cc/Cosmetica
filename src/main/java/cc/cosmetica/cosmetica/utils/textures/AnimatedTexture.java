@@ -73,15 +73,22 @@ public abstract class AnimatedTexture extends AbstractTexture {
 		}
 	}
 
+	/**
+	 * Get the raw image being used by this animated texture, including all frames.
+	 */
+	public NativeImage getRawImage() {
+		return this.image;
+	}
+
 	public boolean isAnimatable() {
 		return this.aspectRatio > 0;
 	}
 
-	int getFrameHeight() {
+	public int getFrameHeight() {
 		return this.isAnimatable() ? this.frameHeight : this.image.getHeight();
 	}
 
-	int getFrameCount() {
+	public int getFrameCount() {
 		return this.frames;
 	}
 
