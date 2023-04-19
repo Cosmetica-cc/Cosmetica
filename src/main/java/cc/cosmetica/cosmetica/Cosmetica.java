@@ -865,6 +865,7 @@ public class Cosmetica implements ClientModInitializer {
 			RenderSystem.enableAlphaTest();
 			RenderSystem.enableBlend();
 			renderTexture(stack.last().pose(), iconTexture, x + 1, x + 1 + 8, y, y + 8, 0, data.online() ? 1.0f : 0.5f);
+			RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 	}
 
