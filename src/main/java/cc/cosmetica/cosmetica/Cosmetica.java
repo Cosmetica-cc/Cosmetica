@@ -788,35 +788,34 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean doNametagShift, boolean discrete, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
-		if (!lore.equals("")) {
-			// how much do we need to shift up nametags?
+		// how much do we need to shift up nametags?
 
-			// upside down players don't need nametags shifted up
-			if (!upsideDown) {
-				float hatTopY = 0;
+		// upside down players don't need nametags shifted up
+		if (!upsideDown) {
+			float hatTopY = 0;
 
-				if (doNametagShift) {
-					for (BakableModel hat : hats) {
-						if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
-							hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
-						}
+			if (doNametagShift) {
+				for (BakableModel hat : hats) {
+					if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
+						hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
 					}
-				}
-
-				if (hatTopY > 0) {
-					float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
-					float lookAngleMultiplier;
-					if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
-						lookAngleMultiplier = 0;
-					} else {
-						lookAngleMultiplier = normalizedAngleMultiplier;
-					}
-					stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
 				}
 			}
 
-			// render lore
+			if (hatTopY > 0) {
+				float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
+				float lookAngleMultiplier;
+				if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
+					lookAngleMultiplier = 0;
+				} else {
+					lookAngleMultiplier = normalizedAngleMultiplier;
+				}
+				stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
+			}
+		}
 
+		// render lore
+		if (!lore.equals("")) {
 			Component component = TextComponents.literal(lore);
 
 			boolean fullyRender = !discrete;
