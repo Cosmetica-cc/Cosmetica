@@ -11,7 +11,7 @@
   "cosmetica.entry.none": "Keine",
   "cosmetica.entry.disabled": "\u00A77Deaktiviert",
 
-  "cosmetica.welcome": "\u00A77Willkommen bei Cosmetica! Sie können Kosmetika über das Menü zur Hautanpassung ausrüsten, eine Tastenkombination festlegen oder auf %s" klicken,
+  "cosmetica.welcome": "\u00A77Willkommen bei Cosmetica! Sie können Kosmetika über das Menü zur Hautanpassung ausrüsten, eine Tastenkombination festlegen oder auf %s klicken",
   "cosmetica.linkhere": "\u00A76[hier]",
 
   "cosmetica.indicators.animated":  "Animiert",
@@ -60,10 +60,10 @@
   "cosmetica.doShoulderBuddies": "Schulterkumpel",
   "cosmetica.doLore": "Spielerkenntnisse",
   "cosmetica.hideOnlineActivity": "Online-Aktivität verbergen",
-  "cosmetica.icons": "Namensschild-Symbole",
+  "cosmetica.icons": "Namensschild Icons",
   "cosmetica.doIcons": "Icons",
   "cosmetica.doIcons.disableNotice": "Diese Einstellung hat derzeit keine Auswirkung, da alle Icons deaktiviert sind.",
-  "cosmetica.doOfflineIcons": "Offline-Symbole",
+  "cosmetica.doOfflineIcons": "Offline Icons",
   "cosmetica.doSpecialIcons": "Spezielle Icons",
   "cosmetica.showNametagInThirdPerson": "Eigenes Namensschild anzeigen",
   "cosmetica.customizeCosmetics": "Kosmetika anpassen",
