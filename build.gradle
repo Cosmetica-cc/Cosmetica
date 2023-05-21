@@ -47,7 +47,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	// Load in dev for Compat & Interacting with
-	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+	//modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 }
 
 processResources {
