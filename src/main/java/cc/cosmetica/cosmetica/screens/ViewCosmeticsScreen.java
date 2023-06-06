@@ -32,6 +32,7 @@ import cc.cosmetica.cosmetica.screens.widget.TextWidget;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -339,7 +340,7 @@ public class ViewCosmeticsScreen extends PlayerRenderScreen {
 		}
 
 		@Override
-		public void renderWidget(PoseStack poseStack, int i, int j, float f) {
+		public void renderWidget(GuiGraphics poseStack, int i, int j, float f) {
 			for (AbstractWidget child : this.children) {
 				child.render(poseStack, i, j, f);
 			}

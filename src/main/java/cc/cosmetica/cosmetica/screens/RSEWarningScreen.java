@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
@@ -119,16 +120,18 @@ public class RSEWarningScreen extends Screen {
 	}
 
 	@Override
-	public void render(PoseStack stack, int mouseX, int mouseY, float f) {
-		this.renderBackground(stack);
-		super.render(stack, mouseX, mouseY, f);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float f) {
+		this.renderBackground(graphics);
+		super.render(graphics, mouseX, mouseY, f);
+
+		PoseStack stack = graphics.pose();
 
 		stack.pushPose();
 		stack.scale(1.5f, 1.5f, 0);
-		drawCenteredString(stack, this.font, TextComponents.translatable("cosmetica.rsewarning.title"), this.width / 3, this.height / 3 - 60, 0xDADADA);
+		graphics.drawCenteredString(this.font, TextComponents.translatable("cosmetica.rsewarning.title"), this.width / 3, this.height / 3 - 60, 0xDADADA);
 		stack.popPose();
 
-		this.message.renderCentered(stack, this.width / 2, this.height / 2 + 12 + bottomTextOffset);
+		this.message.renderCentered(graphics, this.width / 2, this.height / 2 + 12 + bottomTextOffset);
 
 		int characterOffset = this.width / 2 - this.width / 12;
 		int characterY = this.height / 2 + 24;

@@ -23,6 +23,7 @@ import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
@@ -80,11 +81,11 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		})).active = Authentication.settingLoadTarget != 3;
 	}
 
-	public void render(PoseStack poseStack, int i, int j, float f) {
-		this.renderBackground(poseStack);
-		drawCenteredString(poseStack, this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
-		this.message.renderCentered(poseStack, this.width / 2, this.height / 2 - this.textHeight / 2);
-		super.render(poseStack, i, j, f);
+	public void render(GuiGraphics graphics, int i, int j, float f) {
+		this.renderBackground(graphics);
+		graphics.drawCenteredString(this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
+		this.message.renderCentered(graphics, this.width / 2, this.height / 2 - this.textHeight / 2);
+		super.render(graphics, i, j, f);
 	}
 
 	@Override

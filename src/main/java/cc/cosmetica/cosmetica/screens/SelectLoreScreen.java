@@ -191,7 +191,7 @@ public class SelectLoreScreen extends SulphateScreen {
 
 		if (this.pleaseUseWebsite == null) {
 			// re-add title because it's drawn over with a selection list present (which is used when there is no please use website notice)
-			drawCenteredString(matrices, this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+			graphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
 		}
 		else {
 			this.pleaseUseWebsite.renderCentered(matrices, this.width / 2, this.height / 2);

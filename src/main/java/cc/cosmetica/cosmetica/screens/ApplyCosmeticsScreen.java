@@ -32,6 +32,7 @@ import cc.cosmetica.cosmetica.cosmetics.model.Models;
 import cc.cosmetica.cosmetica.screens.widget.SelectableFakePlayers;
 import cc.cosmetica.cosmetica.screens.widget.TextWidget;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -175,8 +176,8 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, mouseX, mouseY, delta);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		super.render(graphics, mouseX, mouseY, delta);
 
 		this.mouseTracker.updatePosition(mouseX, mouseY);
 

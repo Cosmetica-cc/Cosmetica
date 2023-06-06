@@ -20,6 +20,7 @@ import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
@@ -69,10 +70,10 @@ public class OfflineScreen extends Screen {
 		this.minecraft.setScreen(this.parentScreen);
 	}
 
-	public void render(PoseStack poseStack, int i, int j, float f) {
+	public void render(GuiGraphics poseStack, int i, int j, float f) {
 		this.renderBackground(poseStack);
 		Objects.requireNonNull(this.font);
-		drawCenteredString(poseStack, this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
+		poseStack.drawCenteredString(this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
 		this.message.renderCentered(poseStack, this.width / 2, this.height / 2 - this.textHeight / 2);
 		super.render(poseStack, i, j, f);
 	}

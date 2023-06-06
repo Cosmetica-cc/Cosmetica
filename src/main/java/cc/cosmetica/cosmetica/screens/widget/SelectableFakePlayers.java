@@ -28,6 +28,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -122,7 +123,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 	}
 
 	@Override
-	public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float delta) {
+	public void renderWidget(GuiGraphics poseStack, int mouseX, int mouseY, float delta) {
 		int x = this.getX();
 		int j = 0;
 		CosmeticStack<T> overrider = this.overrider;

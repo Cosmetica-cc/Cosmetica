@@ -24,6 +24,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.widget.ButtonList;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 
@@ -83,8 +84,8 @@ public class CapeServerSettingsScreen extends SulphateScreen {
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, mouseX, mouseY, delta);
-		drawCenteredString(matrices, this.font, this.title, this.width / 2, 15, 0xFFFFFF); // re-add title
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		super.render(graphics, mouseX, mouseY, delta);
+		graphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF); // re-add title
 	}
 }

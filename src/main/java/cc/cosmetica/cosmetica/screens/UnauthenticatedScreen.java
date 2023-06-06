@@ -23,6 +23,7 @@ import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
@@ -80,14 +81,14 @@ public class UnauthenticatedScreen extends Screen {
 		this.minecraft.setScreen(this.parentScreen);
 	}
 
-	public void render(PoseStack poseStack, int i, int j, float f) {
+	public void render(GuiGraphics poseStack, int i, int j, float f) {
 		this.renderBackground(poseStack);
 		Font var10001 = this.font;
 		Component var10002 = this.title;
 		int var10003 = this.width / 2;
 		int var10004 = this.height / 2 - this.textHeight / 2;
 		Objects.requireNonNull(this.font);
-		drawCenteredString(poseStack, var10001, var10002, var10003, var10004 - 9 * 2, 11184810);
+		poseStack.drawCenteredString(var10001, var10002, var10003, var10004 - 9 * 2, 11184810);
 		this.message.renderCentered(poseStack, this.width / 2, this.height / 2 - this.textHeight / 2);
 		super.render(poseStack, i, j, f);
 	}

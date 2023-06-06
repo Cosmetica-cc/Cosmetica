@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.screens.widget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -42,17 +43,17 @@ public class TextWidget extends AbstractWidget {
 	}
 
 	@Override
-	public void renderWidget(PoseStack poseStack, int i, int j, float f) {
+	public void renderWidget(GuiGraphics poseStack, int i, int j, float f) {
 		Minecraft minecraft = Minecraft.getInstance();
 		Font font = minecraft.font;
 
 		int colour = this.active ? 0xFFFFFF : 0xA0A0A0;
 
 		if (this.centered) {
-			drawCenteredString(poseStack, font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
+			poseStack.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
 		}
 		else {
-			drawString(poseStack, font, this.getMessage(), this.getX(), this.getY() + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
+			poseStack.drawString(font, this.getMessage(), this.getX(), this.getY() + (this.height - 8) / 2, colour | Mth.ceil(this.alpha * 255.0F) << 24);
 		}
 	}
 }

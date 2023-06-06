@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.CommonComponents;
@@ -246,26 +247,26 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		this.renderBackground(matrices);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		this.renderBackground(graphics);
 
 		for (Renderable widget : List.copyOf(((ExtendedScreen) this).getWidgets())) { // renderables
-			widget.render(matrices, mouseX, mouseY, delta);
+			widget.render(graphics, mouseX, mouseY, delta);
 		}
 
-		drawCenteredString(matrices, this.font, this.title, this.width / 2, 15, 0xFFFFFF); // re-add title
+		graphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF); // re-add title
 
 		if (this.searchBox != null) {
-			this.searchBox.render(matrices, mouseX, mouseY, delta);
-			if (this.searchBox.isEmpty()) drawString(matrices, this.font, SEARCH_ELLIPSIS, this.width / 2 - 96, SEARCH_Y + 6, 10526880);
+			this.searchBox.render(graphics, mouseX, mouseY, delta);
+			if (this.searchBox.isEmpty()) graphics.drawString(this.font, SEARCH_ELLIPSIS, this.width / 2 - 96, SEARCH_Y + 6, 10526880);
 		}
 
 		if (this.state == LoadState.RELOADING) {
-			this.fillGradient(matrices, 0, 32 + 25, this.width, this.height - 65 + 4, -1072689136, -804253680);
+			graphics.fillGradient( 0, 32 + 25, this.width, this.height - 65 + 4, -1072689136, -804253680);
 		}
 
 		if (this.state == LoadState.RELOADING || this.state == LoadState.LOADING) {
-			this.currentFetcher.render(matrices, mouseX, mouseY, delta);
+			this.currentFetcher.render(graphics, mouseX, mouseY, delta);
 		}
 
 		if (this.state != LoadState.LOADING && this.viewSelection != null) {
