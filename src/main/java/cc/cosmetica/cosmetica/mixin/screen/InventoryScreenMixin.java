@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.mixin.screen;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
@@ -33,13 +34,13 @@ public class InventoryScreenMixin {
 	private static boolean cosmetica_showNametagInThirdPerson;
 
 	@Inject(at = @At("HEAD"), method = "renderEntityInInventory")
-	private static void disableOwnNametagTemporarilyIfShown(PoseStack poseStack, int i, int j, int k, Quaternionf quaternionf, Quaternionf quaternionf2, LivingEntity livingEntity, CallbackInfo ci) {
+	private static void disableOwnNametagTemporarilyIfShown(GuiGraphics poseStack, int i, int j, int k, Quaternionf quaternionf, Quaternionf quaternionf2, LivingEntity livingEntity, CallbackInfo ci) {
 		cosmetica_showNametagInThirdPerson = Cosmetica.getConfig().shouldShowNametagInThirdPerson();
 		Cosmetica.getConfig().setShowNametagInThirdPerson(false);
 	}
 
 	@Inject(at = @At("RETURN"), method = "renderEntityInInventory")
-	private static void reenableNametag(PoseStack poseStack, int i, int j, int k, Quaternionf quaternionf, Quaternionf quaternionf2, LivingEntity livingEntity, CallbackInfo ci) {
+	private static void reenableNametag(GuiGraphics poseStack, int i, int j, int k, Quaternionf quaternionf, Quaternionf quaternionf2, LivingEntity livingEntity, CallbackInfo ci) {
 		Cosmetica.getConfig().setShowNametagInThirdPerson(cosmetica_showNametagInThirdPerson);
 	}
 }

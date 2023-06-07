@@ -21,6 +21,7 @@ import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
@@ -54,8 +55,8 @@ public class PlayerTabOverlayMixin {
 	@Shadow @Final private Minecraft minecraft;
 
 	@Inject(at = @At("HEAD"), method = "renderPingIcon")
-	private void onRenderPingIcon(PoseStack stack, int p, int x, int y, PlayerInfo playerInfo, CallbackInfo ci) {
+	private void onRenderPingIcon(GuiGraphics stack, int p, int x, int y, PlayerInfo playerInfo, CallbackInfo ci) {
 		boolean bl = this.minecraft.isLocalServer() || this.minecraft.getConnection().getConnection().isEncrypted();
-		Cosmetica.renderTabIcon(stack, x + (bl ? 9 : 0), y, playerInfo.getProfile().getId(), playerInfo.getProfile().getName());
+		Cosmetica.renderTabIcon(stack.pose(), x + (bl ? 9 : 0), y, playerInfo.getProfile().getId(), playerInfo.getProfile().getName());
 	}
 }
