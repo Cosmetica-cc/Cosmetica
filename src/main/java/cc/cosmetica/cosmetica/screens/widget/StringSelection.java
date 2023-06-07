@@ -22,6 +22,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -81,13 +82,13 @@ public class StringSelection extends Selection<StringSelection.Entry> {
 		private final int width;
 
 		@Override
-		public void render(PoseStack poseStack, int x, int y, int k, int l, int m, int n, int o, boolean bl, float f) {
-			this.selection.font.drawShadow(poseStack, this.item, (float) (this.width / 2 - this.selection.font.width(this.item) / 2), (float)(y + 3), 16777215, true);
+		public void render(GuiGraphics graphics, int x, int y, int k, int l, int m, int n, int o, boolean bl, float f) {
+			graphics.drawString(this.selection.font, this.item, this.width / 2 - this.selection.font.width(this.item) / 2, y + 3, 16777215, true);
 		}
 
 		@Override
 		public Component getNarration() {
-			return TextComponents.formattedTranslatable("narrator.select", new Object[]{this.item});
+			return TextComponents.formattedTranslatable("narrator.select", this.item);
 		}
 	}
 }

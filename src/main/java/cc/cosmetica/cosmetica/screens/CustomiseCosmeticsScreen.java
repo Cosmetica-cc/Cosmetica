@@ -75,6 +75,6 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		super.render(graphics, mouseX, mouseY, delta);
-		this.renderRSENotif(graphics.pose(), mouseX, mouseY);
+		this.renderRSENotif(graphics, mouseX, mouseY);
 	}
 }

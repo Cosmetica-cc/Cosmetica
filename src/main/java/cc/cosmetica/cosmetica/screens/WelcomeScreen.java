@@ -22,6 +22,7 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -66,22 +67,24 @@ public class WelcomeScreen extends PlayerRenderScreen {
 	}
 
 	@Override
-	public void render(PoseStack stack, int x, int y, float time) {
+	public void render(GuiGraphics graphics, int x, int y, float time) {
+		final PoseStack stack = graphics.pose();
+
 		if (this.fakePlayer == null) {
 			this.fakePlayer = new FakePlayer(Minecraft.getInstance(), this.playerUUID, this.playerName, this.playerData);
 		}
 
 		this.panorama.render(time, 1);
-		super.render(stack, x, y, time);
+		super.render(graphics, x, y, time);
 
 		stack.pushPose();
 		stack.scale(1.75f, 1.75f, 0);
-		drawCenteredString(stack, this.font, TextComponents.translatable("cosmetica.welcome.header"), (int)(this.width / 3.5), (int)(this.height / 1.75f) / 2 + 30, 0xEEEEEE);
+		graphics.drawCenteredString(this.font, TextComponents.translatable("cosmetica.welcome.header"), (int)(this.width / 3.5), (int)(this.height / 1.75f) / 2 + 30, 0xEEEEEE);
 		stack.popPose();
 	}
 
 	@Override
-	public void renderBackground(PoseStack stack) {
+	public void renderBackground(GuiGraphics graphics) {
 		// no dirt background.
 	}
 

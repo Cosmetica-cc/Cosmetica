@@ -20,8 +20,10 @@ import benzenestudios.sulphate.ClassicButton;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -50,19 +52,11 @@ public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 
 	class Entry extends ContainerObjectSelectionList.Entry<ButtonList.Entry> {
 		Entry(int width, Component text, Button.OnPress callback, @Nullable Component tooltip) {
-			this.button = new ClassicButton(0, 0, width, 20, text, callback, tooltip == null ? ClassicButton.NO_TOOLTIP : new ClassicButton.OnTooltip() {
-				@Nonnull // to make intellij shut up about null warnings
-				private final Component text = tooltip;
+			this.button = new ClassicButton(0, 0, width, 20, text, callback);
 
-				public void onTooltip(Button button, PoseStack poseStack, int i, int j) {
-					Screen screen = ButtonList.this.parent;
-					screen.renderTooltip(poseStack, ButtonList.this.minecraft.font.split(this.text, Math.max(screen.width / 2 - 43, 170)), i, j + 18);
-				}
-
-				public void narrateTooltip(Consumer<Component> consumer) {
-					consumer.accept(this.text);
-				}
-			});
+			if (tooltip != null) {
+				this.button.setTooltip(Tooltip.create(tooltip));
+			}
 		}
 
 		private final Button button;
@@ -78,7 +72,7 @@ public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 		}
 
 		@Override
-		public void render(PoseStack poseStack, int i, int y, int k, int l, int m, int passMe1, int passMe2, boolean bl, float passMe3) {
+		public void render(GuiGraphics poseStack, int i, int y, int k, int l, int m, int passMe1, int passMe2, boolean bl, float passMe3) {
 			this.button.setX(ButtonList.this.width / 2 - this.button.getWidth() / 2);
 			this.button.setY(y);
 			this.button.render(poseStack, passMe1, passMe2, passMe3);

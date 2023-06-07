@@ -30,6 +30,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -152,12 +153,12 @@ public class MainScreen extends PlayerRenderScreen {
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics matrices, int mouseX, int mouseY, float delta) {
 		super.render(matrices, mouseX, mouseY, delta);
 		this.renderRSENotif(matrices, mouseX, mouseY);
 
 		RenderSystem.enableBlend();
-		Cosmetica.renderTexture(matrices.last().pose(), DISCORD, this.width - 10 - 19, this.width - 10, 10, 10 + 15, 0, this.isMouseOnDiscord(mouseX, mouseY) ? 1.0f : 0.5f);
+		Cosmetica.renderTexture(matrices.pose().last().pose(), DISCORD, this.width - 10 - 19, this.width - 10, 10, 10 + 15, 0, this.isMouseOnDiscord(mouseX, mouseY) ? 1.0f : 0.5f);
 	}
 
 	private boolean isMouseOnDiscord(int x, int y) {

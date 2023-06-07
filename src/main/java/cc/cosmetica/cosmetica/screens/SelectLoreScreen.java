@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
@@ -186,15 +187,15 @@ public class SelectLoreScreen extends SulphateScreen {
 	}
 
 	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, mouseX, mouseY, delta);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		super.render(graphics, mouseX, mouseY, delta);
 
 		if (this.pleaseUseWebsite == null) {
 			// re-add title because it's drawn over with a selection list present (which is used when there is no please use website notice)
 			graphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
 		}
 		else {
-			this.pleaseUseWebsite.renderCentered(matrices, this.width / 2, this.height / 2);
+			this.pleaseUseWebsite.renderCentered(graphics, this.width / 2, this.height / 2);
 		}
 	}
 

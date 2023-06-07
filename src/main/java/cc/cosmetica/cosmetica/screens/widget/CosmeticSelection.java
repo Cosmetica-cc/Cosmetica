@@ -28,7 +28,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class CosmeticSelection<T extends CustomCosmetic> extends Selection<CosmeticSelection.Entry<T>> {
+public class CosmeticSelection<T extends CustomCosmetic> extends Selection<CosmeticSelection<T>.Entry> {
 	public CosmeticSelection(Minecraft minecraft, Screen parent, String cosmeticType, Font font, Consumer<String> onSelect) {
 		super(minecraft, parent, font, 0, 25, 60, onSelect);
 		this.cosmeticType = cosmeticType;
@@ -60,26 +62,26 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 	public void copy(CosmeticSelection<T> other) {
 		synchronized (minecraft.getTextureManager()) { // can this be removed now?
-			for (Entry<T> entry : other.children()) {
+			for (Entry entry : other.children()) {
 				this._add(entry.cosmetic, true);
 			}
 		}
 	}
 
 	protected final void _add(T cosmetic, boolean register) {
-		Entry<T> entry = new Entry<>(this, cosmetic, register);
+		Entry entry = new Entry(cosmetic, register);
 		this.addEntry(entry);
 		this.byId.put(cosmetic.getId(), entry);
 	}
 
 	@Override
-	protected CosmeticSelection.Entry findEntry(CosmeticSelection.Entry key) {
+	protected CosmeticSelection<T>.Entry findEntry(CosmeticSelection<T>.Entry key) {
 		return this.byId.get(key.item);
 	}
 
 	@Nullable
 	public T getSelectedCosmetic() {
-		@Nullable Entry<T> selected = this.getSelected();
+		@Nullable Entry selected = this.getSelected();
 		return selected == null ? null : selected.cosmetic;
 	}
 
@@ -91,17 +93,18 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 	}
 
 	@Override
-	protected void renderSelection(PoseStack poseStack, int y0, int j, int dy, int colour1, int colour2) {
+	protected void renderSelection(GuiGraphics poseStack, int y0, int j, int dy, int colour1, int colour2) {
 		int x0 = this.x0 + (this.width - j) / 2 + OFFSET_X;
 		int x1 = this.x0 + (this.width + j) / 2;
 
-		fill(poseStack, x0, y0 - 2, x1, y0 + dy + 2, colour1);
-		fill(poseStack, x0 + 1, y0 - 1, x1 - 1, y0 + dy + 1, colour2);
+		// TODO is this the correct render type
+		poseStack.fill(RenderType.gui(), x0, y0 - 2, x1, y0 + dy + 2, colour1);
+		poseStack.fill(RenderType.gui(), x0 + 1, y0 - 1, x1 - 1, y0 + dy + 1, colour2);
 	}
 
-	protected static class Entry<T extends CustomCosmetic> extends Selection.Entry<CosmeticSelection.Entry<T>> {
-		public Entry(CosmeticSelection selection, T cosmetic, boolean register) {
-			super(selection, cosmetic.getId());
+	protected class Entry extends Selection.Entry<CosmeticSelection<T>.Entry> {
+		public Entry(T cosmetic, boolean register) {
+			super(CosmeticSelection.this, cosmetic.getId());
 			String cosmeticId = cosmetic.getId();
 
 			this.displayName = cosmetic.getName();
@@ -117,7 +120,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 				if (RenderSystem.isOnRenderThreadOrInit()) {
 					Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
 							Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
-							String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
+							String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", CosmeticSelection.this.cosmeticType, cosmeticId)
 					));
 
 					textureRegistered = true;
@@ -127,7 +130,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 					RenderSystem.recordRenderCall(() -> {
 						Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
 								Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
-								String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", selection.cosmeticType, cosmeticId)
+								String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", CosmeticSelection.this.cosmeticType, cosmeticId)
 						));
 
 						textureRegistered = true;
@@ -136,7 +139,6 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			}
 
 			this.screen = selection.parent;
-			this.selection = selection;
 		}
 
 		private final String displayName;
@@ -150,10 +152,10 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 		private int indicatorStartY = 100000000; // arbitrary big number
 		private int mouseX;
 		private int mouseY;
-		private final CosmeticSelection selection;
 
 		@Override
-		public void render(PoseStack poseStack, int x, int y, int k, int l, int m, int n, int o, boolean isHovered, float f) {
+		public void render(GuiGraphics graphics, int x, int y, int k, int l, int m, int n, int o, boolean isHovered, float f) {
+			PoseStack poseStack = graphics.pose();
 			this.indicatorStartY = y + 16;
 			x = Minecraft.getInstance().screen.width / 2 - 60;
 			final int textY = y;
@@ -162,7 +164,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			Matrix4f pose = poseStack.last().pose();
 
 			if (textureRegistered) Cosmetica.renderTexture(pose, this.texture, x - 25, x + 25, y - 25, y + 25, 0, 1.0f);
-			this.selection.font.drawShadow(poseStack, this.displayName, (float) (x + 30), (float)(textY + 6), 16777215, true);
+			graphics.drawString(this.selection.font, this.displayName, x + 30, textY + 6, 16777215, true);
 			
 			int indicatorX = x + 30;
 			
@@ -172,7 +174,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			}
 
 			if (this.hoveredIndicator != null) {
-				this.screen.renderTooltip(poseStack, Indicators.TOOLTIPS.get(this.hoveredIndicator), mouseX, mouseY + 8);
+				graphics.renderTooltip(this.selection.font, Indicators.TOOLTIPS.get(this.hoveredIndicator), mouseX, mouseY + 8);
 			}
 		}
 
@@ -197,7 +199,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int i) {
-			if (mouseX >= this.selection.x0 + this.selection.width / 2 - this.selection.getRowWidth() / 2 + OFFSET_X) {
+			if (mouseX >= CosmeticSelection.this.x0 + CosmeticSelection.this.width / 2 - CosmeticSelection.this.getRowWidth() / 2 + OFFSET_X) {
 				return super.mouseClicked(mouseX, mouseY, i);
 			} else {
 				return false;
@@ -206,7 +208,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 		@Override
 		public Component getNarration() {
-			return TextComponents.formattedTranslatable("narrator.select", new Object[]{this.displayName});
+			return TextComponents.formattedTranslatable("narrator.select", this.displayName);
 		}
 	}
 }

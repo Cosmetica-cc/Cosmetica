@@ -21,6 +21,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +74,7 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 	}
 
 	@Override
-	protected void renderBackground(PoseStack poseStack) {
+	protected void renderBackground(GuiGraphics poseStack) {
 		this.parent.renderBackground(poseStack);
 	}
 

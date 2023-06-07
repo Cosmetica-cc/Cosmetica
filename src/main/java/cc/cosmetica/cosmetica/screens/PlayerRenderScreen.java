@@ -91,7 +91,8 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		}
 	}
 
-	protected void renderRSENotif(PoseStack matrices, int mouseX, int mouseY) {
+	protected void renderRSENotif(GuiGraphics graphics, int mouseX, int mouseY) {
+		final PoseStack matrices = graphics.pose();
 		Component regionEffectsMsg = null;
 		PlayerData data = this.fakePlayer.getData();
 		@Nullable String builtInShoulderBuddyId = data.rightShoulderBuddy() == null ? null : (data.rightShoulderBuddy().id().startsWith("-") ? data.rightShoulderBuddy().id() : null);
@@ -117,7 +118,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 			Cosmetica.renderTexture(matrices.last().pose(), this.rseNotif, left, left + size, top, top + size, 0, 1.0f);
 
 			if (mouseY >= top && mouseY <= top + size && mouseX >= left && mouseX <= left + size) {
-				this.renderTooltip(matrices, this.font.split(regionEffectsMsg, Math.max(this.width / 2, 170)), mouseX, mouseY);
+				graphics.renderTooltip(this.font, this.font.split(regionEffectsMsg, Math.max(this.width / 2, 170)), mouseX, mouseY);
 			}
 		}
 	}
