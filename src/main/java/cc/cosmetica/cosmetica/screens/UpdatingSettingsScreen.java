@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.screens;
 
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -66,7 +67,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 
 						if (response.booleanValue() && this.parentScreen instanceof PlayerRenderScreen playerRenderScreen) {
 							UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
-							playerRenderScreen.setPlayerData(Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true));
+							playerRenderScreen.setPlayerData(PlayerData.get(uuid, Minecraft.getInstance().getUser().getName(), true));
 						}
 					});
 
@@ -106,7 +107,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 						main.setCapeServerSettings(response);
 
 						UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
-						Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true);
+						PlayerData.get(uuid, Minecraft.getInstance().getUser().getName(), true);
 					}
 
 					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));

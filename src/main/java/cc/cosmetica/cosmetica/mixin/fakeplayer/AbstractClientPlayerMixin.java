@@ -55,7 +55,7 @@ public abstract class AbstractClientPlayerMixin extends Player implements Player
 
 	@Override
 	public PlayerData getCosmeticaPlayerData() {
-		return Cosmetica.getPlayerData(this);
+		return PlayerData.get(this);
 	}
 
 	@Override

@@ -100,9 +100,9 @@ public class Authentication {
 						playerName = ownName;
 					}
 
-					PlayerData info = Cosmetica.getPlayerData(uuid, playerName, true);
+					PlayerData info = PlayerData.get(uuid, playerName, true);
 					DebugMode.log("Loading skin " + info.skin());
-					@Nullable PlayerData ownInfo = loadTarget == 2 ? Cosmetica.getPlayerData(ownUUID, ownName, true) : null;
+					@Nullable PlayerData ownInfo = loadTarget == 2 ? PlayerData.get(ownUUID, ownName, true) : null;
 
 					// check *again* in case they've closed it
 					if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
@@ -169,7 +169,7 @@ public class Authentication {
 
 	private static void prepareWelcome(UUID uuid, String name, boolean newPlayer) {
 		// load the player's data if not loaded for later
-		RenderSystem.recordRenderCall(() -> Cosmetica.getPlayerData(uuid, name, false));
+		RenderSystem.recordRenderCall(() -> PlayerData.get(uuid, name, false));
 
 		boolean isWelcomeScreenAllowed = newPlayer && Cosmetica.mayShowWelcomeScreen();
 		DebugMode.log("Preparing potential welcome... || newPlayer=" + newPlayer + " mayShowWelcomeScreen=" + Cosmetica.mayShowWelcomeScreen());

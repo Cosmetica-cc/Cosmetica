@@ -131,9 +131,6 @@ public class Cosmetica implements ClientModInitializer {
 	public static KeyMapping openCustomiseScreen;
 	public static KeyMapping snipe;
 
-	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
-	private static Set<UUID> lookingUp = new HashSet<>();
-
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
 
 	private static final ExecutorService MAIN_POOL = Executors.newFixedThreadPool(
@@ -458,12 +455,12 @@ public class Cosmetica implements ClientModInitializer {
 								UUID uuid = individual.getUUID();
 								DebugMode.log("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
 
-								if (playerDataCache.containsKey(uuid)) {
-									clearPlayerData(uuid);
+								if (PlayerData.has(uuid)) {
+									PlayerData.clear(uuid);
 
 									// if ourselves, refresh asap
 									if (!ignoreSelf && uuid.equals(Minecraft.getInstance().player.getUUID())) {
-										getPlayerData(Minecraft.getInstance().player);
+										PlayerData.get(Minecraft.getInstance().player);
 									}
 								} else {
 									// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
@@ -477,13 +474,13 @@ public class Cosmetica implements ClientModInitializer {
 									if (info != null) {
 										UUID serverUuid = info.getProfile().getId();
 
-										if (playerDataCache.containsKey(serverUuid)) {
+										if (PlayerData.has(serverUuid)) {
 											DebugMode.log("Found them :). They were hiding at uuid {}", serverUuid);
-											clearPlayerData(serverUuid);
+											PlayerData.clear(serverUuid);
 
 											// if ourselves, refresh asap
 											if (!ignoreSelf && username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
-												getPlayerData(Minecraft.getInstance().player);
+												PlayerData.get(Minecraft.getInstance().player);
 											}
 										}
 									}
@@ -574,41 +571,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
-		return getPlayerData(player).upsideDown();
-	}
-
-	public static PlayerData getPlayerData(Player player) {
-		return getPlayerData(player.getUUID(), player.getName().getString(), false);
-	}
-
-	public static PlayerData getCachedPlayerData(UUID player) {
-		synchronized (playerDataCache) {
-			return playerDataCache.get(player);
-		}
-	}
-
-	public static void clearPlayerData(UUID uuid) {
-		synchronized (playerDataCache) {
-			playerDataCache.remove(uuid);
-		}
-	}
-
-	public static int getCacheSize() {
-		synchronized (playerDataCache) {
-			return playerDataCache.size();
-		}
-	}
-
-	public static Collection<UUID> getCachedPlayers() {
-		synchronized (playerDataCache) {
-			return playerDataCache.keySet();
-		}
-	}
-
-	public static boolean isPlayerCached(UUID uuid) {
-		synchronized (playerDataCache) {
-			return playerDataCache.containsKey(uuid);
-		}
+		return PlayerData.get(player).upsideDown();
 	}
 
 	public static String urlEncode(String value) {
@@ -633,73 +596,7 @@ public class Cosmetica implements ClientModInitializer {
 		return "";
 	}
 
-	public static PlayerData getPlayerData(UUID uuid, String username, boolean sync) {
-		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
-
-		Level level = Minecraft.getInstance().level;
-
-		// if existing data exists
-
-		synchronized (playerDataCache) {
-			PlayerData existing = playerDataCache.get(uuid);
-
-			if (existing != null) {
-				// synchronised requests do not want temporary data returned!
-				if (!(sync && existing == PlayerData.TEMPORARY)) {
-					return existing;
-				}
-			} else {
-				// start a new lookup
-				lookingUp.add(uuid);
-				playerDataCache.put(uuid, PlayerData.TEMPORARY);
-			}
-		}
-
-		if (sync) {
-			return lookupPlayerData(uuid, username, level);
-		} else {
-			runOffthread(() -> {
-				if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
-					synchronized (playerDataCache) { // make sure temp values are removed
-						playerDataCache.remove(uuid);
-						lookingUp.remove(uuid);
-					}
-				}
-
-				lookupPlayerData(uuid, username, level);
-			}, ThreadPool.GENERAL_THREADS);
-
-			return PlayerData.NONE;
-		}
-	}
-
-	private static PlayerData lookupPlayerData(UUID uuid, String username, Level level) {
-		AtomicReference<PlayerData> newDataHolder = new AtomicReference<>(PlayerData.NONE);
-
-		Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
-			PlayerData newData = newPlayerData(info, uuid);
-
-			synchronized (playerDataCache) { // update the information with what we have gotten.
-				playerDataCache.put(uuid, newData);
-				lookingUp.remove(uuid);
-			}
-
-			newDataHolder.set(newData);
-		}, logErr("Error getting user info for " + uuid + " / " + username).andThen(re -> {
-			synchronized (playerDataCache) {
-				// check no other thread has gotten there first.
-				// This could still be mistriggered if, say, level changes, player data is cleared, and a new request is made
-				// So we check level too.
-				if (Minecraft.getInstance().level == level && playerDataCache.get(uuid) == PlayerData.TEMPORARY) {
-					lookingUp.remove(uuid);
-				}
-			}
-		}));
-
-		return newDataHolder.get();
-	}
-
-	static PlayerData newPlayerData(UserInfo info, UUID uuid) {
+	public static PlayerData newPlayerData(UserInfo info, UUID uuid) {
 		List<Model> hats = info.getHats();
 		Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
 		Optional<Model> backBling = info.getBackBling();
@@ -739,7 +636,7 @@ public class Cosmetica implements ClientModInitializer {
 
 			if (lookupId != null) {
 				double squaredDistance = entityRenderDispatcher.distanceToSqr(entity);
-				PlayerData data = getPlayerData(player);
+				PlayerData data = PlayerData.get(player);
 
 				if (squaredDistance <= 4096.0D) {
 					renderLore(
@@ -822,7 +719,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void renderTabIcon(PoseStack stack, int x, int y, UUID playerUUID, String name) {
-		PlayerData data = getPlayerData(playerUUID, name, false);
+		PlayerData data = PlayerData.get(playerUUID, name, false);
 		@Nullable ResourceLocation iconTexture = data.icon();
 
 		if (iconTexture != null) {
@@ -924,7 +821,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void clearAllCaches() {
 		DebugMode.log("Clearing all Cosmetica Caches");
-		playerDataCache = new HashMap<>();
+		PlayerData.clearCaches();
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();
 		System.gc(); // force jvm to garbage collect our unused data

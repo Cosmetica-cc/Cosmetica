@@ -19,11 +19,8 @@ package cc.cosmetica.cosmetica.mixin;
 import cc.cosmetica.api.User;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
-import cc.cosmetica.cosmetica.screens.LoadingScreen;
-import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
-import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
-import cc.cosmetica.cosmetica.screens.WelcomeScreen;
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.screens.*;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -74,7 +71,7 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
-		if (Cosmetica.getCacheSize() > 1024) {
+		if (PlayerData.getCacheSize() > 1024) {
 			DebugMode.log("Clearing Cosmetica Caches");
 			Cosmetica.clearAllCaches();
 		}
