@@ -31,6 +31,7 @@ import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import cc.cosmetica.util.Response;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -170,12 +171,10 @@ public class Authentication {
 	 * @param name the username of the player.
 	 * @param newPlayer whether this is the player's first time using cosmetica.
 	 * @param suppressErrors whether to suppress errors from the user info call.
-	 * @return whether the welcome failed due to an invalid token. Other reasons for failure will return true.
 	 */
-	private static boolean prepareWelcome(UUID uuid, String name, boolean newPlayer, boolean suppressErrors) {
+	private static void prepareWelcome(UUID uuid, String name, boolean newPlayer, boolean suppressErrors) {
 		boolean isWelcomeScreenAllowed = newPlayer && Cosmetica.mayShowWelcomeScreen();
 		DebugMode.log("Preparing potential welcome... || newPlayer=" + newPlayer + " mayShowWelcomeScreen=" + Cosmetica.mayShowWelcomeScreen());
-		AtomicBoolean invalidToken = new AtomicBoolean(false);
 
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
 			final String colourlessLore = TextComponents.stripColour(userInfo.getLore());
@@ -205,18 +204,12 @@ public class Authentication {
 				});
 			}
 		}, e -> {
-			if (e.getMessage().contains("invalid token")) {
-				invalidToken.set(true);
-			}
-
 			if (suppressErrors) {
 				DebugMode.logError("Suppressed Error:", e);
 			} else {
 				Cosmetica.LOGGER.error("Failed to request user info on authenticate for preparing welcome.", e);
 			}
 		});
-
-		return invalidToken.get();
 	}
 
 	private static void runAuthentication() {
@@ -266,13 +259,14 @@ public class Authentication {
 								User user = Minecraft.getInstance().getUser();
 								UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
 
-								String reason = "No saved Cosmetica token found.";
+								String reason = "No cached Cosmetica token found.";
 								String foundToken = tokens.getProperty(uuid.toString());
 
 								boolean reauthenticate = true;
 
-								DebugMode.log("Found saved token. Trying to authenticate...");
 								if (foundToken != null) {
+									DebugMode.log("Found cached token. Trying to authenticate...");
+
 									Cosmetica.api = CosmeticaAPI.fromTokens(
 											foundToken,
 											tokens.getProperty(uuid + "-l")
@@ -280,7 +274,7 @@ public class Authentication {
 									Cosmetica.api.setUrlLogger(DebugMode::logURL);
 
 									// try welcome
-									reauthenticate = prepareWelcome(uuid, user.getName(), false, true);
+									reauthenticate = isTokenInvalid(((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
 									reason = "Invalid Cosmetica Token.";
 								}
 
@@ -298,12 +292,15 @@ public class Authentication {
 									tokens.setProperty(uuid + "-l", fieldLT.get(Cosmetica.api).toString());
 
 									// Save updated tokens
+									DebugMode.log("Caching authentication tokens");
 									try (OutputStream stream = Files.newOutputStream(tokensPath)) {
 										tokens.store(stream, "Cosmetica Tokens (shh!)");
 									} catch (IOException e) {
 										Cosmetica.LOGGER.error("Failed to save tokens.", e);
 									}
- 								}
+ 								} else {
+									DebugMode.log("Authentication Successful.");
+								}
 
 								// success response
 								currentlyAuthenticated = true;
@@ -377,6 +374,21 @@ public class Authentication {
 			DebugMode.log("Api is authenticated: syncing settings!");
 			syncSettings();
 		}
+	}
+
+	private static boolean isTokenInvalid(String token) throws UncheckedIOException {
+		try (Response response = Response.get("http://api.cosmetica.cc/get/uuid?token=" + token)) {
+			JsonObject object = response.getAsJson();
+
+			if (object.has("error")) {
+				return object.get("error").getAsString().contains("invalid token");
+			}
+		} catch (IOException e) {
+			// this would run if offline, but shouldn't get to this point if we can already authenticate eh?
+			throw new UncheckedIOException("Checking token validity", e);
+		}
+
+		return false;
 	}
 
 	protected static void runAuthenticationCheckThread() {
