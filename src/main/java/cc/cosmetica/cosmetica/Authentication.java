@@ -16,12 +16,7 @@
 
 package cc.cosmetica.cosmetica;
 
-import cc.cosmetica.api.CapeDisplay;
-import cc.cosmetica.api.CosmeticPosition;
-import cc.cosmetica.api.CosmeticaAPI;
-import cc.cosmetica.api.LoginInfo;
-import cc.cosmetica.api.ServerResponse;
-import cc.cosmetica.api.UserSettings;
+import cc.cosmetica.api.*;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
@@ -34,6 +29,7 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.impl.CosmeticaWebAPI;
 import cc.cosmetica.util.Response;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -44,12 +40,13 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
+import java.lang.reflect.Field;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Authentication {
@@ -125,7 +122,6 @@ public class Authentication {
 				if (error instanceof JsonSyntaxException) {
 					if (DebugMode.elevatedLogging()) {
 						//TODO proper way of dong this lmao
-						// Perhaps in CosmeticaDotJava 2.0.0, more likely a 1.X.0 version.
 						Cosmetica.LOGGER.error("The Json causing this error is as follows, assuming repetitive issue:");
 						try {
 							Cosmetica.LOGGER.error(Response.get(settings_.getURL()).getAsString());
@@ -167,14 +163,20 @@ public class Authentication {
 
 	private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
 
-	private static void prepareWelcome(UUID uuid, String name, boolean newPlayer) {
-		// load the player's data if not loaded for later
-		RenderSystem.recordRenderCall(() -> PlayerData.get(uuid, name, false));
-
+	/**
+	 * Prepare welcome screen or welcome message for the player based on settings and the player's cosmetica info.
+	 * Specifically, their lore, and whether it's their first time using cosmetica.
+	 * @param uuid the uuid of the player.
+	 * @param name the username of the player.
+	 * @param newPlayer whether this is the player's first time using cosmetica.
+	 * @param suppressErrors whether to suppress errors from the user info call.
+	 * @return whether the welcome failed due to an invalid token. Other reasons for failure will return true.
+	 */
+	private static boolean prepareWelcome(UUID uuid, String name, boolean newPlayer, boolean suppressErrors) {
 		boolean isWelcomeScreenAllowed = newPlayer && Cosmetica.mayShowWelcomeScreen();
 		DebugMode.log("Preparing potential welcome... || newPlayer=" + newPlayer + " mayShowWelcomeScreen=" + Cosmetica.mayShowWelcomeScreen());
+		AtomicBoolean invalidToken = new AtomicBoolean(false);
 
-		// do a separate request for some reason because I'm cringe
 		Cosmetica.api.getUserInfo(uuid, name).ifSuccessfulOrElse(userInfo -> {
 			final String colourlessLore = TextComponents.stripColour(userInfo.getLore());
 			DebugMode.log("Received user info on Authenticate/prepareWelcome || displayNext=" + Cosmetica.displayNext + " colourlessLore=" + colourlessLore + " show-welcome-message=" + Cosmetica.getConfig().showWelcomeMessage());
@@ -202,7 +204,19 @@ public class Authentication {
 					Minecraft.getInstance().setScreen(new WelcomeScreen(screen, uuid, name, Cosmetica.newPlayerData(userInfo, uuid)));
 				});
 			}
-		}, Cosmetica.logErr("Failed to request user info on authenticate."));
+		}, e -> {
+			if (e.getMessage().contains("invalid token")) {
+				invalidToken.set(true);
+			}
+
+			if (suppressErrors) {
+				DebugMode.logError("Suppressed Error:", e);
+			} else {
+				Cosmetica.LOGGER.error("Failed to request user info on authenticate for preparing welcome.", e);
+			}
+		});
+
+		return invalidToken.get();
 	}
 
 	private static void runAuthentication() {
@@ -219,7 +233,7 @@ public class Authentication {
 				// but is useful for testing
 				User user = Minecraft.getInstance().getUser();
 				UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
-				prepareWelcome(uuid, user.getName(), false);
+				prepareWelcome(uuid, user.getName(), false, false);
 			} else {
 				if (currentlyAuthenticating) {
 					DebugMode.log("API is not authenticated but authentication is already in progress.");
@@ -230,60 +244,122 @@ public class Authentication {
 					new Thread("Cosmetica Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
 						public void run() {
 							try {
+								// First, check if a cosmetica token already exists
+								Properties tokens = new Properties();
+								Path tokensPath = Cosmetica.getCacheDirectory().resolve("tokens");
+
+								if (Files.isRegularFile(tokensPath)) {
+									try (InputStream inputStream = Files.newInputStream(tokensPath)) {
+										tokens.load(inputStream);
+									} catch (IOException e) {
+										Cosmetica.LOGGER.error("Failed to read tokens file.", e);
+									}
+								} else {
+									try {
+										Files.createFile(tokensPath);
+									} catch (IOException e) {
+										Cosmetica.LOGGER.error("Failed to create tokens file.", e);
+									}
+								}
+
+								// Get user
 								User user = Minecraft.getInstance().getUser();
 								UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
 
-								Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid, System.getProperty("cosmetica.client", "cosmetica")); // getUuid() better have the dashes... edit: it did not have the dashes.
-								Cosmetica.api.setUrlLogger(DebugMode::logURL);
+								String reason = "No saved Cosmetica token found.";
+								String foundToken = tokens.getProperty(uuid.toString());
 
-								LoginInfo info = Cosmetica.api.getLoginInfo().get();
+								boolean reauthenticate = true;
+
+								DebugMode.log("Found saved token. Trying to authenticate...");
+								if (foundToken != null) {
+									Cosmetica.api = CosmeticaAPI.fromTokens(
+											foundToken,
+											tokens.getProperty(uuid + "-l")
+									);
+									Cosmetica.api.setUrlLogger(DebugMode::logURL);
+
+									// try welcome
+									reauthenticate = prepareWelcome(uuid, user.getName(), false, true);
+									reason = "Invalid Cosmetica Token.";
+								}
+
+								if (reauthenticate) {
+									// If can't authenticate that way, authenticate from minecraft token
+									DebugMode.log(reason + " Authenticating from minecraft access token.");
+									Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid, System.getProperty("cosmetica.client", "cosmetica")); // getUuid() better have the dashes... edit: it did not have the dashes.
+									Cosmetica.api.setUrlLogger(DebugMode::logURL);
+
+									// Update master token
+									tokens.setProperty(uuid.toString(), ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
+									// Update limited token
+									Field fieldLT = CosmeticaWebAPI.class.getDeclaredField("limitedToken");
+									fieldLT.setAccessible(true);
+									tokens.setProperty(uuid + "-l", fieldLT.get(Cosmetica.api).toString());
+
+									// Save updated tokens
+									try (OutputStream stream = Files.newOutputStream(tokensPath)) {
+										tokens.store(stream, "Cosmetica Tokens (shh!)");
+									} catch (IOException e) {
+										Cosmetica.LOGGER.error("Failed to save tokens.", e);
+									}
+ 								}
 
 								// success response
 								currentlyAuthenticated = true;
 								currentlyAuthenticating = false;
 
-								if (info.isNewPlayer()) {
-									DefaultSettingsConfig defaults = Cosmetica.getDefaultSettingsConfig();
+								Optional<LoginInfo> oInfo = Cosmetica.api.getLoginInfo();
 
-									// only set defaults if there was a file present on first run with the mod
-									if (defaults.wasLoaded()) {
-										// Create map of settings to update
-										final Map<String, Object> settings = new HashMap<>();
+								oInfo.ifPresent(info -> {
+									if (info.isNewPlayer()) {
+										DefaultSettingsConfig defaults = Cosmetica.getDefaultSettingsConfig();
 
-										// add the various fields to the map
-										defaults.areHatsEnabled().ifPresent(v -> settings.put("dohats", v));
-										defaults.areShoulderBuddiesEnabled().ifPresent(v -> settings.put("doshoulderbuddies", v));
-										defaults.areBackBlingsEnabled().ifPresent(v -> settings.put("dobackblings", v));
-										defaults.isLoreEnabled().ifPresent(v -> settings.put("dolore", v));
-										defaults.shouldDoOnlineActivity().ifPresent(v -> settings.put("doonlineactivity", v));
-										defaults.getIconSettings().ifPresent(v -> settings.put("iconsettings", v));
+										// only set defaults if there was a file present on first run with the mod
+										if (defaults.wasLoaded()) {
+											// Create map of settings to update
+											final Map<String, Object> settings = new HashMap<>();
 
-										// post the settings to update if they exist
-										if (!settings.isEmpty()) {
-											Cosmetica.api.updateUserSettings(settings);
-										}
+											// add the various fields to the map
+											defaults.areHatsEnabled().ifPresent(v -> settings.put("dohats", v));
+											defaults.areShoulderBuddiesEnabled().ifPresent(v -> settings.put("doshoulderbuddies", v));
+											defaults.areBackBlingsEnabled().ifPresent(v -> settings.put("dobackblings", v));
+											defaults.isLoreEnabled().ifPresent(v -> settings.put("dolore", v));
+											defaults.shouldDoOnlineActivity().ifPresent(v -> settings.put("doonlineactivity", v));
+											defaults.getIconSettings().ifPresent(v -> settings.put("iconsettings", v));
 
-										// handle default-setting-defined capes
-										if (!info.hasSpecialCape()) {
-											String capeId = defaults.getCapeId();
+											// post the settings to update if they exist
+											if (!settings.isEmpty()) {
+												Cosmetica.api.updateUserSettings(settings);
+											}
 
-											if (!capeId.isEmpty()) {
-												Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId, true);
+											// handle default-setting-defined capes
+											if (!info.hasSpecialCape()) {
+												String capeId = defaults.getCapeId();
+
+												if (!capeId.isEmpty()) {
+													Cosmetica.api.setCosmetic(CosmeticPosition.CAPE, capeId, true);
+												}
+											}
+
+											// handle default-setting-defined cape server settings
+											Map<String, CapeDisplay> capeServerSettings = defaults.getCapeServerSettings();
+
+											if (!capeServerSettings.isEmpty()) {
+												Cosmetica.api.setCapeServerSettings(capeServerSettings);
 											}
 										}
-
-										// handle default-setting-defined cape server settings
-										Map<String, CapeDisplay> capeServerSettings = defaults.getCapeServerSettings();
-
-										if (!capeServerSettings.isEmpty()) {
-											Cosmetica.api.setCapeServerSettings(capeServerSettings);
-										}
 									}
-								}
+								});
 
 								// welcome players
 								// and by new I mean has new to cosmetica lore
-								prepareWelcome(uuid, user.getName(), info.isNewPlayer());
+								if (reauthenticate) {
+									prepareWelcome(uuid, user.getName(), oInfo.map(LoginInfo::isNewPlayer).orElse(false), false);
+								}
+
+								// load the player's data if not loaded for later
+								RenderSystem.recordRenderCall(() -> PlayerData.get(uuid, user.getName(), false));
 
 								// synchronise settings from the server to the mod
 								syncSettings();
