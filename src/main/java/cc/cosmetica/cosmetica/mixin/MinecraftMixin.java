@@ -21,6 +21,7 @@ import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.*;
+import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -46,6 +47,11 @@ public abstract class MinecraftMixin {
 	@Shadow @Nullable public ClientLevel level;
 
 	@Shadow @Nullable public LocalPlayer player;
+
+	@Shadow
+	public static Minecraft getInstance() {
+		return null;
+	}
 
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;shutdownExecutors()V"), method = "close")
 	private void onClose(CallbackInfo info) {
@@ -95,7 +101,20 @@ public abstract class MinecraftMixin {
 		}
 
 		if (Cosmetica.snipe.consumeClick() && this.screen == null && Cosmetica.farPickPlayer != null) {
+			DebugMode.log("Sniping Player: " + Cosmetica.farPickPlayer.getUUID());
 			Authentication.snipedPlayer = new User(Cosmetica.farPickPlayer.getUUID(), Cosmetica.farPickPlayer.getName().getString());
+
+			if (Authentication.hasSavedSettings()
+					&& PlayerData.has(this.player.getUUID()) && PlayerData.has(Cosmetica.farPickPlayer.getUUID())) {
+				PlayerData ownData = PlayerData.get(this.player);
+				PlayerData foreignData = PlayerData.get(Cosmetica.farPickPlayer);
+
+				// if not loading
+				if (ownData != PlayerData.TEMPORARY && foreignData != PlayerData.TEMPORARY) {
+					Authentication.openSnipeScreen(null, foreignData, ownData);
+					return;
+				}
+			}
 			this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 2));
 		}
 	}

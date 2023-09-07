@@ -63,8 +63,33 @@ public class Authentication {
 		return currentlyAuthenticated;
 	}
 
+	private static UserSettings savedSettings;
+
+	public static boolean hasSavedSettings() {
+		return savedSettings != null;
+	}
+
+	public static void openSnipeScreen(Screen parent, PlayerData foreignData, PlayerData ownData) {
+		if (snipedPlayer == null) {
+			throw new IllegalStateException("Can't show snipe screen for null sniped player.");
+		}
+
+		FakePlayer player = new FakePlayer(
+				Minecraft.getInstance(),
+				snipedPlayer.getUUID(),
+				snipedPlayer.getUsername(),
+				foreignData
+		);
+
+		Minecraft.getInstance().setScreen(
+				new SnipeScreen(TextComponents.literal(player.getName()), parent, player, savedSettings,
+						ownData, new cc.cosmetica.api.User(player.getUUID(), player.getName()))
+		);
+	}
+
 	private static void syncSettings() {
 		if (Cosmetica.api == null) return;
+		DebugMode.log("Synchronising Settings");
 
 		Thread requestThread = new Thread(() -> {
 			if (!Cosmetica.api.isAuthenticated()) {
@@ -76,6 +101,7 @@ public class Authentication {
 
 			settings_.ifSuccessfulOrElse(settings -> {
 				DebugMode.log("Handling successful cosmetics settings response.");
+				savedSettings = settings;
 
 				// regional effects checking
 				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet() && Cosmetica.getConfig().regionalEffectsPrompt();
@@ -106,11 +132,18 @@ public class Authentication {
 					if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
 						Minecraft.getInstance().tell(() -> {
 							FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info);
-							Minecraft.getInstance().setScreen(switch (loadTarget) {
-								case 2 -> new SnipeScreen(TextComponents.literal(playerName), lts.getParent(), fakePlayer, settings, ownInfo, new cc.cosmetica.api.User(ownUUID, ownName));
-								case 1 -> new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings);
-								default -> new MainScreen(lts.getParent(), settings, fakePlayer, loadTarget == 3);
-							});
+
+							switch (loadTarget) {
+							case 2:
+								openSnipeScreen(lts.getParent(), info, ownInfo);
+								break;
+							case 1:
+								Minecraft.getInstance().setScreen(new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings));
+								break;
+							default:
+								Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), settings, fakePlayer, loadTarget == 3));
+								break;
+							};
 						});
 					}
 				}
@@ -212,8 +245,12 @@ public class Authentication {
 		});
 	}
 
-	private static void runAuthentication() {
-		if (!Cosmetica.api.isAuthenticated()) {
+	public static void runAuthentication() {
+		runAuthentication(false);
+	}
+
+	private static void runAuthentication(boolean force) {
+		if (!Cosmetica.api.isAuthenticated() || force) {
 			String devToken = System.getProperty("cosmetica.token");
 
 			if (devToken != null) {
@@ -392,7 +429,7 @@ public class Authentication {
 	}
 
 	protected static void runAuthenticationCheckThread() {
-		Thread requestThread = new Thread(() -> {
+		Thread settingsSyncThread = new Thread(() -> {
 			while (true) {
 				try {
 					Thread.sleep(1000 * 60 * 5);
@@ -402,6 +439,21 @@ public class Authentication {
 				syncSettings();
 			}
 		});
-		requestThread.start();
+		settingsSyncThread.start();
+
+		Thread checkAuthThread = new Thread(() -> {
+			while (true) {
+				try {
+					Thread.sleep(1000 * 15);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				if (isTokenInvalid(((CosmeticaWebAPI)Cosmetica.api).getMasterToken())) {
+					runAuthentication(true);
+				}
+			}
+		});
+		checkAuthThread.start();
 	}
 }
