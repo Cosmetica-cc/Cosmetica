@@ -36,6 +36,7 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
+import net.minecraft.client.gui.screens.ErrorScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
@@ -87,6 +88,17 @@ public class Authentication {
 		);
 	}
 
+	public static void openCustomiseCosmeticsScreen(Screen parent, PlayerData playerData) {
+		FakePlayer player = new FakePlayer(
+				Minecraft.getInstance(),
+				UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid())),
+				Minecraft.getInstance().getUser().getName(),
+				playerData
+		);
+
+		Minecraft.getInstance().setScreen(new CustomiseCosmeticsScreen(parent, player, savedSettings));
+	}
+
 	private static void syncSettings() {
 		if (Cosmetica.api == null) return;
 		DebugMode.log("Synchronising Settings");
@@ -111,37 +123,53 @@ public class Authentication {
 					// load player info
 					final UUID ownUUID = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
 					final String ownName = Minecraft.getInstance().getUser().getName();
-					UUID uuid;
-					String playerName;
+
 					int loadTarget = settingLoadTarget;
 
-					// can't wait for a race condition to make snipedPlayer null after the check and before extracting its uuid/name
-					if (loadTarget == 2 && Authentication.snipedPlayer != null) {
-						uuid = Authentication.snipedPlayer.getUUID();
-						playerName = Authentication.snipedPlayer.getUsername();
-					} else {
-						uuid = ownUUID;
-						playerName = ownName;
-					}
+					DebugMode.log("Loading own player info for menu (mode: " + loadTarget + ")");
+					PlayerData ownInfo = PlayerData.get(ownUUID, ownName, true);
 
-					PlayerData info = PlayerData.get(uuid, playerName, true);
-					DebugMode.log("Loading skin " + info.skin());
-					@Nullable PlayerData ownInfo = loadTarget == 2 ? PlayerData.get(ownUUID, ownName, true) : null;
+					if (loadTarget == 2) DebugMode.log("Loading sniped player info");
+
+					// might take time; load before checking whether still relevant to open screen
+					@Nullable PlayerData snipedInfo = loadTarget == 2 && Authentication.snipedPlayer != null ? PlayerData.get(
+							Authentication.snipedPlayer.getUUID(),
+							Authentication.snipedPlayer.getUsername(),
+							true
+					) : null;
+
+					// PlayerData.get can never return null (only PlayerData.NONE) so we can guarantee the reason
+					if (loadTarget == 2 && snipedInfo == null) DebugMode.log("Failed to load sniped player info (sniped player was null)");
+
+					if (loadTarget != 2 || snipedInfo != null)
+						DebugMode.log("Will use skin " + (loadTarget == 2 ? snipedInfo : ownInfo).skin());
 
 					// check *again* in case they've closed it
 					if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
 						Minecraft.getInstance().tell(() -> {
-							FakePlayer fakePlayer = new FakePlayer(Minecraft.getInstance(), uuid, playerName, info);
-
 							switch (loadTarget) {
 							case 2:
-								openSnipeScreen(lts.getParent(), info, ownInfo);
+								if (snipedInfo == null || snipedInfo == PlayerData.NONE) {
+									Minecraft.getInstance().setScreen(new ErrorScreen(
+											TextComponents.translatable("cosmetica.stealhislook.snipe"),
+											TextComponents.translatable(snipedInfo == null ?
+													"cosmetica.stealhislook.snipe.cannotFind" :
+													"cosmetica.stealhislook.snipe.err")
+									));
+								} else {
+									openSnipeScreen(lts.getParent(), snipedInfo, ownInfo);
+								}
 								break;
 							case 1:
-								Minecraft.getInstance().setScreen(new CustomiseCosmeticsScreen(lts.getParent(), fakePlayer, settings));
+								openCustomiseCosmeticsScreen(lts.getParent(), ownInfo);
 								break;
 							default:
-								Minecraft.getInstance().setScreen(new MainScreen(lts.getParent(), settings, fakePlayer, loadTarget == 3));
+								Minecraft.getInstance().setScreen(new MainScreen(
+										lts.getParent(),
+										settings,
+										new FakePlayer(Minecraft.getInstance(), ownUUID, ownName, ownInfo),
+										loadTarget == 3
+								));
 								break;
 							};
 						});

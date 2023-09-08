@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.cosmetics;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.ThreadPool;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
@@ -221,6 +222,7 @@ public final class PlayerData {
 	}
 
 	private static PlayerData lookupPlayerData(UUID uuid, String username, Level level) {
+		DebugMode.log("Looking up player info for " + uuid + " (" + username + ")");
 		AtomicReference<PlayerData> newDataHolder = new AtomicReference<>(PlayerData.NONE);
 
 		Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {

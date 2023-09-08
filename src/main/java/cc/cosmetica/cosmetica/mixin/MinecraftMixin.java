@@ -92,8 +92,12 @@ public abstract class MinecraftMixin {
 	@Inject(at = @At("RETURN"), method = "tick")
 	public void afterTick(CallbackInfo ci) {
 		if (Cosmetica.openCustomiseScreen.consumeClick()) {
-			if (this.screen == null) {
-				this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
+			if (this.screen == null && this.player != null) {
+				if (Authentication.hasSavedSettings()  && PlayerData.has(this.player.getUUID())) {
+					Authentication.openCustomiseCosmeticsScreen(null, PlayerData.getCached(this.player.getUUID()));
+				} else {
+					this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
+				}
 			}
 			else if (this.screen instanceof CustomiseCosmeticsScreen ccs && ccs.canCloseWithBn()) {
 				ccs.onClose();
@@ -104,10 +108,10 @@ public abstract class MinecraftMixin {
 			DebugMode.log("Sniping Player: " + Cosmetica.farPickPlayer.getUUID());
 			Authentication.snipedPlayer = new User(Cosmetica.farPickPlayer.getUUID(), Cosmetica.farPickPlayer.getName().getString());
 
-			if (Authentication.hasSavedSettings()
+			if (Authentication.hasSavedSettings() && this.player != null
 					&& PlayerData.has(this.player.getUUID()) && PlayerData.has(Cosmetica.farPickPlayer.getUUID())) {
-				PlayerData ownData = PlayerData.get(this.player);
-				PlayerData foreignData = PlayerData.get(Cosmetica.farPickPlayer);
+				PlayerData ownData = PlayerData.getCached(this.player.getUUID());
+				PlayerData foreignData = PlayerData.getCached(Cosmetica.farPickPlayer.getUUID());
 
 				// if not loading
 				if (ownData != PlayerData.TEMPORARY && foreignData != PlayerData.TEMPORARY) {
