@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.screens;
 
 import cc.cosmetica.api.CapeDisplay;
+import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.utils.DebugMode;
@@ -74,12 +75,12 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 					if (response.booleanValue()) {
 						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 					} else {
-						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
+						Authentication.showUnauthenticatedIfLoading(true, null);
 					}
 				},
 				e -> {
 					e.printStackTrace();
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
+					Authentication.showUnauthenticatedIfLoading(true, e);
 				});
 			});
 			requestThread.start();
@@ -114,7 +115,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 				},
 				e -> {
 					e.printStackTrace();
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
+					Authentication.showUnauthenticatedIfLoading(true, e);
 				});
 
 				Minecraft.getInstance().tell(() -> Cosmetica.clearAllCaches());

@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.screens;
 
 import cc.cosmetica.api.ServerResponse;
+import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
@@ -66,7 +67,7 @@ public class UpdatingCosmeticsScreen<T> extends Screen implements LoadingTypeScr
 			},
 			e -> {
 				e.printStackTrace();
-				Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
+				Authentication.showUnauthenticatedIfLoading(true, e);
 			});
 
 			Minecraft.getInstance().tell(() -> clearAllCaches());

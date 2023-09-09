@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
+import java.net.NoRouteToHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -200,7 +201,7 @@ public class Authentication {
 			error -> {
 				Cosmetica.LOGGER.error("Error during settings get:", error);
 
-				showUnauthenticatedIfLoading();
+				showUnauthenticatedIfLoading(false, error);
 
 				if (error instanceof JsonSyntaxException) {
 					if (DebugMode.elevatedLogging()) {
@@ -223,13 +224,53 @@ public class Authentication {
 		requestThread.start();
 	}
 
-	public static void showUnauthenticatedIfLoading() {
+	public static void showUnauthenticatedIfLoading(boolean fromSave, @Nullable Exception exception) {
 		Minecraft minecraft = Minecraft.getInstance();
 		Screen current = minecraft.screen;
+		UnauthenticatedScreen.UnauthenticatedReason reason = diagnose(exception);
 
 		if (current instanceof LoadingTypeScreen lts) {
-			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), false)));
+			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), fromSave)));
 		} // TODO if in-game some small, unintrusive text on bottom right
+	}
+
+	private static UnauthenticatedScreen.UnauthenticatedReason diagnose(@Nullable Exception exception) {
+		// if the exception is provided, look at that first
+		if (exception != null) {
+			UnauthenticatedScreen.UnauthenticatedReason reason = diagnoseError(exception);
+
+			if (reason != null) {
+				return reason;
+			}
+		}
+
+		// check network connection & cracked
+		// for server side stuff make sure to check cosmetica api cause if not then it complicates things
+		// 	-> note that some errors like 500 are probably only relevant to initial request
+		return new UnauthenticatedScreen.UnauthenticatedReason(
+				UnauthenticatedScreen.UnauthenticatedReason.GENERIC,
+				exception
+		);
+	}
+
+	@Nullable
+	private static UnauthenticatedScreen.UnauthenticatedReason diagnoseError(Exception exception) {
+		// unwrap any unchecked IO exceptions
+		if (exception instanceof UncheckedIOException) {
+			exception = ((UncheckedIOException)exception).getCause();
+		}
+
+		// check if exception is NoRoute (= offline)
+		if (exception instanceof NoRouteToHostException) {
+			return new UnauthenticatedScreen.UnauthenticatedReason(
+					UnauthenticatedScreen.UnauthenticatedReason.OFFLINE,
+					exception
+			);
+		}
+
+		// check if exception is UnknownHost (= one side is offline)
+
+		return null;
 	}
 
 	public static boolean runAuthentication(int flag) {
@@ -453,7 +494,7 @@ public class Authentication {
 								Cosmetica.LOGGER.error("Couldn't connect to cosmetica auth server", e);
 
 								currentlyAuthenticating = false;
-								Authentication.showUnauthenticatedIfLoading();
+								Authentication.showUnauthenticatedIfLoading(false, e);
 							}
 						}
 					}.start();
