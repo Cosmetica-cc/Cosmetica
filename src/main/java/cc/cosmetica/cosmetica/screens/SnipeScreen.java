@@ -17,7 +17,6 @@
 package cc.cosmetica.cosmetica.screens;
 
 import cc.cosmetica.api.User;
-import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.TextComponents;
@@ -27,18 +26,18 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public class SnipeScreen extends ViewCosmeticsScreen {
-	public SnipeScreen(Component title, Screen parentScreen, FakePlayer player, UserSettings settings,
+	public SnipeScreen(Component title, Screen parentScreen, FakePlayer player, ServerOptions options,
 					   PlayerData ownData, User ownProfile) {
-		super(title, parentScreen, player, settings);
+		super(title, parentScreen, player, options);
 		this.stealTheirLook = TextComponents.formattedTranslatable("cosmetica.stealhislook.steal", "their");
 		this.ownData = ownData;
-		this.settings = settings;
+		this.options = options;
 		this.ownProfile = ownProfile;
 	}
 
 	private Component stealTheirLook;
 	private final PlayerData ownData;
-	final UserSettings settings;
+	final ServerOptions options;
 	final User ownProfile;
 
 	// funny hack to add both

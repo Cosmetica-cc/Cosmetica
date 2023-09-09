@@ -22,6 +22,7 @@ import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.MainScreen;
 import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
+import cc.cosmetica.cosmetica.screens.ServerOptions;
 import cc.cosmetica.cosmetica.screens.SnipeScreen;
 import cc.cosmetica.cosmetica.screens.UnauthenticatedScreen;
 import cc.cosmetica.cosmetica.screens.WelcomeScreen;
@@ -44,11 +45,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Authentication {
@@ -64,10 +63,14 @@ public class Authentication {
 		return currentlyAuthenticated;
 	}
 
-	private static UserSettings savedSettings;
+	private static ServerOptions savedOptions;
 
-	public static boolean hasSavedSettings() {
-		return savedSettings != null;
+	public static void setCachedOptions(ServerOptions options) {
+		savedOptions = options;
+	}
+
+	public static boolean hasCachedOptions() {
+		return savedOptions != null;
 	}
 
 	public static void openSnipeScreen(Screen parent, PlayerData foreignData, PlayerData ownData) {
@@ -83,7 +86,7 @@ public class Authentication {
 		);
 
 		Minecraft.getInstance().setScreen(
-				new SnipeScreen(TextComponents.literal(player.getName()), parent, player, savedSettings,
+				new SnipeScreen(TextComponents.literal(player.getName()), parent, player, savedOptions,
 						ownData, new cc.cosmetica.api.User(player.getUUID(), player.getName()))
 		);
 	}
@@ -96,7 +99,7 @@ public class Authentication {
 				playerData
 		);
 
-		Minecraft.getInstance().setScreen(new CustomiseCosmeticsScreen(parent, player, savedSettings));
+		Minecraft.getInstance().setScreen(new CustomiseCosmeticsScreen(parent, player, savedOptions));
 	}
 
 	private static void syncSettings() {
@@ -113,7 +116,7 @@ public class Authentication {
 
 			settings_.ifSuccessfulOrElse(settings -> {
 				DebugMode.log("Handling successful cosmetics settings response.");
-				savedSettings = settings;
+				savedOptions = new ServerOptions(settings);
 
 				// regional effects checking
 				RSEWarningScreen.appearNextScreenChange = !settings.hasPerRegionEffectsSet() && Cosmetica.getConfig().regionalEffectsPrompt();

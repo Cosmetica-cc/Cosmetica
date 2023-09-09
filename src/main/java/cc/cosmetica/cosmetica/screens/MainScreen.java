@@ -20,6 +20,7 @@ import benzenestudios.sulphate.Anchor;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CapeServer;
 import cc.cosmetica.api.UserSettings;
+import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.impl.CosmeticaWebAPI;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
@@ -142,6 +143,7 @@ public class MainScreen extends PlayerRenderScreen {
 
 	void setCosmeticaOptions(ServerOptions options) {
 		this.cosmeticaOptions = options;
+		Authentication.setCachedOptions(options);
 	}
 
 	@Override

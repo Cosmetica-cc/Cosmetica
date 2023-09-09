@@ -21,7 +21,6 @@ import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.*;
-import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -93,7 +92,7 @@ public abstract class MinecraftMixin {
 	public void afterTick(CallbackInfo ci) {
 		if (Cosmetica.openCustomiseScreen.consumeClick()) {
 			if (this.screen == null && this.player != null) {
-				if (Authentication.hasSavedSettings()  && PlayerData.has(this.player.getUUID())) {
+				if (Authentication.hasCachedOptions()  && PlayerData.has(this.player.getUUID())) {
 					Authentication.openCustomiseCosmeticsScreen(null, PlayerData.getCached(this.player.getUUID()));
 				} else {
 					this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
@@ -108,7 +107,7 @@ public abstract class MinecraftMixin {
 			DebugMode.log("Sniping Player: " + Cosmetica.farPickPlayer.getUUID());
 			Authentication.snipedPlayer = new User(Cosmetica.farPickPlayer.getUUID(), Cosmetica.farPickPlayer.getName().getString());
 
-			if (Authentication.hasSavedSettings() && this.player != null
+			if (Authentication.hasCachedOptions() && this.player != null
 					&& PlayerData.has(this.player.getUUID()) && PlayerData.has(Cosmetica.farPickPlayer.getUUID())) {
 				PlayerData ownData = PlayerData.getCached(this.player.getUUID());
 				PlayerData foreignData = PlayerData.getCached(Cosmetica.farPickPlayer.getUUID());
