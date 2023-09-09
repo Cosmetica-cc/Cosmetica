@@ -59,7 +59,7 @@ public class UnauthenticatedScreen extends Screen {
 			if (DebugMode.ENABLED) { // because I'm not authenticated in dev and can't use the normal button
 				this.addRenderableWidget(new Button(buttonX, buttonStartY + 48, 100, 20, new TextComponent("Clear Caches"), btn -> {
 					Cosmetica.clearAllCaches();
-					if (DebugMode.ENABLED) DebugMode.reloadTestModels();
+					DebugMode.reloadTestModels();
 				}));
 			}
 

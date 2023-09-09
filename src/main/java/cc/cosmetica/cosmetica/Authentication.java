@@ -16,9 +16,15 @@
 
 package cc.cosmetica.cosmetica;
 
-import cc.cosmetica.api.*;
+import cc.cosmetica.api.CapeDisplay;
+import cc.cosmetica.api.CosmeticPosition;
+import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.LoginInfo;
+import cc.cosmetica.api.ServerResponse;
+import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.screens.CosmeticaErrorScreen;
 import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
 import cc.cosmetica.cosmetica.screens.MainScreen;
 import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
@@ -37,22 +43,31 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
-import net.minecraft.client.gui.screens.ErrorScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Authentication {
 	private static volatile boolean currentlyAuthenticated = false;
 	private static volatile boolean currentlyAuthenticating = false;
+	private static String authenticatedAsUUID;
+
 	public static int settingLoadTarget; // 1 = customise cosmetics screen, 2 = snipe (steal his look) screen, 3 = tutorial customise screen, other = main screen
 	@Nullable
 	public static cc.cosmetica.api.User snipedPlayer;
@@ -107,9 +122,10 @@ public class Authentication {
 		DebugMode.log("Synchronising Settings");
 
 		Thread requestThread = new Thread(() -> {
-			if (!Cosmetica.api.isAuthenticated()) {
-				runAuthentication();
-				return;
+			if (!Cosmetica.api.isAuthenticated() || !Minecraft.getInstance().getUser().getUuid().equals(authenticatedAsUUID)) {
+				DebugMode.log("Not authenticated. [Re]authenticating...");
+				runAuthentication(true);
+				return; // sync settings is called after auth anyway
 			}
 
 			final ServerResponse<UserSettings> settings_ = Cosmetica.api.getUserSettings();
@@ -126,6 +142,7 @@ public class Authentication {
 					// load player info
 					final UUID ownUUID = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
 					final String ownName = Minecraft.getInstance().getUser().getName();
+					final cc.cosmetica.api.User snipedPlayer = Authentication.snipedPlayer; // stop background changes messing with it
 
 					int loadTarget = settingLoadTarget;
 
@@ -135,9 +152,9 @@ public class Authentication {
 					if (loadTarget == 2) DebugMode.log("Loading sniped player info");
 
 					// might take time; load before checking whether still relevant to open screen
-					@Nullable PlayerData snipedInfo = loadTarget == 2 && Authentication.snipedPlayer != null ? PlayerData.get(
-							Authentication.snipedPlayer.getUUID(),
-							Authentication.snipedPlayer.getUsername(),
+					@Nullable PlayerData snipedInfo = loadTarget == 2 && snipedPlayer != null ? PlayerData.get(
+							snipedPlayer.getUUID(),
+							snipedPlayer.getUsername(),
 							true
 					) : null;
 
@@ -153,11 +170,12 @@ public class Authentication {
 							switch (loadTarget) {
 							case 2:
 								if (snipedInfo == null || snipedInfo == PlayerData.NONE) {
-									Minecraft.getInstance().setScreen(new ErrorScreen(
+									Minecraft.getInstance().setScreen(new CosmeticaErrorScreen(
+											lts.getParent(),
 											TextComponents.translatable("cosmetica.stealhislook.snipe"),
-											TextComponents.translatable(snipedInfo == null ?
-													"cosmetica.stealhislook.snipe.cannotFind" :
-													"cosmetica.stealhislook.snipe.err")
+											snipedInfo == null ?
+													TextComponents.translatable("cosmetica.stealhislook.snipe.cannotFind") :
+													TextComponents.formattedTranslatable("cosmetica.stealhislook.snipe.err", snipedPlayer.getUsername())
 									));
 								} else {
 									openSnipeScreen(lts.getParent(), snipedInfo, ownInfo);
@@ -293,7 +311,9 @@ public class Authentication {
 				// this isn't really necesary for manual auth because you probably know what you're doing
 				// but is useful for testing
 				User user = Minecraft.getInstance().getUser();
+				authenticatedAsUUID = user.getUuid();
 				UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
+				currentlyAuthenticated = true;
 				prepareWelcome(uuid, user.getName(), false, false);
 			} else {
 				if (currentlyAuthenticating) {
@@ -325,6 +345,7 @@ public class Authentication {
 
 								// Get user
 								User user = Minecraft.getInstance().getUser();
+								authenticatedAsUUID = user.getUuid();
 								UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
 
 								String reason = "No cached Cosmetica token found.";
