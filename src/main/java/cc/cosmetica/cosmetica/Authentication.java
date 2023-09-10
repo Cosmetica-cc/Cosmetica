@@ -75,8 +75,6 @@ public class Authentication {
 	@Nullable
 	public static cc.cosmetica.api.User snipedPlayer;
 
-	private static int bits; // to mark the two required things that must have happened to start cosmetics auth: fetching API url (may fail), and finishing loading.
-
 	public static boolean isCurrentlyAuthenticated() {
 		return currentlyAuthenticated;
 	}
@@ -320,18 +318,6 @@ public class Authentication {
 		}
 
 		return null;
-	}
-
-	public static boolean runAuthentication(int flag) {
-		// 0x1 = API_URL_FETCH || 0x2 = LOAD_FINISH
-		bits |= flag;
-
-		if (bits >= 3) {
-			runAuthentication();
-			return true;
-		}
-
-		return false;
 	}
 
 	private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);

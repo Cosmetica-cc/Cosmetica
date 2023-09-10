@@ -246,7 +246,7 @@ public class Cosmetica implements ClientModInitializer {
 						mayShowWelcomeScreen = versionInfo.megaInvasiveTutorial();
 					}, Cosmetica.logErr("Error checking version"));
 
-					Authentication.runAuthentication(1);
+					Authentication.runAuthentication();
 				} catch (Exception e) {
 					LOGGER.error("Error retrieving API Url. Mod functionality will be disabled!");
 					e.printStackTrace();
