@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CosmeticPosition;
 import cc.cosmetica.api.CosmeticaAPI;
+import cc.cosmetica.api.FatalServerErrorException;
 import cc.cosmetica.api.LoginInfo;
 import cc.cosmetica.api.ServerResponse;
 import cc.cosmetica.api.UserSettings;
@@ -46,7 +47,6 @@ import net.minecraft.client.User;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -54,7 +54,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
+import java.net.ConnectException;
 import java.net.NoRouteToHostException;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -125,7 +127,7 @@ public class Authentication {
 		Thread requestThread = new Thread(() -> {
 			if (!Cosmetica.api.isAuthenticated() || !Minecraft.getInstance().getUser().getUuid().equals(authenticatedAsUUID)) {
 				DebugMode.log("Not authenticated. [Re]authenticating...");
-				runAuthentication(true);
+				runAuthentication(true, false);
 				return; // sync settings is called after auth anyway
 			}
 
@@ -199,25 +201,30 @@ public class Authentication {
 				}
 			},
 			error -> {
-				Cosmetica.LOGGER.error("Error during settings get:", error);
+				if (error.getMessage().contains("invalid token")) {
+					Cosmetica.LOGGER.info("Invalid token found on settings sync. Reauthenticating...");
+					runAuthentication(true, true);
+				} else {
+					Cosmetica.LOGGER.error("Error during settings get:", error);
 
-				showUnauthenticatedIfLoading(false, error);
+					showUnauthenticatedIfLoading(false, error);
 
-				if (error instanceof JsonSyntaxException) {
-					if (DebugMode.elevatedLogging()) {
-						//TODO proper way of dong this lmao
-						Cosmetica.LOGGER.error("The Json causing this error is as follows, assuming repetitive issue:");
-						try {
-							Cosmetica.LOGGER.error(Response.get(settings_.getURL()).getAsString());
-						} catch (IOException e) {
-							e.printStackTrace();
+					if (error instanceof JsonSyntaxException) {
+						if (DebugMode.elevatedLogging()) {
+							//TODO proper way of dong this lmao
+							Cosmetica.LOGGER.error("The Json causing this error is as follows, assuming repetitive issue:");
+							try {
+								Cosmetica.LOGGER.error(Response.get(settings_.getURL()).getAsString());
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 						}
 					}
-				}
-				// don't repeat spam errors if the internet goes offline. So don't run again immediately
-				// opening a menu will run authentication again inevitably anyway
-				else if (!(error instanceof UncheckedIOException)) {
-					runAuthentication();
+					// don't repeat spam errors if the internet goes offline. So don't run again immediately
+					// opening a menu will run authentication again inevitably anyway
+					else if (!(error instanceof UncheckedIOException)) {
+						runAuthentication();
+					}
 				}
 			});
 		});
@@ -230,7 +237,7 @@ public class Authentication {
 		UnauthenticatedScreen.UnauthenticatedReason reason = diagnose(exception);
 
 		if (current instanceof LoadingTypeScreen lts) {
-			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), fromSave)));
+			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), fromSave, reason)));
 		} // TODO if in-game some small, unintrusive text on bottom right
 	}
 
@@ -245,8 +252,27 @@ public class Authentication {
 		}
 
 		// check network connection & cracked
-		// for server side stuff make sure to check cosmetica api cause if not then it complicates things
-		// 	-> note that some errors like 500 are probably only relevant to initial request
+		// uses cosmetica's api as errors from this can potentially be diagnosed the same way as the initial error provided
+		String method = Cosmetica.getConfig().paranoidHttps() ? "https" : "http";
+		final User currentUser = Minecraft.getInstance().getUser();
+
+		try (Response response = Response.get(method + "://api.cosmetica.cc/get/userdata?uuid=" + currentUser.getUuid())) {
+			JsonObject json = response.getAsJson();
+
+			if (!json.has("username") || currentUser.getName().equals(json.get("username").getAsString())) {
+				return new UnauthenticatedScreen.UnauthenticatedReason(
+						UnauthenticatedScreen.UnauthenticatedReason.CRACKED,
+						null //exception not relevant as it's not part of the diagnosis
+				);
+			}
+		} catch (Exception e) {
+			UnauthenticatedScreen.UnauthenticatedReason reason =  diagnoseError(e);
+
+			if (reason != null) {
+				return reason;
+			}
+		}
+
 		return new UnauthenticatedScreen.UnauthenticatedReason(
 				UnauthenticatedScreen.UnauthenticatedReason.GENERIC,
 				exception
@@ -269,6 +295,29 @@ public class Authentication {
 		}
 
 		// check if exception is UnknownHost (= one side is offline)
+		if (exception instanceof UnknownHostException) {
+			return new UnauthenticatedScreen.UnauthenticatedReason(
+					UnauthenticatedScreen.UnauthenticatedReason.UNKNOWN_HOST,
+					exception
+			);
+		}
+
+		// or exception is ConnectException (reset, timed out, or refused.)
+		// "Connection refused" is most likely a server issue but could also be due to a firewall
+		if (exception instanceof ConnectException) {
+			return new UnauthenticatedScreen.UnauthenticatedReason(
+					UnauthenticatedScreen.UnauthenticatedReason.CONNECTION_ISSUE,
+					exception
+			);
+		}
+
+		// check if exception is FatalServerError (= server had issues processing the request)
+		if (exception instanceof FatalServerErrorException) {
+			return new UnauthenticatedScreen.UnauthenticatedReason(
+					UnauthenticatedScreen.UnauthenticatedReason.FIVE_HUNDRED,
+					exception
+			);
+		}
 
 		return null;
 	}
@@ -336,10 +385,10 @@ public class Authentication {
 	}
 
 	public static void runAuthentication() {
-		runAuthentication(false);
+		runAuthentication(false, false);
 	}
 
-	private static void runAuthentication(boolean force) {
+	private static void runAuthentication(boolean force, boolean ignoreCache) {
 		if (!Cosmetica.api.isAuthenticated() || force) {
 			String devToken = System.getProperty("cosmetica.token");
 
@@ -360,52 +409,55 @@ public class Authentication {
 				if (currentlyAuthenticating) {
 					DebugMode.log("API is not authenticated but authentication is already in progress.");
 				} else {
-					DebugMode.log("API is not authenticated: starting authentication!");
+					DebugMode.log("Starting authentication!");
 					currentlyAuthenticating = true;
 
 					new Thread("Cosmetica Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
 						public void run() {
 							try {
-								// First, check if a cosmetica token already exists
+								boolean reauthenticate = true;
+								String reason = "Forced token refresh.";
 								Properties tokens = new Properties();
 								Path tokensPath = Cosmetica.getCacheDirectory().resolve("tokens");
 
-								if (Files.isRegularFile(tokensPath)) {
-									try (InputStream inputStream = Files.newInputStream(tokensPath)) {
-										tokens.load(inputStream);
-									} catch (IOException e) {
-										Cosmetica.LOGGER.error("Failed to read tokens file.", e);
-									}
-								} else {
-									try {
-										Files.createFile(tokensPath);
-									} catch (IOException e) {
-										Cosmetica.LOGGER.error("Failed to create tokens file.", e);
-									}
-								}
-
 								// Get user
 								User user = Minecraft.getInstance().getUser();
-								authenticatedAsUUID = user.getUuid();
 								UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
 
-								String reason = "No cached Cosmetica token found.";
-								String foundToken = tokens.getProperty(uuid.toString());
+								if (!ignoreCache) {
+									// First, check if a cosmetica token already exists
+									if (Files.isRegularFile(tokensPath)) {
+										try (InputStream inputStream = Files.newInputStream(tokensPath)) {
+											tokens.load(inputStream);
+										} catch (IOException e) {
+											Cosmetica.LOGGER.error("Failed to read tokens file.", e);
+										}
+									} else {
+										try {
+											Files.createFile(tokensPath);
+										} catch (IOException e) {
+											Cosmetica.LOGGER.error("Failed to create tokens file.", e);
+										}
+									}
 
-								boolean reauthenticate = true;
+									reason = "No cached Cosmetica token found.";
+									String foundToken = tokens.getProperty(uuid.toString());
 
-								if (foundToken != null) {
-									DebugMode.log("Found cached token. Trying to authenticate...");
+									if (foundToken != null) {
+										DebugMode.log("Found cached token. Trying to authenticate...");
 
-									Cosmetica.api = CosmeticaAPI.fromTokens(
-											foundToken,
-											tokens.getProperty(uuid + "-l")
-									);
-									Cosmetica.api.setUrlLogger(DebugMode::logURL);
+										Cosmetica.api = CosmeticaAPI.fromTokens(
+												foundToken,
+												tokens.getProperty(uuid + "-l")
+										);
+										Cosmetica.api.setUrlLogger(DebugMode::logURL);
 
-									// try welcome
-									reauthenticate = isTokenInvalid(((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
-									reason = "Invalid Cosmetica Token.";
+										authenticatedAsUUID = user.getUuid();
+
+										// try welcome
+										reauthenticate = isTokenInvalid(((CosmeticaWebAPI) Cosmetica.api).getMasterToken());
+										reason = "Invalid Cosmetica Token.";
+									}
 								}
 
 								if (reauthenticate) {
@@ -413,6 +465,7 @@ public class Authentication {
 									DebugMode.log(reason + " Authenticating from minecraft access token.");
 									Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid, System.getProperty("cosmetica.client", "cosmetica")); // getUuid() better have the dashes... edit: it did not have the dashes.
 									Cosmetica.api.setUrlLogger(DebugMode::logURL);
+									authenticatedAsUUID = user.getUuid();
 
 									// Update master token
 									tokens.setProperty(uuid.toString(), ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());
@@ -507,7 +560,7 @@ public class Authentication {
 	}
 
 	private static boolean isTokenInvalid(String token) throws UncheckedIOException {
-		try (Response response = Response.get("http://api.cosmetica.cc/get/uuid?token=" + token)) {
+		try (Response response = Response.get("https://api.cosmetica.cc/get/uuid?token=" + token)) {
 			JsonObject object = response.getAsJson();
 
 			if (object.has("error")) {
@@ -521,7 +574,7 @@ public class Authentication {
 		return false;
 	}
 
-	protected static void runAuthenticationCheckThread() {
+	protected static void runSyncSettingsThread() {
 		Thread settingsSyncThread = new Thread(() -> {
 			while (true) {
 				try {
@@ -533,20 +586,5 @@ public class Authentication {
 			}
 		});
 		settingsSyncThread.start();
-
-		Thread checkAuthThread = new Thread(() -> {
-			while (true) {
-				try {
-					Thread.sleep(1000 * 15);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				if (isTokenInvalid(((CosmeticaWebAPI)Cosmetica.api).getMasterToken())) {
-					runAuthentication(true);
-				}
-			}
-		});
-		checkAuthThread.start();
 	}
 }

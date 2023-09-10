@@ -78,7 +78,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -103,15 +102,13 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static cc.cosmetica.cosmetica.Authentication.runAuthenticationCheckThread;
+import static cc.cosmetica.cosmetica.Authentication.runSyncSettingsThread;
 
 @Environment(EnvType.CLIENT)
 public class Cosmetica implements ClientModInitializer {
@@ -278,7 +275,7 @@ public class Cosmetica implements ClientModInitializer {
 			}
 		});
 
-		runAuthenticationCheckThread();
+		runSyncSettingsThread();
 	}
 
 	private static void setupDirectories() {

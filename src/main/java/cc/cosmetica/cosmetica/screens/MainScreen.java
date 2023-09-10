@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.screens;
 import benzenestudios.sulphate.Anchor;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CapeServer;
+import cc.cosmetica.api.FatalServerErrorException;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.impl.CosmeticaWebAPI;
@@ -37,6 +38,8 @@ import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -106,6 +109,13 @@ public class MainScreen extends PlayerRenderScreen {
 			}
 		}
 
+		this.addButton(150, 20, TextComponents.literal("test"), button -> this.minecraft.setScreen(
+				new UnauthenticatedScreen(this, false, new UnauthenticatedScreen.UnauthenticatedReason(
+						UnauthenticatedScreen.UnauthenticatedReason.CONNECTION_ISSUE,
+						null
+				))
+		));
+
 		this.done = this.addDoneWithOffset(ReloadingButton::new, 12 + 24);
 		this.done.active = !this.demo;
 
@@ -129,7 +139,7 @@ public class MainScreen extends PlayerRenderScreen {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (this.isMouseOnDiscord((int) mouseX, (int) mouseY) && button == 0) {
-			this.copyAndOpenURL("https://discord.gg/aQh5SJEUBm");
+			this.copyAndOpenURL("https://cosmetica.cc/discord");
 			return true;
 		}
 		else {
@@ -164,7 +174,7 @@ public class MainScreen extends PlayerRenderScreen {
 		return x >= this.width - 10 - 19 && x <= this.width - 10 && y >= 10 && y <= 10 + 15;
 	}
 
-	private void copyAndOpenURL(String url) {
+	public static void copyAndOpenURL(String url) {
 		try {
 			Minecraft.getInstance().keyboardHandler.setClipboard(url);
 			Util.getPlatform().openUri(url);

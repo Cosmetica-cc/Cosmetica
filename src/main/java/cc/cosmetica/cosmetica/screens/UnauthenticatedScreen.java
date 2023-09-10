@@ -20,6 +20,7 @@ import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -27,12 +28,17 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 public class UnauthenticatedScreen extends Screen {
@@ -41,6 +47,7 @@ public class UnauthenticatedScreen extends Screen {
 
 	private final Component reason;
 	private MultiLineLabel message;
+	private List<TextWithWidth> messageContent;
 	private int textHeight;
 
 	public UnauthenticatedScreen(Screen parentScreen, boolean fromSave, UnauthenticatedReason reason) {
@@ -49,14 +56,15 @@ public class UnauthenticatedScreen extends Screen {
 		this.parentScreen = parentScreen;
 		this.fromSave = fromSave;
 		this.reason = reason.displayError == null ? reason.description :
-				((MutableComponent)reason.description).append(
-						new TextComponent("\u00A7(" + reason.displayError + ")")
+				reason.description.copy().append(
+						new TextComponent("\n\n\u00A77(" + reason.displayError + ")")
 				);
 	}
 
 	@Override
 	protected void init() {
 		this.message = MultiLineLabel.create(this.font, this.reason, this.width - 50);
+		this.messageContent = createMultiLineContent(this.font, this.reason, this.width - 50);
 
 		Objects.requireNonNull(this.font);
 		this.textHeight = this.message.getLineCount() * 9;
@@ -84,6 +92,39 @@ public class UnauthenticatedScreen extends Screen {
 	}
 
 	@Override
+	public boolean mouseClicked(double x, double y, int button) {
+		// like MultiLineLabel(anonymous)#renderCentered
+		int renderX = this.width / 2;
+		int renderY = this.height / 2 - this.textHeight / 2;
+
+		for (TextWithWidth textWithWidth : this.messageContent) {
+			int lineWidth = font.width(textWithWidth.text);
+			int startX = renderX - lineWidth/2;
+
+			// if clicked on that line
+			if (y >= renderY && y < renderY + font.lineHeight
+					&& x >= startX && x < startX + lineWidth) {
+				Style style = font.getSplitter().componentStyleAtWidth(textWithWidth.text, (int) x - startX);
+
+				if (style != null) {
+					System.out.println(style);
+					ClickEvent event = style.getClickEvent();
+
+					if (event != null) {
+						if (event.getAction() == ClickEvent.Action.OPEN_URL) {
+							MainScreen.copyAndOpenURL(event.getValue());
+						}
+					}
+				}
+			}
+
+			renderY += font.lineHeight;
+		}
+
+		return super.mouseClicked(x, y, button);
+	}
+
+	@Override
 	public void onClose() {
 		this.minecraft.setScreen(this.parentScreen);
 	}
@@ -100,6 +141,23 @@ public class UnauthenticatedScreen extends Screen {
 		super.render(poseStack, i, j, f);
 	}
 
+	// like MultilineLabel#create
+	static List<TextWithWidth> createMultiLineContent(Font font, FormattedText formattedText, int width) {
+		return font.split(formattedText, width).stream()
+				.map((formattedCharSequence) -> new TextWithWidth(formattedCharSequence, font.width(formattedCharSequence)))
+				.collect(ImmutableList.toImmutableList());
+	}
+
+	private static class TextWithWidth {
+		final FormattedCharSequence text;
+		final int width;
+
+		public TextWithWidth(FormattedCharSequence text, int width) {
+			this.text = text;
+			this.width = width;
+		}
+	}
+
 	public static class UnauthenticatedReason {
 		public UnauthenticatedReason(Component description, @Nullable Exception displayError) {
 			this.description = description;
@@ -109,29 +167,55 @@ public class UnauthenticatedScreen extends Screen {
 		private final Component description;
 		private final Exception displayError;
 
+		private static final MutableComponent STATUS_PAGE = TextComponents.translatable("cosmetica.unauthenticated.here");
+		private static final MutableComponent DISCORD_LINK = TextComponents.translatable("cosmetica.unauthenticated.discordSupport");
+
+		static {
+			STATUS_PAGE.setStyle(STATUS_PAGE.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://status.cosmetica.cc/")));
+			DISCORD_LINK.setStyle(DISCORD_LINK.getStyle().withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://cosmetica.cc/discord")));
+		}
+
 		/**
 		 * You are offline.
 		 */
 		public static final Component OFFLINE = TextComponents.translatable("cosmetica.offline.message");
+
 		/**
 		 * One of us is offline.
 		 */
-		public static final Component UNKNOWN_HOST = TextComponents.translatable("cosmetica.unauthenticated.unknownHost");
+		public static final Component UNKNOWN_HOST = TextComponents.formattedTranslatable(
+				"cosmetica.unauthenticated.unknownHost",
+				STATUS_PAGE,
+				DISCORD_LINK
+		);
+
 		/**
 		 * The cosmetica servers are down or having issues.
 		 */
-		public static final Component SERVER_CONNECTION_ISSUE = TextComponents.translatable("cosmetica.unauthenticated.serverConnection");
+		public static final Component CONNECTION_ISSUE = TextComponents.formattedTranslatable(
+				"cosmetica.unauthenticated.connectionError",
+				DISCORD_LINK
+		);
+
 		/**
 		 * User is using a cracked minecraft account.
 		 */
 		public static final Component CRACKED = TextComponents.translatable("cosmetica.unauthenticated.cracked");
+
 		/**
 		 * Server sent back a 5xx response
 		 */
-		public static final Component FIVE_HUNDRED = TextComponents.translatable("cosmetica.unauthenticated.500");
+		public static final Component FIVE_HUNDRED = TextComponents.formattedTranslatable(
+				"cosmetica.unauthenticated.serverError",
+				DISCORD_LINK
+		);
+
 		/**
 		 * Generic catch-all for other reasons
 		 */
-		public static final Component GENERIC = TextComponents.translatable("cosmetica.unauthenticated.generic");
+		public static final Component GENERIC = TextComponents.formattedTranslatable(
+				"cosmetica.unauthenticated.generic",
+				DISCORD_LINK
+		);
 	}
 }
