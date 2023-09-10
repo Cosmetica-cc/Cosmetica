@@ -109,13 +109,6 @@ public class MainScreen extends PlayerRenderScreen {
 			}
 		}
 
-		this.addButton(150, 20, TextComponents.literal("test"), button -> this.minecraft.setScreen(
-				new UnauthenticatedScreen(this, false, new UnauthenticatedScreen.UnauthenticatedReason(
-						UnauthenticatedScreen.UnauthenticatedReason.CONNECTION_ISSUE,
-						null
-				))
-		));
-
 		this.done = this.addDoneWithOffset(ReloadingButton::new, 12 + 24);
 		this.done.active = !this.demo;
 
@@ -139,7 +132,7 @@ public class MainScreen extends PlayerRenderScreen {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (this.isMouseOnDiscord((int) mouseX, (int) mouseY) && button == 0) {
-			this.copyAndOpenURL("https://cosmetica.cc/discord");
+			copyAndOpenURL("https://cosmetica.cc/discord");
 			return true;
 		}
 		else {
