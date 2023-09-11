@@ -16,11 +16,8 @@
 
 package cc.cosmetica.cosmetica.screens;
 
-<<<<<<< HEAD
 import benzenestudios.sulphate.ClassicButton;
-=======
 import cc.cosmetica.cosmetica.Authentication;
->>>>>>> 1.19.1
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
