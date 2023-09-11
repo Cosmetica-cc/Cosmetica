@@ -33,7 +33,7 @@ public class PlayerMixin {
 		final Player player = ((Player) (Object) this);
 
 		if (player.level().isClientSide()) {
-			PlayerData data = Cosmetica.getPlayerData(player.getUUID(), player.getName().getString(), false);
+			PlayerData data = PlayerData.get(player.getUUID(), player.getName().getString(), false);
 			String prefix = (data.icon() == null ? "" : "\u2001") + data.prefix();
 			String suffix = data.suffix();
 

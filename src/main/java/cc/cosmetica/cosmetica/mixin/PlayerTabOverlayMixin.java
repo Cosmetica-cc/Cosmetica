@@ -41,7 +41,7 @@ public class PlayerTabOverlayMixin {
 
 	@Inject(at = @At("RETURN"), method = "getNameForDisplay", cancellable = true)
 	private void modifyTablistDisplayName(PlayerInfo playerInfo, CallbackInfoReturnable<Component> info) {
-		PlayerData data = Cosmetica.getPlayerData(playerInfo.getProfile().getId(), playerInfo.getProfile().getName(), false);
+		PlayerData data = PlayerData.get(playerInfo.getProfile().getId(), playerInfo.getProfile().getName(), false);
 
 		if (data.icon() != null) {
 			info.setReturnValue(TextComponents.literal("\u2001").append(info.getReturnValue()));
