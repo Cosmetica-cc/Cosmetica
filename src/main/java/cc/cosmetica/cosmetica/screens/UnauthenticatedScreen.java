@@ -109,7 +109,6 @@ public class UnauthenticatedScreen extends Screen {
 				Style style = font.getSplitter().componentStyleAtWidth(textWithWidth.text, (int) x - startX);
 
 				if (style != null) {
-					System.out.println(style);
 					ClickEvent event = style.getClickEvent();
 
 					if (event != null) {
