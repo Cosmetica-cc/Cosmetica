@@ -25,6 +25,7 @@ public class DebugModeConfig {
 	@SerializedName("elevate_debug_logging") public boolean elevateDebugLogging = true;
 	@SerializedName("log_urls") public boolean logURLs = false;
 	@SerializedName("debug_commands") public boolean debugCommands = false;
+	@SerializedName("always_show_cosmetica_splash") public boolean forceCosmeticaSplash = false;
 
 	@SerializedName("image_dumping") public ImageDumpingSettings imageDumpingSettings = new ImageDumpingSettings();
 

@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Options handled by the server, modifiable on the client.
  */
-class ServerOptions {
+public class ServerOptions {
 	private ServerOptions(boolean shoulderBuddies, boolean hats, boolean doBackBlings, boolean regionSpecificEffects, boolean lore, int iconSettings) {
 		this.shoulderBuddies = new SimpleOption("doshoulderbuddies", shoulderBuddies);
 		this.hats = new SimpleOption("dohats", hats);
@@ -44,7 +44,7 @@ class ServerOptions {
 		this.icons = other.icons.clone();
 	}
 
-	ServerOptions(UserSettings settings) {
+	public ServerOptions(UserSettings settings) {
 		this(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore(), settings.getIconSettings());
 	}
 
