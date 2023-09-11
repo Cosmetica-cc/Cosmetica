@@ -38,7 +38,7 @@ public class SplashManagerMixin {
 
 	@Inject(at = @At("RETURN"), method = "apply(Ljava/util/List;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V")
 	private void afterApply(List<String> list, ResourceManager resourceManager, ProfilerFiller profilerFiller, CallbackInfo ci) {
-		if (DebugMode.ENABLED && Cosmetica.getConfig().shouldAddCosmeticaSplashMessage()) this.splashes.clear(); // in debug mode only have the custom one :) As long as custom splash is enabled.
+		if (Cosmetica.getConfig().shouldAddCosmeticaSplashMessage() && DebugMode.alwaysShowCosmeticaSplash()) this.splashes.clear(); // in debug mode only have the custom one :) As long as custom splash is enabled.
 		this.splashes.addAll(Cosmetica.getSplashes());
 	}
 }

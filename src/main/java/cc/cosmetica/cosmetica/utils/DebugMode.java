@@ -122,6 +122,10 @@ public class DebugMode {
 		return ENABLED && debugSettings.debugCommands;
 	}
 
+	public static boolean alwaysShowCosmeticaSplash() {
+		return ENABLED && debugSettings.forceCosmeticaSplash;
+	}
+
 	public static boolean elevatedLogging() {
 		return ENABLED && debugSettings.elevateDebugLogging;
 	}
