@@ -94,6 +94,15 @@ public class DebugMode {
 		}
 	}
 
+	public static void logError(String message, Exception e) {
+		if (ENABLED && debugSettings.elevateDebugLogging) {
+			DEBUG_LOGGER.info(message, e);
+		}
+		else {
+			Cosmetica.LOGGER.debug(message + " " + e.getClass().getName() + " " + e.getMessage());
+		}
+	}
+
 	public static void logURL(String str) {
 		if (ENABLED && debugSettings.logURLs) {
 			DEBUG_LOGGER.info(str);

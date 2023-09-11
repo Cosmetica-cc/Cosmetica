@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
@@ -44,7 +45,7 @@ public class LocalPlayerMixin {
 				if (args.length == 2) { // cache commands
 					switch (args[1]) {
 					case "infocache":
-						Minecraft.getInstance().gui.getChat().addMessage(TextComponents.literal(Cosmetica.getCachedPlayers().toString()));
+						Minecraft.getInstance().gui.getChat().addMessage(TextComponents.literal(PlayerData.getCachedPlayers().toString()));
 						break;
 					case "modelcache":
 						Minecraft.getInstance().gui.getChat().addMessage(TextComponents.literal(Models.getCachedModels().toString()));

@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.mixin.textures;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.CosmeticaSkinManager;
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -39,13 +40,13 @@ public abstract class AbstractClientPlayerMixin extends Player {
 
 	@Inject(at = @At("HEAD"), method = "isCapeLoaded", cancellable = true)
 	private void isCosmeticaCapeLoaded(CallbackInfoReturnable<Boolean> info) {
-		if (!Cosmetica.isProbablyNPC(this.uuid)) info.setReturnValue(Cosmetica.isPlayerCached(this.uuid));
+		if (!Cosmetica.isProbablyNPC(this.uuid)) info.setReturnValue(PlayerData.has(this.uuid));
 	}
 
 	@Inject(at = @At("HEAD"), method = "getCloakTextureLocation", cancellable = true)
 	private void addCosmeticaCapes(CallbackInfoReturnable<ResourceLocation> info) {
 		if (!Cosmetica.isProbablyNPC(this.uuid)) { // ignore npcs
-			ResourceLocation location = Cosmetica.isPlayerCached(this.uuid) ? Cosmetica.getPlayerData(this).cape().getImage() : null; // get the location if cached
+			ResourceLocation location = PlayerData.has(this.uuid) ? PlayerData.get(this).cape().getImage() : null; // get the location if cached
 			if (location != null && !CosmeticaSkinManager.isUploaded(location)) location = null; // only actually get it if it's been uploaded
 			info.setReturnValue(location); // set the return value to our one
 		}
