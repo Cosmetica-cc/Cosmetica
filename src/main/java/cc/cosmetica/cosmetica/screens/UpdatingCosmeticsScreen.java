@@ -17,9 +17,12 @@
 package cc.cosmetica.cosmetica.screens;
 
 import cc.cosmetica.api.ServerResponse;
+
+import cc.cosmetica.cosmetica.Authentication;
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.DebugMode;
-import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -54,18 +57,18 @@ public class UpdatingCosmeticsScreen<T> extends Screen implements LoadingTypeScr
 					UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
 
 					if (this.minecraft.level == null)
-						Cosmetica.clearPlayerData(uuid);
+						PlayerData.clear(uuid);
 					else
 						Cosmetica.safari(this.minecraft, false, true);
 
-					prs.setPlayerData(Cosmetica.getPlayerData(uuid, Minecraft.getInstance().getUser().getName(), true));
+					prs.setPlayerData(PlayerData.get(uuid, Minecraft.getInstance().getUser().getName(), true));
 				}
 
 				Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 			},
 			e -> {
 				e.printStackTrace();
-				Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(new UnauthenticatedScreen(this.parentScreen, true)));
+				Authentication.showUnauthenticatedIfLoading(true, e);
 			});
 
 			Minecraft.getInstance().tell(() -> clearAllCaches());

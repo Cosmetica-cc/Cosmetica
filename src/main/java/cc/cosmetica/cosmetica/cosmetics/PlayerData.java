@@ -16,14 +16,19 @@
 
 package cc.cosmetica.cosmetica.cosmetics;
 
+import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.ThreadPool;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
+import cc.cosmetica.cosmetica.utils.DebugMode;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Data class for Player Data
@@ -168,4 +173,117 @@ public final class PlayerData {
 
 	public static PlayerData NONE = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultSkin(), false);
 	public static PlayerData TEMPORARY = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultSkin(), false);
+
+	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
+	private static Set<UUID> lookingUp = new HashSet<>();
+
+	public static PlayerData get(Player player) {
+		return get(player.getUUID(), player.getName().getString(), false);
+	}
+
+	public static PlayerData get(UUID uuid, String username, boolean sync) {
+		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
+
+		Level level = Minecraft.getInstance().level;
+
+		// if existing data exists
+
+		synchronized (playerDataCache) {
+			PlayerData existing = playerDataCache.get(uuid);
+
+			if (existing != null) {
+				// synchronised requests do not want temporary data returned!
+				if (!(sync && existing == PlayerData.TEMPORARY)) {
+					return existing;
+				}
+			} else {
+				// start a new lookup
+				lookingUp.add(uuid);
+				playerDataCache.put(uuid, PlayerData.TEMPORARY);
+			}
+		}
+
+		if (sync) {
+			return lookupPlayerData(uuid, username, level);
+		} else {
+			Cosmetica.runOffthread(() -> {
+				if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
+					synchronized (playerDataCache) { // make sure temp values are removed
+						playerDataCache.remove(uuid);
+						lookingUp.remove(uuid);
+					}
+				}
+
+				lookupPlayerData(uuid, username, level);
+			}, ThreadPool.GENERAL_THREADS);
+
+			return PlayerData.NONE;
+		}
+	}
+
+	private static PlayerData lookupPlayerData(UUID uuid, String username, Level level) {
+		DebugMode.log("Looking up player info for " + uuid + " (" + username + ")");
+		AtomicReference<PlayerData> newDataHolder = new AtomicReference<>(PlayerData.NONE);
+
+		Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
+			PlayerData newData = Cosmetica.newPlayerData(info, uuid);
+
+			synchronized (playerDataCache) { // update the information with what we have gotten.
+				playerDataCache.put(uuid, newData);
+				lookingUp.remove(uuid);
+			}
+
+			newDataHolder.set(newData);
+		}, Cosmetica.logErr("Error getting user info for " + uuid + " / " + username).andThen(re -> {
+			synchronized (playerDataCache) {
+				// check no other thread has gotten there first.
+				// This could still be mistriggered if, say, level changes, player data is cleared, and a new request is made
+				// So we check level too.
+				if (Minecraft.getInstance().level == level && playerDataCache.get(uuid) == PlayerData.TEMPORARY) {
+					lookingUp.remove(uuid);
+				}
+			}
+		}));
+
+		return newDataHolder.get();
+	}
+
+	/**
+	 * Check whether the given player currently has data stored. It does not check whether that data is temporary.
+	 * @param uuid the uuid of the player to check.
+	 * @return whether the player currently has data stored.
+	 */
+	public static boolean has(UUID uuid) {
+		synchronized (playerDataCache) {
+			return playerDataCache.containsKey(uuid);
+		}
+	}
+
+	public static PlayerData getCached(UUID player) {
+		synchronized (playerDataCache) {
+			return playerDataCache.get(player);
+		}
+	}
+
+	public static void clear(UUID uuid) {
+		synchronized (playerDataCache) {
+			playerDataCache.remove(uuid);
+		}
+	}
+
+	public static int getCacheSize() {
+		synchronized (playerDataCache) {
+			return playerDataCache.size();
+		}
+	}
+
+	public static Collection<UUID> getCachedPlayers() {
+		synchronized (playerDataCache) {
+			return playerDataCache.keySet();
+		}
+	}
+
+	public static void clearCaches() {
+		playerDataCache = new HashMap<>();
+	}
 }

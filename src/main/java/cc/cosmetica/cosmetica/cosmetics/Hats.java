@@ -42,7 +42,7 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		List<BakableModel> hats = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.getList(() -> Cosmetica.getPlayerData(player).hats()) : Cosmetica.getPlayerData(player).hats();
+		List<BakableModel> hats = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.getList(() -> PlayerData.get(player).hats()) : PlayerData.get(player).hats();
 
 		stack.pushPose();
 
