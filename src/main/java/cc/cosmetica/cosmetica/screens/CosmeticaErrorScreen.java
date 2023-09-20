@@ -38,7 +38,7 @@ public class CosmeticaErrorScreen extends SulphateScreen {
 		super(title);
 		this.parentScreen = parentScreen;
 		this.message = message;
-		this.setAnchorY(Anchor.TOP, () -> Math.min(this.height / 2 + 9, this.height - 30) + 30);
+		this.setAnchorY(Anchor.TOP, () -> Math.min(this.height / 2 + 9, this.height - 30) + 28);
 	}
 
 	private final Screen parentScreen;
