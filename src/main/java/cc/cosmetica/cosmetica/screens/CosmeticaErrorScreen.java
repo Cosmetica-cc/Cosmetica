@@ -54,7 +54,7 @@ public class CosmeticaErrorScreen extends SulphateScreen {
 
 	public void render(PoseStack stack, int i, int j, float f) {
 		super.render(stack, i, j, f);
-		drawCenteredString(stack, this.font, this.message, this.width / 2, this.height / 2, 16777215);
+		drawCenteredString(stack, this.font, this.message, this.width / 2, this.height / 2 - 24, 16777215);
 	}
 
 	@Override
