@@ -38,7 +38,7 @@ public class CosmeticaErrorScreen extends SulphateScreen {
 		super(title);
 		this.parentScreen = parentScreen;
 		this.message = message;
-		this.setAnchorY(Anchor.CENTRE, () -> Math.min(this.height / 2 + 9, this.height - 30) + 48);
+		this.setAnchorY(Anchor.TOP, () -> Math.min(this.height / 2 + 9, this.height - 30) + 30);
 	}
 
 	private final Screen parentScreen;
@@ -56,7 +56,7 @@ public class CosmeticaErrorScreen extends SulphateScreen {
 
 	public void render(PoseStack stack, int i, int j, float f) {
 		super.render(stack, i, j, f);
-		drawCenteredString(stack, this.font, this.message, this.width / 2, this.height / 2, 16777215);
+		drawCenteredString(stack, this.font, this.message, this.width / 2, this.height / 2 - 4, 16777215);
 	}
 
 	@Override
