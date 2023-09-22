@@ -23,11 +23,7 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import static cc.cosmetica.cosmetica.Authentication.runAuthentication;
 
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin extends Screen implements ExtendedTitleScreen {
@@ -35,14 +31,9 @@ public class TitleScreenMixin extends Screen implements ExtendedTitleScreen {
 		super(component);
 	}
 
-	@Inject(at = @At("HEAD"), method = "init")
-	private void titleScreenInject(CallbackInfo ci) {
-		runAuthentication(2);
-	}
-
 	/**
 	 * Handles disabling the 'fade from white' mojang does on the titlescreen in 1.16.5. It looks fine in the main title screen animation, but is a bit of a
-	 * 'stun grenade' when coming fromt he cosmetica tutorial.
+	 * 'stun grenade' when coming from the cosmetica tutorial.
 	 */
 	private boolean cosmetica_flashbang = true;
 

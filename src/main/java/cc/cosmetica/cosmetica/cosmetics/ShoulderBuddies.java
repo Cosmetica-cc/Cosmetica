@@ -55,7 +55,7 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 
 		boolean canOverridePlayerCosmetics = this.canOverridePlayerCosmetics(player);
 
-		PlayerData playerData = Cosmetica.getPlayerData(player);
+		PlayerData playerData = PlayerData.get(player);
 
 		BakableModel left = canOverridePlayerCosmetics ? LEFT_OVERRIDDEN.get(playerData::leftShoulderBuddy) : playerData.leftShoulderBuddy();
 		BakableModel right = canOverridePlayerCosmetics ? RIGHT_OVERRIDDEN.get(playerData::rightShoulderBuddy) : playerData.rightShoulderBuddy();

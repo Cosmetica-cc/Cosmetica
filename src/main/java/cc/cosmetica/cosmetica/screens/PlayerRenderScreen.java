@@ -185,7 +185,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 	void refetchPlayerData() {
 		new Thread(() -> {
-			this.fakePlayer.setData(Cosmetica.getPlayerData(this.fakePlayer.getUUID(), this.fakePlayer.getName(), true));
+			this.fakePlayer.setData(PlayerData.get(this.fakePlayer.getUUID(), this.fakePlayer.getName(), true));
 		}).start();
 	}
 

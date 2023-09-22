@@ -39,7 +39,7 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		BakableModel modelData = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.get(() -> Cosmetica.getPlayerData(player).backBling()) : Cosmetica.getPlayerData(player).backBling();
+		BakableModel modelData = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.get(() -> PlayerData.get(player).backBling()) : PlayerData.get(player).backBling();
 
 		if (modelData == null) return; // if it has a model
 		if (((player.isCapeLoaded() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null) || player.getItemBySlot(EquipmentSlot.CHEST).getItem() == Items.ELYTRA)
