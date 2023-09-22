@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.screens;
 
+import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.cosmetica.Authentication;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -29,6 +30,7 @@ public class CosmeticaErrorScreen extends SulphateScreen {
 		super(title);
 		this.parentScreen = parentScreen;
 		this.message = message;
+		this.setAnchorY(Anchor.TOP, () -> Math.min(this.height / 2 + 9, this.height - 30) + 28);
 	}
 
 	private final Screen parentScreen;
@@ -46,7 +48,7 @@ public class CosmeticaErrorScreen extends SulphateScreen {
 
 	public void render(PoseStack stack, int i, int j, float f) {
 		super.render(stack, i, j, f);
-		drawCenteredString(stack, this.font, this.message, this.width / 2, this.height / 2, 16777215);
+		drawCenteredString(stack, this.font, this.message, this.width / 2, this.height / 2 - 4, 16777215);
 	}
 
 	@Override
