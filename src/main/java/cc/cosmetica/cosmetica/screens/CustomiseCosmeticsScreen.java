@@ -31,8 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
-	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, UserSettings settings) {
-		this(parentScreen, player, new ServerOptions(settings), 1.0);
+	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options) {
+		this(parentScreen, player, options, 1.0);
 		this.canCloseWithBn = true;
 	}
 
