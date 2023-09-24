@@ -171,8 +171,8 @@ public final class PlayerData {
 				"slim=" + slim + ']';
 	}
 
-	public static PlayerData NONE = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultSkin(), false);
-	public static PlayerData TEMPORARY = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultSkin(), false);
+	public static PlayerData NONE = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultTexture(), false);
+	public static PlayerData TEMPORARY = new PlayerData("", false, null, false, "", "", new ArrayList<>(), CapeData.NO_CAPE, null, null, null, DefaultPlayerSkin.getDefaultTexture(), false);
 
 	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
 	private static Set<UUID> lookingUp = new HashSet<>();

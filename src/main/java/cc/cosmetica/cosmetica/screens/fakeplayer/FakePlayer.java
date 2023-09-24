@@ -144,7 +144,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 
 	public ResourceLocation getSkin() {
 		return Minecraft.getInstance().getTextureManager().getTexture(this.data.skin(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ?
-				DefaultPlayerSkin.getDefaultSkin(this.uuid) : this.data.skin();
+				DefaultPlayerSkin.get(this.uuid).texture() : this.data.skin();
 	}
 
 	public ResourceLocation getRenderableCape() {

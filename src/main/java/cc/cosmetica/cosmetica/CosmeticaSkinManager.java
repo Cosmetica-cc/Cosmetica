@@ -116,7 +116,7 @@ public class CosmeticaSkinManager {
 
 	public static ResourceLocation processSkin(@Nullable String base64Skin, UUID uuid) {
 		if (base64Skin == null) {
-			return DefaultPlayerSkin.getDefaultSkin(uuid);
+			return DefaultPlayerSkin.get(uuid).texture();
 		}
 
 		return saveTexture(new ResourceLocation("cosmetica", "skin/" + uuid.toString().toLowerCase(Locale.ROOT)), base64Skin, 0);
