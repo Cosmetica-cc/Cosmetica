@@ -26,6 +26,7 @@ import net.minecraft.client.renderer.texture.Tickable;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceMetadata;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
@@ -81,8 +82,8 @@ public class ModelSprite extends TextureAtlasSprite {
 	}
 
 	public static class ModelSpriteContents extends SpriteContents {
-		public ModelSpriteContents(ResourceLocation resourceLocation, FrameSize frameSize, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture animatedTexture, AnimationMetadataSection animationMetadataSection) {
-			super(resourceLocation, frameSize, animatedTexture.image, animationMetadataSection);
+		public ModelSpriteContents(ResourceLocation resourceLocation, FrameSize frameSize, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture animatedTexture, ResourceMetadata resourceMetadata) {
+			super(resourceLocation, frameSize, animatedTexture.image, resourceMetadata);
 			this.animatedTexture = animatedTexture;
 		}
 

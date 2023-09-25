@@ -72,7 +72,7 @@ public class RSEWarningScreen extends Screen {
 				null,
 				null,
 				null,
-				DefaultPlayerSkin.getDefaultSkin(aussieUUID),
+				DefaultPlayerSkin.get(aussieUUID).texture(),
 				false
 		));
 
@@ -88,7 +88,7 @@ public class RSEWarningScreen extends Screen {
 				null,
 				null,
 				null,
-				DefaultPlayerSkin.getDefaultSkin(canadianUUID),
+				DefaultPlayerSkin.get(canadianUUID).texture(),
 				true
 		));
 
@@ -121,7 +121,7 @@ public class RSEWarningScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float f) {
-		this.renderBackground(graphics);
+		this.renderBackground(graphics, mouseX, mouseY, f);
 		super.render(graphics, mouseX, mouseY, f);
 
 		PoseStack stack = graphics.pose();

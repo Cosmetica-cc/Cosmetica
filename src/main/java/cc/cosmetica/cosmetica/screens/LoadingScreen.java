@@ -78,7 +78,7 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 	}
 
 	public void render(GuiGraphics graphics, int i, int j, float f) {
-		this.renderBackground(graphics);
+		this.renderBackground(graphics, i, j, f);
 		graphics.drawCenteredString(this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
 		this.message.renderCentered(graphics, this.width / 2, this.height / 2 - this.textHeight / 2);
 		super.render(graphics, i, j, f);

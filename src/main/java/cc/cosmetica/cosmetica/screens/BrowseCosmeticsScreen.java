@@ -248,7 +248,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		this.renderBackground(graphics);
+		this.renderBackground(graphics, mouseX, mouseY, delta);
 
 		for (Renderable widget : List.copyOf(((ExtendedScreen) this).getWidgets())) { // renderables
 			widget.render(graphics, mouseX, mouseY, delta);

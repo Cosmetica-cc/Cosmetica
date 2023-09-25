@@ -42,7 +42,7 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 		BakableModel modelData = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.get(() -> PlayerData.get(player).backBling()) : PlayerData.get(player).backBling();
 
 		if (modelData == null) return; // if it has a model
-		if (((player.isCapeLoaded() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null) || player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA))
+		if (((player.isModelPartShown(PlayerModelPart.CAPE) && player.getSkin().elytraTexture() != null) || player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA))
 				&& (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CAPE) == 0) return; // if wearing cape/elytra and show bb w cape is not set
 		else if ((player.hasItemInSlot(EquipmentSlot.CHEST) && !player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA)) && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CHESTPLATE) == 0) return; // if wearing chestplate and show bb w chestplate is not set
 

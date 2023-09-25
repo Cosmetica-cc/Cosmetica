@@ -16,10 +16,12 @@
 
 package cc.cosmetica.cosmetica.cosmetics;
 
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public final class CapeData {
 	public CapeData(@Nullable ResourceLocation image, String capeName, String capeId, boolean thirdPartyCape, String origin) {
@@ -35,6 +37,7 @@ public final class CapeData {
 	private final String capeId;
 	private final boolean thirdPartyCape;
 	private final String origin;
+	private PlayerSkin skinCache;
 
 	public static final CapeData NO_CAPE = new CapeData(null, "", "none", false, "");
 
@@ -44,6 +47,22 @@ public final class CapeData {
 
 	public ResourceLocation getActualImage() {
 		return this.image;
+	}
+
+	public void clearSkinCache() {
+		this.skinCache = null;
+	}
+
+	public PlayerSkin getSkin(PlayerSkin existing) {
+		if (this.skinCache != null) return this.skinCache;
+		return this.skinCache = new PlayerSkin(
+			existing.texture(),
+			existing.textureUrl(),
+			this.image,
+			this.image,
+			existing.model(),
+			existing.secure()
+		);
 	}
 
 	public String getName() {

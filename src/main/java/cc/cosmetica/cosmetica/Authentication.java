@@ -69,7 +69,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Authentication {
 	private static volatile boolean currentlyAuthenticated = false;
 	private static volatile boolean currentlyAuthenticating = false;
-	private static String authenticatedAsUUID;
+	private static UUID authenticatedAsUUID;
 
 	public static int settingLoadTarget; // 1 = customise cosmetics screen, 2 = snipe (steal his look) screen, 3 = tutorial customise screen, other = main screen
 	@Nullable
@@ -110,7 +110,7 @@ public class Authentication {
 	public static void openCustomiseCosmeticsScreen(Screen parent, PlayerData playerData) {
 		FakePlayer player = new FakePlayer(
 				Minecraft.getInstance(),
-				UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid())),
+				Minecraft.getInstance().getUser().getProfileId(),
 				Minecraft.getInstance().getUser().getName(),
 				playerData
 		);
@@ -123,7 +123,7 @@ public class Authentication {
 		DebugMode.log("Synchronising Settings");
 
 		Thread requestThread = new Thread(() -> {
-			if (!Cosmetica.api.isAuthenticated() || !Minecraft.getInstance().getUser().getUuid().equals(authenticatedAsUUID)) {
+			if (!Cosmetica.api.isAuthenticated() || !Minecraft.getInstance().getUser().getProfileId().equals(authenticatedAsUUID)) {
 				DebugMode.log("Not authenticated. [Re]authenticating...");
 				runAuthentication(true, false);
 				return; // sync settings is called after auth anyway
@@ -141,7 +141,7 @@ public class Authentication {
 				// only bother trying to do the next stage if on a loading screen
 				if (Minecraft.getInstance().screen instanceof LoadingTypeScreen) {
 					// load player info
-					final UUID ownUUID = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+					final UUID ownUUID = Minecraft.getInstance().getUser().getProfileId();
 					final String ownName = Minecraft.getInstance().getUser().getName();
 					final cc.cosmetica.api.User snipedPlayer = Authentication.snipedPlayer; // stop background changes messing with it
 
@@ -254,7 +254,7 @@ public class Authentication {
 		String method = Cosmetica.getConfig().paranoidHttps() ? "https" : "http";
 		final User currentUser = Minecraft.getInstance().getUser();
 
-		try (Response response = Response.get(method + "://api.cosmetica.cc/get/userdata?uuid=" + currentUser.getUuid())) {
+		try (Response response = Response.get(method + "://api.cosmetica.cc/get/userdata?uuid=" + currentUser.getProfileId())) {
 			JsonObject json = response.getAsJson();
 
 			if (!json.has("username") || currentUser.getName().equals(json.get("username").getAsString())) {
@@ -387,10 +387,9 @@ public class Authentication {
 				// this isn't really necesary for manual auth because you probably know what you're doing
 				// but is useful for testing
 				User user = Minecraft.getInstance().getUser();
-				authenticatedAsUUID = user.getUuid();
-				UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
+				authenticatedAsUUID = user.getProfileId();
 				currentlyAuthenticated = true;
-				prepareWelcome(uuid, user.getName(), false, false);
+				prepareWelcome(authenticatedAsUUID, user.getName(), false, false);
 			} else {
 				if (currentlyAuthenticating) {
 					DebugMode.log("API is not authenticated but authentication is already in progress.");
@@ -408,7 +407,7 @@ public class Authentication {
 
 								// Get user
 								User user = Minecraft.getInstance().getUser();
-								UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(user.getUuid()));
+								UUID uuid = user.getProfileId();
 
 								if (!ignoreCache) {
 									// First, check if a cosmetica token already exists
@@ -438,7 +437,7 @@ public class Authentication {
 										);
 										Cosmetica.api.setUrlLogger(DebugMode::logURL);
 
-										authenticatedAsUUID = user.getUuid();
+										authenticatedAsUUID = user.getProfileId();
 
 										// try welcome
 										reauthenticate = isTokenInvalid(((CosmeticaWebAPI) Cosmetica.api).getMasterToken());
@@ -451,7 +450,7 @@ public class Authentication {
 									DebugMode.log(reason + " Authenticating from minecraft access token.");
 									Cosmetica.api = CosmeticaAPI.fromMinecraftToken(user.getAccessToken(), user.getName(), uuid, System.getProperty("cosmetica.client", "cosmetica")); // getUuid() better have the dashes... edit: it did not have the dashes.
 									Cosmetica.api.setUrlLogger(DebugMode::logURL);
-									authenticatedAsUUID = user.getUuid();
+									authenticatedAsUUID = user.getProfileId();
 
 									// Update master token
 									tokens.setProperty(uuid.toString(), ((CosmeticaWebAPI)Cosmetica.api).getMasterToken());

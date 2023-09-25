@@ -55,7 +55,7 @@ public class UpdatingCosmeticsScreen<T> extends Screen implements LoadingTypeScr
 		Thread requestThread = new Thread(() -> {
 			contact.get().ifSuccessfulOrElse(response -> {
 				if (this.parentScreen instanceof PlayerRenderScreen prs) {
-					UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+					UUID uuid = Minecraft.getInstance().getUser().getProfileId();
 
 					if (this.minecraft.level == null)
 						PlayerData.clear(uuid);
@@ -97,7 +97,7 @@ public class UpdatingCosmeticsScreen<T> extends Screen implements LoadingTypeScr
 	}
 
 	public void render(GuiGraphics poseStack, int i, int j, float f) {
-		this.renderBackground(poseStack);
+		this.renderBackground(poseStack, i, j, f);
 		int x = this.width / 2;
 		int y = this.height / 2 - this.textHeight / 2;
 		Objects.requireNonNull(this.font);

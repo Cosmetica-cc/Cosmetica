@@ -73,9 +73,10 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 		return super.getRowWidth() + 50;
 	}
 
+	// FIXME fix up and test this
 	@Override
-	protected void renderBackground(GuiGraphics poseStack) {
-		this.parent.renderBackground(poseStack);
+	protected void renderBackground(GuiGraphics poseStack, int i, int j, float delta) {
+		this.parent.renderBackground(poseStack, i, j, delta);
 	}
 
 	@Override

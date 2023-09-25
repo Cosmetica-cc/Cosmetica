@@ -33,8 +33,6 @@ import java.util.Objects;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin {
-	@Shadow @Final private Minecraft minecraft;
-
 	@Inject(at = @At("RETURN"), method = "handleLogin")
 	private void onHandleLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
 		String address = "fake server " + System.currentTimeMillis();
@@ -43,7 +41,7 @@ public abstract class ClientPacketListenerMixin {
 			Cosmetica.currentServerAddressCache = address;
 			DebugMode.log("Clearing all player data due to login.");
 			Cosmetica.clearAllCaches();
-			PlayerData.get(this.minecraft.player);
+			PlayerData.get(Minecraft.getInstance().player);
 		}
 	}
 }

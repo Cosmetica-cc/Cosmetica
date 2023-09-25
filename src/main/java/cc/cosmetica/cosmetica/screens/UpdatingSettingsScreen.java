@@ -69,7 +69,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 						Cosmetica.clearAllCaches();
 
 						if (response.booleanValue() && this.parentScreen instanceof PlayerRenderScreen playerRenderScreen) {
-							UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+							UUID uuid = Minecraft.getInstance().getUser().getProfileId();
 							playerRenderScreen.setPlayerData(PlayerData.get(uuid, Minecraft.getInstance().getUser().getName(), true));
 						}
 					});
@@ -109,7 +109,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 					if (this.parentScreen instanceof MainScreen main) {
 						main.setCapeServerSettings(response);
 
-						UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+						UUID uuid = Minecraft.getInstance().getUser().getProfileId();
 						PlayerData.get(uuid, Minecraft.getInstance().getUser().getName(), true);
 					}
 
@@ -148,7 +148,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 	}
 
 	public void render(GuiGraphics poseStack, int i, int j, float f) {
-		this.renderBackground(poseStack);
+		this.renderBackground(poseStack, i, j, f);
 		int x = this.width / 2;
 		int y = this.height / 2 - this.textHeight / 2;
 		Objects.requireNonNull(this.font);

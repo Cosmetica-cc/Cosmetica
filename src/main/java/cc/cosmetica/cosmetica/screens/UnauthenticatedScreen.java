@@ -133,7 +133,7 @@ public class UnauthenticatedScreen extends Screen {
 	}
 
 	public void render(GuiGraphics poseStack, int i, int j, float f) {
-		this.renderBackground(poseStack);
+		this.renderBackground(poseStack, i, j, f);
 		Font var10001 = this.font;
 		Component var10002 = this.title;
 		int var10003 = this.width / 2;
