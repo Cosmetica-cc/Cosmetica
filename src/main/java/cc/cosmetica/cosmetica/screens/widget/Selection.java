@@ -68,7 +68,7 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 		return super.getScrollbarPosition() + 20;
 	}
 
-	// FIXME test the background rendering is fine
+	// FIXME background scrolls funnily
 
 	@Override
 	public int getRowWidth() {
