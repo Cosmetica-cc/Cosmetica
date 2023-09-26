@@ -68,15 +68,11 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 		return super.getScrollbarPosition() + 20;
 	}
 
+	// FIXME test the background rendering is fine
+
 	@Override
 	public int getRowWidth() {
 		return super.getRowWidth() + 50;
-	}
-
-	// FIXME fix up and test this
-	@Override
-	protected void renderBackground(GuiGraphics poseStack, int i, int j, float delta) {
-		this.parent.renderBackground(poseStack, i, j, delta);
 	}
 
 	@Override
