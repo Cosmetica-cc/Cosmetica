@@ -17,12 +17,14 @@
 package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.utils.DebugMode;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.SpriteTicker;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.Tickable;
+import net.minecraft.client.resources.metadata.animation.AnimationFrame;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +41,7 @@ public class ModelSprite extends TextureAtlasSprite {
 	private ModelSprite(ResourceLocation location, AnimatedTexture texture, int width, int height) {
 		// textureAtlas, info, mipLevels, uScale (atlasTextureWidth), vScale (atlasTextureHeight), width, height, image
 		super(null,
-				new ModelSpriteContents(location, new FrameSize(width, height), texture, null),
+				new ModelSpriteContents(location, new FrameSize(width, height), texture),
 				width, height,
 				0, 0
 		);
@@ -82,8 +84,16 @@ public class ModelSprite extends TextureAtlasSprite {
 	}
 
 	public static class ModelSpriteContents extends SpriteContents {
-		public ModelSpriteContents(ResourceLocation resourceLocation, FrameSize frameSize, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture animatedTexture, ResourceMetadata resourceMetadata) {
-			super(resourceLocation, frameSize, animatedTexture.image, resourceMetadata);
+		public ModelSpriteContents(ResourceLocation resourceLocation, FrameSize frameSize, cc.cosmetica.cosmetica.utils.textures.AnimatedTexture animatedTexture) {
+			super(resourceLocation,
+					frameSize,
+					animatedTexture.image,
+					new ResourceMetadata.Builder()
+							.put(AnimationMetadataSection.SERIALIZER, new AnimationMetadataSection(
+									ImmutableList.of(new AnimationFrame(0, -1)), // DUMMY FRAME.
+									frameSize.width(), frameSize.height(), animatedTexture.frameCounterTicks, false))
+							.build()
+			);
 			this.animatedTexture = animatedTexture;
 		}
 
