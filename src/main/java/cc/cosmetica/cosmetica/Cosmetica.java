@@ -557,7 +557,6 @@ public class Cosmetica implements ClientModInitializer {
 		return false;
 	}
 
-	@Nullable
 	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
 		if (Thread.currentThread().getName().startsWith("Cosmetica")) {
 			runnable.run();
