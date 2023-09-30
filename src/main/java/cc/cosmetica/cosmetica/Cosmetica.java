@@ -599,7 +599,7 @@ public class Cosmetica implements ClientModInitializer {
 		Optional<Model> backBling = info.getBackBling();
 		Optional<Cape> cloak = info.getCape();
 		String icon = info.getIcon();
-		Optional<String> client = info.getClient();
+		boolean isSelf = uuid.toString().equals(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
 
 		Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
 		Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
@@ -608,7 +608,7 @@ public class Cosmetica implements ClientModInitializer {
 				info.getLore(),
 				info.isUpsideDown(),
 				icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(icon),
-				info.isOnline(),
+				info.isOnline() || isSelf, // we are always online ourselves. we are literally using the mod
 				info.getPrefix(),
 				info.getSuffix(),
 				hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
