@@ -129,6 +129,7 @@ public class Cosmetica implements ClientModInitializer {
 	public static KeyMapping snipe;
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
+	public static final String ICON_PREFIX = "\u2001\u2001";
 
 	private static final ExecutorService MAIN_POOL = Executors.newFixedThreadPool(
 			Integer.parseInt(System.getProperty("cosmetica.lookupThreads", "8")),

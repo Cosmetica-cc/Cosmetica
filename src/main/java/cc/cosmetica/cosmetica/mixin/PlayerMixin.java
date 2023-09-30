@@ -34,7 +34,7 @@ public class PlayerMixin {
 
 		if (player.getLevel().isClientSide()) {
 			PlayerData data = PlayerData.get(player.getUUID(), player.getName().getString(), false);
-			String prefix = (data.icon() == null ? "" : "\u2001") + data.prefix();
+			String prefix = (data.icon() == null ? "" : Cosmetica.ICON_PREFIX) + data.prefix();
 			String suffix = data.suffix();
 
 			cir.setReturnValue(new TextComponent(prefix).append(cir.getReturnValue()).append(suffix));
