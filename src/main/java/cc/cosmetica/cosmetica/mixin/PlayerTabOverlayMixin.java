@@ -43,7 +43,7 @@ public class PlayerTabOverlayMixin {
 		PlayerData data = PlayerData.get(playerInfo.getProfile().getId(), playerInfo.getProfile().getName(), false);
 
 		if (data.icon() != null) {
-			info.setReturnValue(TextComponents.literal(Cosmetica.ICON_PREFIX).append(info.getReturnValue()));
+			info.setReturnValue(TextComponents.literal("\u2001").append(info.getReturnValue()));
 		}
 	}
 

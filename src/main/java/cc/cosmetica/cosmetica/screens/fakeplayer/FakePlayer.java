@@ -16,7 +16,6 @@
 
 package cc.cosmetica.cosmetica.screens.fakeplayer;
 
-import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
@@ -133,7 +132,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	public Component getDisplayName() {
-		return TextComponents.literal((this.data.icon() == null ? "" : Cosmetica.ICON_PREFIX) + this.data.prefix() + this.name + this.data.suffix());
+		return TextComponents.literal((this.data.icon() == null ? "" : "\u2001") + this.data.prefix() + this.name + this.data.suffix());
 	}
 
 	public ResourceLocation getSkin() {
