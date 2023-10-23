@@ -22,6 +22,10 @@
   "cosmetica.indicators.showWithHelmet":  "Shows with Helmet Equipped",
   "cosmetica.indicators.showWithParrot":  "Shows with Parrot on Shoulder",
 
+  "cosmetica.armourMode": "Armor-Cosmetic Resolution Mode",
+  "cosmetica.armourMode.hideCosmetics": "Hide Cosmetics",
+  "cosmetica.armourMode.hideArmour": "Hide Armor",
+  "cosmetica.armourMode.showBoth": "Show Both",
   "cosmetica.change": "Change",
   "cosmetica.selection.pageBack": "Previous Page",
   "cosmetica.selection.pageForward": "Next Page",

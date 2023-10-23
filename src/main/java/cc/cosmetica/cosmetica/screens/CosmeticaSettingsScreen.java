@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.screens;
 import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.config.ArmourConflictHandlingMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -79,14 +80,26 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doBackBlings", this.newOptions.backBlings.get()));
 		});
 
-		this.addButton(TextComponents.translatable("cosmetica.icons"), button ->
-				this.minecraft.setScreen(new IconSettingsScreen(this, this.newOptions))
-		);
+		this.addButton(
+				TextComponents.translatable("cosmetica.armourMode").append(Cosmetica.getConfig().getArmourConflictHandlingMode().getLanguageKey()),
+				button -> {
+					// set new value
+					int selected = Cosmetica.getConfig().getArmourConflictHandlingMode().ordinal();
+					Cosmetica.getConfig().setArmourConflictHandlingMode(ArmourConflictHandlingMode.values()[(selected + 1) % ArmourConflictHandlingMode.values().length]);
+					// change button text
+					button.setMessage(
+							TextComponents.translatable("cosmetica.armourMode").append(Cosmetica.getConfig().getArmourConflictHandlingMode().getLanguageKey())
+					);
+		});
 
 		this.addButton(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()), (button) -> {
 			this.newOptions.onlineActivity.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()));
 		});
+
+		this.addButton(TextComponents.translatable("cosmetica.icons"), button ->
+				this.minecraft.setScreen(new IconSettingsScreen(this, this.newOptions))
+		);
 
 		// when done, update settings
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 6 + 24 * 4 + 12, 200, 20, CommonComponents.GUI_DONE, (button) -> {
