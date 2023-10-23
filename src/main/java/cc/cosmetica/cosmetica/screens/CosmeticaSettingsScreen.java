@@ -81,14 +81,14 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 		});
 
 		this.addButton(
-				TextComponents.translatable("cosmetica.armourMode").append(Cosmetica.getConfig().getArmourConflictHandlingMode().getLanguageKey()),
+				TextComponents.formattedTranslatable("cosmetica.armourMode", TextComponents.translatable(Cosmetica.getConfig().getArmourConflictHandlingMode().getLanguageKey())),
 				button -> {
 					// set new value
 					int selected = Cosmetica.getConfig().getArmourConflictHandlingMode().ordinal();
 					Cosmetica.getConfig().setArmourConflictHandlingMode(ArmourConflictHandlingMode.values()[(selected + 1) % ArmourConflictHandlingMode.values().length]);
 					// change button text
 					button.setMessage(
-							TextComponents.translatable("cosmetica.armourMode").append(Cosmetica.getConfig().getArmourConflictHandlingMode().getLanguageKey())
+							TextComponents.formattedTranslatable("cosmetica.armourMode", TextComponents.translatable(Cosmetica.getConfig().getArmourConflictHandlingMode().getLanguageKey()))
 					);
 		});
 

@@ -42,7 +42,7 @@ public class HumanoidArmourLayerMixin {
 			// todo this kind of needs to be revisited to see if we can find a better solution
 			ItemStack itemStack = livingEntity.getItemBySlot(equipmentSlot);
 
-			if (!itemStack.isEmpty() && !itemStack.is(Items.ELYTRA)) {
+			if (itemStack.isEmpty() || itemStack.is(Items.ELYTRA)) {
 				return;
 			}
 
@@ -64,7 +64,7 @@ public class HumanoidArmourLayerMixin {
 
 				for (BakableModel model : hats) {
 					// check if hat should hide with helmet
-					if ((model.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) {
+					if ((model.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0) {
 						// hat exists that conflicts with helmet. hide helmet as per config.
 						info.cancel();
 					}
