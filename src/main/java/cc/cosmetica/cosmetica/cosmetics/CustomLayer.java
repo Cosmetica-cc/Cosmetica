@@ -66,7 +66,7 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
         stack.popPose();
     }
 
-    protected boolean canOverridePlayerCosmetics(Player player) {
+    protected static boolean canOverridePlayerCosmetics(Player player) {
         return Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID().equals(player.getUUID());
     }
 

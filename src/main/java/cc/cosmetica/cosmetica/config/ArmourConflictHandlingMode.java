@@ -1,7 +1,7 @@
 package cc.cosmetica.cosmetica.config;
 
 /**
- * The set of modes for handling server-declared conflicts between cosmetics and armour.
+ * The set of modes for handling server-declared conflicts between cosmetics and armour. This includes cape/elytra.
  *
  * @apiNote This will almost certainly be replaced by a better solution we have in the works for Cosmetica 2.0.
  * In the meantime, this is easier to implement and should satisfy everyone.

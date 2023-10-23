@@ -18,17 +18,16 @@ package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.api.Model;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
-import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
@@ -42,7 +41,7 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLight, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		List<BakableModel> hats = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.getList(() -> PlayerData.get(player).hats()) : PlayerData.get(player).hats();
+		List<BakableModel> hats = getHats(player);
 
 		stack.pushPose();
 
@@ -83,4 +82,10 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 	}
 
 	public static final CosmeticStack<BakableModel> OVERRIDDEN = new CosmeticStack();
+
+	public static List<BakableModel> getHats(Player player) {
+		return canOverridePlayerCosmetics(player) ?
+				OVERRIDDEN.getList(() -> PlayerData.get(player).hats()) :
+				PlayerData.get(player).hats();
+	}
 }

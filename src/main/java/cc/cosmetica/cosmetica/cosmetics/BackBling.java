@@ -29,8 +29,10 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.Nullable;
 
 public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
 	public BackBling(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
@@ -40,19 +42,16 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 	@Override
 	public void render(PoseStack stack, MultiBufferSource multiBufferSource, int packedLightProbably, T player, float f, float g, float pitch, float j, float k, float l) {
 		if (player.isInvisible()) return;
-		BakableModel modelData = this.canOverridePlayerCosmetics(player) ? OVERRIDDEN.get(() -> PlayerData.get(player).backBling()) : PlayerData.get(player).backBling();
+		BakableModel modelData = getBackBling(player);
 
 		if (modelData == null) return; // ensure it has a model
 
-		if (((player.isCapeLoaded() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null) || player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA))
-				&& (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CAPE) == 0) {
-			// if wearing cape/elytra and show bb w cape is not set
+		if (capeElytraConflict(player, modelData)) {
 			if (Cosmetica.getConfig().getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
 				return;
 			}
 		}
-		else if ((player.hasItemInSlot(EquipmentSlot.CHEST) && !player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA)) && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CHESTPLATE) == 0) {
-			// if wearing chestplate and show bb w chestplate is not set
+		else if (chestplateConflict(player, modelData)) {
 			if (Cosmetica.getConfig().getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
 				return;
 			}
@@ -76,4 +75,25 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 	}
 
 	public static final CosmeticStack<BakableModel> OVERRIDDEN = new CosmeticStack();
+
+	@Nullable
+	public static BakableModel getBackBling(AbstractClientPlayer player) {
+		return canOverridePlayerCosmetics(player) ?
+				OVERRIDDEN.get(() -> PlayerData.get(player).backBling()) :
+				PlayerData.get(player).backBling();
+	}
+
+	public static boolean capeElytraConflict(AbstractClientPlayer player, BakableModel modelData) {
+		// if wearing cape/elytra and show bb w cape is not set
+		boolean cape = player.isCapeLoaded() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null;
+		boolean elytra = player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA);
+
+		return (cape || elytra) && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CAPE) == 0;
+	}
+
+	public static boolean chestplateConflict(AbstractClientPlayer player, BakableModel modelData) {
+		// if wearing chestplate and show bb w chestplate is not set
+		boolean nonElytraChestItem = player.hasItemInSlot(EquipmentSlot.CHEST) && !player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA);
+		return nonElytraChestItem && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CHESTPLATE) == 0;
+	}
 }
