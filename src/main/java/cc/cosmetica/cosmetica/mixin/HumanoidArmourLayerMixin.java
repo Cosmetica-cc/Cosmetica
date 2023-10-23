@@ -30,7 +30,7 @@ public class HumanoidArmourLayerMixin {
 	@Inject(at = @At("HEAD"), method = "renderArmorPiece", cancellable = true)
 	private void onRenderArmorPiece(PoseStack poseStack, MultiBufferSource multiBufferSource, LivingEntity livingEntity,
 									EquipmentSlot equipmentSlot, int i, HumanoidModel humanoidModel, CallbackInfo info) {
-		// check the config option first
+		// don't run for config options that aren't Hide Armour
 		if (Cosmetica.getConfig().getArmourConflictHandlingMode() != ArmourConflictHandlingMode.HIDE_ARMOUR) return;
 
 		if (livingEntity instanceof AbstractClientPlayer) {

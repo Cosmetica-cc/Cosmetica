@@ -17,6 +17,8 @@
 package cc.cosmetica.cosmetica.cosmetics;
 
 import cc.cosmetica.api.Model;
+import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.config.ArmourConflictHandlingMode;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
@@ -47,7 +49,9 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 
 		for (BakableModel modelData : hats) {
 			if ((modelData.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) {
-				continue; // disable hat flag
+				if (Cosmetica.getConfig().getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
+					continue; // disable hat flag
+				}
 			}
 
 			if ((modelData.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
