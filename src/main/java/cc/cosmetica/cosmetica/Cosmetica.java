@@ -23,6 +23,7 @@ import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserInfo;
+import cc.cosmetica.cosmetica.config.ArmourConflictHandlingMode;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.CapeData;
@@ -660,11 +661,13 @@ public class Cosmetica implements ClientModInitializer {
 		// upside down players don't need nametags shifted up
 		if (!upsideDown) {
 			float hatTopY = 0;
+			boolean hatFixedToTorso = false;
 
 			if (doNametagShift) {
 				for (BakableModel hat : hats) {
-					if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
+					if (!(config.getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS && (hat.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && wearingHelmet)) {
 						hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+						hatFixedToTorso = (hat.extraInfo() & Model.LOCK_HAT_ORIENTATION) != 0;
 					}
 				}
 			}
@@ -672,8 +675,11 @@ public class Cosmetica implements ClientModInitializer {
 			if (hatTopY > 0) {
 				float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
 				float lookAngleMultiplier;
+
 				if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
 					lookAngleMultiplier = 0;
+				} else if (hatFixedToTorso) {
+					lookAngleMultiplier = 1;
 				} else {
 					lookAngleMultiplier = normalizedAngleMultiplier;
 				}
