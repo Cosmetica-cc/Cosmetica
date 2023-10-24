@@ -1,6 +1,6 @@
 # Cosmetica
 
-![](https://img.shields.io/badge/minecraft-1.16.5--1.19.3-blue)
+![](https://img.shields.io/badge/minecraft-1.16.5--1.20.2-blue)
 ![](https://sloc.xyz/github/Cosmetica-cc/Cosmetica)
 
 The all new, _blazingly fast_ cosmetic system to allow complete customisation of your player character, visible to anyone else using the mod!
