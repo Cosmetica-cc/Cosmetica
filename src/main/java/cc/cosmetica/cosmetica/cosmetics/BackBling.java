@@ -29,7 +29,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
@@ -47,12 +46,12 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 		if (modelData == null) return; // ensure it has a model
 
 		if (capeElytraConflict(player, modelData)) {
-			if (Cosmetica.getConfig().getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
+			if (Cosmetica.getConfig().getBackBlingConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
 				return;
 			}
 		}
 		else if (chestplateConflict(player, modelData)) {
-			if (Cosmetica.getConfig().getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
+			if (Cosmetica.getConfig().getBackBlingConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
 				return;
 			}
 		}

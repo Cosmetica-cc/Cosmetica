@@ -81,18 +81,6 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doBackBlings", this.newOptions.backBlings.get()));
 		});
 
-		this.addButton(
-				TextComponents.formattedTranslatable("cosmetica.armourMode", TextComponents.translatable(Cosmetica.getConfig().getArmourConflictHandlingMode().getLanguageKey())),
-				button -> {
-					// set new value
-					int selected = Cosmetica.getConfig().getArmourConflictHandlingMode().ordinal();
-					Cosmetica.getConfig().setArmourConflictHandlingMode(ArmourConflictHandlingMode.values()[(selected + 1) % ArmourConflictHandlingMode.values().length]);
-					// change button text
-					button.setMessage(
-							TextComponents.formattedTranslatable("cosmetica.armourMode", TextComponents.translatable(Cosmetica.getConfig().getArmourConflictHandlingMode().getLanguageKey()))
-					);
-		});
-
 		this.addButton(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()), (button) -> {
 			this.newOptions.onlineActivity.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()));
@@ -100,6 +88,10 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 
 		this.addButton(TextComponents.translatable("cosmetica.icons"), button ->
 				this.minecraft.setScreen(new IconSettingsScreen(this, this.newOptions))
+		);
+
+		this.addButton(TextComponents.translatable("cosmetica.armourMode"), button ->
+				this.minecraft.setScreen(new ArmourConflictModeScreen(this))
 		);
 
 		// when done, update settings

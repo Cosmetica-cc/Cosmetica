@@ -47,8 +47,14 @@ public class CosmeticaConfig {
     private final Option<Boolean> addCosmeticaSplashMessage = new Option<>("add-cosmetica-splash-message", true, Boolean::parseBoolean);
     private final Option<Boolean> regionalEffectsPrompt = new Option<>("regional-effects-prompt", true, Boolean::parseBoolean);
     private final Option<Boolean> paranoidHttps = new Option<>("paranoid-https", false, Boolean::parseBoolean);
-    private final Option<ArmourConflictHandlingMode> armourConflictHandlingMode = new Option<>(
-            "armour-conflict-handling-mode",
+    private final Option<ArmourConflictHandlingMode> hatConflictMode = new Option<>(
+            "hat-conflict-mode",
+            ArmourConflictHandlingMode.HIDE_COSMETICS,
+            s -> ArmourConflictHandlingMode.valueOf(s.toUpperCase(Locale.ROOT)),
+            mode -> mode.toString().toLowerCase(Locale.ROOT)
+    );
+    private final Option<ArmourConflictHandlingMode> backBlingConflictMode = new Option<>(
+            "back-bling-conflict-mode",
             ArmourConflictHandlingMode.HIDE_COSMETICS,
             s -> ArmourConflictHandlingMode.valueOf(s.toUpperCase(Locale.ROOT)),
             mode -> mode.toString().toLowerCase(Locale.ROOT)
@@ -126,12 +132,20 @@ public class CosmeticaConfig {
         return paranoidHttps.getValue();
     }
 
-    public ArmourConflictHandlingMode getArmourConflictHandlingMode() {
-        return this.armourConflictHandlingMode.getValue();
+    public ArmourConflictHandlingMode getHatConflictMode() {
+        return this.hatConflictMode.getValue();
     }
 
-    public void setArmourConflictHandlingMode(ArmourConflictHandlingMode mode) {
-        this.armourConflictHandlingMode.setValue(mode);
+    public void setHatConflictMode(ArmourConflictHandlingMode mode) {
+        this.hatConflictMode.setValue(mode);
+    }
+
+    public ArmourConflictHandlingMode getBackBlingConflictMode() {
+        return this.backBlingConflictMode.getValue();
+    }
+
+    public void setBackBlingConflictMode(ArmourConflictHandlingMode mode) {
+        this.backBlingConflictMode.setValue(mode);
     }
 
     private class Option<T> {

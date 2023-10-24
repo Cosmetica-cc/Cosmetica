@@ -25,11 +25,9 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
@@ -49,7 +47,7 @@ public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> imple
 
 		for (BakableModel modelData : hats) {
 			if ((modelData.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && player.hasItemInSlot(EquipmentSlot.HEAD)) {
-				if (Cosmetica.getConfig().getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
+				if (Cosmetica.getConfig().getHatConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
 					continue; // disable hat flag
 				}
 			}

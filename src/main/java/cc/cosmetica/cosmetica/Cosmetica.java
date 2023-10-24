@@ -665,7 +665,7 @@ public class Cosmetica implements ClientModInitializer {
 
 			if (doNametagShift) {
 				for (BakableModel hat : hats) {
-					if (!(config.getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS && (hat.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && wearingHelmet)) {
+					if (!(config.getHatConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS && (hat.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && wearingHelmet)) {
 						if ((hat.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
 							hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
 						} else {

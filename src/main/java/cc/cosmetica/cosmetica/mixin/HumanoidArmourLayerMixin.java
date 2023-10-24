@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 EyezahMC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cc.cosmetica.cosmetica.mixin;
 
 import cc.cosmetica.api.Model;
@@ -30,9 +46,6 @@ public class HumanoidArmourLayerMixin {
 	@Inject(at = @At("HEAD"), method = "renderArmorPiece", cancellable = true)
 	private void onRenderArmorPiece(PoseStack poseStack, MultiBufferSource multiBufferSource, LivingEntity livingEntity,
 									EquipmentSlot equipmentSlot, int i, HumanoidModel humanoidModel, CallbackInfo info) {
-		// don't run for config options that aren't Hide Armour
-		if (Cosmetica.getConfig().getArmourConflictHandlingMode() != ArmourConflictHandlingMode.HIDE_ARMOUR) return;
-
 		if (livingEntity instanceof AbstractClientPlayer) {
 			// Filter out only armour
 			// sike it's just non elytras and non empty to match behaviour elsewhere
@@ -52,6 +65,9 @@ public class HumanoidArmourLayerMixin {
 
 			switch (equipmentSlot) {
 			case CHEST:
+				// don't run for config options that aren't Hide Armour
+				if (Cosmetica.getConfig().getBackBlingConflictMode() != ArmourConflictHandlingMode.HIDE_ARMOUR) return;
+
 				BakableModel backBling = BackBling.getBackBling(player);
 				if (backBling == null) return;
 
@@ -60,6 +76,9 @@ public class HumanoidArmourLayerMixin {
 				}
 				break;
 			case HEAD:
+				// don't run for config options that aren't Hide Armour
+				if (Cosmetica.getConfig().getHatConflictMode() != ArmourConflictHandlingMode.HIDE_ARMOUR) return;
+
 				List<BakableModel> hats = Hats.getHats(player);
 
 				for (BakableModel model : hats) {

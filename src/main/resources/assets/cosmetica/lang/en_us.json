@@ -22,7 +22,9 @@
   "cosmetica.indicators.showWithHelmet":  "Shows with Helmet Equipped",
   "cosmetica.indicators.showWithParrot":  "Shows with Parrot on Shoulder",
 
-  "cosmetica.armourMode": "Armor Conflicts: %s",
+  "cosmetica.armourMode": "Armor Conflicts",
+  "cosmetica.armourMode.backBlings": "Back Blings: %s",
+  "cosmetica.armourMode.hats": "Hats: %s",
   "cosmetica.armourMode.hideCosmetics": "Hide Cosmetics",
   "cosmetica.armourMode.hideArmour": "Hide Armor",
   "cosmetica.armourMode.showBoth": "Show Both",
