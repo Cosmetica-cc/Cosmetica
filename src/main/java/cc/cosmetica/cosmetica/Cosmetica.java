@@ -661,29 +661,31 @@ public class Cosmetica implements ClientModInitializer {
 		// upside down players don't need nametags shifted up
 		if (!upsideDown) {
 			float hatTopY = 0;
-			boolean hatFixedToTorso = false;
+			float torsoFixedHatTopY = 0;
 
 			if (doNametagShift) {
 				for (BakableModel hat : hats) {
 					if (!(config.getArmourConflictHandlingMode() == ArmourConflictHandlingMode.HIDE_COSMETICS && (hat.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && wearingHelmet)) {
-						hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
-						hatFixedToTorso = (hat.extraInfo() & Model.LOCK_HAT_ORIENTATION) != 0;
+						if ((hat.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
+							hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+						} else {
+							torsoFixedHatTopY = Math.max(torsoFixedHatTopY, (float) hat.bounds().y1());
+						}
 					}
 				}
 			}
 
-			if (hatTopY > 0) {
+			if (hatTopY > 0 || torsoFixedHatTopY > 0) {
 				float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
 				float lookAngleMultiplier;
 
 				if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
 					lookAngleMultiplier = 0;
-				} else if (hatFixedToTorso) {
-					lookAngleMultiplier = 1;
 				} else {
 					lookAngleMultiplier = normalizedAngleMultiplier;
 				}
-				stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
+
+				stack.translate(0, Math.max(hatTopY * lookAngleMultiplier, torsoFixedHatTopY)/ 16, 0);
 			}
 		}
 
