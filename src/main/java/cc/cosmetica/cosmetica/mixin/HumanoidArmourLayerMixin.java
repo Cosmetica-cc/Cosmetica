@@ -29,6 +29,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,14 +49,9 @@ public class HumanoidArmourLayerMixin {
 									EquipmentSlot equipmentSlot, int i, HumanoidModel humanoidModel, CallbackInfo info) {
 		if (livingEntity instanceof AbstractClientPlayer) {
 			// Filter out only armour
-			// sike it's just non elytras and non empty to match behaviour elsewhere
-			// this means we can easily treat mod jetpacks like armour (assuming they're not ArmorItem), but we also miss, say, wings->elytra
-			// so perhaps we should just switch to use ArmorItem or make a tag
-			// we also miss say, cosmetic flowers in hair with our broad hat strokes
-			// todo this kind of needs to be revisited to see if we can find a better solution
 			ItemStack itemStack = livingEntity.getItemBySlot(equipmentSlot);
 
-			if (itemStack.isEmpty() || itemStack.is(Items.ELYTRA)) {
+			if (itemStack.isEmpty() || itemStack.getItem() instanceof ElytraItem) {
 				return;
 			}
 

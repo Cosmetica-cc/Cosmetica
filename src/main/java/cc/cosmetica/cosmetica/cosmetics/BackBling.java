@@ -30,6 +30,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.ElytraItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,14 +87,15 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 	public static boolean capeElytraConflict(AbstractClientPlayer player, BakableModel modelData) {
 		// if wearing cape/elytra and show bb w cape is not set
 		boolean cape = player.isCapeLoaded() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null;
-		boolean elytra = player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA);
+		ItemStack inChest = player.getItemBySlot(EquipmentSlot.CHEST);
+		boolean elytra = !inChest.isEmpty() && inChest.getItem() instanceof ElytraItem;
 
 		return (cape || elytra) && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CAPE) == 0;
 	}
 
 	public static boolean chestplateConflict(AbstractClientPlayer player, BakableModel modelData) {
 		// if wearing chestplate and show bb w chestplate is not set
-		boolean nonElytraChestItem = player.hasItemInSlot(EquipmentSlot.CHEST) && !player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA);
+		boolean nonElytraChestItem = player.hasItemInSlot(EquipmentSlot.CHEST) && !(player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ElytraItem);
 		return nonElytraChestItem && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CHESTPLATE) == 0;
 	}
 }
