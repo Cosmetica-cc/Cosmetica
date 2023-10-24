@@ -59,6 +59,12 @@ public class CosmeticaConfig {
             s -> ArmourConflictHandlingMode.valueOf(s.toUpperCase(Locale.ROOT)),
             mode -> mode.toString().toLowerCase(Locale.ROOT)
     );
+    private final Option<ArmourConflictHandlingMode> backBlingElytraConflictMode = new Option<>(
+            "back-bling-elytra-conflict-mode",
+            ArmourConflictHandlingMode.HIDE_COSMETICS,
+            s -> ArmourConflictHandlingMode.valueOf(s.toUpperCase(Locale.ROOT)),
+            mode -> mode.toString().toLowerCase(Locale.ROOT)
+    );
 
     public void initialize() throws IOException {
         load();
@@ -146,6 +152,14 @@ public class CosmeticaConfig {
 
     public void setBackBlingConflictMode(ArmourConflictHandlingMode mode) {
         this.backBlingConflictMode.setValue(mode);
+    }
+
+    public ArmourConflictHandlingMode getBackBlingElytraConflictMode() {
+        return this.backBlingElytraConflictMode.getValue();
+    }
+
+    public void setBackBlingElytraConflictMode(ArmourConflictHandlingMode mode) {
+        this.backBlingElytraConflictMode.setValue(mode);
     }
 
     private class Option<T> {

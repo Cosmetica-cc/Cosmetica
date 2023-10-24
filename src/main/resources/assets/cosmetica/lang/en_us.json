@@ -23,7 +23,8 @@
   "cosmetica.indicators.showWithParrot":  "Shows with Parrot on Shoulder",
 
   "cosmetica.armourMode": "Armor Conflicts",
-  "cosmetica.armourMode.backBlings": "Back Blings: %s",
+  "cosmetica.armourMode.backBlings": "Back Blings/Chestplate: %s",
+  "cosmetica.armourMode.backBlingsElytra": "Back Blings/Elytra: %s",
   "cosmetica.armourMode.hats": "Hats: %s",
   "cosmetica.armourMode.hideCosmetics": "Hide Cosmetics",
   "cosmetica.armourMode.hideArmour": "Hide Armor",

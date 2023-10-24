@@ -35,6 +35,7 @@ public class ArmourConflictModeScreen extends SulphateScreen {
 	protected void addWidgets() {
 		this.addArmourConflictToggle("cosmetica.armourMode.hats", CosmeticaConfig::getHatConflictMode, CosmeticaConfig::setHatConflictMode);
 		this.addArmourConflictToggle("cosmetica.armourMode.backBlings", CosmeticaConfig::getBackBlingConflictMode, CosmeticaConfig::setBackBlingConflictMode);
+		this.addArmourConflictToggle("cosmetica.armourMode.backBlingsElytra", CosmeticaConfig::getBackBlingElytraConflictMode, CosmeticaConfig::setBackBlingElytraConflictMode);
 		this.addDone();
 	}
 

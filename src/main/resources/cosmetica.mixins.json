@@ -5,6 +5,7 @@
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
+    "ElytraLayerMixin",
     "EntityRendererMixin",
     "HumanoidArmourLayerMixin",
     "LivingEntityRendererMixin",

@@ -46,7 +46,7 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 		if (modelData == null) return; // ensure it has a model
 
 		if (capeElytraConflict(player, modelData)) {
-			if (Cosmetica.getConfig().getBackBlingConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
+			if (Cosmetica.getConfig().getBackBlingElytraConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
 				return;
 			}
 		}
