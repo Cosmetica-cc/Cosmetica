@@ -598,7 +598,7 @@ public class Cosmetica implements ClientModInitializer {
 		Optional<Model> backBling = info.getBackBling();
 		Optional<Cape> cloak = info.getCape();
 		String icon = info.getIcon();
-		boolean isSelf = uuid.toString().equals(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
+		boolean isSelf = uuid.equals(Minecraft.getInstance().getUser().getProfileId());
 
 		Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
 		Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
