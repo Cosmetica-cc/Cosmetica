@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> 
         stack.popPose();
     }
 
-    protected boolean canOverridePlayerCosmetics(Player player) {
+    protected static boolean canOverridePlayerCosmetics(Player player) {
         return Minecraft.getInstance().player == null || Minecraft.getInstance().player.getUUID().equals(player.getUUID());
     }
 
