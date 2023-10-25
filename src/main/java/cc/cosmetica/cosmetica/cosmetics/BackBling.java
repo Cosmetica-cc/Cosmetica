@@ -68,7 +68,13 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 		BakableModel modelData = OVERRIDDEN.get(() -> player.getData().backBling());
 
 		if (modelData == null) return; // if it has a model
-		if (player.getData().cape().getImage() != null && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CAPE) == 0) return; // if wearing cape and show bb w cape is not set
+
+		if (Cosmetica.getConfig().getBackBlingElytraConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
+			// if wearing cape and show bb w cape is not set
+			if (player.getData().cape().getImage() != null && (modelData.extraInfo() & Model.SHOW_BACK_BLING_WITH_CAPE) == 0) {
+				return;
+			}
+		}
 
 		stack.pushPose();
 		doCoolRenderThings(modelData, this.getParentModel().body, stack, bufferSource, packedLight, 0, -0.1f - (0.15f/6.0f), 0.1f);
