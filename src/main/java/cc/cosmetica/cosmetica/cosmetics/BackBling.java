@@ -52,7 +52,8 @@ public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, Pl
 				return;
 			}
 		}
-		else if (chestplateConflict(player, modelData)) {
+
+		if (chestplateConflict(player, modelData)) {
 			if (Cosmetica.getConfig().getBackBlingConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS) {
 				return;
 			}
