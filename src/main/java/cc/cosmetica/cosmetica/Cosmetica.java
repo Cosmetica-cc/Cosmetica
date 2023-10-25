@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserInfo;
+import cc.cosmetica.cosmetica.config.ArmourConflictHandlingMode;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.CapeData;
@@ -659,24 +660,31 @@ public class Cosmetica implements ClientModInitializer {
 		// upside down players don't need nametags shifted up
 		if (!upsideDown) {
 			float hatTopY = 0;
+			float torsoFixedHatTopY = 0;
 
 			if (doNametagShift) {
 				for (BakableModel hat : hats) {
-					if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
-						hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+					if (!(config.getHatConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS && (hat.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && wearingHelmet)) {
+						if ((hat.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
+							hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+						} else {
+							torsoFixedHatTopY = Math.max(torsoFixedHatTopY, (float) hat.bounds().y1());
+						}
 					}
 				}
 			}
 
-			if (hatTopY > 0) {
+			if (hatTopY > 0 || torsoFixedHatTopY > 0) {
 				float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
 				float lookAngleMultiplier;
+
 				if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
 					lookAngleMultiplier = 0;
 				} else {
 					lookAngleMultiplier = normalizedAngleMultiplier;
 				}
-				stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
+
+				stack.translate(0, Math.max(hatTopY * lookAngleMultiplier, torsoFixedHatTopY)/ 16, 0);
 			}
 		}
 

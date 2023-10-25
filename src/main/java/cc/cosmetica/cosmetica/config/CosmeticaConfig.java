@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,55 @@
 
 package cc.cosmetica.cosmetica.config;
 
-import cc.cosmetica.api.VersionInfo;
 import cc.cosmetica.cosmetica.Cosmetica;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.function.Function;
 
 public class CosmeticaConfig {
-    private final Path propertiesPath;
-    private boolean showNametagInThirdPerson = true;
-    private boolean showNonVitalUpdateMessages = true;
-    private WelcomeMessageState showWelcomeMessage = WelcomeMessageState.FULL;
-    private boolean addCosmeticaSplashMessage = true;
-    private boolean regionalEffectsPrompt = true;
-    private boolean paranoidHttps = false;
-
     public CosmeticaConfig(Path propertiesPath) {
         this.propertiesPath = propertiesPath;
     }
+
+    private final Path propertiesPath;
+    private final List<Option<?>> options = new ArrayList<>();
+
+    private final Option<Boolean> showNametagInThirdPerson = new Option<>("show-nametag-in-third-person", true, Boolean::parseBoolean);
+    private final Option<Boolean> hideNonVitalUpdateMessages = new Option<>("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me", false, Boolean::parseBoolean);
+    private final Option<WelcomeMessageState> showWelcomeMessage = new Option<>(
+            "show-welcome-message",
+            WelcomeMessageState.FULL,
+            WelcomeMessageState::of,
+            s -> s.toString().toLowerCase(Locale.ROOT)
+    );
+    private final Option<Boolean> addCosmeticaSplashMessage = new Option<>("add-cosmetica-splash-message", true, Boolean::parseBoolean);
+    private final Option<Boolean> regionalEffectsPrompt = new Option<>("regional-effects-prompt", true, Boolean::parseBoolean);
+    private final Option<Boolean> paranoidHttps = new Option<>("paranoid-https", false, Boolean::parseBoolean);
+    private final Option<ArmourConflictHandlingMode> hatConflictMode = new Option<>(
+            "hat-conflict-mode",
+            ArmourConflictHandlingMode.HIDE_COSMETICS,
+            s -> ArmourConflictHandlingMode.valueOf(s.toUpperCase(Locale.ROOT)),
+            mode -> mode.toString().toLowerCase(Locale.ROOT)
+    );
+    private final Option<ArmourConflictHandlingMode> backBlingConflictMode = new Option<>(
+            "back-bling-conflict-mode",
+            ArmourConflictHandlingMode.HIDE_COSMETICS,
+            s -> ArmourConflictHandlingMode.valueOf(s.toUpperCase(Locale.ROOT)),
+            mode -> mode.toString().toLowerCase(Locale.ROOT)
+    );
+    private final Option<ArmourConflictHandlingMode> backBlingElytraConflictMode = new Option<>(
+            "back-bling-elytra-conflict-mode",
+            ArmourConflictHandlingMode.HIDE_COSMETICS,
+            s -> ArmourConflictHandlingMode.valueOf(s.toUpperCase(Locale.ROOT)),
+            mode -> mode.toString().toLowerCase(Locale.ROOT)
+    );
 
     public void initialize() throws IOException {
         load();
@@ -51,24 +78,22 @@ public class CosmeticaConfig {
         }
 
         Properties properties = new Properties();
-        properties.setProperty("show-nametag-in-third-person", "true"); // default
-        properties.setProperty("show-welcome-message", "full"); // default 2: electric boogaloo
-        properties.setProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me", "false"); // default 3: the return of the king
-        properties.setProperty("add-cosmetica-splash-message", "true");
-        properties.setProperty("regional-effects-prompt", "true");
-        properties.setProperty("paranoid-https", "false");
 
+        // add defaults
+        for (Option<?> option : this.options) {
+            properties.setProperty(option.getName(), option.getSerialisedValue());
+        }
+
+        // load properties
         properties.load(Files.newInputStream(propertiesPath));
-        showNametagInThirdPerson    =  Boolean.parseBoolean(properties.getProperty("show-nametag-in-third-person"));
-        showWelcomeMessage =  WelcomeMessageState.of(properties.getProperty("show-welcome-message"));
-        showNonVitalUpdateMessages  = !Boolean.parseBoolean(properties.getProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me"));
-        addCosmeticaSplashMessage   =  Boolean.parseBoolean(properties.getProperty("add-cosmetica-splash-message"));
-        regionalEffectsPrompt       =  Boolean.parseBoolean(properties.getProperty("regional-effects-prompt"));
-        paranoidHttps               =  Boolean.parseBoolean(properties.getProperty("paranoid-https"));
+
+        for (Option<?> option : this.options) {
+            option.loadValue(properties.getProperty(option.getName()));
+        }
 
         // update paranoid https status on existing API instance, if one exists
         if (Cosmetica.api != null) {
-            Cosmetica.api.setForceHttps(paranoidHttps);
+            Cosmetica.api.setForceHttps(paranoidHttps.getValue());
         }
     }
 
@@ -77,88 +102,102 @@ public class CosmeticaConfig {
         if (!parentDir.exists()) parentDir.mkdir();
 
         Properties properties = new Properties();
-        properties.setProperty("show-nametag-in-third-person", String.valueOf(showNametagInThirdPerson));
-        properties.setProperty("show-welcome-message", String.valueOf(showWelcomeMessage).toLowerCase(Locale.ROOT));
-        properties.setProperty("honestly-believe-me-i-know-what-the-heck-i-am-doing-trust-me-bro-ask-joe-if-you-dont-believe-me", String.valueOf(!showNonVitalUpdateMessages));
-        properties.setProperty("add-cosmetica-splash-message", String.valueOf(addCosmeticaSplashMessage));
-        properties.setProperty("regional-effects-prompt", String.valueOf(regionalEffectsPrompt));
-        properties.setProperty("paranoid-https", String.valueOf(paranoidHttps));
+
+        for (Option<?> option : options) {
+            properties.setProperty(option.getName(), option.getSerialisedValue());
+        }
+
         properties.store(Files.newOutputStream(propertiesPath), "Cosmetica Config");
     }
 
     public boolean shouldShowNametagInThirdPerson() {
-        return showNametagInThirdPerson;
+        return showNametagInThirdPerson.getValue();
     }
 
     public void setShowNametagInThirdPerson(boolean showNametagInThirdPerson) {
-        this.showNametagInThirdPerson = showNametagInThirdPerson;
+        this.showNametagInThirdPerson.setValue(showNametagInThirdPerson);
     }
 
     public WelcomeMessageState showWelcomeMessage() {
-        return showWelcomeMessage;
+        return showWelcomeMessage.getValue();
     }
 
     public boolean shouldShowNonVitalUpdateMessages() {
-        return showNonVitalUpdateMessages;
+        return !hideNonVitalUpdateMessages.getValue();
     }
 
     public boolean shouldAddCosmeticaSplashMessage() {
-        return addCosmeticaSplashMessage;
+        return addCosmeticaSplashMessage.getValue();
     }
 
     public boolean regionalEffectsPrompt() {
-        return regionalEffectsPrompt;
+        return regionalEffectsPrompt.getValue();
     }
 
     public boolean paranoidHttps() {
-        return paranoidHttps;
+        return paranoidHttps.getValue();
     }
 
-    public enum WelcomeMessageState {
-        FULL,
-        SCREEN_ONLY,
-        CHAT_ONLY,
-        OFF;
+    public ArmourConflictHandlingMode getHatConflictMode() {
+        return this.hatConflictMode.getValue();
+    }
 
-        /**
-         * Get whether a chat message for welcome should be shown.
-         * @param welcomeScreenAllowed whether the welcome screen should be allowed. Generally {@link VersionInfo#megaInvasiveTutorial()} {@code && newPlayer}
-         * @return whether the welcome chat message should be shown.
-         */
-        public boolean shouldShowChatMessage(boolean welcomeScreenAllowed) {
-            return this == CHAT_ONLY || (this == FULL && !welcomeScreenAllowed);
+    public void setHatConflictMode(ArmourConflictHandlingMode mode) {
+        this.hatConflictMode.setValue(mode);
+    }
+
+    public ArmourConflictHandlingMode getBackBlingConflictMode() {
+        return this.backBlingConflictMode.getValue();
+    }
+
+    public void setBackBlingConflictMode(ArmourConflictHandlingMode mode) {
+        this.backBlingConflictMode.setValue(mode);
+    }
+
+    public ArmourConflictHandlingMode getBackBlingElytraConflictMode() {
+        return this.backBlingElytraConflictMode.getValue();
+    }
+
+    public void setBackBlingElytraConflictMode(ArmourConflictHandlingMode mode) {
+        this.backBlingElytraConflictMode.setValue(mode);
+    }
+
+    private class Option<T> {
+        Option(String name, T defaultValue, Function<String, T> deserialiser) {
+            this(name, defaultValue, deserialiser, String::valueOf);
         }
 
-        /**
-         * Get whether the welcome tutorial should be shown.
-         * @param welcomeScreenAllowed whether the welcome screen should be allowed. Generally {@link VersionInfo#megaInvasiveTutorial()} {@code && newPlayer}
-         * @return whether the welcome tutorial should be shown.
-         */
-        public boolean shouldShowWelcomeTutorial(boolean welcomeScreenAllowed) {
-            return welcomeScreenAllowed && (this == FULL || this == SCREEN_ONLY);
+        Option(String name, T defaultValue, Function<String, T> deserialiser, Function<T, String> serialiser) {
+            this.name = name;
+            this.value = defaultValue;
+            this.deserialiser = deserialiser;
+            this.serialiser = serialiser;
+            CosmeticaConfig.this.options.add(this);
         }
 
-        public static WelcomeMessageState of(String string) {
-            switch (string.toUpperCase(Locale.ROOT)) {
-            case "FULL":
-            case "TRUE":
-            case "ON":
-            default:
-                return FULL;
-            case "SCREEN_ONLY":
-            case "SCREENONLY":
-            case "SCREEN ONLY":
-            case "SCREEN-ONLY":
-                return SCREEN_ONLY;
-            case "CHAT_ONLY":
-            case "CHATONLY":
-            case "CHAT ONLY":
-            case "CHAT-ONLY":
-                return CHAT_ONLY;
-            case "OFF":
-            case "FALSE":
-                return OFF;
-            }
+        private final String name;
+        private final Function<String, T> deserialiser;
+        private final Function<T, String> serialiser;
+        private T value;
+
+        public String getName() {
+            return this.name;
+        }
+
+        public T getValue() {
+            return this.value;
+        }
+
+        public String getSerialisedValue() {
+            return this.serialiser.apply(this.value);
+        }
+
+        public void loadValue(String serialisedForm) {
+            this.value = this.deserialiser.apply(serialisedForm);
+        }
+
+        public void setValue(T value) {
+            this.value = value;
         }
     }
 }
