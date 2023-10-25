@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.ClassicButton;
 import benzenestudios.sulphate.SulphateScreen;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.config.ArmourConflictHandlingMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -37,6 +38,7 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 		this.newOptions = new ServerOptions(this.oldOptions);
 
 		this.setAnchorY(Anchor.TOP, () -> this.height / 6);
+		this.setAnchorX(Anchor.LEFT, () -> this.width/2 - 150 - this.getXSeparation()/2);
 		this.setRows(2);
 	}
 
@@ -91,17 +93,22 @@ public class CosmeticaSettingsScreen extends SulphateScreen {
 			button.setMessage(generateButtonToggleText("cosmetica.doBackBlings", this.newOptions.backBlings.get()));
 		});
 
-		this.addButton(TextComponents.translatable("cosmetica.icons"), button ->
-				this.minecraft.setScreen(new IconSettingsScreen(this, this.newOptions))
-		);
-
 		this.addButton(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()), (button) -> {
 			this.newOptions.onlineActivity.toggle();
 			button.setMessage(generateButtonToggleText("cosmetica.hideOnlineActivity", !this.newOptions.onlineActivity.get()));
 		});
 
+		this.addButton(TextComponents.translatable("cosmetica.icons"), button ->
+				this.minecraft.setScreen(new IconSettingsScreen(this, this.newOptions))
+		);
+
+		this.addButton(TextComponents.translatable("cosmetica.armourMode"), button ->
+				this.minecraft.setScreen(new ArmourConflictModeScreen(this))
+		);
+
 		// when done, update settings
-		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, this.height / 6 + 24 * 4 + 12, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+		this.addRenderableWidget(new ClassicButton(this.width / 2 - 100, this.height / 6 + 24 * 5 + 12, 200, 20, CommonComponents.GUI_DONE, (button) -> {
+
 			try {
 				if (this.parentScreen instanceof MainScreen main) {
 					main.setCosmeticaOptions(this.newOptions);
