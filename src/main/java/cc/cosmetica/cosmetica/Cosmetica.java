@@ -763,17 +763,17 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void renderTexture(Matrix4f matrix4f, ResourceLocation texture, int x0, int x1, int y0, int y1, int z, float transparency) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 		RenderSystem.setShaderTexture(0, texture);
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, transparency);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, (float)z).uv(0, 1).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).uv(1, 1).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, (float)z).uv(1, 0).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, (float)z).uv(0, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, (float)z).uv(0, 1).color(1.0f, 1.0f, 1.0f, transparency).endVertex();
+		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).uv(1, 1).color(1.0f, 1.0f, 1.0f, transparency).endVertex();
+		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, (float)z).uv(1, 0).color(1.0f, 1.0f, 1.0f, transparency).endVertex();
+		bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, (float)z).uv(0, 0).color(1.0f, 1.0f, 1.0f, transparency).endVertex();
 
 		BufferUploader.drawWithShader(bufferBuilder.end());
 	}
