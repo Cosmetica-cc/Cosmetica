@@ -39,6 +39,13 @@ pause
 git push
 @echo off
 echo ==============================
+@echo on
+git checkout 1.20.2
+git merge 1.20
+pause
+git push
+@echo off
+echo ==============================
 echo BACKPORTS
 @echo on
 git checkout 1.18.1
