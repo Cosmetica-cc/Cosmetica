@@ -16,16 +16,12 @@
 
 package cc.cosmetica.cosmetica.mixin.textures;
 
-import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.CosmeticaSkinManager;
-import cc.cosmetica.cosmetica.cosmetics.CapeData;
-import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.cosmetics.CosmeticaCapes;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
@@ -42,37 +38,23 @@ import java.lang.ref.WeakReference;
 public abstract class AbstractClientPlayerMixin extends Player {
 	public AbstractClientPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
 		super(level, blockPos, f, gameProfile);
+		this.capeManager = new CosmeticaCapes(this);
 	}
 
-	@Shadow protected abstract @Nullable PlayerInfo getPlayerInfo();
+	@Shadow
+	protected abstract @Nullable PlayerInfo getPlayerInfo();
 
-	// avoid allocating memory every time getSkin is called!
-	@Unique private WeakReference<@Nullable PlayerSkin> cosmetica_cachedOldPlayerSkin = new WeakReference<>(null);
+	@Unique
+	private final CosmeticaCapes capeManager;
 
-	@Inject(at = @At("HEAD"), method = "getSkin", cancellable = true)
+	@Inject(at = @At("RETURN"), method = "getSkin", cancellable = true)
 	private void addCosmeticaCapes(CallbackInfoReturnable<PlayerSkin> info) {
 		if (info.getReturnValue() != null) {
 			GameProfile profile = this.getPlayerInfo().getProfile();
+			@Nullable PlayerSkin modified = this.capeManager.addCosmeticaCapes(profile, info.getReturnValue());
 
-			if (!Cosmetica.isProbablyNPC(profile.getId())) { // ignore npcs
-				if (!PlayerData.has(profile.getId()))
-					return;
-
-				CapeData cape = PlayerData.get(this).cape();
-				ResourceLocation location = cape.getImage(); // get the location if cached
-				if (location != null && !CosmeticaSkinManager.isUploaded(location))
-					location = null; // only actually get it if it's been uploaded
-
-				if (location != null) {
-					@Nullable PlayerSkin cached = this.cosmetica_cachedOldPlayerSkin.get();
-
-					if (cached != info.getReturnValue()) {
-						this.cosmetica_cachedOldPlayerSkin = new WeakReference<>(cached);
-						cape.clearSkinCache();
-					}
-
-					info.setReturnValue(cape.getSkin(info.getReturnValue()));
-				}
+			if (modified != null) {
+				info.setReturnValue(modified);
 			}
 		}
 	}
