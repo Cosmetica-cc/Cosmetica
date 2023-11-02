@@ -38,14 +38,13 @@ import java.lang.ref.WeakReference;
 public abstract class AbstractClientPlayerMixin extends Player {
 	public AbstractClientPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
 		super(level, blockPos, f, gameProfile);
-		this.capeManager = new CosmeticaCapes(this);
 	}
 
 	@Shadow
 	protected abstract @Nullable PlayerInfo getPlayerInfo();
 
 	@Unique
-	private final CosmeticaCapes capeManager;
+	private final CosmeticaCapes capeManager = new CosmeticaCapes(this);
 
 	@Inject(at = @At("RETURN"), method = "getSkin", cancellable = true)
 	private void addCosmeticaCapes(CallbackInfoReturnable<PlayerSkin> info) {

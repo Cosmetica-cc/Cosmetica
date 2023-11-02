@@ -56,7 +56,6 @@ public final class CosmeticaCapes {
 					cachedVanillaSkin = new WeakReference<>(cached);
 					cape.clearSkinCache();
 				}
-				System.out.println("returning cape skin");
 
 				return cape.getSkin(vanillaSkin);
 			}
