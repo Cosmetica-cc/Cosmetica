@@ -55,6 +55,7 @@ import java.util.function.Supplier;
  */
 public class DebugMode {
 	public static final boolean ENABLED = FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("cosmetica.debug");
+	private static final boolean EXTRA_LOGGING = Boolean.getBoolean("cosmetica.extraLogging");
 
 	private static final File CONFIG_DIR;
 	private static final File DEBUG_SETTINGS;
@@ -71,7 +72,7 @@ public class DebugMode {
 	private static final Set<String> warnedAbout = new HashSet<>();
 
 	public static void complainOnce(String key, String str, Object... objects) {
-		if (ENABLED && debugSettings.elevateDebugLogging && !complainedAbout.contains(key)) {
+		if (elevatedLogging() && !complainedAbout.contains(key)) {
 			complainedAbout.add(key);
 			DEBUG_LOGGER.info("[COMPLAINT] " + str, objects);
 		}
@@ -86,7 +87,7 @@ public class DebugMode {
 	}
 
 	public static void log(String str, Object... objects) {
-		if (ENABLED && debugSettings.elevateDebugLogging) {
+		if (elevatedLogging()) {
 			DEBUG_LOGGER.info(str, objects);
 		}
 		else {
@@ -95,7 +96,7 @@ public class DebugMode {
 	}
 
 	public static void logError(String message, Exception e) {
-		if (ENABLED && debugSettings.elevateDebugLogging) {
+		if (elevatedLogging()) {
 			DEBUG_LOGGER.info(message, e);
 		}
 		else {
@@ -104,13 +105,13 @@ public class DebugMode {
 	}
 
 	public static void logURL(String str) {
-		if (ENABLED && debugSettings.logURLs) {
+		if (urlLogging()) {
 			DEBUG_LOGGER.info(str);
 		}
 	}
 
 	public static void log(Supplier<String> str) {
-		if (ENABLED && debugSettings.elevateDebugLogging) {
+		if (elevatedLogging()) {
 			DEBUG_LOGGER.info(str.get());
 		}
 		else {
@@ -127,7 +128,11 @@ public class DebugMode {
 	}
 
 	public static boolean elevatedLogging() {
-		return ENABLED && debugSettings.elevateDebugLogging;
+		return EXTRA_LOGGING || (ENABLED && debugSettings.elevateDebugLogging);
+	}
+
+	private static boolean urlLogging() {
+		return EXTRA_LOGGING || (ENABLED && debugSettings.logURLs);
 	}
 
 	public static boolean forceRSEScreen() {

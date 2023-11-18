@@ -40,6 +40,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -94,7 +95,9 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 
 				this.model = new PlayerModel<>(context.bakeLayer(this.data.slim() ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), this.data.slim());
 			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
+				if (!e.getMessage().toUpperCase(Locale.ROOT).contains("NO MODEL FOR LAYER")) {
+					e.printStackTrace();
+				}
 				return false;
 			}
 		}
