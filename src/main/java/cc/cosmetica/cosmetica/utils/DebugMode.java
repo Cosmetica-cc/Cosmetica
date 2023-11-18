@@ -295,6 +295,7 @@ public class DebugMode {
 
 		if (ENABLED) {
 			CONFIG_DIR.mkdirs();
+			DEBUG_LOGGER.info("Debug Mode Enabled.");
 
 			// create file if not exists. replenish with default config settings
 			try {
