@@ -130,6 +130,10 @@ public class DebugMode {
 		return ENABLED && debugSettings.elevateDebugLogging;
 	}
 
+	public static boolean forceRSEScreen() {
+		return ENABLED && debugSettings.forceRseScreen;
+	}
+
 	/**
 	 * Dump images to the image dump folder.
 	 * These images will be cleared on the next run.

@@ -59,8 +59,10 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("HEAD"), method = "setScreen", cancellable = true)
 	private void addRegionSpecificEffectsPrompt(Screen screen, CallbackInfo info) {
+		boolean shouldShowRSEScreen = RSEWarningScreen.appearNextScreenChange || (DebugMode.forceRSEScreen() && !RSEWarningScreen.hasShown());
+
 		// if the RSE warning screen should appear cancel the current screen set in favour of a wrapper thereof
-		if (RSEWarningScreen.appearNextScreenChange && !WelcomeScreen.isInTutorial) {
+		if (shouldShowRSEScreen && !WelcomeScreen.isInTutorial) {
 			RSEWarningScreen.appearNextScreenChange = false;
 			this.setScreen(new RSEWarningScreen(screen));
 			info.cancel();
