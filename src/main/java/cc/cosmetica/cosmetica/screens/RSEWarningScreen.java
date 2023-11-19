@@ -22,6 +22,7 @@ import cc.cosmetica.cosmetica.cosmetics.CapeData;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
+import cc.cosmetica.cosmetica.utils.ExtendedTitleScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,6 +31,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -42,6 +44,10 @@ public class RSEWarningScreen extends ModernScreen {
 		super(TextComponents.translatable("cosmetica.rsewarning.title"));
 		this.parent = parent;
 		hasShown = true;
+
+		if (parent instanceof TitleScreen) {
+			((ExtendedTitleScreen) parent).setFlashbang(false);
+		}
 	}
 
 	@Nullable

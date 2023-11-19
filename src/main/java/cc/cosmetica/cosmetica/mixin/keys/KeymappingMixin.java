@@ -36,9 +36,6 @@ public class KeymappingMixin {
 	@Final
 	private static Map<String, Integer> CATEGORY_SORT_ORDER;
 
-	@Shadow @Final
-	public static String CATEGORY_MISC;
-
 	@Inject(at = @At("RETURN"), method = "click")
 	private static void onClick(InputConstants.Key key, CallbackInfo ci) {
 		SpecialKeyMapping.click(key);
