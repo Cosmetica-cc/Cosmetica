@@ -56,6 +56,7 @@ import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -257,7 +258,9 @@ public class Authentication {
 		try (Response response = Response.get(method + "://api.cosmetica.cc/get/userdata?uuid=" + currentUser.getUuid())) {
 			JsonObject json = response.getAsJson();
 
-			if (!json.has("username") || currentUser.getName().equals(json.get("username").getAsString())) {
+			// if uuid doesn't have an associated username, or the actual username is different, it 100% has to be cracked
+			// todo detect offline play under a valid account as well
+			if (!json.has("username") || !currentUser.getName().equals(json.get("username").getAsString())) {
 				return new UnauthenticatedScreen.UnauthenticatedReason(
 						UnauthenticatedScreen.UnauthenticatedReason.CRACKED,
 						null //exception not relevant as it's not part of the diagnosis
@@ -300,9 +303,9 @@ public class Authentication {
 			);
 		}
 
-		// or exception is ConnectException (reset, timed out, or refused.)
+		// or exception is SocketException (includes ConnectException) (reset, timed out, or refused.)
 		// "Connection refused" is most likely a server issue but could also be due to a firewall
-		if (exception instanceof ConnectException) {
+		if (exception instanceof SocketException) {
 			return new UnauthenticatedScreen.UnauthenticatedReason(
 					UnauthenticatedScreen.UnauthenticatedReason.CONNECTION_ISSUE,
 					exception

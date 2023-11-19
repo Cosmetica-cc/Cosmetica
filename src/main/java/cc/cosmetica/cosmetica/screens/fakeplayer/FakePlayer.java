@@ -39,22 +39,13 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 // Fake player in a normal pose except for the fact that the main arm can be raised.
 public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>, Playerish {
 	public FakePlayer(Minecraft minecraft, UUID uuid, String name, PlayerData data) {
-		final boolean slim = data.slim();
-		var context = new EntityRendererProvider.Context(
-				minecraft.getEntityRenderDispatcher(),
-				minecraft.getItemRenderer(),
-				minecraft.getBlockRenderer(),
-				minecraft.gameRenderer.itemInHandRenderer,
-				minecraft.getResourceManager(),
-				minecraft.getEntityModels(),
-				minecraft.font);
-		this.model = new PlayerModel<>(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
-
 		this.data = data;
 		this.uuid = uuid;
 		this.name = name;
@@ -64,10 +55,12 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 		this.layers.add(new Hats<>(this));
 		this.layers.add(new ShoulderBuddies<>(this, Minecraft.getInstance().getEntityModels()));
 		this.layers.add(new BackBling<>(this));
+
+		// initialise model
+		this.verifyModel(minecraft);
 	}
 
-	private final PlayerModel<AbstractClientPlayer> model;
-	private static PlayerModel<AbstractClientPlayer> models;
+	@Nullable private PlayerModel<AbstractClientPlayer> model;
 	private PlayerData data;
 	private final List<MenuRenderLayer> layers = new LinkedList<>();
 
@@ -83,6 +76,36 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	public float yRot;
 	public float yRotHead;
 	public int tickCount = 0;
+
+	/**
+	 * Verify this fake player has a loaded model. Will try load one if it doesn't.
+	 * @param minecraft minecraft.
+	 * @return whether this fake player has a model.
+	 */
+	public boolean verifyModel(Minecraft minecraft) {
+		if (this.model == null) {
+			try {
+				final boolean slim = data.slim();
+				var context = new EntityRendererProvider.Context(
+						minecraft.getEntityRenderDispatcher(),
+						minecraft.getItemRenderer(),
+						minecraft.getBlockRenderer(),
+						minecraft.gameRenderer.itemInHandRenderer,
+						minecraft.getResourceManager(),
+						minecraft.getEntityModels(),
+						minecraft.font);
+
+				this.model = new PlayerModel<>(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
+			} catch (IllegalArgumentException e) {
+				if (!e.getMessage().toUpperCase(Locale.ROOT).contains("NO MODEL FOR LAYER")) {
+					e.printStackTrace();
+				}
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	@Override
 	public Vec3 getVelocity() {
@@ -170,7 +193,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	@Override
-	public PlayerModel<AbstractClientPlayer> getModel() {
+	public @org.jetbrains.annotations.Nullable PlayerModel<AbstractClientPlayer> getModel() {
 		return this.model;
 	}
 
