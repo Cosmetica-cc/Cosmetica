@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.mixin;
 import cc.cosmetica.api.User;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.CosmeticaKeybinds;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.screens.*;
 import cc.cosmetica.cosmetica.utils.DebugMode;
@@ -92,7 +93,7 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("RETURN"), method = "tick")
 	public void afterTick(CallbackInfo ci) {
-		if (Cosmetica.openCustomiseScreen.consumeClick()) {
+		if (CosmeticaKeybinds.openCustomiseScreen.consumeClick()) {
 			if (this.screen == null && this.player != null) {
 				if (Authentication.hasCachedOptions()  && PlayerData.has(this.player.getUUID())) {
 					Authentication.openCustomiseCosmeticsScreen(null, PlayerData.getCached(this.player.getUUID()));
@@ -105,7 +106,7 @@ public abstract class MinecraftMixin {
 			}
 		}
 
-		if (Cosmetica.snipe.consumeClick() && this.screen == null && Cosmetica.farPickPlayer != null) {
+		if (CosmeticaKeybinds.snipe.consumeClick() && this.screen == null && Cosmetica.farPickPlayer != null) {
 			DebugMode.log("Sniping Player: " + Cosmetica.farPickPlayer.getUUID());
 			Authentication.snipedPlayer = new User(Cosmetica.farPickPlayer.getUUID(), Cosmetica.farPickPlayer.getName().getString());
 
