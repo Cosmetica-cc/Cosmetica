@@ -48,8 +48,10 @@ public abstract class AbstractClientPlayerMixin extends Player {
 
 	@Inject(at = @At("RETURN"), method = "getSkin", cancellable = true)
 	private void addCosmeticaCapes(CallbackInfoReturnable<PlayerSkin> info) {
-		if (info.getReturnValue() != null) {
-			GameProfile profile = this.getPlayerInfo().getProfile();
+		@Nullable PlayerInfo playerInfo = this.getPlayerInfo();
+
+		if (playerInfo != null) {
+			GameProfile profile = playerInfo.getProfile();
 			@Nullable PlayerSkin modified = this.capeManager.addCosmeticaCapes(profile, info.getReturnValue());
 
 			if (modified != null) {
