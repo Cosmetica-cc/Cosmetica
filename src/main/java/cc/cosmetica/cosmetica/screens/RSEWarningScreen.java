@@ -46,6 +46,7 @@ public class RSEWarningScreen extends Screen {
 	public RSEWarningScreen(@Nullable Screen parent) {
 		super(TextComponents.translatable("cosmetica.rsewarning.title"));
 		this.parent = parent;
+		hasShown = true;
 	}
 
 	@Nullable
@@ -140,7 +141,12 @@ public class RSEWarningScreen extends Screen {
 		PlayerRenderScreen.renderFakePlayerInMenu(this.width - characterOffset, characterY, 20.0f, this.width - characterOffset - mouseX, characterY - 90 - mouseY, this.persian);
 	}
 
+	public static boolean hasShown() {
+		return hasShown;
+	}
+
 	// only set this true if we are online
 	public static boolean appearNextScreenChange = false;
+	private static boolean hasShown = false;
 	private static int bottomTextOffset = 24;
 }
