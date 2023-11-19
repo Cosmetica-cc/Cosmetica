@@ -128,8 +128,6 @@ public class Cosmetica implements ClientModInitializer {
 	public static Component displayNext;
 
 	public static String currentServerAddressCache = "";
-	public static KeyMapping openCustomiseScreen;
-	public static KeyMapping snipe;
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
 
@@ -289,8 +287,7 @@ public class Cosmetica implements ClientModInitializer {
 
 		if (Files.isDirectory(minecraftDir)) {
 			cacheDirectory = minecraftDir.resolve(".cosmetica");
-		}
-		else {
+		} else {
 			cacheDirectory = FabricLoader.getInstance().getGameDir().resolve(".cosmetica");
 		}
 
@@ -311,22 +308,6 @@ public class Cosmetica implements ClientModInitializer {
 				throw new RuntimeException("Error creating cache directory", e);
 			}
 		}
-	}
-
-	public static void registerKeyMappings(List<KeyMapping> keymappings) {
-		keymappings.add(openCustomiseScreen = new SpecialKeyMapping(
-				"key.cosmetica.customise",
-				InputConstants.Type.KEYSYM,
-				GLFW.GLFW_KEY_RIGHT_SHIFT, // not bound by default
-				"key.categories.misc"
-		));
-
-		keymappings.add(snipe = new SpecialKeyMapping(
-				"key.cosmetica.snipe",
-				InputConstants.Type.MOUSE,
-				GLFW.GLFW_MOUSE_BUTTON_MIDDLE, // not bound by default
-				"key.categories.misc"
-		));
 	}
 
 	public static boolean isProbablyNPC(UUID uuid) {

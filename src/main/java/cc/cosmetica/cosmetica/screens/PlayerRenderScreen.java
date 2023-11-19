@@ -225,7 +225,9 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
 		RenderSystem.runAsFancy(() -> {
-			FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+			if (fakePlayer.verifyModel(Minecraft.getInstance())) {
+				FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+			}
 		});
 		bufferSource.endBatch();
 

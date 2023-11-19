@@ -22,6 +22,7 @@ import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.cosmetica.cosmetics.BackBling;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Option;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -37,6 +38,8 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 // Fake player in a normal pose except for the fact that the main arm can be raised.
@@ -54,10 +57,12 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 		this.layers.add(new Hats<>(this));
 		this.layers.add(new ShoulderBuddies<>(this));
 		this.layers.add(new BackBling<>(this));
+
+		// initialise model
+		this.verifyModel(minecraft);
 	}
 
-	private final PlayerModel<AbstractClientPlayer> model;
-	private static PlayerModel<AbstractClientPlayer> models;
+	@Nullable private PlayerModel<AbstractClientPlayer> model;
 	private PlayerData data;
 	private final List<MenuRenderLayer> layers = new LinkedList<>();
 
@@ -73,6 +78,16 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	public float yRot;
 	public float yRotHead;
 	public int tickCount = 0;
+
+	/**
+	 * Verify this fake player has a loaded model. Will try load one if it doesn't.
+	 * @param minecraft minecraft.
+	 * @return whether this fake player has a model.
+	 */
+	public boolean verifyModel(Minecraft minecraft) {
+		// not relevant for 1.16.5 due to major differences in how the code works.
+		return true;
+	}
 
 	@Override
 	public Vec3 getVelocity() {
@@ -160,7 +175,7 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	@Override
-	public PlayerModel<AbstractClientPlayer> getModel() {
+	public @org.jetbrains.annotations.Nullable PlayerModel<AbstractClientPlayer> getModel() {
 		return this.model;
 	}
 
