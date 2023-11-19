@@ -16,10 +16,13 @@
 
 package cc.cosmetica.cosmetica.mixin.keys;
 
+import cc.cosmetica.cosmetica.CosmeticaKeybinds;
 import cc.cosmetica.cosmetica.utils.SpecialKeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -29,6 +32,13 @@ import java.util.Map;
 
 @Mixin(KeyMapping.class)
 public class KeymappingMixin {
+	@Shadow
+	@Final
+	private static Map<String, Integer> CATEGORY_SORT_ORDER;
+
+	@Shadow @Final
+	public static String CATEGORY_MISC;
+
 	@Inject(at = @At("RETURN"), method = "click")
 	private static void onClick(InputConstants.Key key, CallbackInfo ci) {
 		SpecialKeyMapping.click(key);
@@ -47,5 +57,15 @@ public class KeymappingMixin {
 	@Redirect(at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"), method = "resetMapping")
 	private static Object set(Map map, Object key, Object keyMapping) {
 		return (key instanceof InputConstants.Key k && keyMapping instanceof SpecialKeyMapping spkm) ? SpecialKeyMapping.putMapping(k, spkm) : map.put(key, keyMapping);
+	}
+
+	@Inject(at = @At("RETURN"), method = "<clinit>")
+	private static void onClInit(CallbackInfo ci) {
+		// To put cosmetica above misc
+		//CATEGORY_SORT_ORDER.put(CosmeticaKeybinds.COSMETICA_CATEGORY, CATEGORY_SORT_ORDER.size());
+		//CATEGORY_SORT_ORDER.replace(CATEGORY_MISC, CATEGORY_SORT_ORDER.size());
+
+		// To put cosmetica below misc
+		CATEGORY_SORT_ORDER.put(CosmeticaKeybinds.COSMETICA_CATEGORY, CATEGORY_SORT_ORDER.size() + 1);
 	}
 }

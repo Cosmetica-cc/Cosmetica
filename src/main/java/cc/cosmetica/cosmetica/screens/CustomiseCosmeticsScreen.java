@@ -51,7 +51,7 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 	@Override
 	protected <T extends CustomCosmetic, E> ViewCosmeticsScreen.Section createActiveSection(String title, List<String> items, @Nullable CosmeticType<T> type, @Nullable CosmeticStack<E> stack) {
 		Button.OnPress onChange = type == null ? b -> this.minecraft.setScreen(new SelectLoreScreen(this, items.isEmpty() ? "" : items.get(0))) :
-				b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, type, stack));
+				b -> this.minecraft.setScreen(new BrowseCosmeticsScreen<>(this, type, stack));
 		Div section = Div.create(title);
 		Component headerText = TextComponents.translatable("cosmetica.entry." + title.replace(" ", ""));
 

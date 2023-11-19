@@ -110,6 +110,7 @@
   "cosmetica.welcome.header": "Welcome to Cosmetica!",
   "cosmetica.welcome.continue": "Let's Get Started!",
   "cosmetica.debugCosmetica.disable": "Disabled debug cosmetics.",
+  "key.categories.cosmetica": "Cosmetica",
   "key.cosmetica.customise": "Customise Cosmetics",
   "key.cosmetica.snipe": "Cosmetics Sniper"
 }
