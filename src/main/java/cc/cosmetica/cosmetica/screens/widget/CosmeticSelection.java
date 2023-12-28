@@ -94,8 +94,8 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 	@Override
 	protected void renderSelection(GuiGraphics poseStack, int y0, int j, int dy, int colour1, int colour2) {
-		int x0 = this.x0 + (this.width - j) / 2 + OFFSET_X;
-		int x1 = this.x0 + (this.width + j) / 2;
+		int x0 = this.getX() + (this.width - j) / 2 + OFFSET_X;
+		int x1 = this.getX() + (this.width + j) / 2;
 
 		// TODO is this the correct render type
 		poseStack.fill(RenderType.gui(), x0, y0 - 2, x1, y0 + dy + 2, colour1);
@@ -199,7 +199,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int i) {
-			if (mouseX >= CosmeticSelection.this.x0 + CosmeticSelection.this.width / 2 - CosmeticSelection.this.getRowWidth() / 2 + OFFSET_X) {
+			if (mouseX >= CosmeticSelection.this.getX() + CosmeticSelection.this.width / 2 - CosmeticSelection.this.getRowWidth() / 2 + OFFSET_X) {
 				return super.mouseClicked(mouseX, mouseY, i);
 			} else {
 				return false;

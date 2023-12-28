@@ -36,7 +36,7 @@ import java.util.function.Consumer;
 
 public class ButtonList extends ContainerObjectSelectionList<ButtonList.Entry> {
 	public ButtonList(Minecraft minecraft, Screen parent, int spacing) {
-		super(minecraft, parent.width, parent.height, 32, parent.height - 32, spacing);
+		super(minecraft, parent.width, parent.height, 32, spacing);
 		this.parent = parent;
 	}
 

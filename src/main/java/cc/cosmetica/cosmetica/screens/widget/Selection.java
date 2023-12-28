@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 
 abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionList<T> {
 	Selection(Minecraft minecraft, Screen parent, Font font, int floorOffset, int ceilOffset, int elementHeight, Consumer<String> onSelect) {
-		super(minecraft, parent.width, parent.height, 32 + ceilOffset, parent.height - 65 + 4 + floorOffset, elementHeight);
+		super(minecraft, parent.width, parent.height, 32 + ceilOffset, elementHeight);
 
 		this.parent = parent;
 		this.font = font;
