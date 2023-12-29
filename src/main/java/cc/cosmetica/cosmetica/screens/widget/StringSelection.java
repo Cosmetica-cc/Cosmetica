@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 
 public class StringSelection extends Selection<StringSelection.Entry> {
 	public StringSelection(Minecraft minecraft, Screen parent, Font font, Consumer<String> onSelect) {
-		super(minecraft, parent, font, 0, 0, 18, onSelect);
+		super(minecraft, parent, font, 64, 0, 18, onSelect);
 	}
 
 	private Map<String, StringSelection.Entry> entries = new HashMap<>();

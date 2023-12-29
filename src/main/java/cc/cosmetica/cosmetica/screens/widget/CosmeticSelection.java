@@ -43,7 +43,7 @@ import java.util.function.Consumer;
 
 public class CosmeticSelection<T extends CustomCosmetic> extends Selection<CosmeticSelection<T>.Entry> {
 	public CosmeticSelection(Minecraft minecraft, Screen parent, String cosmeticType, Font font, Consumer<String> onSelect) {
-		super(minecraft, parent, font, 0, 25, 60, onSelect);
+		super(minecraft, parent, font, 64, 25, 60, onSelect);
 		this.cosmeticType = cosmeticType;
 	}
 
