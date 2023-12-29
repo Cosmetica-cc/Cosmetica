@@ -148,12 +148,12 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 	}
 
 	public void render(GuiGraphics poseStack, int i, int j, float f) {
-		this.renderBackground(poseStack, i, j, f);
+		super.render(poseStack, i, j, f);
+
 		int x = this.width / 2;
 		int y = this.height / 2 - this.textHeight / 2;
 		Objects.requireNonNull(this.font);
 		poseStack.drawCenteredString(this.font, this.title, x, y - 9 * 2, 11184810);
 		this.message.renderCentered(poseStack, this.width / 2, this.height / 2 - this.textHeight / 2);
-		super.render(poseStack, i, j, f);
 	}
 }
