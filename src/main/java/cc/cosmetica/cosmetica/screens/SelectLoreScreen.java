@@ -199,6 +199,11 @@ public class SelectLoreScreen extends SulphateScreen {
 		}
 	}
 
+	@Override
+	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		this.renderDirtBackground(graphics);
+	}
+
 	private static String getTranslationKey(LoreType type) {
 		return switch (type) {
 			case TITLES -> "cosmetica.selection.lore.titles";
