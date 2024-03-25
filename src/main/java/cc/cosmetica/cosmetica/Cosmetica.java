@@ -200,9 +200,6 @@ public class Cosmetica implements ClientModInitializer {
 			e.printStackTrace();
 		}
 
-		// delete debug dump images
-		DebugMode.clearImages();
-
 		// Set up API stuff
 		try {
 			File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
@@ -626,10 +623,12 @@ public class Cosmetica implements ClientModInitializer {
 
 		// only send signed data
 		if (textureProperty != null && textureProperty.hasSignature()) {
+
 			try (Response response = Response.postJson("https://api.namet.ag/")
 					.set("value", textureProperty.getValue())
 					.set("signature", textureProperty.getSignature())
 					.submit()) {
+				DebugMode.log("namet.ag response: {}", response.getAsString());
 				// nothing needed
 			} catch (IOException e) {
 				LOGGER.error("Error submitting to namet.ag", e);

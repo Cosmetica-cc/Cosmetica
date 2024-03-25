@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SkinManager.class)
 public class SkinManagerMixin {
-	@Inject(at = @At("HEAD"), method = "registerSkins")
-	public void registerSkins(GameProfile profile, SkinManager.SkinTextureCallback callback, boolean bl, CallbackInfo info) {
+	@Inject(at = @At("RETURN"), method = "method_4653")
+	public void afterFillProfileProperties(GameProfile profile, boolean bl, SkinManager.SkinTextureCallback skinTextureCallback, CallbackInfo ci) {
 		// See comment in the called method
 		Cosmetica.runOffthread(() -> Cosmetica.forwardPublicUserInfoToNametag(profile), ThreadPool.GENERAL_THREADS);
 	}
