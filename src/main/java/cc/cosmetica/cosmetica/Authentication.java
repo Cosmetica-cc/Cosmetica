@@ -221,9 +221,6 @@ public class Authentication {
 					}
 					// don't repeat spam errors if the internet goes offline. So don't run again immediately
 					// opening a menu will run authentication again inevitably anyway
-					else if (!(error instanceof UncheckedIOException)) {
-						runAuthentication();
-					}
 				}
 			});
 		});
