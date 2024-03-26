@@ -61,7 +61,6 @@ public class DebugMode {
 	private static final File DEBUG_SETTINGS;
 
 	private static final Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetica Debug");
-	public static final File DUMP_FOLDER;
 
 	public static final ResourceLocation TEST_CAPE = new ResourceLocation("cosmetica", "test/loaded_cape");
 	public static int frameDelayMs = 50;
@@ -137,36 +136,6 @@ public class DebugMode {
 
 	public static boolean forceRSEScreen() {
 		return ENABLED && debugSettings.forceRseScreen;
-	}
-
-	/**
-	 * Dump images to the image dump folder.
-	 * These images will be cleared on the next run.
-	 */
-	public static void dumpImages(String name, boolean capeModification, NativeImage... images) {
-		if (ENABLED && (capeModification ? debugSettings.imageDumpingSettings.capeModifications : debugSettings.imageDumpingSettings.textureLoading)) {
-			int i = 0;
-			for (NativeImage image : images) {
-				try {
-					File file = new File(DUMP_FOLDER, name + "_dump_" + i + ".png");
-					file.createNewFile();
-					image.writeToFile(file);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				++i;
-			}
-		}
-	}
-
-	public static void clearImages() {
-		if (DebugMode.ENABLED && DebugMode.debugSettings.imageDumpingSettings.either()) {
-			for (File file : DUMP_FOLDER.listFiles()) {
-				if (file.isFile() && file.getName().endsWith(".png")) {
-					file.delete();
-				}
-			}
-		}
 	}
 
 	private static boolean loadTestModel(CosmeticStack<BakableModel> model, String modelLoc, int extraInfo) {
@@ -289,7 +258,6 @@ public class DebugMode {
 
 	static {
 		// cosmetica's data folders
-		DUMP_FOLDER = new File(FabricLoader.getInstance().getGameDir().toFile(), "cosmetic_dumps");
 		CONFIG_DIR = new File(FabricLoader.getInstance().getConfigDir().toFile(), "cosmetica");
 		DEBUG_SETTINGS = new File(CONFIG_DIR, "debug_settings.json");
 
@@ -305,10 +273,6 @@ public class DebugMode {
 
 				// write data in case there are new/changed settings!
 				saveDebugSettings();
-
-				if (debugSettings.imageDumpingSettings.either()) {
-					DUMP_FOLDER.mkdir();
-				}
 			}
 			catch (IOException e) {
 				e.printStackTrace();
