@@ -290,9 +290,6 @@ public class Cosmetica implements ClientModInitializer {
 		// see comment in Cosmetica.forwardPublicUserInfoToNametag
 		GameProfile userProfile = Minecraft.getInstance().getUser().getGameProfile();
 		GameProfile profileCopy = new GameProfile(userProfile.getId(), userProfile.getName());
-		System.out.println(userProfile.getId());
-		System.out.println(userProfile.getName());
-		System.out.println("Filling properties");
 
 		Minecraft.getInstance().getMinecraftSessionService().fillProfileProperties(profileCopy, true);
 		Cosmetica.runOffthread(() -> Cosmetica.forwardPublicUserInfoToNametag(profileCopy), ThreadPool.GENERAL_THREADS);
