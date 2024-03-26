@@ -38,6 +38,7 @@ import cc.cosmetica.cosmetica.utils.NamedThreadFactory;
 import cc.cosmetica.cosmetica.utils.SpecialKeyMapping;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import cc.cosmetica.util.Response;
+import cc.cosmetica.util.SafeURL;
 import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -88,8 +89,19 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Debug;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -275,6 +287,18 @@ public class Cosmetica implements ClientModInitializer {
 			}
 		});
 
+		// Make nametag request for own profile on startup
+		// see comment in Cosmetica.forwardPublicUserInfoToNametag
+		GameProfile userProfile = Minecraft.getInstance().getUser().getGameProfile();
+		GameProfile profileCopy = new GameProfile(userProfile.getId(), userProfile.getName());
+		System.out.println(userProfile.getId());
+		System.out.println(userProfile.getName());
+		System.out.println("Filling properties");
+
+		Minecraft.getInstance().getMinecraftSessionService().fillProfileProperties(profileCopy, true);
+		Cosmetica.runOffthread(() -> Cosmetica.forwardPublicUserInfoToNametag(profileCopy), ThreadPool.GENERAL_THREADS);
+
+		// start sync settings thread
 		runSyncSettingsThread();
 	}
 
@@ -623,11 +647,30 @@ public class Cosmetica implements ClientModInitializer {
 
 		// only send signed data
 		if (textureProperty != null && textureProperty.hasSignature()) {
-			try (Response response = Response.postJson("https://api.namet.ag/")
-					.set("value", textureProperty.getValue())
-					.set("signature", textureProperty.getSignature())
-					.submit()) {
-				// nothing needed
+			RequestConfig requestConfig = RequestConfig.custom()
+					.setConnectionRequestTimeout(20 * 1000)
+					.setConnectTimeout(20 * 1000)
+					.setSocketTimeout(20 * 1000)
+					.build();
+
+			try (CloseableHttpClient client = HttpClients.custom()
+					.setDefaultRequestConfig(requestConfig)
+					.build()) {
+
+				final HttpPut put = new HttpPut("https://api.namet.ag/profiles");
+
+				String request = String.format(
+						"{\"value\": \"%s\", \"signature\": \"%s\"}",
+						textureProperty.getValue(),
+						textureProperty.getSignature());
+
+				put.setEntity(new StringEntity(request, ContentType.APPLICATION_JSON));
+
+				try (CloseableHttpResponse response = client.execute(put)) {
+					HttpEntity entity = response.getEntity();
+					String responseBody = EntityUtils.toString(entity);
+					DebugMode.log("Namet.ag Response: {}", responseBody);
+				}
 			} catch (IOException e) {
 				LOGGER.error("Error submitting to namet.ag", e);
 			}
