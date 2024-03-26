@@ -285,16 +285,7 @@ public class Cosmetica implements ClientModInitializer {
 			}
 		});
 
-		// Make nametag request for own profile on startup
-		// see comment in Cosmetica.forwardPublicUserInfoToNametag
-		GameProfile userProfile = Minecraft.getInstance().getUser().getGameProfile();
-		GameProfile profileCopy = new GameProfile(userProfile.getId(), userProfile.getName());
-		System.out.println(userProfile.getId());
-		System.out.println(userProfile.getName());
-		System.out.println("Filling properties");
-
-		Minecraft.getInstance().getMinecraftSessionService().fillProfileProperties(profileCopy, true);
-		Cosmetica.runOffthread(() -> Cosmetica.forwardPublicUserInfoToNametag(profileCopy), ThreadPool.GENERAL_THREADS);
+		// in 1.20.2 and higher, no need to make namet.ag request on startup for own profile due to skin fetch changes
 
 		// start sync settings thread
 		runSyncSettingsThread();
@@ -659,8 +650,8 @@ public class Cosmetica implements ClientModInitializer {
 
 				String request = String.format(
 						"{\"value\": \"%s\", \"signature\": \"%s\"}",
-						textureProperty.getValue(),
-						textureProperty.getSignature());
+						textureProperty.value(),
+						textureProperty.signature());
 
 				put.setEntity(new StringEntity(request, ContentType.APPLICATION_JSON));
 
