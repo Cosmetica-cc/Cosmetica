@@ -221,9 +221,6 @@ public class Authentication {
 					}
 					// don't repeat spam errors if the internet goes offline. So don't run again immediately
 					// opening a menu will run authentication again inevitably anyway
-					else if (!(error instanceof UncheckedIOException)) {
-						runAuthentication();
-					}
 				}
 			});
 		});
@@ -251,27 +248,16 @@ public class Authentication {
 		}
 
 		// check network connection & cracked
-		// uses cosmetica's api as errors from this can potentially be diagnosed the same way as the initial error provided
-		String method = Cosmetica.getConfig().paranoidHttps() ? "https" : "http";
+		// reset to very simple cracked detection, as the overloaded cosmetica servers are giving false cracked reports
+		// default uuid generation is v3 but real users are v4, so check for not v4
 		final User currentUser = Minecraft.getInstance().getUser();
+		final UUID uuid = UUID.fromString(Cosmetica.dashifyUUID(currentUser.getUuid()));
 
-		try (Response response = Response.get(method + "://api.cosmetica.cc/get/userdata?uuid=" + currentUser.getUuid())) {
-			JsonObject json = response.getAsJson();
-
-			// if uuid doesn't have an associated username, or the actual username is different, it 100% has to be cracked
-			// todo detect offline play under a valid account as well
-			if (!json.has("username") || !currentUser.getName().equals(json.get("username").getAsString())) {
-				return new UnauthenticatedScreen.UnauthenticatedReason(
-						UnauthenticatedScreen.UnauthenticatedReason.CRACKED,
-						null //exception not relevant as it's not part of the diagnosis
-				);
-			}
-		} catch (Exception e) {
-			UnauthenticatedScreen.UnauthenticatedReason reason =  diagnoseError(e);
-
-			if (reason != null) {
-				return reason;
-			}
+		if (uuid.version() != 4) {
+			return new UnauthenticatedScreen.UnauthenticatedReason(
+					UnauthenticatedScreen.UnauthenticatedReason.CRACKED,
+					null //exception not relevant as it's not part of the diagnosis
+			);
 		}
 
 		return new UnauthenticatedScreen.UnauthenticatedReason(
