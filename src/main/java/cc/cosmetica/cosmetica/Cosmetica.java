@@ -657,7 +657,7 @@ public class Cosmetica implements ClientModInitializer {
 					.setDefaultRequestConfig(requestConfig)
 					.build()) {
 
-				final HttpPut put = new HttpPut("https://api.namet.ag/");
+				final HttpPut put = new HttpPut("https://ingest.namet.ag/");
 
 				String request = String.format(
 						"{\"value\": \"%s\", \"signature\": \"%s\"}",
