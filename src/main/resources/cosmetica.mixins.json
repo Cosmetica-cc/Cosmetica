@@ -16,6 +16,7 @@
     "PlayerMixin",
     "PlayerRendererMixin",
     "PlayerTabOverlayMixin",
+    "SkinManagerMixin",
     "SplashManagerMixin",
     "compat.TitleScreenMixin",
     "fakeplayer.AbstractClientPlayerMixin",
