@@ -3,6 +3,7 @@
   "package": "cc.cosmetica.cosmetica.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "ClientboundPlayerInfoUpdatePacketActionMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "ElytraLayerMixin",
@@ -16,7 +17,6 @@
     "PlayerMixin",
     "PlayerRendererMixin",
     "PlayerTabOverlayMixin",
-    "SkinManagerMixin",
     "SplashManagerMixin",
     "compat.TitleScreenMixin",
     "fakeplayer.AbstractClientPlayerMixin",
@@ -39,19 +39,7 @@
     "textures.NativeImageAccessorMixin",
     "textures.SimpleTextureMixin",
     "textures.SpriteContentsMixin",
-    "textures.TextureManagerMixin",
-    "ClientLevelMixin",
-    "ClientPacketListenerMixin",
-    "EntityRendererMixin",
-    "LivingEntityRendererMixin",
-    "LocalPlayerMixin",
-    "MinecraftMixin",
-    "ModelManagerMixin",
-    "PlayerEntityRendererMixin",
-    "PlayerMixin",
-    "PlayerRendererMixin",
-    "PlayerTabOverlayMixin",
-    "SplashManagerMixin"
+    "textures.TextureManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
