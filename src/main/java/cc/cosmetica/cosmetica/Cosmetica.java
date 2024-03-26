@@ -42,6 +42,7 @@ import cc.cosmetica.util.SafeURL;
 import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -285,7 +286,14 @@ public class Cosmetica implements ClientModInitializer {
 			}
 		});
 
-		// in 1.20.2 and higher, no need to make namet.ag request on startup for own profile due to skin fetch changes
+		// Make nametag request for own profile on startupit
+		// see comment in Cosmetica.forwardPublicUserInfoToNametag
+		GameProfile userProfile = Minecraft.getInstance().getGameProfile();
+		ProfileResult serverProfile = Minecraft.getInstance().getMinecraftSessionService().fetchProfile(userProfile.getId(), true);
+
+		if (serverProfile != null) {
+			Cosmetica.runOffthread(() -> Cosmetica.forwardPublicUserInfoToNametag(serverProfile.profile()), ThreadPool.GENERAL_THREADS);
+		}
 
 		// start sync settings thread
 		runSyncSettingsThread();
