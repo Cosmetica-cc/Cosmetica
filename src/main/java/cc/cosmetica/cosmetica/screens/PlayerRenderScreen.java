@@ -35,6 +35,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
 
 public abstract class PlayerRenderScreen extends SulphateScreen {
@@ -191,10 +192,10 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 	public static void renderFakePlayerInMenu(int left, int top, float extraScale, float lookX, float lookY, FakePlayer fakePlayer) {
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
-		PoseStack stack = RenderSystem.getModelViewStack();
+		Matrix4fStack stack = RenderSystem.getModelViewStack();
 
-		stack.pushPose();
-		stack.translate(left, top, 1050.0D);
+		stack.pushMatrix();
+		stack.translate(left, top, 1050.0f);
 		stack.scale(2.0F, 2.0F, -1.0F);
 		RenderSystem.applyModelViewMatrix();
 
@@ -229,7 +230,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		fakePlayer.yRotBody -= rotationBody;
 		fakePlayer.yRot -= rotationMain;
 
-		stack.popPose();
+		stack.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 		Lighting.setupFor3DItems();
 	}

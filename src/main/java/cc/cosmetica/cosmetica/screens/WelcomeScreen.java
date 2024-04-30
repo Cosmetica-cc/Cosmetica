@@ -74,7 +74,7 @@ public class WelcomeScreen extends PlayerRenderScreen {
 			this.fakePlayer = new FakePlayer(Minecraft.getInstance(), this.playerUUID, this.playerName, this.playerData);
 		}
 
-		this.panorama.render(time, 1);
+		super.renderPanorama(graphics, time); // TODO test this again
 		super.render(graphics, x, y, time);
 
 		stack.pushPose();

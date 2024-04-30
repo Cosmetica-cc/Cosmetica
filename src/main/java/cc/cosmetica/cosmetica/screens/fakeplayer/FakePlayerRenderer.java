@@ -360,7 +360,7 @@ public class FakePlayerRenderer {
 		stack.mulPose(LinearAlgebra.quaternionDegrees(LinearAlgebra.YP, 180.0F - g));
 
 		if (player.getData().upsideDown()) {
-			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
+			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height() + 0.1, 0.0D);
 			stack.mulPose(LinearAlgebra.quaternionDegrees(LinearAlgebra.ZP, 180.0F));
 		}
 	}
@@ -373,7 +373,7 @@ public class FakePlayerRenderer {
 		Component name = player.getDisplayName();
 
 		boolean fullyRender = !player.renderDiscreteNametag();
-		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
+		float yPosition = EntityType.PLAYER.getDimensions().height() + 0.5F;
 		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
 
 		stack.pushPose();
@@ -390,7 +390,7 @@ public class FakePlayerRenderer {
 				true,
 				player.renderDiscreteNametag(),
 				player.getData().upsideDown(),
-				EntityType.PLAYER.getDimensions().height,
+				EntityType.PLAYER.getDimensions().height(),
 				player.getModel().getHead().xRot,
 				light);
 
