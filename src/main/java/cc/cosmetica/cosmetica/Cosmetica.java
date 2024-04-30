@@ -207,8 +207,7 @@ public class Cosmetica implements ClientModInitializer {
 			config.initialize();
 			defaultSettingsConfig.initialize();
 		} catch (IOException e) {
-			LOGGER.warn("Failed to load config, falling back to defaults!");
-			e.printStackTrace();
+			LOGGER.warn("Failed to load config, falling back to defaults!", e);
 		}
 
 		// Set up API stuff

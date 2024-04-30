@@ -25,6 +25,7 @@ import cc.cosmetica.cosmetica.screens.*;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -78,7 +79,7 @@ public abstract class MinecraftMixin {
 	}
 
 	@Inject(at = @At("HEAD"), method = "setLevel")
-	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
+	private void maybeClearCosmetics(ClientLevel clientLevel, ReceivingLevelScreen.Reason reason, CallbackInfo ci) {
 		if (PlayerData.getCacheSize() > 1024) {
 			DebugMode.log("Clearing Cosmetica Caches");
 			Cosmetica.clearAllCaches();
