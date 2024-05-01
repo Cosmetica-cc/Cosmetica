@@ -16,7 +16,6 @@
 
 package cc.cosmetica.cosmetica.screens.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -41,11 +40,16 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 	final Screen parent;
 	protected final Font font;
 	private final Consumer<String> onSelect;
+	private boolean setThisFrame; // remove duplicates from double setFocused and mouseClicked calling setSelected
 
 	@Override
 	public void setSelected(@Nullable T entry) {
 		super.setSelected(entry);
-		this.onSelect.accept(entry == null ? "" : entry.item);
+
+		if (!this.setThisFrame) {
+			this.setThisFrame = true;
+			this.onSelect.accept(entry == null ? "" : entry.item);
+		}
 	}
 
 	public void recenter() {
@@ -69,8 +73,6 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 		return super.getScrollbarPosition() + 20;
 	}
 
-	// FIXME background scrolls funnily
-
 	@Override
 	public int getRowWidth() {
 		return super.getRowWidth() + 50;
@@ -79,6 +81,12 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 	@Override
 	public boolean isFocused() {
 		return this.parent.getFocused() == this;
+	}
+
+	@Override
+	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		this.setThisFrame = false;
+		super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
 	}
 
 	@Environment(EnvType.CLIENT)
