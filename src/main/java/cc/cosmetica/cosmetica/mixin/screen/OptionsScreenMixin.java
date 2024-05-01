@@ -16,11 +16,11 @@
 
 package cc.cosmetica.cosmetica.mixin.screen;
 
-import benzenestudios.sulphate.ClassicButton;
 import benzenestudios.sulphate.ExtendedScreen;
+import cc.cosmetica.cosmetica.mixin.ButtonAccessor;
 import cc.cosmetica.cosmetica.screens.LoadingScreen;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -46,17 +46,15 @@ public abstract class OptionsScreenMixin extends Screen {
 	@Inject(at=@At("RETURN"), method="init")
 	private void onInit(CallbackInfo info) {
 		for (GuiEventListener eventListener : ((ExtendedScreen) this).getChildren()) {
-			// Grid layout is no longer an element in 1.19.4 but a class to prepare element positions, so I can go back to doing this.
-			if (eventListener instanceof AbstractWidget widget && widget.getMessage().getContents() instanceof TranslatableContents thisIsRidiculous) {
+			// Grid layout is no longer an element in 1.19.4 but a class to prepare element positions
+			// Modify behaviour of skin customisation button to go to Cosmetica screen:
+			if (eventListener instanceof AbstractButton widget && widget.getMessage().getContents() instanceof TranslatableContents thisIsRidiculous) {
 				if (thisIsRidiculous.getKey().equals("options.skinCustomisation")) {
-					widget.visible = false;
-					widget.active = false;
+					widget.setMessage(Component.translatable("cosmetica.cosmetics"));
+					((ButtonAccessor) widget).setOnPress(button -> this.minecraft.setScreen(new LoadingScreen(this, this.options)));
 					break;
 				}
 			}
 		}
-
-		this.addRenderableWidget(new ClassicButton(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, Component.translatable("cosmetica.cosmetics"),
-				button -> this.minecraft.setScreen(new LoadingScreen(this, this.options))));
 	}
 }

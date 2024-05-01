@@ -133,7 +133,7 @@ public class UnauthenticatedScreen extends Screen {
 	}
 
 	public void render(GuiGraphics poseStack, int i, int j, float f) {
-		this.renderBackground(poseStack, i, j, f);
+		super.render(poseStack, i, j, f);
 		Font var10001 = this.font;
 		Component var10002 = this.title;
 		int var10003 = this.width / 2;
@@ -141,7 +141,6 @@ public class UnauthenticatedScreen extends Screen {
 		Objects.requireNonNull(this.font);
 		poseStack.drawCenteredString(var10001, var10002, var10003, var10004 - 9 * 2, 11184810);
 		this.message.renderCentered(poseStack, this.width / 2, this.height / 2 - this.textHeight / 2);
-		super.render(poseStack, i, j, f);
 	}
 
 	// like MultilineLabel#create
