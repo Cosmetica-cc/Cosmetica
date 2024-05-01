@@ -306,11 +306,6 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 		}
 	}
 
-//	@Override
-//	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-//		itthis.renderDirtBackground(graphics);
-//	}
-
 	@Nullable
 	private E getStack(T cosmetic) {
 		if (cosmetic == null) {

@@ -85,7 +85,7 @@ public class WelcomeScreen extends PlayerRenderScreen {
 
 	@Override
 	public void renderBackground(GuiGraphics graphics, int i, int j, float d) {
-		// no dirt background.
+		// we have custom background done in render().
 	}
 
 	public static boolean isInTutorial = false;
