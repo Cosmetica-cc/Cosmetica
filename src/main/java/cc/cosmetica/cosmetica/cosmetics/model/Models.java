@@ -105,7 +105,7 @@ public class Models {
 					@Override
 					@Nullable
 					public BakedModel bake(ResourceLocation resourceLocation, ModelState modelState) {
-						return this.getModel(resourceLocation).bake(this, l -> sprite, modelState, resourceLocation /*this resource location in bake is just used for debugging in the case of errors*/);
+						return this.getModel(resourceLocation).bake(this, l -> sprite, modelState);
 					}
 				};
 

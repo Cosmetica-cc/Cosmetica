@@ -24,6 +24,7 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.item.DyeColor;
 
@@ -55,16 +56,16 @@ public class NZSheepBuiltinModel implements BuiltInModel {
 		int nextTick = (tick + 1) % numColours;
 		float progress = ((float)(player.getLifetime() % rate) + 0) / (float) rate;
 
-		float[] prevColours = Sheep.getColorArray(DyeColor.byId(prevTick));
-		float[] nextColours = Sheep.getColorArray(DyeColor.byId(nextTick));
+		int prevColour = Sheep.getColor(DyeColor.byId(prevTick));
+		int nextColour = Sheep.getColor(DyeColor.byId(nextTick));
 
-		float red = prevColours[0] * (1.0F - progress) + nextColours[0] * progress;
-		float green = prevColours[1] * (1.0F - progress) + nextColours[1] * progress;
-		float blue = prevColours[2] * (1.0F - progress) + nextColours[2] * progress;
+		int color = FastColor.ARGB32.lerp(progress, prevColour, nextColour);
+
+		// we can get RGB from here but is this even used anywhere anyways?? the red green and blue dont seem to be used anywhere
 
 		// render
-		VertexConsumer vertexConsumer = multiBufferSource.getBuffer(fur.renderType(new ResourceLocation("textures/entity/sheep/sheep_fur.png")));
-		fur.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0f);
+		VertexConsumer vertexConsumer = multiBufferSource.getBuffer(fur.renderType(ResourceLocation.withDefaultNamespace("textures/entity/sheep/sheep_fur.png")));
+		fur.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
 
 		stack.popPose();
 
@@ -75,7 +76,7 @@ public class NZSheepBuiltinModel implements BuiltInModel {
 		stack.scale(0.8f, 0.8f, 0.8f);
 		stack.translate(left ? 0.42 : -0.42, (player.isSneaking() ? -1.3 : -1.6D) + 1.07D, 0.0D);
 
-		vertexConsumer = multiBufferSource.getBuffer(body.renderType(new ResourceLocation("textures/entity/sheep/sheep.png")));
+		vertexConsumer = multiBufferSource.getBuffer(body.renderType(ResourceLocation.withDefaultNamespace("textures/entity/sheep/sheep.png")));
 		body.renderOnShoulder(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
 
 		stack.popPose();

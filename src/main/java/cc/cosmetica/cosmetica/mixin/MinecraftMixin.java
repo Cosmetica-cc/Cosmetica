@@ -71,7 +71,7 @@ public abstract class MinecraftMixin {
 		}
 	}
 
-	@Inject(at = @At("RETURN"), method = "setScreen", cancellable = true)
+	@Inject(at = @At("RETURN"), method = "setScreen")
 	private void addOnOpen(Screen screen, CallbackInfo info) {
 		if (this.screen instanceof PlayerRenderScreen prs) {
 			prs.onOpen();

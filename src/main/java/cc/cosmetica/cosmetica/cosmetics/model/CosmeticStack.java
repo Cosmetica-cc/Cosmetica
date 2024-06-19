@@ -115,6 +115,6 @@ public final class CosmeticStack<T> {
 		this.removeModel = !this.testModels.isEmpty() && (this.testModels.peek() == NO_RESOURCE_LOCATION || this.testModels.peek() == NO_BAKABLE_MODEL);
 	}
 
-	public static final ResourceLocation NO_RESOURCE_LOCATION = new ResourceLocation("cosmetica", "none");
+	public static final ResourceLocation NO_RESOURCE_LOCATION = ResourceLocation.tryBuild("cosmetica", "none");
 	public static final BakableModel NO_BAKABLE_MODEL = new BakableModel("none", "No Model", null, null, 0, new Box(0, 0, 0, 0, 0, 0));
 }

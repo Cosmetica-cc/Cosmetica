@@ -147,7 +147,7 @@ public class FakePlayerRenderer {
 		if (renderType != null) {
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
 			int packedOverlayCoords = getOverlayCoords(0.0f);
-			model.renderToBuffer(stack, vertexConsumer, light, packedOverlayCoords, 1.0F, 1.0F, 1.0F, 1.0F);
+			model.renderToBuffer(stack, vertexConsumer, light, packedOverlayCoords);
 		}
 
 		// render layers

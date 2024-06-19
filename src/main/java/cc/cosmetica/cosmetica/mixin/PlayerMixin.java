@@ -16,20 +16,18 @@
 
 package cc.cosmetica.cosmetica.mixin;
 
-import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
 public class PlayerMixin {
-	@Inject(at = @At(value = "RETURN"), method = "getDisplayName", cancellable = true)
-	private void getDisplayName(CallbackInfoReturnable<Component> cir) {
+	@ModifyReturnValue(at = @At(value = "RETURN"), method = "getDisplayName")
+	private Component getDisplayName(Component original) {
 		final Player player = ((Player) (Object) this);
 
 		if (player.level().isClientSide()) {
@@ -37,7 +35,8 @@ public class PlayerMixin {
 			String prefix = (data.icon() == null ? "" : "\u2001") + data.prefix();
 			String suffix = data.suffix();
 
-			cir.setReturnValue(TextComponents.literal(prefix).append(cir.getReturnValue()).append(suffix));
+			return TextComponents.literal(prefix).append(original).append(suffix);
 		}
+		return original;
 	}
 }

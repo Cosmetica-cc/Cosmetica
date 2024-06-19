@@ -42,7 +42,7 @@ public class PersianCatBuiltinModel implements BuiltInModel {
 
 		model.pose(player);
 
-		VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(new ResourceLocation("textures/entity/cat/persian.png")));
+		VertexConsumer vertexConsumer = multiBufferSource.getBuffer(model.renderType(ResourceLocation.withDefaultNamespace("textures/entity/cat/persian.png")));
 		model.root.render(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 		stack.popPose();
 	}

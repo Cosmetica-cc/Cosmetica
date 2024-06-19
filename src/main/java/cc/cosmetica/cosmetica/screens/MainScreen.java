@@ -37,7 +37,7 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -179,5 +179,5 @@ public class MainScreen extends PlayerRenderScreen {
 		}
 	}
 
-	private static final ResourceLocation DISCORD = new ResourceLocation("cosmetica", "textures/gui/discord.png");
+	private static final ResourceLocation DISCORD = ResourceLocation.tryBuild("cosmetica", "textures/gui/discord.png");
 }

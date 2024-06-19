@@ -68,11 +68,11 @@ public class CosmeticaSkinManager {
 	}
 
 	public static ResourceLocation testId(String id) {
-		return new ResourceLocation("cosmetica", "test/" + id);
+		return ResourceLocation.tryBuild("cosmetica", "test/" + id);
 	}
 
 	public static ResourceLocation textureId(String type, String id) {
-		return new ResourceLocation("cosmetica", type + "/" + pathify(id));
+		return ResourceLocation.tryBuild("cosmetica", type + "/" + pathify(id));
 	}
 
 	public static void setTestUploaded(String testId) {
@@ -119,7 +119,7 @@ public class CosmeticaSkinManager {
 			return DefaultPlayerSkin.get(uuid).texture();
 		}
 
-		return saveTexture(new ResourceLocation("cosmetica", "skin/" + uuid.toString().toLowerCase(Locale.ROOT)), base64Skin, 0);
+		return saveTexture(ResourceLocation.tryBuild("cosmetica", "skin/" + uuid.toString().toLowerCase(Locale.ROOT)), base64Skin, 0);
 	}
 
 	private static ResourceLocation saveTexture(ResourceLocation id, String texture, int mspf) {

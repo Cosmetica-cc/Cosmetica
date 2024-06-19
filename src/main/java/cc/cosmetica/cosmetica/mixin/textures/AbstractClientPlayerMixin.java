@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.mixin.textures;
 
 import cc.cosmetica.cosmetica.cosmetics.CosmeticaCapes;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -29,10 +30,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.lang.ref.WeakReference;
 
 @Mixin(AbstractClientPlayer.class)
 public abstract class AbstractClientPlayerMixin extends Player {
@@ -46,17 +43,18 @@ public abstract class AbstractClientPlayerMixin extends Player {
 	@Unique
 	private final CosmeticaCapes capeManager = new CosmeticaCapes(this);
 
-	@Inject(at = @At("RETURN"), method = "getSkin", cancellable = true)
-	private void addCosmeticaCapes(CallbackInfoReturnable<PlayerSkin> info) {
+	@ModifyReturnValue(at = @At("RETURN"), method = "getSkin")
+	private PlayerSkin addCosmeticaCapes(PlayerSkin original) {
 		@Nullable PlayerInfo playerInfo = this.getPlayerInfo();
 
 		if (playerInfo != null) {
 			GameProfile profile = playerInfo.getProfile();
-			@Nullable PlayerSkin modified = this.capeManager.addCosmeticaCapes(profile, info.getReturnValue());
+			@Nullable PlayerSkin modified = this.capeManager.addCosmeticaCapes(profile, original);
 
 			if (modified != null) {
-				info.setReturnValue(modified);
+				return modified;
 			}
 		}
+		return original;
 	}
 }

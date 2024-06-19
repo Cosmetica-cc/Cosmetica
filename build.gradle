@@ -15,6 +15,7 @@ repositories {
 	maven { url 'https://maven.gegy.dev' }
 	maven { url 'https://jitpack.io' }
 	maven { url 'https://maven.terraformersmc.com/' }
+	maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
 }
 
 loom {
@@ -48,6 +49,9 @@ dependencies {
 
 	// Load in dev for Compat & Interacting with
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+
+	// Load in dev for logging into Minecraft account
+	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${project.devauth_version}")
 }
 
 processResources {

@@ -109,7 +109,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 			this.displayName = cosmetic.getName();
 			this.cosmetic = cosmetic;
-			this.texture = new ResourceLocation("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
+			this.texture = ResourceLocation.tryBuild("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
 			this.indicators = Indicators.getIcons(
 					cosmetic.getType(),
 					cosmetic instanceof Model model ? model.flags() : ((CustomCape) cosmetic).getFrameDelay()

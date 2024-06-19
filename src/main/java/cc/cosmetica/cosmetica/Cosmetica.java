@@ -276,7 +276,7 @@ public class Cosmetica implements ClientModInitializer {
 		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override
 			public ResourceLocation getFabricId() {
-				return new ResourceLocation("cosmetica", "cache_clearer");
+				return ResourceLocation.tryBuild("cosmetica", "cache_clearer");
 			}
 
 			@Override
@@ -814,15 +814,14 @@ public class Cosmetica implements ClientModInitializer {
 		RenderSystem.setShaderTexture(0, texture);
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, (float)z).uv(0, 1).color(1.0f, 1.0f, 1.0f, transparency).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, (float)z).uv(1, 1).color(1.0f, 1.0f, 1.0f, transparency).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, (float)z).uv(1, 0).color(1.0f, 1.0f, 1.0f, transparency).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, (float)z).uv(0, 0).color(1.0f, 1.0f, 1.0f, transparency).endVertex();
+		bufferBuilder.addVertex(matrix4f, (float)x0, (float)y1, (float)z).setUv(0, 1).setColor(1.0f, 1.0f, 1.0f, transparency);
+		bufferBuilder.addVertex(matrix4f, (float)x1, (float)y1, (float)z).setUv(1, 1).setColor(1.0f, 1.0f, 1.0f, transparency);
+		bufferBuilder.addVertex(matrix4f, (float)x1, (float)y0, (float)z).setUv(1, 0).setColor(1.0f, 1.0f, 1.0f, transparency);
+		bufferBuilder.addVertex(matrix4f, (float)x0, (float)y0, (float)z).setUv(0, 0).setColor(1.0f, 1.0f, 1.0f, transparency);
 
-		BufferUploader.drawWithShader(bufferBuilder.end());
+		BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 	}
 
 	private static int getMaxLight() {
@@ -844,15 +843,14 @@ public class Cosmetica implements ClientModInitializer {
 			RenderSystem.setShaderTexture(0, texture);
 			RenderSystem.setShaderColor(shaderColour, shaderColour, shaderColour, 0.25f * alpha);
 
-			BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-			bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+			BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
-			bufferBuilder.vertex(matrix4f, (float) x0, (float) y1, (float) z).uv(0, 1).endVertex();
-			bufferBuilder.vertex(matrix4f, (float) x1, (float) y1, (float) z).uv(1, 1).endVertex();
-			bufferBuilder.vertex(matrix4f, (float) x1, (float) y0, (float) z).uv(1, 0).endVertex();
-			bufferBuilder.vertex(matrix4f, (float) x0, (float) y0, (float) z).uv(0, 0).endVertex();
+			bufferBuilder.addVertex(matrix4f, (float) x0, (float) y1, (float) z).setUv(0, 1);
+			bufferBuilder.addVertex(matrix4f, (float) x1, (float) y1, (float) z).setUv(1, 1);
+			bufferBuilder.addVertex(matrix4f, (float) x1, (float) y0, (float) z).setUv(1, 0);
+			bufferBuilder.addVertex(matrix4f, (float) x0, (float) y0, (float) z).setUv(0, 0);
 
-			BufferUploader.drawWithShader(bufferBuilder.end());
+			BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 		}
 
 		// Regular Text Rendering
@@ -863,10 +861,10 @@ public class Cosmetica implements ClientModInitializer {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.text(texture));
 
-		vertexConsumer.vertex(matrix4f, (float) x0, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(0, 1).uv2(packedLight).endVertex();
-		vertexConsumer.vertex(matrix4f, (float) x1, (float) y1, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(1, 1).uv2(packedLight).endVertex();
-		vertexConsumer.vertex(matrix4f, (float) x1, (float) y0, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(1, 0).uv2(packedLight).endVertex();
-		vertexConsumer.vertex(matrix4f, (float) x0, (float) y0, (float) z).color(1.0f, 1.0f, 1.0f, mainRenderAlpha).uv(0, 0).uv2(packedLight).endVertex();
+		vertexConsumer.addVertex(matrix4f, (float) x0, (float) y1, (float) z).setColor(1.0f, 1.0f, 1.0f, mainRenderAlpha).setUv(0, 1).setLight(packedLight);
+		vertexConsumer.addVertex(matrix4f, (float) x1, (float) y1, (float) z).setColor(1.0f, 1.0f, 1.0f, mainRenderAlpha).setUv(1, 1).setLight(packedLight);
+		vertexConsumer.addVertex(matrix4f, (float) x1, (float) y0, (float) z).setColor(1.0f, 1.0f, 1.0f, mainRenderAlpha).setUv(1, 0).setLight(packedLight);
+		vertexConsumer.addVertex(matrix4f, (float) x0, (float) y0, (float) z).setColor(1.0f, 1.0f, 1.0f, mainRenderAlpha).setUv(0, 0).setLight(packedLight);
 	}
 
 	public static void clearAllCaches() {
