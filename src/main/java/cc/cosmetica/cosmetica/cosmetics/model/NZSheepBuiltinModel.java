@@ -61,11 +61,9 @@ public class NZSheepBuiltinModel implements BuiltInModel {
 
 		int color = FastColor.ARGB32.lerp(progress, prevColour, nextColour);
 
-		// we can get RGB from here but is this even used anywhere anyways?? the red green and blue dont seem to be used anywhere
-
 		// render
 		VertexConsumer vertexConsumer = multiBufferSource.getBuffer(fur.renderType(ResourceLocation.withDefaultNamespace("textures/entity/sheep/sheep_fur.png")));
-		fur.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY);
+		fur.root.render(stack, vertexConsumer, packedLightProbably, OverlayTexture.NO_OVERLAY, color);
 
 		stack.popPose();
 
