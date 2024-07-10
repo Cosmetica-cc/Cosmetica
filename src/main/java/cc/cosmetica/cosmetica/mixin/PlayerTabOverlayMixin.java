@@ -47,7 +47,7 @@ public class PlayerTabOverlayMixin {
 		if (data.icon() != null) {
 			return TextComponents.literal("\u2001").append(original);
 		}
-		return null;
+		return original;
 	}
 
 	// ========================== //
