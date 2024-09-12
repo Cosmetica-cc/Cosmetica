@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class PlayerTabOverlayMixin {
 
 	@Inject(at = @At("RETURN"), method = "getNameForDisplay", cancellable = true)
 	private void modifyTablistDisplayName(PlayerInfo playerInfo, CallbackInfoReturnable<Component> info) {
-		PlayerData data = Cosmetica.getPlayerData(playerInfo.getProfile().getId(), playerInfo.getProfile().getName(), false);
+		PlayerData data = PlayerData.get(playerInfo.getProfile().getId(), playerInfo.getProfile().getName(), false);
 
 		if (data.icon() != null) {
 			info.setReturnValue(TextComponents.literal("\u2001").append(info.getReturnValue()));

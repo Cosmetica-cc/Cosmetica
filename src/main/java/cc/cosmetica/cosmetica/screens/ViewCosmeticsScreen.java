@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ViewCosmeticsScreen extends PlayerRenderScreen {
-	public ViewCosmeticsScreen(Component title, Screen parentScreen, FakePlayer player, UserSettings settings) {
-		this(title, parentScreen, player, new ServerOptions(settings), 1.0);
+	public ViewCosmeticsScreen(Component title, Screen parentScreen, FakePlayer player, ServerOptions options) {
+		this(title, parentScreen, player, options, 1.0);
 	}
 
 	protected ViewCosmeticsScreen(Component title, Screen parentScreen, FakePlayer player, ServerOptions options, double transitionProgress) {

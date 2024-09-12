@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class StealHisLookScreen extends SulphateScreen {
 	protected void addWidgets() {
 		this.addRenderableWidget(new TextWidget(this.width / 2 - 100, this.height / 2, this.minecraft.font.width(this.confirm), 20, true, this.confirm));
 		this.addButton(CommonComponents.GUI_YES, b -> this.minecraft.setScreen(new UpdatingCosmeticsScreen<>(
-				new CustomiseCosmeticsScreen(null, new FakePlayer(this.minecraft, this.ownProfile.getUUID(), this.ownProfile.getUsername(), this.currentLook), ((SnipeScreen)this.parent).settings),
+				new CustomiseCosmeticsScreen(null, new FakePlayer(this.minecraft, this.ownProfile.getUUID(), this.ownProfile.getUsername(), this.currentLook), ((SnipeScreen)this.parent).options),
 				() -> {
 					List<CompletableFuture<?>> requests = new ArrayList<>(6);
 

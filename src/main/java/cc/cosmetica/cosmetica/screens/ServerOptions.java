@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,14 @@ import java.util.Map;
 /**
  * Options handled by the server, modifiable on the client.
  */
-class ServerOptions {
-	private ServerOptions(boolean shoulderBuddies, boolean hats, boolean doBackBlings, boolean regionSpecificEffects, boolean lore, int iconSettings) {
+public class ServerOptions {
+	private ServerOptions(boolean shoulderBuddies, boolean hats, boolean doBackBlings, boolean regionSpecificEffects, boolean lore, boolean onlineActivity, int iconSettings) {
 		this.shoulderBuddies = new SimpleOption("doshoulderbuddies", shoulderBuddies);
 		this.hats = new SimpleOption("dohats", hats);
 		this.backBlings = new SimpleOption("dobackblings", doBackBlings);
 		this.regionSpecificEffects = new SimpleOption("doregioneffects", regionSpecificEffects);
 		this.lore = new SimpleOption("dolore", lore);
-		this.onlineActivity = new SimpleOption("doonlineactivity", lore);
+		this.onlineActivity = new SimpleOption("doonlineactivity", onlineActivity);
 		this.icons = new MultiOption("iconsettings", iconSettings);
 	}
 
@@ -44,8 +44,8 @@ class ServerOptions {
 		this.icons = other.icons.clone();
 	}
 
-	ServerOptions(UserSettings settings) {
-		this(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore(), settings.getIconSettings());
+	public ServerOptions(UserSettings settings) {
+		this(settings.doShoulderBuddies(), settings.doHats(), settings.doBackBlings(), settings.hasPerRegionEffects(), settings.doLore(), settings.doOnlineActivity(), settings.getIconSettings());
 	}
 
 	final SimpleOption shoulderBuddies;

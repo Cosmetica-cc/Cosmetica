@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,28 +25,15 @@ public class DebugModeConfig {
 	@SerializedName("elevate_debug_logging") public boolean elevateDebugLogging = true;
 	@SerializedName("log_urls") public boolean logURLs = false;
 	@SerializedName("debug_commands") public boolean debugCommands = false;
+	@SerializedName("always_show_cosmetica_splash") public boolean forceCosmeticaSplash = false;
+	@SerializedName("always_show_rse_screen") public boolean forceRseScreen = false;
 
-	@SerializedName("image_dumping") public ImageDumpingSettings imageDumpingSettings = new ImageDumpingSettings();
 
 	@SerializedName("hat") public TestModelConfig hat = new TestModelConfig("hat");
 	@SerializedName("left_shoulder_buddy") public TestModelConfig leftShoulderBuddy = new TestModelConfig("shoulder_buddy");
 	@SerializedName("right_shoulder_buddy") public TestModelConfig rightShoulderBuddy = new TestModelConfig("shoulder_buddy");
 	@SerializedName("back_bling") public TestModelConfig backBling = new TestModelConfig("back_bling");
 	@SerializedName("cape") public TestCapeConfig cape = new TestCapeConfig();
-
-	public static class ImageDumpingSettings {
-		public ImageDumpingSettings() {
-			this.textureLoading = false;
-			this.capeModifications = false;
-		}
-
-		@SerializedName("texture_loading") public boolean textureLoading;
-		@SerializedName("cape_modifications") public boolean capeModifications;
-
-		public boolean either() {
-			return this.textureLoading || this.capeModifications;
-		}
-	}
 
 	public static class TestModelConfig {
 		public TestModelConfig(String location) {

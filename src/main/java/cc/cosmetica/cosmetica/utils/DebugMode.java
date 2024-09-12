@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,12 +55,12 @@ import java.util.function.Supplier;
  */
 public class DebugMode {
 	public static final boolean ENABLED = FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("cosmetica.debug");
+	private static final boolean EXTRA_LOGGING = Boolean.getBoolean("cosmetica.extraLogging");
 
 	private static final File CONFIG_DIR;
 	private static final File DEBUG_SETTINGS;
 
 	private static final Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetica Debug");
-	public static final File DUMP_FOLDER;
 
 	public static final ResourceLocation TEST_CAPE = new ResourceLocation("cosmetica", "test/loaded_cape");
 	public static int frameDelayMs = 50;
@@ -71,7 +71,7 @@ public class DebugMode {
 	private static final Set<String> warnedAbout = new HashSet<>();
 
 	public static void complainOnce(String key, String str, Object... objects) {
-		if (ENABLED && debugSettings.elevateDebugLogging && !complainedAbout.contains(key)) {
+		if (elevatedLogging() && !complainedAbout.contains(key)) {
 			complainedAbout.add(key);
 			DEBUG_LOGGER.info("[COMPLAINT] " + str, objects);
 		}
@@ -86,7 +86,7 @@ public class DebugMode {
 	}
 
 	public static void log(String str, Object... objects) {
-		if (ENABLED && debugSettings.elevateDebugLogging) {
+		if (elevatedLogging()) {
 			DEBUG_LOGGER.info(str, objects);
 		}
 		else {
@@ -94,14 +94,23 @@ public class DebugMode {
 		}
 	}
 
+	public static void logError(String message, Exception e) {
+		if (elevatedLogging()) {
+			DEBUG_LOGGER.info(message, e);
+		}
+		else {
+			Cosmetica.LOGGER.debug(message + " " + e.getClass().getName() + " " + e.getMessage());
+		}
+	}
+
 	public static void logURL(String str) {
-		if (ENABLED && debugSettings.logURLs) {
+		if (urlLogging()) {
 			DEBUG_LOGGER.info(str);
 		}
 	}
 
 	public static void log(Supplier<String> str) {
-		if (ENABLED && debugSettings.elevateDebugLogging) {
+		if (elevatedLogging()) {
 			DEBUG_LOGGER.info(str.get());
 		}
 		else {
@@ -113,38 +122,20 @@ public class DebugMode {
 		return ENABLED && debugSettings.debugCommands;
 	}
 
+	public static boolean alwaysShowCosmeticaSplash() {
+		return ENABLED && debugSettings.forceCosmeticaSplash;
+	}
+
 	public static boolean elevatedLogging() {
-		return ENABLED && debugSettings.elevateDebugLogging;
+		return EXTRA_LOGGING || (ENABLED && debugSettings.elevateDebugLogging);
 	}
 
-	/**
-	 * Dump images to the image dump folder.
-	 * These images will be cleared on the next run.
-	 */
-	public static void dumpImages(String name, boolean capeModification, NativeImage... images) {
-		if (ENABLED && (capeModification ? debugSettings.imageDumpingSettings.capeModifications : debugSettings.imageDumpingSettings.textureLoading)) {
-			int i = 0;
-			for (NativeImage image : images) {
-				try {
-					File file = new File(DUMP_FOLDER, name + "_dump_" + i + ".png");
-					file.createNewFile();
-					image.writeToFile(file);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				++i;
-			}
-		}
+	private static boolean urlLogging() {
+		return EXTRA_LOGGING || (ENABLED && debugSettings.logURLs);
 	}
 
-	public static void clearImages() {
-		if (DebugMode.ENABLED && DebugMode.debugSettings.imageDumpingSettings.either()) {
-			for (File file : DUMP_FOLDER.listFiles()) {
-				if (file.isFile() && file.getName().endsWith(".png")) {
-					file.delete();
-				}
-			}
-		}
+	public static boolean forceRSEScreen() {
+		return ENABLED && debugSettings.forceRseScreen;
 	}
 
 	private static boolean loadTestModel(CosmeticStack<BakableModel> model, String modelLoc, int extraInfo) {
@@ -267,12 +258,12 @@ public class DebugMode {
 
 	static {
 		// cosmetica's data folders
-		DUMP_FOLDER = new File(FabricLoader.getInstance().getGameDir().toFile(), "cosmetic_dumps");
 		CONFIG_DIR = new File(FabricLoader.getInstance().getConfigDir().toFile(), "cosmetica");
 		DEBUG_SETTINGS = new File(CONFIG_DIR, "debug_settings.json");
 
 		if (ENABLED) {
 			CONFIG_DIR.mkdirs();
+			DEBUG_LOGGER.info("Debug Mode Enabled.");
 
 			// create file if not exists. replenish with default config settings
 			try {
@@ -282,10 +273,6 @@ public class DebugMode {
 
 				// write data in case there are new/changed settings!
 				saveDebugSettings();
-
-				if (debugSettings.imageDumpingSettings.either()) {
-					DUMP_FOLDER.mkdir();
-				}
 			}
 			catch (IOException e) {
 				e.printStackTrace();

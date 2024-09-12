@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.mixin.keys;
 
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.CosmeticaKeybinds;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
 import org.spongepowered.asm.mixin.Final;
@@ -40,7 +41,7 @@ public class OptionsMixin {
 	@Inject(at = @At("HEAD"), method = "load")
 	private void beforeLoad(CallbackInfo ci) {
 		List<KeyMapping> moddedKeyMappings = new ArrayList<>();
-		Cosmetica.registerKeyMappings(moddedKeyMappings);
+		CosmeticaKeybinds.registerKeyMappings(moddedKeyMappings);
 
 		KeyMapping[] newKeyMappings = new KeyMapping[this.keyMappings.length + moddedKeyMappings.size()];
 		System.arraycopy(keyMappings, 0, newKeyMappings, 0, keyMappings.length);

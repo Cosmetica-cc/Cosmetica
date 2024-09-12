@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
-	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, UserSettings settings) {
-		this(parentScreen, player, new ServerOptions(settings), 1.0);
+	public CustomiseCosmeticsScreen(Screen parentScreen, FakePlayer player, ServerOptions options) {
+		this(parentScreen, player, options, 1.0);
 		this.canCloseWithBn = true;
 	}
 
@@ -50,7 +50,7 @@ public class CustomiseCosmeticsScreen extends ViewCosmeticsScreen {
 	@Override
 	protected <T extends CustomCosmetic, E> ViewCosmeticsScreen.Section createActiveSection(String title, List<String> items, @Nullable CosmeticType<T> type, @Nullable CosmeticStack<E> stack) {
 		Button.OnPress onChange = type == null ? b -> this.minecraft.setScreen(new SelectLoreScreen(this, items.isEmpty() ? "" : items.get(0))) :
-				b -> this.minecraft.setScreen(new BrowseCosmeticsScreen(this, type, stack));
+				b -> this.minecraft.setScreen(new BrowseCosmeticsScreen<>(this, type, stack));
 		Div section = Div.create(title);
 		Component headerText = TextComponents.translatable("cosmetica.entry." + title.replace(" ", ""));
 

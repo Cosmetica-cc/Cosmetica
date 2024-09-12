@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class PlayerMixin {
 		final Player player = ((Player) (Object) this);
 
 		if (player.getLevel().isClientSide()) {
-			PlayerData data = Cosmetica.getPlayerData(player.getUUID(), player.getName().getString(), false);
+			PlayerData data = PlayerData.get(player.getUUID(), player.getName().getString(), false);
 			String prefix = (data.icon() == null ? "" : "\u2001") + data.prefix();
 			String suffix = data.suffix();
 

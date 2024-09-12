@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import cc.cosmetica.api.Model;
 import cc.cosmetica.api.ShoulderBuddies;
 import cc.cosmetica.api.User;
 import cc.cosmetica.api.UserInfo;
+import cc.cosmetica.cosmetica.config.ArmourConflictHandlingMode;
 import cc.cosmetica.cosmetica.config.CosmeticaConfig;
 import cc.cosmetica.cosmetica.config.DefaultSettingsConfig;
 import cc.cosmetica.cosmetica.cosmetics.CapeData;
@@ -36,6 +37,11 @@ import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.NamedThreadFactory;
 import cc.cosmetica.cosmetica.utils.SpecialKeyMapping;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.util.Response;
+import cc.cosmetica.util.SafeURL;
+import com.google.common.collect.Iterables;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -78,14 +84,24 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Debug;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -103,15 +119,13 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static cc.cosmetica.cosmetica.Authentication.runAuthenticationCheckThread;
+import static cc.cosmetica.cosmetica.Authentication.runSyncSettingsThread;
 
 @Environment(EnvType.CLIENT)
 public class Cosmetica implements ClientModInitializer {
@@ -128,12 +142,6 @@ public class Cosmetica implements ClientModInitializer {
 	public static Component displayNext;
 
 	public static String currentServerAddressCache = "";
-	public static KeyMapping openCustomiseScreen;
-	public static KeyMapping snipe;
-
-	private static Map<UUID, PlayerData> playerDataCache = new HashMap<>();
-	private static Map<UUID, List<Consumer<PlayerData>>> synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData = new HashMap<>();
-	private static Set<UUID> lookingUp = new HashSet<>();
 
 	public static final Logger LOGGER = LogManager.getLogger("Cosmetica");
 
@@ -204,9 +212,6 @@ public class Cosmetica implements ClientModInitializer {
 			e.printStackTrace();
 		}
 
-		// delete debug dump images
-		DebugMode.clearImages();
-
 		// Set up API stuff
 		try {
 			File apiCache = new File(cacheDirectory.toFile(), "cosmetica_get_api_cache.json");
@@ -253,7 +258,7 @@ public class Cosmetica implements ClientModInitializer {
 						mayShowWelcomeScreen = versionInfo.megaInvasiveTutorial();
 					}, Cosmetica.logErr("Error checking version"));
 
-					Authentication.runAuthentication(1);
+					Authentication.runAuthentication();
 				} catch (Exception e) {
 					LOGGER.error("Error retrieving API Url. Mod functionality will be disabled!");
 					e.printStackTrace();
@@ -282,7 +287,16 @@ public class Cosmetica implements ClientModInitializer {
 			}
 		});
 
-		runAuthenticationCheckThread();
+		// Make nametag request for own profile on startup
+		// see comment in Cosmetica.forwardPublicUserInfoToNametag
+		GameProfile userProfile = Minecraft.getInstance().getUser().getGameProfile();
+		GameProfile profileCopy = new GameProfile(userProfile.getId(), userProfile.getName());
+
+		Minecraft.getInstance().getMinecraftSessionService().fillProfileProperties(profileCopy, true);
+		Cosmetica.runOffthread(() -> Cosmetica.forwardPublicUserInfoToNametag(profileCopy), ThreadPool.GENERAL_THREADS);
+
+		// start sync settings thread
+		runSyncSettingsThread();
 	}
 
 	private static void setupDirectories() {
@@ -293,8 +307,7 @@ public class Cosmetica implements ClientModInitializer {
 
 		if (Files.isDirectory(minecraftDir)) {
 			cacheDirectory = minecraftDir.resolve(".cosmetica");
-		}
-		else {
+		} else {
 			cacheDirectory = FabricLoader.getInstance().getGameDir().resolve(".cosmetica");
 		}
 
@@ -315,22 +328,6 @@ public class Cosmetica implements ClientModInitializer {
 				throw new RuntimeException("Error creating cache directory", e);
 			}
 		}
-	}
-
-	public static void registerKeyMappings(List<KeyMapping> keymappings) {
-		keymappings.add(openCustomiseScreen = new SpecialKeyMapping(
-				"key.cosmetica.customise",
-				InputConstants.Type.KEYSYM,
-				InputConstants.KEY_RSHIFT, // not bound by default
-				"key.categories.misc"
-		));
-
-		keymappings.add(snipe = new SpecialKeyMapping(
-				"key.cosmetica.snipe",
-				InputConstants.Type.MOUSE,
-				InputConstants.MOUSE_BUTTON_MIDDLE, // not bound by default
-				"key.categories.misc"
-		));
 	}
 
 	public static boolean isProbablyNPC(UUID uuid) {
@@ -459,12 +456,12 @@ public class Cosmetica implements ClientModInitializer {
 								UUID uuid = individual.getUUID();
 								DebugMode.log("Your amazing lion king with expected uuid {} seems to be requesting we update his (or her, their, faer, ...) cosmetics! :lion:", uuid);
 
-								if (playerDataCache.containsKey(uuid)) {
-									clearPlayerData(uuid);
+								if (PlayerData.has(uuid)) {
+									PlayerData.clear(uuid);
 
 									// if ourselves, refresh asap
 									if (!ignoreSelf && uuid.equals(Minecraft.getInstance().player.getUUID())) {
-										getPlayerData(Minecraft.getInstance().player);
+										PlayerData.get(Minecraft.getInstance().player);
 									}
 								} else {
 									// Here are EyezahMC inc. we strive to be extremely descriptive with our debug messages.
@@ -478,13 +475,13 @@ public class Cosmetica implements ClientModInitializer {
 									if (info != null) {
 										UUID serverUuid = info.getProfile().getId();
 
-										if (playerDataCache.containsKey(serverUuid)) {
+										if (PlayerData.has(serverUuid)) {
 											DebugMode.log("Found them :). They were hiding at uuid {}", serverUuid);
-											clearPlayerData(serverUuid);
+											PlayerData.clear(serverUuid);
 
 											// if ourselves, refresh asap
 											if (!ignoreSelf && username.equals(String.valueOf(Minecraft.getInstance().player.getName()))) {
-												getPlayerData(Minecraft.getInstance().player);
+												PlayerData.get(Minecraft.getInstance().player);
 											}
 										}
 									}
@@ -565,9 +562,8 @@ public class Cosmetica implements ClientModInitializer {
 		return false;
 	}
 
-	@Nullable
 	public static void runOffthread(Runnable runnable, @SuppressWarnings("unused") ThreadPool pool) {
-		if (Thread.currentThread().getName().startsWith("Cosmetica")) {
+		if (Thread.currentThread().getName().startsWith("Cosmetica")) { // if already on a cosmetica worker
 			runnable.run();
 		} else {
 			MAIN_POOL.execute(runnable);
@@ -575,41 +571,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static boolean shouldRenderUpsideDown(Player player) {
-		return getPlayerData(player).upsideDown();
-	}
-
-	public static PlayerData getPlayerData(Player player) {
-		return getPlayerData(player.getUUID(), player.getName().getString(), false);
-	}
-
-	public static PlayerData getCachedPlayerData(UUID player) {
-		synchronized (playerDataCache) {
-			return playerDataCache.get(player);
-		}
-	}
-
-	public static void clearPlayerData(UUID uuid) {
-		synchronized (playerDataCache) {
-			playerDataCache.remove(uuid);
-		}
-	}
-
-	public static int getCacheSize() {
-		synchronized (playerDataCache) {
-			return playerDataCache.size();
-		}
-	}
-
-	public static Collection<UUID> getCachedPlayers() {
-		synchronized (playerDataCache) {
-			return playerDataCache.keySet();
-		}
-	}
-
-	public static boolean isPlayerCached(UUID uuid) {
-		synchronized (playerDataCache) {
-			return playerDataCache.containsKey(uuid);
-		}
+		return PlayerData.get(player).upsideDown();
 	}
 
 	public static String urlEncode(String value) {
@@ -634,105 +596,13 @@ public class Cosmetica implements ClientModInitializer {
 		return "";
 	}
 
-	// TODO this code is cursed from editing and editing and editing. Despaghettify this.
-	// could split into a system of data listeners/dispatchers to try clean up
-	public static PlayerData getPlayerData(UUID uuid, String username, boolean sync) {
-		if (Cosmetica.isProbablyNPC(uuid)) return PlayerData.NONE;
-		Level level = Minecraft.getInstance().level;
-
-		AtomicReference<PlayerData> theDefaultValue = new AtomicReference<>(PlayerData.NONE);
-		AtomicReference<Supplier<PlayerData>> lookup = new AtomicReference<>(() -> theDefaultValue.get());
-
-		synchronized (playerDataCache) { // TODO if the network connection fails, queue it to try again later
-			theDefaultValue.set(playerDataCache.computeIfAbsent(uuid, uid -> {
-				if (!lookingUp.contains(uuid)) { // if not already looking up, mark as looking up and look up.
-					lookingUp.add(uuid);
-
-					Supplier<PlayerData> request = () -> {
-						if (Cosmetica.api == null || Minecraft.getInstance().level != level) { // don't make the request if the level changed (in case the players are different between levels)!
-							synchronized (playerDataCache) { // make sure temp values are removed
-								playerDataCache.remove(uuid);
-								lookingUp.remove(uuid);
-							}
-
-							return PlayerData.NONE;
-						}
-
-						AtomicReference<PlayerData> newDataHolder = new AtomicReference<>(PlayerData.NONE);
-
-						Cosmetica.api.getUserInfo(uuid, username).ifSuccessfulOrElse(info -> {
-							PlayerData newData = newPlayerData(info, uuid);
-
-							synchronized (playerDataCache) { // update the information with what we have gotten.
-								playerDataCache.put(uuid, newData);
-								lookingUp.remove(uuid);
-							}
-
-							synchronized (synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData) {
-								@Nullable var waitingRequests = synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData.remove(uuid);
-								if (waitingRequests != null) waitingRequests.forEach(c -> c.accept(newData));
-							}
-
-							newDataHolder.set(newData);
-						}, logErr("Error getting user info for " + uuid + " / " + username));
-
-						return newDataHolder.get();
-					};
-
-					if (sync) lookup.set(request);
-					else lookup.set(() -> {
-						Cosmetica.runOffthread(() -> request.get(), ThreadPool.GENERAL_THREADS);
-						return PlayerData.TEMPORARY;
-					});
-				}
-
-				return PlayerData.TEMPORARY; // temporary name: blank.
-			}));
-		}
-
-		// to ensure web requests are not run in a synchronised block on the data cache, holding up the main thread
-		// also return the actual data
-
-
-		PlayerData result = lookup.get().get();
-
-		if (sync && result == PlayerData.TEMPORARY) {
-			AtomicReference<PlayerData> resultt = new AtomicReference<>(PlayerData.TEMPORARY);
-
-			synchronized (synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData) {
-				synchronized (playerDataCache) {
-					result = playerDataCache.get(uuid);
-				}
-
-				if (result == null) return PlayerData.NONE; // idk if this could really happen (it would have to be removed in a short span of time) but just in case lmao
-				if (result != PlayerData.TEMPORARY) return result;
-
-				Cosmetica.LOGGER.warn("Synchronised player info request is waiting for the request on another thread to respond.");
-
-				// if still pending, wait on the object
-				synchronisedRequestsThatGotTheTempValueAndAreWaitingForTheRealData.computeIfAbsent(uuid, l -> new LinkedList<>()).add(resultt::set);
-			}
-
-			while (resultt.get() == PlayerData.TEMPORARY) {
-				try {
-					Thread.sleep(5L);
-				}
-				catch (InterruptedException e) {
-					Cosmetica.LOGGER.warn("Exception while synchronised thread waits for data", e);
-				}
-			}
-		}
-
-		return result;
-	}
-
-	static PlayerData newPlayerData(UserInfo info, UUID uuid) {
+	public static PlayerData newPlayerData(UserInfo info, UUID uuid) {
 		List<Model> hats = info.getHats();
 		Optional<ShoulderBuddies> shoulderBuddies = info.getShoulderBuddies();
 		Optional<Model> backBling = info.getBackBling();
 		Optional<Cape> cloak = info.getCape();
 		String icon = info.getIcon();
-		Optional<String> client = info.getClient();
+		boolean isSelf = uuid.toString().equals(Cosmetica.dashifyUUID(Minecraft.getInstance().getUser().getUuid()));
 
 		Optional<Model> leftShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getLeft();
 		Optional<Model> rightShoulderBuddy = shoulderBuddies.isEmpty() ? Optional.empty() : shoulderBuddies.get().getRight();
@@ -741,7 +611,7 @@ public class Cosmetica implements ClientModInitializer {
 				info.getLore(),
 				info.isUpsideDown(),
 				icon.isEmpty() ? null : CosmeticaSkinManager.processIcon(icon),
-				info.isOnline(),
+				info.isOnline() || isSelf, // we are always online ourselves. we are literally using the mod
 				info.getPrefix(),
 				info.getSuffix(),
 				hats.stream().map(Models::createBakableModel).collect(Collectors.toList()),
@@ -760,13 +630,57 @@ public class Cosmetica implements ClientModInitializer {
 		);
 	}
 
+	/**
+	 * In order to take the load off the servers (and avoid rate limits), we forward the mojang api response used in
+	 * game instead of using a network of workers. This is a more long-term sustainable approach to fetching username
+	 * and texture data.
+	 * This is perfectly secure on both ends. No sensitive data is exposed to the server, and the server can verify
+	 * via the signature that the info hasn't been tampered.
+	 * This should be called offthread.
+	 * @param profile the game profile.
+	 */
+	public static void forwardPublicUserInfoToNametag(GameProfile profile) {
+		final Property textureProperty = Iterables.getFirst(profile.getProperties().get("textures"), null);
+
+		// only send signed data
+		if (textureProperty != null && textureProperty.hasSignature()) {
+			RequestConfig requestConfig = RequestConfig.custom()
+					.setConnectionRequestTimeout(20 * 1000)
+					.setConnectTimeout(20 * 1000)
+					.setSocketTimeout(20 * 1000)
+					.build();
+
+			try (CloseableHttpClient client = HttpClients.custom()
+					.setDefaultRequestConfig(requestConfig)
+					.build()) {
+
+				final HttpPut put = new HttpPut("https://ingest.namet.ag/");
+
+				String request = String.format(
+						"{\"value\": \"%s\", \"signature\": \"%s\"}",
+						textureProperty.getValue(),
+						textureProperty.getSignature());
+
+				put.setEntity(new StringEntity(request, ContentType.APPLICATION_JSON));
+
+				try (CloseableHttpResponse response = client.execute(put)) {
+					HttpEntity entity = response.getEntity();
+					String responseBody = EntityUtils.toString(entity);
+					DebugMode.log("Namet.ag Response: {}", responseBody);
+				}
+			} catch (IOException e) {
+				LOGGER.error("Error submitting to namet.ag", e);
+			}
+		}
+	}
+
 	public static void renderLore(EntityRenderDispatcher entityRenderDispatcher, Entity entity, PlayerModel<AbstractClientPlayer> playerModel, PoseStack stack, MultiBufferSource multiBufferSource, Font font, int packedLight) {
 		if (entity instanceof Player player) {
 			UUID lookupId = player.getUUID();
 
 			if (lookupId != null) {
 				double squaredDistance = entityRenderDispatcher.distanceToSqr(entity);
-				PlayerData data = getPlayerData(player);
+				PlayerData data = PlayerData.get(player);
 
 				if (squaredDistance <= 4096.0D) {
 					renderLore(
@@ -789,35 +703,41 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void renderLore(PoseStack stack, Quaternion cameraOrientation, Font font, MultiBufferSource multiBufferSource, String lore, List<BakableModel> hats, boolean wearingHelmet, boolean doNametagShift, boolean discrete, boolean upsideDown, float playerHeight, float xRotHead, int packedLight) {
-		if (!lore.equals("")) {
-			// how much do we need to shift up nametags?
+		// how much do we need to shift up nametags?
 
-			// upside down players don't need nametags shifted up
-			if (!upsideDown) {
-				float hatTopY = 0;
+		// upside down players don't need nametags shifted up
+		if (!upsideDown) {
+			float hatTopY = 0;
+			float torsoFixedHatTopY = 0;
 
-				if (doNametagShift) {
-					for (BakableModel hat : hats) {
-						if (!((hat.extraInfo() & 0x1) == 0 && wearingHelmet)) {
+			if (doNametagShift) {
+				for (BakableModel hat : hats) {
+					if (!(config.getHatConflictMode() == ArmourConflictHandlingMode.HIDE_COSMETICS && (hat.extraInfo() & Model.SHOW_HAT_WITH_HELMET) == 0 && wearingHelmet)) {
+						if ((hat.extraInfo() & Model.LOCK_HAT_ORIENTATION) == 0) {
 							hatTopY = Math.max(hatTopY, (float) hat.bounds().y1());
+						} else {
+							torsoFixedHatTopY = Math.max(torsoFixedHatTopY, (float) hat.bounds().y1());
 						}
 					}
 				}
-
-				if (hatTopY > 0) {
-					float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
-					float lookAngleMultiplier;
-					if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
-						lookAngleMultiplier = 0;
-					} else {
-						lookAngleMultiplier = normalizedAngleMultiplier;
-					}
-					stack.translate(0, (hatTopY / 16) * lookAngleMultiplier, 0);
-				}
 			}
 
-			// render lore
+			if (hatTopY > 0 || torsoFixedHatTopY > 0) {
+				float normalizedAngleMultiplier = (float) -(Math.abs(xRotHead) / 1.57 - 1);
+				float lookAngleMultiplier;
 
+				if (normalizedAngleMultiplier == 0.49974638F) { // Gliding with elytra, swimming, or crouching
+					lookAngleMultiplier = 0;
+				} else {
+					lookAngleMultiplier = normalizedAngleMultiplier;
+				}
+
+				stack.translate(0, Math.max(hatTopY * lookAngleMultiplier, torsoFixedHatTopY)/ 16, 0);
+			}
+		}
+
+		// render lore
+		if (!lore.equals("")) {
 			Component component = new TextComponent(lore);
 
 			boolean fullyRender = !discrete;
@@ -850,7 +770,7 @@ public class Cosmetica implements ClientModInitializer {
 	}
 
 	public static void renderTabIcon(PoseStack stack, int x, int y, UUID playerUUID, String name) {
-		PlayerData data = getPlayerData(playerUUID, name, false);
+		PlayerData data = PlayerData.get(playerUUID, name, false);
 		@Nullable ResourceLocation iconTexture = data.icon();
 
 		if (iconTexture != null) {
@@ -858,6 +778,7 @@ public class Cosmetica implements ClientModInitializer {
 			// I'm sure there's some minigame out there where that's important
 			RenderSystem.enableBlend();
 			renderTexture(stack.last().pose(), iconTexture, x + 1, x + 1 + 8, y, y + 8, 0, data.online() ? 1.0f : 0.5f);
+			RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 	}
 
@@ -951,7 +872,7 @@ public class Cosmetica implements ClientModInitializer {
 
 	public static void clearAllCaches() {
 		DebugMode.log("Clearing all Cosmetica Caches");
-		playerDataCache = new HashMap<>();
+		PlayerData.clearCaches();
 		Models.resetCaches();
 		CosmeticaSkinManager.clearCaches();
 		System.gc(); // force jvm to garbage collect our unused data

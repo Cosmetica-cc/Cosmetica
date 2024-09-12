@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.mixin;
 
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.Cosmetica;
 import net.minecraft.client.Minecraft;
@@ -42,7 +43,7 @@ public abstract class ClientPacketListenerMixin {
 			Cosmetica.currentServerAddressCache = address;
 			DebugMode.log("Clearing all player data due to login.");
 			Cosmetica.clearAllCaches();
-			Cosmetica.getPlayerData(this.minecraft.player);
+			PlayerData.get(this.minecraft.player);
 		}
 	}
 }

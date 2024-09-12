@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@ package cc.cosmetica.cosmetica.mixin;
 import cc.cosmetica.api.User;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.screens.CustomiseCosmeticsScreen;
-import cc.cosmetica.cosmetica.screens.LoadingScreen;
-import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
-import cc.cosmetica.cosmetica.screens.RSEWarningScreen;
-import cc.cosmetica.cosmetica.screens.WelcomeScreen;
+import cc.cosmetica.cosmetica.CosmeticaKeybinds;
+import cc.cosmetica.cosmetica.cosmetics.PlayerData;
+import cc.cosmetica.cosmetica.screens.*;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -50,6 +48,11 @@ public abstract class MinecraftMixin {
 
 	@Shadow @Nullable public LocalPlayer player;
 
+	@Shadow
+	public static Minecraft getInstance() {
+		return null;
+	}
+
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;shutdownExecutors()V"), method = "close")
 	private void onClose(CallbackInfo info) {
 		Cosmetica.onShutdownClient();
@@ -57,8 +60,10 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("HEAD"), method = "setScreen", cancellable = true)
 	private void addRegionSpecificEffectsPrompt(Screen screen, CallbackInfo info) {
+		boolean shouldShowRSEScreen = RSEWarningScreen.appearNextScreenChange || (DebugMode.forceRSEScreen() && !RSEWarningScreen.hasShown());
+
 		// if the RSE warning screen should appear cancel the current screen set in favour of a wrapper thereof
-		if (RSEWarningScreen.appearNextScreenChange && !WelcomeScreen.isInTutorial) {
+		if (shouldShowRSEScreen && !WelcomeScreen.isInTutorial) {
 			RSEWarningScreen.appearNextScreenChange = false;
 			this.setScreen(new RSEWarningScreen(screen));
 			info.cancel();
@@ -74,7 +79,7 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("HEAD"), method = "setLevel")
 	private void maybeClearCosmetics(ClientLevel level, CallbackInfo info) {
-		if (Cosmetica.getCacheSize() > 1024) {
+		if (PlayerData.getCacheSize() > 1024) {
 			DebugMode.log("Clearing Cosmetica Caches");
 			Cosmetica.clearAllCaches();
 		}
@@ -88,17 +93,34 @@ public abstract class MinecraftMixin {
 
 	@Inject(at = @At("RETURN"), method = "tick")
 	public void afterTick(CallbackInfo ci) {
-		if (Cosmetica.openCustomiseScreen.consumeClick()) {
-			if (this.screen == null) {
-				this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
+		if (CosmeticaKeybinds.openCustomiseScreen.consumeClick()) {
+			if (this.screen == null && this.player != null) {
+				if (Authentication.hasCachedOptions()  && PlayerData.has(this.player.getUUID())) {
+					Authentication.openCustomiseCosmeticsScreen(null, PlayerData.getCached(this.player.getUUID()));
+				} else {
+					this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 1));
+				}
 			}
 			else if (this.screen instanceof CustomiseCosmeticsScreen ccs && ccs.canCloseWithBn()) {
 				ccs.onClose();
 			}
 		}
 
-		if (Cosmetica.snipe.consumeClick() && this.screen == null && Cosmetica.farPickPlayer != null) {
+		if (CosmeticaKeybinds.snipe.consumeClick() && this.screen == null && Cosmetica.farPickPlayer != null) {
+			DebugMode.log("Sniping Player: " + Cosmetica.farPickPlayer.getUUID());
 			Authentication.snipedPlayer = new User(Cosmetica.farPickPlayer.getUUID(), Cosmetica.farPickPlayer.getName().getString());
+
+			if (Authentication.hasCachedOptions() && this.player != null
+					&& PlayerData.has(this.player.getUUID()) && PlayerData.has(Cosmetica.farPickPlayer.getUUID())) {
+				PlayerData ownData = PlayerData.getCached(this.player.getUUID());
+				PlayerData foreignData = PlayerData.getCached(Cosmetica.farPickPlayer.getUUID());
+
+				// if not loading
+				if (ownData != PlayerData.TEMPORARY && foreignData != PlayerData.TEMPORARY) {
+					Authentication.openSnipeScreen(null, foreignData, ownData);
+					return;
+				}
+			}
 			this.setScreen(new LoadingScreen(null, Minecraft.getInstance().options, 2));
 		}
 	}

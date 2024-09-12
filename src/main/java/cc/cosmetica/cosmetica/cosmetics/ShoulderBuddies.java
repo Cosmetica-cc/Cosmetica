@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer
 
 		boolean canOverridePlayerCosmetics = this.canOverridePlayerCosmetics(player);
 
-		PlayerData playerData = Cosmetica.getPlayerData(player);
+		PlayerData playerData = PlayerData.get(player);
 
 		BakableModel left = canOverridePlayerCosmetics ? LEFT_OVERRIDDEN.get(playerData::leftShoulderBuddy) : playerData.leftShoulderBuddy();
 		BakableModel right = canOverridePlayerCosmetics ? RIGHT_OVERRIDDEN.get(playerData::rightShoulderBuddy) : playerData.rightShoulderBuddy();

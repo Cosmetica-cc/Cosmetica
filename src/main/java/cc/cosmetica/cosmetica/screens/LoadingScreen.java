@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,8 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		this.parentScreen = parentScreen;
 		this.parentOptions = parentOptions;
 		Authentication.settingLoadTarget = target;
-
-		Minecraft.getInstance().tell(() -> {
-			if (!runAuthentication(2)) {
-				Minecraft.getInstance().setScreen(new OfflineScreen(parentScreen, target));
-			}
-		});
+		
+		Minecraft.getInstance().tell(Authentication::runAuthentication);
 	}
 
 	@Override

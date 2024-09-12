@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,21 +30,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// increase priority to run later, letting anyone cancelling the method have their code run first.
-@Mixin(value = PlayerRenderer.class, priority = 2000)
+@Mixin(value = PlayerRenderer.class)
 public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 	public PlayerRendererMixin(EntityRendererProvider.Context context, PlayerModel<AbstractClientPlayer> entityModel, float f) {
 		super(context, entityModel, f);
 	}
 
-	@Inject(at = @At("HEAD"), method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
+	@Inject(at = @At(
+			value = "INVOKE",
+			shift = At.Shift.AFTER,
+			target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V"
+	), method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
 	protected void onRenderNameTag(AbstractClientPlayer entity, Component displayName, PoseStack stack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-		stack.pushPose();
 		Cosmetica.renderLore(this.entityRenderDispatcher, entity, this.getModel(), stack, buffer, this.getFont(), packedLight);
-	}
-
-	@Inject(at = @At("RETURN"), method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
-	protected void afterRenderNameTag(AbstractClientPlayer entity, Component displayName, PoseStack stack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-		stack.popPose();
 	}
 }

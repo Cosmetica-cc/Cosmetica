@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 EyezahMC
+ * Copyright 2022, 2023 EyezahMC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,7 +178,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 	void refetchPlayerData() {
 		new Thread(() -> {
-			this.fakePlayer.setData(Cosmetica.getPlayerData(this.fakePlayer.getUUID(), this.fakePlayer.getName(), true));
+			this.fakePlayer.setData(PlayerData.get(this.fakePlayer.getUUID(), this.fakePlayer.getName(), true));
 		}).start();
 	}
 
@@ -218,7 +218,9 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
 		RenderSystem.runAsFancy(() -> {
-			FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+			if (fakePlayer.verifyModel(Minecraft.getInstance())) {
+				FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+			}
 		});
 		bufferSource.endBatch();
 
