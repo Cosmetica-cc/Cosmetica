@@ -25,7 +25,6 @@ import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.gui.GuiGraphics;
@@ -123,7 +122,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 	}
 
 	@Override
-	public void renderWidget(GuiGraphics poseStack, int mouseX, int mouseY, float delta) {
+	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
 		int x = this.getX();
 		int j = 0;
 		CosmeticStack<T> overrider = this.overrider;
@@ -136,7 +135,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 				final int x0 = x - (this.width / 2);
 
 				Tesselator tesselator = Tesselator.getInstance();
-				BufferBuilder bb = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+				BufferBuilder bb = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
 				RenderSystem.setShader(GameRenderer::getPositionShader);
 				float shade = 1.0F;
@@ -149,7 +148,7 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 				bb.buildOrThrow();
 
 				RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
-				bb = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+				bb = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 				bb.addVertex(x0 + 1, y1 - 1, 0.0F);
 				bb.addVertex(x1 - 1, y1 - 1, 0.0F);
 				bb.addVertex(x1 - 1, y0 + 1, 0.0F);
