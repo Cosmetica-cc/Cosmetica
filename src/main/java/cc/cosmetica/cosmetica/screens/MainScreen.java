@@ -51,9 +51,9 @@ public class MainScreen extends PlayerRenderScreen {
 		this.cosmeticaOptions = new ServerOptions(settings);
 		this.capeServerSettings = Cosmetica.map(settings.getCapeServerSettings(), CapeServer::getDisplay);
 		this.capeServerSettingsForButtons = new ArrayList<>(settings.getCapeServerSettings().entrySet());
-		Collections.sort(this.capeServerSettingsForButtons, Comparator.comparingInt(a -> a.getValue().getCheckOrder()));;
+		Collections.sort(this.capeServerSettingsForButtons, Comparator.comparingInt(a -> a.getValue().getCheckOrder()));
 
-		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
+        this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
 		this.setTransitionProgress(1.0f);
 
