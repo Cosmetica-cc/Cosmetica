@@ -392,7 +392,8 @@ public class FakePlayerRenderer {
 				player.getData().upsideDown(),
 				EntityType.PLAYER.getDimensions().height(),
 				player.getModel().getHead().xRot,
-				light);
+				light,
+				true);
 
 		stack.translate(0.0D, yPosition, 0.0D);
 		stack.mulPose(cameraOrientation);
