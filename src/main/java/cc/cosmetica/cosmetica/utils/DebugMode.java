@@ -26,7 +26,7 @@ import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
-import cc.cosmetica.cosmetica.utils.textures.LocalCapeTexture;
+import cc.cosmetica.cosmetica.utils.textures.DirectAnimatedTexture;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -62,7 +62,7 @@ public class DebugMode {
 
 	private static final Logger DEBUG_LOGGER = LogManager.getLogger("Cosmetica Debug");
 
-	public static final ResourceLocation TEST_CAPE = new ResourceLocation("cosmetica", "test/loaded_cape");
+	public static final ResourceLocation TEST_CAPE = ResourceLocation.fromNamespaceAndPath("cosmetica", "test/loaded_cape");
 	public static int frameDelayMs = 50;
 
 	// edit this to change debug settings
@@ -154,16 +154,16 @@ public class DebugMode {
 					return false;
 				}
 
-				ResourceLocation resourceLocation = new ResourceLocation("cosmetica_debug", "test/" + modelLoc.toLowerCase(Locale.ROOT));
+				ResourceLocation resourceLocation = ResourceLocation.fromNamespaceAndPath("cosmetica_debug", "test/" + modelLoc.toLowerCase(Locale.ROOT));
 
-				Minecraft.getInstance().getTextureManager().register(resourceLocation, new LocalCapeTexture(new ResourceLocation("cosmetica_debug", modelLoc.toLowerCase(Locale.ROOT)), 1, () -> {
+				Minecraft.getInstance().getTextureManager().register(resourceLocation, new DirectAnimatedTexture(ResourceLocation.fromNamespaceAndPath("cosmetica_debug", modelLoc.toLowerCase(Locale.ROOT)), 1, () -> {
 					try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
 						return NativeImage.read(stream);
 					} catch (IOException e) {
 						Cosmetica.LOGGER.error("Error reading test model texture for " + modelLoc, e);
 						return null;
 					}
-				}));
+				}, Math.max(1, DebugMode.frameDelayMs / 50)));
 
 				model.push(new BakableModel(
 						"test-" + modelLoc,
@@ -215,14 +215,14 @@ public class DebugMode {
 		File imageF = new File(CONFIG_DIR, location + ".png");
 
 		if (imageF.isFile()) {
-			Minecraft.getInstance().getTextureManager().register(TEST_CAPE, new LocalCapeTexture(new ResourceLocation("cosmetica_debug", location.toLowerCase(Locale.ROOT)), 2, () -> {
+			Minecraft.getInstance().getTextureManager().register(TEST_CAPE, new DirectAnimatedTexture(ResourceLocation.fromNamespaceAndPath("cosmetica_debug", location.toLowerCase(Locale.ROOT)), 2, () -> {
 				try (InputStream stream = new BufferedInputStream(new FileInputStream(imageF))) {
 					return NativeImage.read(stream);
 				} catch (IOException e) {
 					Cosmetica.LOGGER.error("Error reading test cape image for " + location, e);
 					return null;
 				}
-			}));
+			}, Math.max(1, DebugMode.frameDelayMs / 50)));
 
 			CustomLayer.CAPE_OVERRIDER.push(TEST_CAPE);
 			CosmeticaSkinManager.setTestUploaded("loaded_cape");
@@ -278,7 +278,7 @@ public class DebugMode {
 				e.printStackTrace();
 			}
 
-			Minecraft.getInstance().tell(() -> {
+			Minecraft.getInstance().execute(() -> {
 				log("Loading test models and capes...");
 				loadTestModel(LocalModelType.HAT);
 				loadTestModel(LocalModelType.LEFT_SHOULDERBUDDY);

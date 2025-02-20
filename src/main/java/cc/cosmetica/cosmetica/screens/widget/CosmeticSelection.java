@@ -118,20 +118,20 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			// so we can add off-thread to the data version then duplicate later on thread when we make the view version
 			if (register) { // yes please do load icon each time (it removes it from memory?)
 				if (RenderSystem.isOnRenderThreadOrInit()) {
-					Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
-							Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
+					Minecraft.getInstance().getTextureManager().register(this.texture, CosmeticIconTexture.load(
+							Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png"),
 							String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", CosmeticSelection.this.cosmeticType, cosmeticId)
-					));
+					););
 
 					textureRegistered = true;
 				} else {
 					Cosmetica.LOGGER.warn("Tried to register cosmetic icon texture on thread \"{}\". Avoiding crashes by delaying registration!", Thread.currentThread().getName());
 
 					RenderSystem.recordRenderCall(() -> {
-						Minecraft.getInstance().getTextureManager().register(this.texture, new CosmeticIconTexture(
-								Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png").toFile(),
+						Minecraft.getInstance().getTextureManager().register(this.texture, CosmeticIconTexture.load(
+								Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png"),
 								String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", CosmeticSelection.this.cosmeticType, cosmeticId)
-						));
+						););
 
 						textureRegistered = true;
 					});

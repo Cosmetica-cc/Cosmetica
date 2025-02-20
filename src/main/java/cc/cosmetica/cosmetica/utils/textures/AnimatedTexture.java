@@ -16,11 +16,13 @@
 
 package cc.cosmetica.cosmetica.utils.textures;
 
-import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
 
 public abstract class AnimatedTexture extends AbstractTexture {
 	public AnimatedTexture(int aspectRatio) {
@@ -35,6 +37,23 @@ public abstract class AnimatedTexture extends AbstractTexture {
 	private int frameHeight;
 	private int frame;
 	private int tick;
+
+	protected void loadImage(NativeImage image) {
+		this.image = image;
+
+		if (this.isAnimatable()) {
+			this.setupAnimations();
+		}
+		else {
+			this.setupStatic();
+		}
+
+		if (!RenderSystem.isOnRenderThread()) {
+			RenderSystem.recordRenderCall(this::upload);
+		} else {
+			this.upload();
+		}
+	}
 
 	protected void setupAnimations() throws IllegalStateException {
 		if (!this.isAnimatable()) {
@@ -52,13 +71,13 @@ public abstract class AnimatedTexture extends AbstractTexture {
 		}
 	}
 
-	protected void setupStatic() {
+	private void setupStatic() {
 		this.frameHeight = this.image.getHeight();
 	}
 
 	protected void upload() {
 		TextureUtil.prepareImage(this.getId(), 0, this.image.getWidth(), this.frameHeight);
-		this.image.upload(0, 0, 0, 0, this.frameHeight * this.frame, this.image.getWidth(), this.frameHeight, this.blur, false, false, false);
+		this.image.upload(0, 0, this.frameHeight * this.frame, 0, 0, this.image.getWidth(), this.frameHeight, false);
 	}
 
 	protected void doTick() {
@@ -104,5 +123,13 @@ public abstract class AnimatedTexture extends AbstractTexture {
 				", tick=" + tick +
 				'}';
 	}
-	// TODO do we have a memory leak? should I be closing the image on close()?
+	// do we have a memory leak? should I be closing the image on close()?
+	// close image on close
+
+	@Override
+	public void close() {
+		if (this.image != null) {
+			this.image.close();
+		}
+	}
 }

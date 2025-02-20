@@ -18,85 +18,86 @@ package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
+import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.TextureUtil;
-import net.minecraft.client.renderer.texture.HttpTexture;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.FileUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.ReloadableTexture;
+import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.Tickable;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
-public class CosmeticIconTexture extends HttpTexture implements Tickable {
-	public CosmeticIconTexture(@Nullable File file, String url) {
-		super(file, url, new ResourceLocation("cosmetica", "textures/gui/loading.png"), false, null);
-		this.url = url;
-		this.indicators = new HashSet<>();
+public final class CosmeticIconTexture extends DirectAnimatedTexture {
+	private CosmeticIconTexture(ResourceLocation debugPath, int aspectRatio, Supplier<NativeImage> image, int animationDelay) {
+		super(debugPath, aspectRatio, image, animationDelay);
 	}
 
-	private int frameHeight;
-	private int frames;
-	private int frame;
-	private int tick;
-	private NativeImage image;
-	private final String url;
-	private final Set<String> indicators;
+	public final Set<String> indicators = new HashSet<>();
 
-	public void firstUpload(NativeImage image, boolean loading) {
-		// memory management
-		if (this.image != null && ((NativeImageAccessorMixin)(Object)this.image).getPixels() != 0L) {
-			//Debug.info("Closing image on thread {} due to load. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
-			this.image.close();
-			//Debug.info("Closed image.");
-		}
+	public static void load(TextureManager manager, ResourceLocation texture, Path path, String url, int animationDelay) {
+		// load placeholder
+		manager.register(texture, new SimpleTexture(ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/loading.png")));
 
-		this.image = image;
+		// load image
+		Thread resourceLoader = new Thread(() -> {
+			HttpURLConnection httpURLConnection = null;
+			DebugMode.log("Downloading Cosmetica Icon texture from {} to {}", url, path);
+			URI uRI = URI.create(url);
 
-		this.frames = image.getHeight() / image.getWidth();
-		this.frameHeight = image.getHeight() / this.frames;
-		this.frame = 0;
+			NativeImage image;
+			try {
+				httpURLConnection = (HttpURLConnection)uRI.toURL().openConnection(Minecraft.getInstance().getProxy());
+				httpURLConnection.setDoInput(true);
+				httpURLConnection.setDoOutput(false);
+				httpURLConnection.connect();
+				int i = httpURLConnection.getResponseCode();
+				if (i / 100 != 2) {
+					throw new IOException("Failed to open " + uRI + ", HTTP error code: " + i);
+				}
 
-		try {
-			this.upload(image, !loading);
-		} catch (IllegalStateException e) {
-			Cosmetica.LOGGER.error("Error while uploading icon texture (loading: {}, icon url: {})", loading, this.url);
-			e.printStackTrace();
-		}
-	}
+				byte[] bs = httpURLConnection.getInputStream().readAllBytes();
 
-	public void upload(NativeImage image, boolean close) {
-		TextureUtil.prepareImage(this.getId(), 0, image.getWidth(), this.frameHeight);
-		image.upload(0, 0, 0, 0, this.frameHeight * this.frame, image.getWidth(), this.frameHeight, this.blur, false, false, close);
-	}
+				try {
+					FileUtil.createDirectoriesSafe(path.getParent());
+					Files.write(path, bs, new OpenOption[0]);
+				} catch (IOException var13) {
+					Cosmetica.LOGGER.warn("Failed to cache texture {} in {}", url, path);
+				}
 
-	@Override
-	public void tick() {
-		if (this.frames > 1 && this.image != null && ((NativeImageAccessorMixin) (Object) this.image).getPixels() != 0) {
-			this.tick = (this.tick + 1) % 2;
-
-			if (this.tick == 0) {
-				this.frame = (this.frame + 1) % this.frames;
-				//Debug.info("Uploading frame {}", this.frame);
-				this.upload(this.image, false);
+				image = NativeImage.read(bs);
+			} catch (IOException e) {
+				Cosmetica.LOGGER.error("Downloading Icon from " + url, e);
+				return;
+			} finally {
+				if (httpURLConnection != null) {
+					httpURLConnection.disconnect();
+				}
 			}
-		}
-	}
 
-	@Override
-	public void close() {
-		//Debug.info("Closing image on thread {} due to dispose. Are we allowed? {}", Thread.currentThread(), RenderSystem.isOnRenderThreadOrInit());
-		if (this.image != null) this.image.close();
-		//Debug.info("Disposed of image.");
-	}
-
-	private static void copyRect(NativeImage src, int srcX, int srcY, NativeImage dest, int destX, int destY, int width, int height) {
-		for(int dx = 0; dx < width; ++dx) {
-			for(int dy = 0; dy < height; ++dy) {
-				int colour = src.getPixelRGBA(srcX + dx, srcY + dy);
-				dest.setPixelRGBA(destX + dx, destY + dy, colour);
-			}
-		}
+			RenderSystem.recordRenderCall(() -> {
+				manager.register(texture, new CosmeticIconTexture(
+						ResourceLocation.fromNamespaceAndPath("cosmetica", "dynamic_icon_texture"),
+						1,
+						() -> image,
+						animationDelay));
+			});
+		});
+		resourceLoader.setName("Cosmetic Icon Downloader");
+		resourceLoader.setDaemon(true);
+		resourceLoader.start();
 	}
 }

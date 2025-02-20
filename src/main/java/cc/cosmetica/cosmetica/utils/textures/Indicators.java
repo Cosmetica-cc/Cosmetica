@@ -28,13 +28,13 @@ import java.util.List;
 import java.util.Map;
 
 public class Indicators {
-	public static final ResourceLocation ANIMATED = new ResourceLocation("cosmetica", "textures/gui/icon/animated.png");
-	public static final ResourceLocation LOCK_TO_TORSO = new ResourceLocation("cosmetica", "textures/gui/icon/lock_to_torso.png");
-	public static final ResourceLocation MIRROR = new ResourceLocation("cosmetica", "textures/gui/icon/mirror.png");
-	public static final ResourceLocation SW_CAPE = new ResourceLocation("cosmetica", "textures/gui/icon/show_with_cape.png");
-	public static final ResourceLocation SW_CHESTPLATE = new ResourceLocation("cosmetica", "textures/gui/icon/show_with_chestplate.png");
-	public static final ResourceLocation SW_HELMET = new ResourceLocation("cosmetica", "textures/gui/icon/show_with_helmet.png");
-	public static final ResourceLocation SW_PARROT = new ResourceLocation("cosmetica", "textures/gui/icon/show_with_parrot.png");
+	public static final ResourceLocation ANIMATED = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/icon/animated.png");
+	public static final ResourceLocation LOCK_TO_TORSO = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/icon/lock_to_torso.png");
+	public static final ResourceLocation MIRROR = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/icon/mirror.png");
+	public static final ResourceLocation SW_CAPE = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/icon/show_with_cape.png");
+	public static final ResourceLocation SW_CHESTPLATE = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/icon/show_with_chestplate.png");
+	public static final ResourceLocation SW_HELMET = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/icon/show_with_helmet.png");
+	public static final ResourceLocation SW_PARROT = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/icon/show_with_parrot.png");
 
 	public static final Map<ResourceLocation, MutableComponent> TOOLTIPS = ImmutableMap.<ResourceLocation, MutableComponent>builder()
 			.put(ANIMATED, TextComponents.translatable("cosmetica.indicators.animated"))

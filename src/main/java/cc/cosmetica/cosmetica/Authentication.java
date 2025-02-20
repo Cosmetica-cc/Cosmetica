@@ -168,7 +168,7 @@ public class Authentication {
 
 					// check *again* in case they've closed it
 					if (Minecraft.getInstance().screen instanceof LoadingTypeScreen lts) {
-						Minecraft.getInstance().tell(() -> {
+						Minecraft.getInstance().execute(() -> {
 							switch (loadTarget) {
 							case 2:
 								if (snipedInfo == null || snipedInfo == PlayerData.NONE) {
@@ -233,7 +233,7 @@ public class Authentication {
 		UnauthenticatedScreen.UnauthenticatedReason reason = diagnose(exception);
 
 		if (current instanceof LoadingTypeScreen lts) {
-			minecraft.tell(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), fromSave, reason)));
+			minecraft.execute(() -> minecraft.setScreen(new UnauthenticatedScreen(lts.getParent(), fromSave, reason)));
 		} // TODO if in-game some small, unintrusive text on bottom right
 	}
 

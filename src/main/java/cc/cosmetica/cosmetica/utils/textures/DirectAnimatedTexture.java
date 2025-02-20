@@ -18,17 +18,15 @@ package cc.cosmetica.cosmetica.utils.textures;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.utils.DebugMode;
-import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.Tickable;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
 
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
-public class LocalCapeTexture extends AnimatedTexture implements Tickable {
-	public LocalCapeTexture(ResourceLocation debugPath, int aspectRatio, Supplier<NativeImage> image) {
+public class DirectAnimatedTexture extends AnimatedTexture implements Tickable {
+	public DirectAnimatedTexture(ResourceLocation debugPath, int aspectRatio, Supplier<NativeImage> image, int animationDelay) {
 		super(aspectRatio);
 		this.imageSupplier = image;
 		this.debugPath = debugPath;
@@ -36,12 +34,13 @@ public class LocalCapeTexture extends AnimatedTexture implements Tickable {
 		DebugMode.log("Uploading native texture {}", this.debugPath);
 
 		this.image = this.imageSupplier.get();
+		this.frameCounterTicks = animationDelay;
 
 		if (this.image == null) {
 			Cosmetica.LOGGER.warn("Sorry texture machine broke for {}", this.debugPath);
 		}
 		else {
-			this.setupAnimations();
+			this.loadImage(this.image);
 		}
 	}
 
@@ -51,39 +50,6 @@ public class LocalCapeTexture extends AnimatedTexture implements Tickable {
 	@Override
 	protected void setupAnimations() throws IllegalStateException {
 		super.setupAnimations();
-		this.frameCounterTicks = Math.max(1, DebugMode.frameDelayMs / 50);
-	}
-
-	@Override
-	public void load(ResourceManager resourceManager) {
-		if (this.image == null) {
-			return;
-		}
-
-		if (((NativeImageAccessorMixin) (Object) this.image).getPixels() == 0) {
-			if (RenderSystem.isOnRenderThreadOrInit()) {
-				this.reload();
-			} else {
-				RenderSystem.recordRenderCall(this::reload);
-			}
-
-			return;
-		}
-
-		this.upload();
-	}
-
-	private void reload() {
-		DebugMode.log("Re-uploading native texture {}", this.debugPath);
-		this.image = this.imageSupplier.get();
-
-		if (this.image == null) {
-			Cosmetica.LOGGER.warn("Sorry texture machine broke for {}", this.debugPath);
-		}
-		else {
-			this.setupAnimations();
-			this.upload();
-		}
 	}
 
 	@Override

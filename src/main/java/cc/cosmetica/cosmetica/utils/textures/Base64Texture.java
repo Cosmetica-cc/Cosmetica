@@ -20,6 +20,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.mixin.textures.NativeImageAccessorMixin;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.Tickable;
 import net.minecraft.resources.ResourceLocation;
@@ -43,21 +44,6 @@ public class Base64Texture extends AnimatedTexture {
 	private final ResourceLocation path;
 	private final String base64;
 
-	@Override
-	public void load(ResourceManager resourceManager) {
-		if (((NativeImageAccessorMixin) (Object) this.image).getPixels() == 0) {
-			if (RenderSystem.isOnRenderThreadOrInit()) {
-				this.reload();
-			} else {
-				RenderSystem.recordRenderCall(this::reload);
-			}
-
-			return;
-		}
-
-		this.upload();
-	}
-
 	private void reload() {
 		DebugMode.log("Re-uploading texture {}", this.path);
 		try {
@@ -65,17 +51,6 @@ public class Base64Texture extends AnimatedTexture {
 			this.upload();
 		} catch (IOException e) {
 			Cosmetica.LOGGER.error("Error re-uploading Base64 Texture", e);
-		}
-	}
-
-	private void loadImage(NativeImage image) {
-		this.image = image;
-
-		if (this.isAnimatable()) {
-			this.setupAnimations();
-		}
-		else {
-			this.setupStatic();
 		}
 	}
 

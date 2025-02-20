@@ -31,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceMetadata;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class ModelSprite extends TextureAtlasSprite {
@@ -76,7 +77,7 @@ public class ModelSprite extends TextureAtlasSprite {
 		}
 	}
 
-	private static final ResourceLocation BLOCK_ATLAS = new ResourceLocation("textures/atlas/blocks.png");
+	private static final ResourceLocation BLOCK_ATLAS = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/atlas/blocks.png");
 
 	@Override
 	public void uploadFirstFrame() {
@@ -89,9 +90,10 @@ public class ModelSprite extends TextureAtlasSprite {
 					frameSize,
 					animatedTexture.image,
 					new ResourceMetadata.Builder()
-							.put(AnimationMetadataSection.SERIALIZER, new AnimationMetadataSection(
-									ImmutableList.of(new AnimationFrame(0, -1)), // DUMMY FRAME.
-									frameSize.width(), frameSize.height(), animatedTexture.frameCounterTicks, false))
+							.put(AnimationMetadataSection.TYPE, new AnimationMetadataSection(
+									Optional.of(ImmutableList.of(new AnimationFrame(0, Optional.empty()))), // DUMMY FRAME.
+                                    Optional.of(frameSize.width()), Optional.of(frameSize.height()),
+									animatedTexture.frameCounterTicks, false))
 							.build()
 			);
 			this.animatedTexture = animatedTexture;
