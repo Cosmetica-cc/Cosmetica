@@ -109,7 +109,7 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 
 			this.displayName = cosmetic.getName();
 			this.cosmetic = cosmetic;
-			this.texture = new ResourceLocation("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
+			this.texture = ResourceLocation.fromNamespaceAndPath("cosmetica", "icon/" + CosmeticaSkinManager.pathify(cosmeticId));
 			this.indicators = Indicators.getIcons(
 					cosmetic.getType(),
 					cosmetic instanceof Model model ? model.flags() : ((CustomCape) cosmetic).getFrameDelay()
@@ -118,20 +118,26 @@ public class CosmeticSelection<T extends CustomCosmetic> extends Selection<Cosme
 			// so we can add off-thread to the data version then duplicate later on thread when we make the view version
 			if (register) { // yes please do load icon each time (it removes it from memory?)
 				if (RenderSystem.isOnRenderThreadOrInit()) {
-					Minecraft.getInstance().getTextureManager().register(this.texture, CosmeticIconTexture.load(
+					CosmeticIconTexture.load(
+							Minecraft.getInstance().getTextureManager(),
+							this.texture,
 							Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png"),
-							String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", CosmeticSelection.this.cosmeticType, cosmeticId)
-					););
+							String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", CosmeticSelection.this.cosmeticType, cosmeticId),
+							cosmetic instanceof Model ? 1 : ((CustomCape) cosmetic).getFrameDelay()
+					);// yes this is probably a memory leak fixme
 
 					textureRegistered = true;
 				} else {
 					Cosmetica.LOGGER.warn("Tried to register cosmetic icon texture on thread \"{}\". Avoiding crashes by delaying registration!", Thread.currentThread().getName());
 
 					RenderSystem.recordRenderCall(() -> {
-						Minecraft.getInstance().getTextureManager().register(this.texture, CosmeticIconTexture.load(
+						CosmeticIconTexture.load(
+								Minecraft.getInstance().getTextureManager(),
+								this.texture,
 								Cosmetica.getCacheDirectory().resolve(".icon_cache").resolve(cosmeticId.substring(0, 2)).resolve(cosmeticId + "-" + this.cosmetic.getType().getUrlString() + ".png"),
-								String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", CosmeticSelection.this.cosmeticType, cosmeticId)
-						););
+								String.format("http://images.cosmetica.cc/?subject=%s&type=icon&id=%s", CosmeticSelection.this.cosmeticType, cosmeticId),
+								cosmetic instanceof Model ? 1 : ((CustomCape) cosmetic).getFrameDelay()
+						); // yes this is probably a memory leak fixme
 
 						textureRegistered = true;
 					});

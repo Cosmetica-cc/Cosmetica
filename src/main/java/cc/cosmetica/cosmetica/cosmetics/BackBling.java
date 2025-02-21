@@ -28,6 +28,7 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ElytraItem;
@@ -35,8 +36,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-public class BackBling<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
-	public BackBling(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
+public class BackBling extends CustomLayer implements MenuRenderLayer {
+	public BackBling(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent) {
 		super(renderLayerParent);
 	}
 

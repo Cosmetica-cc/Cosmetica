@@ -65,7 +65,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		if (!changedSettings.isEmpty()) {
 			Thread requestThread = new Thread(() -> {
 				Cosmetica.api.updateUserSettings(changedSettings).ifSuccessfulOrElse(response -> {
-					if (finalDoReload) Minecraft.getInstance().tell(() -> {
+					if (finalDoReload) Minecraft.getInstance().schedule(() -> {
 						Cosmetica.clearAllCaches();
 
 						if (response.booleanValue() && this.parentScreen instanceof PlayerRenderScreen playerRenderScreen) {
@@ -75,7 +75,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 					});
 
 					if (response.booleanValue()) {
-						Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
+						Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 					} else {
 						Authentication.showUnauthenticatedIfLoading(true, null);
 					}
@@ -89,7 +89,7 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 		} else {
 			DebugMode.log("No settings changed.");
 			if (doReload) Cosmetica.clearAllCaches();
-			Minecraft.getInstance().tell(this::onClose);
+			Minecraft.getInstance().schedule(this::onClose);
 		}
 	}
 
@@ -113,19 +113,19 @@ public class UpdatingSettingsScreen extends Screen implements LoadingTypeScreen 
 						PlayerData.get(uuid, Minecraft.getInstance().getUser().getName(), true);
 					}
 
-					Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
+					Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 				},
 				e -> {
 					e.printStackTrace();
 					Authentication.showUnauthenticatedIfLoading(true, e);
 				});
 
-				Minecraft.getInstance().tell(() -> Cosmetica.clearAllCaches());
+				Minecraft.getInstance().schedule(() -> Cosmetica.clearAllCaches());
 			});
 			requestThread.start();
 		} else {
 			DebugMode.log("No cape server settings changed.");
-			Minecraft.getInstance().tell(this::onClose);
+			Minecraft.getInstance().schedule(this::onClose);
 		}
 	}
 

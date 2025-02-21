@@ -36,11 +36,12 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 
 import java.util.OptionalInt;
 
-public class ShoulderBuddies<T extends AbstractClientPlayer> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
-	public ShoulderBuddies(RenderLayerParent<T, PlayerModel<T>> renderLayerParent, EntityModelSet entityModelSet) {
+public class ShoulderBuddies extends CustomLayer implements MenuRenderLayer {
+	public ShoulderBuddies(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent, EntityModelSet entityModelSet) {
 		super(renderLayerParent);
 		this.builtInModels = new HashMapBackedLazyMap<>();
 

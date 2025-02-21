@@ -21,20 +21,21 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.config.ArmourConflictHandlingMode;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
+import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.screens.fakeplayer.MenuRenderLayer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 
-public class Hats<T extends Player> extends CustomLayer<T, PlayerModel<T>> implements MenuRenderLayer {
-
-	public Hats(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
+public class Hats extends CustomLayer implements MenuRenderLayer {
+	public Hats(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent) {
 		super(renderLayerParent);
 	}
 

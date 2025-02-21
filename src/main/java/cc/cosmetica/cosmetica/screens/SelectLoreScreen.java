@@ -81,7 +81,7 @@ public class SelectLoreScreen extends SulphateScreen {
 						this.auth = true;
 					}
 
-					this.minecraft.tell(() -> {if (this.minecraft.screen == this) this.init(this.minecraft, this.width, this.height);});
+					this.minecraft.schedule(() -> {if (this.minecraft.screen == this) this.init(this.minecraft, this.width, this.height);});
 				}
 			}), TextComponents.dummy());
 

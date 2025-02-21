@@ -43,6 +43,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.profiling.Profiler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -295,7 +296,7 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 			// paper doll on side
 			this.updateSpin(mouseX, mouseY);
 			this.fakePlayer.renderNametag = false;
-			this.renderFakePlayer(mouseX, mouseY);
+			this.renderFakePlayer(graphics, mouseX, mouseY);
 			this.fakePlayer.renderNametag = true;
 
 			if (this.overrider.isSolo()) {
@@ -332,9 +333,9 @@ public class BrowseCosmeticsScreen<T extends CustomCosmetic, E> extends PlayerRe
 	@Override
 	public void tick() {
 		if (this.minecraft.level == null) {
-			this.minecraft.getProfiler().push("textures");
+			Profiler.get().push("textures");
 			this.minecraft.getTextureManager().tick();
-			this.minecraft.getProfiler().pop();
+			Profiler.get().pop();
 		}
 	}
 

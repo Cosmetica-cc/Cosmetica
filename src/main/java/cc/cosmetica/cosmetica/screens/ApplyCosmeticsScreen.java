@@ -37,6 +37,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.profiling.Profiler;
 import org.jetbrains.annotations.Nullable;
 
 public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateScreen {
@@ -146,10 +147,10 @@ public class ApplyCosmeticsScreen<T extends CustomCosmetic, E> extends SulphateS
 	public void tick() {
 		this.parentParent.fakePlayer.tickCount++;
 
-		if (this.minecraft.level == null) {
-			this.minecraft.getProfiler().push("textures");
+		if (this.minecraft.level == null) { // TODO is this necessary anymore? they have DynamicTexture now which implies textures outside of the world
+			Profiler.get().push("textures");
 			this.minecraft.getTextureManager().tick();
-			this.minecraft.getProfiler().pop();
+			Profiler.get().pop();
 		}
 	}
 

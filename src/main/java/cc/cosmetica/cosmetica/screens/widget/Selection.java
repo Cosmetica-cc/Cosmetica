@@ -69,8 +69,9 @@ abstract class Selection<T extends Selection.Entry<T>> extends ObjectSelectionLi
 	protected abstract T findEntry(T key);
 
 	@Override
-	protected int getScrollbarPosition() {
-		return super.getScrollbarPosition() + 20;
+	// protected int getScrollbarPosition() {
+	protected int scrollBarX() {
+		return super.scrollBarX() + 20;
 	}
 
 	@Override

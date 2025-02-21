@@ -21,14 +21,19 @@ import cc.cosmetica.cosmetica.cosmetics.Hats;
 import cc.cosmetica.cosmetica.cosmetics.PlayerData;
 import cc.cosmetica.cosmetica.cosmetics.ShoulderBuddies;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.cosmetica.utils.TextureManagerHack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
@@ -40,11 +45,10 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
 
 // Fake player in a normal pose except for the fact that the main arm can be raised.
-public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>, Playerish {
+public class FakePlayer implements RenderLayerParent<PlayerRenderState, PlayerModel>, Playerish {
 	public FakePlayer(Minecraft minecraft, UUID uuid, String name, PlayerData data) {
 		this.data = data;
 		this.uuid = uuid;
@@ -52,15 +56,15 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 
 		// initialise layers
 		this.layers.add(new MenuCapeLayer());
-		this.layers.add(new Hats<>(this));
-		this.layers.add(new ShoulderBuddies<>(this, Minecraft.getInstance().getEntityModels()));
-		this.layers.add(new BackBling<>(this));
+		this.layers.add(new Hats(this));
+		this.layers.add(new ShoulderBuddies(this, Minecraft.getInstance().getEntityModels()));
+		this.layers.add(new BackBling(this));
 
 		// initialise model
 		this.verifyModel(minecraft);
 	}
 
-	@Nullable private PlayerModel<AbstractClientPlayer> model;
+	@Nullable private PlayerModel model;
 	private PlayerData data;
 	private final List<MenuRenderLayer> layers = new LinkedList<>();
 
@@ -88,14 +92,15 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 				final boolean slim = data.slim();
 				var context = new EntityRendererProvider.Context(
 						minecraft.getEntityRenderDispatcher(),
-						minecraft.getItemRenderer(),
+						minecraft.getItemModelResolver(),
+						minecraft.getMapRenderer(),
 						minecraft.getBlockRenderer(),
-						minecraft.gameRenderer.itemInHandRenderer,
 						minecraft.getResourceManager(),
 						minecraft.getEntityModels(),
+						new EquipmentAssetManager(),
 						minecraft.font);
 
-				this.model = new PlayerModel<>(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
+				this.model = new PlayerModel(context.bakeLayer(slim ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), slim);
 			} catch (IllegalArgumentException e) {
 				if (!e.getMessage().toUpperCase(Locale.ROOT).contains("NO MODEL FOR LAYER")) {
 					e.printStackTrace();
@@ -166,14 +171,22 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	public ResourceLocation getSkin() {
-		return Minecraft.getInstance().getTextureManager().getTexture(this.data.skin(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ?
+		return getTextureOrNull(this.data.skin()) == null ?
 				DefaultPlayerSkin.get(this.uuid).texture() : this.data.skin();
+	}
+
+	/**
+	 * Get the texture at the givem location or missing texture if it doesn't exist.
+	 */
+	private static AbstractTexture getTextureOrNull(ResourceLocation path) {
+		final TextureManager manager = Minecraft.getInstance().getTextureManager();
+		return ((TextureManagerHack)manager).cosmetica$getTextureOr(path, null);
 	}
 
 	public ResourceLocation getRenderableCape() {
 		if (this.data.cape().getImage() == null) return MissingTextureAtlasSprite.getLocation();
 
-		return Minecraft.getInstance().getTextureManager().getTexture(this.data.cape().getImage(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() ?
+		return getTextureOrNull(this.data.cape().getImage()) == null ?
 				MissingTextureAtlasSprite.getLocation() : this.data.cape().getImage();
 	}
 
@@ -194,13 +207,8 @@ public class FakePlayer implements RenderLayerParent<AbstractClientPlayer, Playe
 	}
 
 	@Override
-	public @org.jetbrains.annotations.Nullable PlayerModel<AbstractClientPlayer> getModel() {
+	public @org.jetbrains.annotations.Nullable PlayerModel getModel() {
 		return this.model;
-	}
-
-	@Override
-	public ResourceLocation getTextureLocation(@Nullable AbstractClientPlayer entity) {
-		return this.getSkin();
 	}
 
 	public float getYRotBody(float delta) {

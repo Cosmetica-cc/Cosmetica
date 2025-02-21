@@ -20,34 +20,25 @@ import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CapeServer;
-import cc.cosmetica.api.FatalServerErrorException;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.Authentication;
-import cc.cosmetica.impl.CosmeticaWebAPI;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
+import cc.cosmetica.impl.CosmeticaWebAPI;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import java.net.ConnectException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MainScreen extends PlayerRenderScreen {
 	public MainScreen(Screen parentScreen, UserSettings settings, FakePlayer fakePlayer, boolean demo) {
@@ -179,5 +170,5 @@ public class MainScreen extends PlayerRenderScreen {
 		}
 	}
 
-	private static final ResourceLocation DISCORD = new ResourceLocation("cosmetica", "textures/gui/discord.png");
+	private static final ResourceLocation DISCORD = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/discord.png");
 }

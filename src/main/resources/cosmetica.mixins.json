@@ -36,7 +36,6 @@
     "textures.AbstractClientPlayerMixin",
     "textures.CapeLayerMixin",
     "textures.ElytraLayerMixin",
-    "textures.HttpTextureMixin",
     "textures.NativeImageAccessorMixin",
     "textures.SimpleTextureMixin",
     "textures.SpriteContentsMixin",

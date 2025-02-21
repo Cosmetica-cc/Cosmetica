@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.cosmetics;
 import cc.cosmetica.cosmetica.cosmetics.model.BakableModel;
 import cc.cosmetica.cosmetica.cosmetics.model.CosmeticStack;
 import cc.cosmetica.cosmetica.cosmetics.model.Models;
+import cc.cosmetica.cosmetica.screens.PlayerRenderScreen;
 import cc.cosmetica.cosmetica.utils.LinearAlgebra;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -28,6 +29,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;
@@ -36,10 +38,10 @@ import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public abstract class CustomLayer<T extends Player, P extends HumanoidModel<T>> extends RenderLayer<T, PlayerModel<T>> {
+public abstract class CustomLayer extends RenderLayer<PlayerRenderState, PlayerModel> {
     public ModelManager modelManager;
 
-    public CustomLayer(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
+    public CustomLayer(RenderLayerParent<PlayerRenderState, PlayerModel> renderLayerParent) {
         super(renderLayerParent);
         this.modelManager = Minecraft.getInstance().getModelManager();
     }

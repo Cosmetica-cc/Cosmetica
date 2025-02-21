@@ -137,8 +137,8 @@ public class RSEWarningScreen extends Screen {
 		int characterOffset = this.width / 2 - this.width / 12;
 		int characterY = this.height / 2 + 24;
 
-		PlayerRenderScreen.renderFakePlayerInMenu(characterOffset, characterY, 20.0f, characterOffset - mouseX, characterY - 90 - mouseY, this.australian);
-		PlayerRenderScreen.renderFakePlayerInMenu(this.width - characterOffset, characterY, 20.0f, this.width - characterOffset - mouseX, characterY - 90 - mouseY, this.persian);
+		PlayerRenderScreen.renderFakePlayerInMenu(graphics, characterOffset, characterY, 20.0f, characterOffset - mouseX, characterY - 90 - mouseY, this.australian);
+		PlayerRenderScreen.renderFakePlayerInMenu(graphics, this.width - characterOffset, characterY, 20.0f, this.width - characterOffset - mouseX, characterY - 90 - mouseY, this.persian);
 	}
 
 	public static boolean hasShown() {

@@ -32,6 +32,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
@@ -136,33 +137,32 @@ public class SelectableFakePlayers<T> extends AbstractWidget {
 				final int x0 = x - (this.width / 2);
 
 				Tesselator tesselator = Tesselator.getInstance();
-				BufferBuilder bb = tesselator.getBuilder();
 
-				RenderSystem.setShader(GameRenderer::getPositionShader);
+				RenderSystem.setShader(CoreShaders.POSITION);
 				float shade = 1.0F;
 
 				RenderSystem.setShaderColor(shade, shade, shade, 1.0F);
-				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-				bb.vertex(x0, y1, 0.0D).endVertex();
-				bb.vertex(x1, y1, 0.0D).endVertex();
-				bb.vertex(x1, y0, 0.0D).endVertex();
-				bb.vertex(x0, y0, 0.0D).endVertex();
-				tesselator.end();
+				BufferBuilder bb = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+				bb.addVertex(x0, y1, 0.0f);
+				bb.addVertex(x1, y1, 0.0f);
+				bb.addVertex(x1, y0, 0.0f);
+				bb.addVertex(x0, y0, 0.0f);
+				bb.buildOrThrow();
 
 				RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
-				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-				bb.vertex(x0 + 1, y1 - 1, 0.0D).endVertex();
-				bb.vertex(x1 - 1, y1 - 1, 0.0D).endVertex();
-				bb.vertex(x1 - 1, y0 + 1, 0.0D).endVertex();
-				bb.vertex(x0 + 1, y0 + 1, 0.0D).endVertex();
-				tesselator.end();
+				bb = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+				bb.addVertex(x0 + 1, y1 - 1, 0.0f);
+				bb.addVertex(x1 - 1, y1 - 1, 0.0f);
+				bb.addVertex(x1 - 1, y0 + 1, 0.0f);
+				bb.addVertex(x0 + 1, y0 + 1, 0.0f);
+				bb.buildOrThrow();
 
 				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			}
 
 			this.overrider.setIndex(j); // to make sure it's all -1 at the end we use this.overrider for index setting but really it doesn't matter because it's only for hats anyway
 			overrider.push(player.getB());
-			PlayerRenderScreen.renderFakePlayerInMenu(x, this.getY(), this.scale, x - mouseX, (float)(this.getY() - 90) - mouseY, player.getA());
+			PlayerRenderScreen.renderFakePlayerInMenu(poseStack, x, this.getY(), this.scale, x - mouseX, (float)(this.getY() - 90) - mouseY, player.getA());
 			overrider.pop();
 
 			x += this.separation;

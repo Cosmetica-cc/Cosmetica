@@ -20,16 +20,13 @@ import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.utils.LoadingTypeScreen;
 import cc.cosmetica.cosmetica.utils.TextComponents;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
-
-import static cc.cosmetica.cosmetica.Authentication.runAuthentication;
 
 public class LoadingScreen extends Screen implements LoadingTypeScreen {
 	private Screen parentScreen;
@@ -49,7 +46,7 @@ public class LoadingScreen extends Screen implements LoadingTypeScreen {
 		this.parentOptions = parentOptions;
 		Authentication.settingLoadTarget = target;
 		
-		Minecraft.getInstance().tell(Authentication::runAuthentication);
+		Minecraft.getInstance().schedule(Authentication::runAuthentication);
 	}
 
 	@Override

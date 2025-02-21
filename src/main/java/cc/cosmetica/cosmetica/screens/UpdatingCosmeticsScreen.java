@@ -65,14 +65,14 @@ public class UpdatingCosmeticsScreen<T> extends Screen implements LoadingTypeScr
 					prs.setPlayerData(PlayerData.get(uuid, Minecraft.getInstance().getUser().getName(), true));
 				}
 
-				Minecraft.getInstance().tell(() -> Minecraft.getInstance().setScreen(this.parentScreen));
+				Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(this.parentScreen));
 			},
 			e -> {
 				e.printStackTrace();
 				Authentication.showUnauthenticatedIfLoading(true, e);
 			});
 
-			Minecraft.getInstance().tell(() -> clearAllCaches());
+			Minecraft.getInstance().schedule(() -> clearAllCaches());
 		});
 
 		requestThread.start();

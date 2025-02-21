@@ -32,8 +32,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.profiling.Profiler;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
@@ -43,7 +45,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		super(title, parent);
 
 		this.fakePlayer = fakePlayer;
-		this.rseNotif = new ResourceLocation("cosmetica", "textures/gui/icon/wtf.png");
+		this.rseNotif = ResourceLocation.fromNamespaceAndPath("cosmetica", "textures/gui/icon/wtf.png");
 	}
 
 	@Nullable
@@ -72,9 +74,9 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		}
 
 		if (this.minecraft.level == null) {
-			this.minecraft.getProfiler().push("textures");
+			Profiler.get().push("textures");
 			this.minecraft.getTextureManager().tick();
-			this.minecraft.getProfiler().pop();
+			Profiler.get().pop();
 		}
 	}
 
@@ -88,7 +90,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 
 		if (this.fakePlayer != null) {
 			this.updateSpin(mouseX, mouseY);
-			this.renderFakePlayer(mouseX, mouseY);
+			this.renderFakePlayer(matrices, mouseX, mouseY);
 		}
 	}
 
@@ -152,10 +154,10 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		}
 	}
 
-	protected void renderFakePlayer(int mouseX, int mouseY) {
+	protected void renderFakePlayer(GuiGraphics graphics, int mouseX, int mouseY) {
 		final int top = this.height / 2 + this.playerTopMod;
 
-		renderFakePlayerInMenu(this.playerLeft, top, 30.0f, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.fakePlayer);
+		renderFakePlayerInMenu(graphics, this.playerLeft, top, 30.0f, (float) this.playerLeft - mouseX, (float)(top - 90) - mouseY, this.fakePlayer);
 
 		long currentTimeMillis = System.currentTimeMillis();
 		double tickDelta = 0.02 * (double) (currentTimeMillis - this.lastTimeMillis); // to tick time
@@ -189,26 +191,31 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		this.fakePlayer.setData(data);
 	}
 
-	public static void renderFakePlayerInMenu(int left, int top, float extraScale, float lookX, float lookY, FakePlayer fakePlayer) {
+	public static void renderFakePlayerInMenu(GuiGraphics graphics, int left, int top, float extraScale, float lookX, float lookY, FakePlayer fakePlayer) {
+		//todo does this still work
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
-		Matrix4fStack stack = RenderSystem.getModelViewStack();
-
-		stack.pushMatrix();
-		stack.translate(left, top, 1050.0f);
-		stack.scale(2.0F, 2.0F, -1.0F);
-		RenderSystem.applyModelViewMatrix();
 
 		// view
 		PoseStack viewStack = new PoseStack();
 		viewStack.translate(0.0D, 0.0D, 1000.0D);
 		viewStack.scale(extraScale, extraScale, extraScale);
-		Quaternionf zRotation = LinearAlgebra.quaternionDegrees(LinearAlgebra.ZP, 180.0F);
-		Quaternionf xRotation = LinearAlgebra.quaternionDegrees(LinearAlgebra.XP, l * 20.0F);
-		zRotation.mul(xRotation);
-		viewStack.mulPose(zRotation);
+		Quaternionf poseRotation = LinearAlgebra.quaternionDegrees(LinearAlgebra.ZP, 180.0F);
+		Quaternionf cameraOrientation = LinearAlgebra.quaternionDegrees(LinearAlgebra.XP, l * 20.0F);
+		poseRotation.mul(cameraOrientation);
+		viewStack.mulPose(poseRotation);
 
-		float rotationBody = 180.0F + h * 20.0F;
+		graphics.pose().pushPose();
+		graphics.pose().translate(left, top, 1050.0f);
+		graphics.pose().scale(2.0F, 2.0F, -1.0F);
+		graphics.pose().mulPose(poseRotation);
+		graphics.flush();
+
+		EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        entityRenderDispatcher.overrideCameraOrientation(cameraOrientation.conjugate(new Quaternionf()).rotateY((float) Math.PI));
+		entityRenderDispatcher.setRenderShadow(false);
+
+        float rotationBody = 180.0F + h * 20.0F;
 		float rotationMain = 180.0F + h * 40.0F;
 		fakePlayer.yRotBody += rotationBody;
 		fakePlayer.yRot += rotationMain;
@@ -216,22 +223,19 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		fakePlayer.yRotHead = fakePlayer.getYRot(0);
 		Lighting.setupForEntityInInventory();
 
-		xRotation.conjugate(); // originally conj() in mojang's maths library
-		FakePlayerRenderer.cameraOrientation = xRotation;
-		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+		cameraOrientation.conjugate(); // originally conj() in mojang's maths library
+		FakePlayerRenderer.cameraOrientation = cameraOrientation;
 
-		RenderSystem.runAsFancy(() -> {
-			if (fakePlayer.verifyModel(Minecraft.getInstance())) {
-				FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
-			}
-		});
-		bufferSource.endBatch();
+		if (fakePlayer.verifyModel(Minecraft.getInstance())) {
+			graphics.drawSpecial(bufferSource -> FakePlayerRenderer.render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880));
+		}
 
 		fakePlayer.yRotBody -= rotationBody;
 		fakePlayer.yRot -= rotationMain;
 
-		stack.popMatrix();
-		RenderSystem.applyModelViewMatrix();
+		graphics.pose().popPose();
+
+		entityRenderDispatcher.setRenderShadow(true);
 		Lighting.setupFor3DItems();
 	}
 }
