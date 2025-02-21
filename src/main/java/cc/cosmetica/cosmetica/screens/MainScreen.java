@@ -157,10 +157,6 @@ public class MainScreen extends PlayerRenderScreen {
 		super.render(guiGraphics, mouseX, mouseY, delta);
 		this.renderRSENotif(guiGraphics, mouseX, mouseY);
 
-		guiGraphics.pose().scale(0.5F, 0.5F, 0.5F);
-		guiGraphics.drawCenteredString(Minecraft.getInstance().font, "This build of Cosmetica is not official! Do not report issues to the Cosmetica developers!", guiGraphics.guiWidth(), 13, 0xFFFF0000);
-		guiGraphics.pose().scale(2F, 2F, 2F);
-
 		RenderSystem.enableBlend();
 		Cosmetica.renderTexture(guiGraphics.pose().last().pose(), DISCORD, this.width - 10 - 19, this.width - 10, 10, 10 + 15, 0, this.isMouseOnDiscord(mouseX, mouseY) ? 1.0f : 0.5f);
 	}
