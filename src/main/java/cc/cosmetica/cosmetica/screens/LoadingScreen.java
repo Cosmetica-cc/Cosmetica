@@ -26,7 +26,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
 
 import static cc.cosmetica.cosmetica.Authentication.runAuthentication;

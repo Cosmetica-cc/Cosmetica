@@ -20,7 +20,6 @@ import benzenestudios.sulphate.Anchor;
 import benzenestudios.sulphate.ClassicButton;
 import cc.cosmetica.api.CapeDisplay;
 import cc.cosmetica.api.CapeServer;
-import cc.cosmetica.api.FatalServerErrorException;
 import cc.cosmetica.api.UserSettings;
 import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.impl.CosmeticaWebAPI;
@@ -29,20 +28,16 @@ import cc.cosmetica.cosmetica.screens.fakeplayer.FakePlayer;
 import cc.cosmetica.cosmetica.utils.DebugMode;
 import cc.cosmetica.cosmetica.utils.TextComponents;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import java.net.ConnectException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -56,9 +51,9 @@ public class MainScreen extends PlayerRenderScreen {
 		this.cosmeticaOptions = new ServerOptions(settings);
 		this.capeServerSettings = Cosmetica.map(settings.getCapeServerSettings(), CapeServer::getDisplay);
 		this.capeServerSettingsForButtons = new ArrayList<>(settings.getCapeServerSettings().entrySet());
-		Collections.sort(this.capeServerSettingsForButtons, Comparator.comparingInt(a -> a.getValue().getCheckOrder()));;
+		Collections.sort(this.capeServerSettingsForButtons, Comparator.comparingInt(a -> a.getValue().getCheckOrder()));
 
-		this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
+        this.setAnchorX(Anchor.LEFT, () -> this.width / 2);
 		this.setAnchorY(Anchor.CENTRE, () -> this.height / 2);
 		this.setTransitionProgress(1.0f);
 
@@ -158,12 +153,12 @@ public class MainScreen extends PlayerRenderScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics matrices, int mouseX, int mouseY, float delta) {
-		super.render(matrices, mouseX, mouseY, delta);
-		this.renderRSENotif(matrices, mouseX, mouseY);
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+		super.render(guiGraphics, mouseX, mouseY, delta);
+		this.renderRSENotif(guiGraphics, mouseX, mouseY);
 
 		RenderSystem.enableBlend();
-		Cosmetica.renderTexture(matrices.pose().last().pose(), DISCORD, this.width - 10 - 19, this.width - 10, 10, 10 + 15, 0, this.isMouseOnDiscord(mouseX, mouseY) ? 1.0f : 0.5f);
+		Cosmetica.renderTexture(guiGraphics.pose().last().pose(), DISCORD, this.width - 10 - 19, this.width - 10, 10, 10 + 15, 0, this.isMouseOnDiscord(mouseX, mouseY) ? 1.0f : 0.5f);
 	}
 
 	private boolean isMouseOnDiscord(int x, int y) {
@@ -179,5 +174,5 @@ public class MainScreen extends PlayerRenderScreen {
 		}
 	}
 
-	private static final ResourceLocation DISCORD = new ResourceLocation("cosmetica", "textures/gui/discord.png");
+	private static final ResourceLocation DISCORD = ResourceLocation.tryBuild("cosmetica", "textures/gui/discord.png");
 }

@@ -31,7 +31,7 @@ import java.util.Set;
 
 public class CosmeticIconTexture extends HttpTexture implements Tickable {
 	public CosmeticIconTexture(@Nullable File file, String url) {
-		super(file, url, new ResourceLocation("cosmetica", "textures/gui/loading.png"), false, null);
+		super(file, url, ResourceLocation.tryBuild("cosmetica", "textures/gui/loading.png"), false, null);
 		this.url = url;
 		this.indicators = new HashSet<>();
 	}

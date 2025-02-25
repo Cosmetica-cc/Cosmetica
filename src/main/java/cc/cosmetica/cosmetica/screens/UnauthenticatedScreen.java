@@ -30,7 +30,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;

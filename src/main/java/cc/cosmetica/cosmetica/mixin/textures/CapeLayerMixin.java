@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica.mixin.textures;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -25,11 +27,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(CapeLayer.class)
 public class CapeLayerMixin {
-	@Redirect(
+	@WrapOperation(
 			method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderType;entitySolid(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;")
 	)
-	private RenderType allowTransparentCapes(ResourceLocation location) {
+	private RenderType allowTransparentCapes(ResourceLocation location, Operation<RenderType> original) {
 		return RenderType.entityTranslucent(location);
 	}
 }

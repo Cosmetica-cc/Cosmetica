@@ -22,7 +22,7 @@ import cc.cosmetica.cosmetica.screens.LoadingScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;

@@ -76,7 +76,7 @@ public class ModelSprite extends TextureAtlasSprite {
 		}
 	}
 
-	private static final ResourceLocation BLOCK_ATLAS = new ResourceLocation("textures/atlas/blocks.png");
+	private static final ResourceLocation BLOCK_ATLAS = ResourceLocation.withDefaultNamespace("textures/atlas/blocks.png");
 
 	@Override
 	public void uploadFirstFrame() {

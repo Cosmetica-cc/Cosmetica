@@ -43,7 +43,7 @@ public abstract class PlayerRenderScreen extends SulphateScreen {
 		super(title, parent);
 
 		this.fakePlayer = fakePlayer;
-		this.rseNotif = new ResourceLocation("cosmetica", "textures/gui/icon/wtf.png");
+		this.rseNotif = ResourceLocation.tryBuild("cosmetica", "textures/gui/icon/wtf.png");
 	}
 
 	@Nullable
