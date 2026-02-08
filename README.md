@@ -1,3 +1,5 @@
+## For the latest Cosmetica code, please go to [Cosmetica-cc/Cosmetica-2](https://github.com/Cosmetica-cc/Cosmetica-2)!
+
 # Cosmetica
 
 ![](https://img.shields.io/badge/minecraft-1.16.5--1.20.2-blue)
